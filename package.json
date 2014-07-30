@@ -1,0 +1,12 @@
+{
+    "name": "flora",
+    "version": "0.0.0",
+    "description": "FLexible Open Rest Api",
+    "keywords": [
+        "api",
+        "framework",
+        "rest"
+    ],
+    "author": "BörseGo AG",
+    "license": "MIT"
+}
