@@ -1,12 +1,34 @@
 {
     "name": "flora",
-    "version": "0.0.0",
+    "version": "0.0.1",
     "description": "FLexible Open Rest Api",
     "keywords": [
         "api",
         "framework",
         "rest"
     ],
-    "author": "BörseGo AG",
-    "license": "MIT"
+    "author": {
+        "name": "BörseGo AG",
+        "email": "it@boerse-go.de"
+    },
+    "homepage": "https://github.com/godmodelabs/flora",
+    "license": "MIT",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/godmodelabs/flora.git"
+    },
+    "contributors": [
+        {
+            "name": "Mark Plomer",
+            "email": "mark.plomer@boerse-go.de"
+        },
+        {
+            "name": "Nico Kaiser",
+            "email": "nico.kaiser@boerse-go.de"
+        },
+        {
+            "name": "Marco Baumgartl",
+            "email": "marco.baumgartl@boerse-go.de"
+        }
+    ]
 }
