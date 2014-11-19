@@ -38,11 +38,13 @@
         "node": ">=0.10.0"
     },
     "dependencies": {
+        "flora-ql": "~2.2.1",
         "libxmljs": "0.13.x",
         "lodash": "3.5.x",
         "when": "3.7.x"
     },
     "devDependencies": {
+        "benchmark": "1.0.x",
         "chai": "2.1.x",
         "chai-as-promised": "4.3.x",
         "eslint": "0.17.0",
