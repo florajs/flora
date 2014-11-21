@@ -215,6 +215,19 @@ describe('config-loader', function () {
         });
     });
 
+    it('should load our example resources (integration)', function (done) {
+        var cfg = {
+                directory: __dirname + '/fixtures/resources',
+                parsers: { xml: require('../lib/xml-reader') }
+            },
+            resourcesLoaded = require(__dirname + '/fixtures/resources-loaded.json');
+
+        configLoader(cfg, function (err, configs) {
+            expect(configs).to.eql(resourcesLoaded);
+            done();
+        });
+    });
+
     afterEach(function () {
         fsMock.restore();   // restore original node.js fs module
     });

@@ -1,0 +1,189 @@
+{
+    "article": {
+        "primaryKey": "id",
+        "dataSources": {
+            "primary": {
+                "type": "mysql",
+                "database": "contents",
+                "table": "article"
+            },
+            "articleBody": {
+                "type": "mysql",
+                "database": "contents",
+                "table": "article_body"
+            },
+            "fulltextSearch": {
+                "type": "solr",
+                "core": "article",
+                "searchable": "true"
+            },
+            "statistics": {
+                "type": "mysql",
+                "database": "contents",
+                "query": "SELECT\n            articleId AS articleId,\n            COUNT(id) AS commentCount\n        FROM comments\n        GROUP BY articleId"
+            }
+        },
+        "subFilters": [
+            {
+                "attribute": "categories.isImportant",
+                "filter": "equal"
+            }
+        ],
+        "attributes": {
+            "id": {
+                "type": "int",
+                "map": "id;articleBody:articleId;fulltextSearch:articleId;statistics:articleId"
+            },
+            "date": {
+                "type": "datetime",
+                "map": "timestamp",
+                "filter": "greaterOrEqual,lessOrEqual",
+                "order": "true"
+            },
+            "title": {},
+            "subTitle": {
+                "deprecated": "true",
+                "value": "null"
+            },
+            "author": {
+                "resource": "user",
+                "parentKey": "authorId",
+                "childKey": "{primary}"
+            },
+            "categories": {
+                "primaryKey": "id",
+                "parentKey": "{primary}",
+                "childKey": "{primary}",
+                "joinVia": "articleCategories",
+                "many": "true",
+                "dataSources": {
+                    "primary": {
+                        "type": "mysql",
+                        "database": "contents",
+                        "table": "category"
+                    },
+                    "articleCategories": {
+                        "type": "mysql",
+                        "database": "contents",
+                        "table": "article_category",
+                        "joinParentKey": "articleId",
+                        "joinChildKey": "categoryId"
+                    }
+                },
+                "attributes": {
+                    "id": {
+                        "type": "int"
+                    },
+                    "name": {},
+                    "isImportant": {
+                        "type": "boolean"
+                    }
+                }
+            },
+            "countries": {
+                "primaryKey": "id",
+                "parentKey": "countries",
+                "delimiter": ",",
+                "childKey": "iso",
+                "many": "true",
+                "dataSources": {
+                    "primary": {
+                        "type": "mysql",
+                        "database": "contents",
+                        "table": "country"
+                    }
+                },
+                "attributes": {
+                    "id": {
+                        "type": "int"
+                    },
+                    "name": {},
+                    "iso": {},
+                    "iso3": {}
+                }
+            },
+            "body": {
+                "map": "articleBody:body"
+            },
+            "video": {
+                "parentKey": "{primary}",
+                "childKey": "articleId",
+                "dataSources": {
+                    "primary": {
+                        "type": "mysql",
+                        "database": "contents",
+                        "table": "article_video"
+                    }
+                },
+                "attributes": {
+                    "url": {},
+                    "previewImage": {}
+                }
+            },
+            "source": {
+                "attributes": {
+                    "name": {
+                        "map": "sourceName"
+                    },
+                    "externalId": {
+                        "map": "externalId"
+                    },
+                    "externalUrl": {
+                        "map": "externalUrl"
+                    }
+                }
+            },
+            "copyright": {
+                "depends": "author[firstname,lastname],categories.name,secretInfo",
+                "value": ""
+            },
+            "secretInfo": {
+                "internal": "true"
+            },
+            "commentCount": {
+                "map": "statistics:commentCount"
+            },
+            "comments": {
+                "primaryKey": "id",
+                "parentKey": "{primary}",
+                "childKey": "articleId",
+                "many": "true",
+                "dataSources": {
+                    "primary": {
+                        "type": "mysql",
+                        "database": "contents",
+                        "table": "article_comment"
+                    }
+                },
+                "attributes": {
+                    "id": {
+                        "type": "int"
+                    },
+                    "user": {
+                        "resource": "user",
+                        "parentKey": "userId",
+                        "childKey": "{primary}"
+                    },
+                    "content": {}
+                }
+            }
+        }
+    },
+    "user": {
+        "primaryKey": "id",
+        "dataSources": {
+            "primary": {
+                "type": "mysql",
+                "database": "contents",
+                "table": "user"
+            }
+        },
+        "attributes": {
+            "id": {
+                "type": "int"
+            },
+            "firstname": {},
+            "lastname": {}
+        }
+    }
+}

@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<!-- Example article resource (full-featured example) -->
+<resource primaryKey="id" xmlns:flora="urn:flora:options">
+    <!-- Primary DataSource (without name) -->
+    <flora:dataSource type="mysql" database="contents" table="article"/>
+
+    <!-- Select body from separate table without LEFT JOIN. Alternatively, primary
+        DataSource can be transparently rewritten as one query with LEFT JOIN on
+        article_body -->
+    <flora:dataSource name="articleBody" type="mysql" database="contents" table="article_body"/>
+
+    <!-- Use Solr for fulltext search -->
+    <flora:dataSource name="fulltextSearch" type="solr" core="article" searchable="true"/>
+
+    <!-- Aggregate statistics for article comments -->
+    <flora:dataSource name="statistics" type="mysql" database="contents"><![CDATA[
+        SELECT
+            articleId AS articleId,
+            COUNT(id) AS commentCount
+        FROM comments
+        GROUP BY articleId
+    ]]></flora:dataSource>
+
+
+    <!-- Enable article-filter by important categories (filter by sub-resource-attribute) -->
+    <flora:subFilter attribute="categories.isImportant" filter="equal"/>
+
+
+    <!-- Primary key must always be mapped to all DataSources -->
+    <id type="int" map="id;articleBody:articleId;fulltextSearch:articleId;statistics:articleId"/>
+
+    <!-- Map date to different name in primary DataSource.
+        Enable "=>" and "<=" filter, enable order asc/desc -->
+    <date type="datetime" map="timestamp" filter="greaterOrEqual,lessOrEqual" order="true"/>
+
+    <!-- Standard case: string-attribute with same name in database -->
+    <title/>
+
+    <!-- Backward-compatible attribute with fixed null-value
+        (i.e. for breaking changes in your API) -->
+    <subTitle deprecated="true" value="null"/>
+
+    <!-- Relation: Article has one author (n : 1) - article has authorId -->
+    <author resource="user" parentKey="authorId" childKey="{primary}"/>
+
+    <!-- Relation: Article has multiple categories (m : n - with join-table).
+        Join-table "article_category" with "articleId, categoryId" -->
+    <categories primaryKey="id" parentKey="{primary}" childKey="{primary}"
+        joinVia="articleCategories" many="true">
+
+        <flora:dataSource type="mysql" database="contents" table="category"/>
+        <flora:dataSource name="articleCategories" type="mysql" database="contents"
+            table="article_category" joinParentKey="articleId" joinChildKey="categoryId"/>
+
+        <id type="int"/>
+        <name/>
+        <isImportant type="boolean"/>
+    </categories>
+
+    <!-- Relation: Article has multiple countries (m : n - with multi-values).
+        Attribute "countries" as a SET of ISO-codes - it will be split by "," here.
+        Some DataSources may natively support multi-value-fields (i.e. Lucene) where
+        delimiter is not needed.
+        This is an example for a "legacy" data-model which can then be transparently
+        redesigned "when needed" -->
+    <countries primaryKey="id" parentKey="countries" delimiter="," childKey="iso" many="true">
+        <flora:dataSource type="mysql" database="contents" table="country"/>
+
+        <id type="int"/>
+        <name/>
+        <iso/>
+        <iso3/>
+    </countries>
+
+    <!-- Select body from separate DataSource - only queried if selected -->
+    <body map="articleBody:body"/>
+
+    <!-- Relation: Attributes for video-articles (1 : 1) - article_video has
+        articleId as primary key.
+        This can transparently be rewritten as an additional DataSource (or part of
+        primary DataSource) of main-resource.
+        To avoid redundant attributes, primaryKey is not needed if childKey is present.
+        This is also an example for an inline defined sub-resource. -->
+    <video parentKey="{primary}" childKey="articleId">
+        <flora:dataSource type="mysql" database="contents" table="article_video"/>
+
+        <url/>
+        <previewImage/>
+    </video>
+
+    <!-- Grouping of attributes (without own DataSource).
+        This can transparently be rewritten as a sub-resource when needed. -->
+    <source>
+        <name map="sourceName"/>
+        <externalId map="externalId"/>
+        <externalUrl map="externalUrl"/>
+    </source>
+
+    <!-- Copyright signature is dynamically generated via callback which needs some
+        additional info.
+        Fixed empty value to disable selection of inexistent "copyright" attribute
+        from DataSource -->
+    <copyright depends="author[firstname,lastname],categories.name,secretInfo" value=""/>
+
+    <!-- Internal fields can never be selected, but you can depend on them (see "copyright") -->
+    <secretInfo internal="true"/>
+
+    <!-- Count of comments per article - only queried if selected -->
+    <commentCount map="statistics:commentCount"/>
+
+    <!-- Article has multiple comments (1 : n) - comment has articleId -->
+    <comments primaryKey="id" parentKey="{primary}" childKey="articleId" many="true">
+        <flora:dataSource type="mysql" database="contents" table="article_comment"/>
+
+        <id type="int"/>
+        <user resource="user" parentKey="userId" childKey="{primary}"/>
+        <content/>
+    </comments>
+</resource>

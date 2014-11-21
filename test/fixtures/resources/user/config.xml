@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<!-- Example user resource (minimalistic example) -->
+<resource primaryKey="id" xmlns:flora="urn:flora:options">
+    <flora:dataSource type="mysql" database="contents" table="user"/>
+
+    <id type="int"/>
+    <firstname/>
+    <lastname/>
+</resource>
