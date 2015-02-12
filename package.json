@@ -50,6 +50,7 @@
         "eslint": "0.17.0",
         "istanbul": "0.3.x",
         "mocha": "2.1.x",
-        "mock-fs": "2.5.x"
+        "mock-fs": "2.5.x",
+        "sinon": "1.13.x"
     }
 }
