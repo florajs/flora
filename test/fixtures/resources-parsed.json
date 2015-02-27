@@ -1,0 +1,420 @@
+{
+    "article": {
+        "primaryKey": [
+            [
+                "id"
+            ]
+        ],
+        "resolvedPrimaryKey": {
+            "primary": [
+                "id"
+            ],
+            "articleBody": [
+                "articleId"
+            ],
+            "fulltextSearch": [
+                "articleId"
+            ],
+            "statistics": [
+                "articleId"
+            ]
+        },
+        "dataSources": {
+            "primary": {
+                "type": "mysql",
+                "database": "contents",
+                "table": "article"
+            },
+            "articleBody": {
+                "type": "mysql",
+                "database": "contents",
+                "table": "article_body"
+            },
+            "fulltextSearch": {
+                "type": "solr",
+                "core": "article",
+                "searchable": "true"
+            },
+            "statistics": {
+                "type": "mysql",
+                "database": "contents",
+                "query": "SELECT\n            articleId AS articleId,\n            COUNT(id) AS commentCount\n        FROM comments\n        GROUP BY articleId"
+            }
+        },
+        "subFilters": [
+            {
+                "attribute": [
+                    "categories",
+                    "isImportant"
+                ],
+                "filter": [
+                    "equal"
+                ]
+            }
+        ],
+        "attributes": {
+            "id": {
+                "type": "int",
+                "map": {
+                    "default": {
+                        "primary": "id",
+                        "articleBody": "articleId",
+                        "fulltextSearch": "articleId",
+                        "statistics": "articleId"
+                    }
+                },
+                "filter": [
+                    "equal"
+                ]
+            },
+            "date": {
+                "type": "datetime",
+                "map": {
+                    "default": {
+                        "primary": "timestamp"
+                    }
+                },
+                "filter": [
+                    "greaterOrEqual",
+                    "lessOrEqual"
+                ],
+                "order": [
+                    "asc",
+                    "desc"
+                ]
+            },
+            "title": {
+                "map": {
+                    "default": {
+                        "primary": "title"
+                    }
+                }
+            },
+            "subTitle": {
+                "deprecated": true,
+                "value": null
+            },
+            "author": {
+                "resource": "user",
+                "parentKey": {
+                    "primary": [
+                        "authorId"
+                    ]
+                },
+                "childKey": null
+            },
+            "categories": {
+                "primaryKey": [
+                    [
+                        "id"
+                    ]
+                ],
+                "resolvedPrimaryKey": {
+                    "primary": [
+                        "id"
+                    ]
+                },
+                "parentKey": null,
+                "childKey": null,
+                "joinVia": "articleCategories",
+                "many": true,
+                "dataSources": {
+                    "primary": {
+                        "type": "mysql",
+                        "database": "contents",
+                        "table": "category"
+                    },
+                    "articleCategories": {
+                        "type": "mysql",
+                        "database": "contents",
+                        "table": "article_category",
+                        "joinParentKey": [
+                            "articleId"
+                        ],
+                        "joinChildKey": [
+                            "categoryId"
+                        ]
+                    }
+                },
+                "attributes": {
+                    "id": {
+                        "type": "int",
+                        "map": {
+                            "default": {
+                                "primary": "id"
+                            }
+                        },
+                        "filter": [
+                            "equal"
+                        ]
+                    },
+                    "name": {
+                        "map": {
+                            "default": {
+                                "primary": "name"
+                            }
+                        }
+                    },
+                    "isImportant": {
+                        "type": "boolean",
+                        "map": {
+                            "default": {
+                                "primary": "isImportant"
+                            }
+                        }
+                    }
+                }
+            },
+            "countries": {
+                "primaryKey": [
+                    [
+                        "id"
+                    ]
+                ],
+                "resolvedPrimaryKey": {
+                    "primary": [
+                        "id"
+                    ]
+                },
+                "parentKey": {
+                    "primary": [
+                        "countries"
+                    ]
+                },
+                "delimiter": ",",
+                "childKey": {
+                    "primary": [
+                        "iso"
+                    ]
+                },
+                "many": true,
+                "dataSources": {
+                    "primary": {
+                        "type": "mysql",
+                        "database": "contents",
+                        "table": "country"
+                    }
+                },
+                "attributes": {
+                    "id": {
+                        "type": "int",
+                        "map": {
+                            "default": {
+                                "primary": "id"
+                            }
+                        },
+                        "filter": [
+                            "equal"
+                        ]
+                    },
+                    "name": {
+                        "map": {
+                            "default": {
+                                "primary": "name"
+                            }
+                        }
+                    },
+                    "iso": {
+                        "map": {
+                            "default": {
+                                "primary": "iso"
+                            }
+                        }
+                    },
+                    "iso3": {
+                        "map": {
+                            "default": {
+                                "primary": "iso3"
+                            }
+                        }
+                    }
+                }
+            },
+            "body": {
+                "map": {
+                    "default": {
+                        "articleBody": "body"
+                    }
+                }
+            },
+            "video": {
+                "parentKey": null,
+                "childKey": {
+                    "primary": [
+                        "articleId"
+                    ]
+                },
+                "dataSources": {
+                    "primary": {
+                        "type": "mysql",
+                        "database": "contents",
+                        "table": "article_video"
+                    }
+                },
+                "attributes": {
+                    "url": {
+                        "map": {
+                            "default": {
+                                "primary": "url"
+                            }
+                        }
+                    },
+                    "previewImage": {
+                        "map": {
+                            "default": {
+                                "primary": "previewImage"
+                            }
+                        }
+                    }
+                }
+            },
+            "source": {
+                "attributes": {
+                    "name": {
+                        "map": {
+                            "default": {
+                                "primary": "sourceName"
+                            }
+                        }
+                    },
+                    "externalId": {
+                        "map": {
+                            "default": {
+                                "primary": "externalId"
+                            }
+                        }
+                    },
+                    "externalUrl": {
+                        "map": {
+                            "default": {
+                                "primary": "externalUrl"
+                            }
+                        }
+                    }
+                }
+            },
+            "copyright": {
+                "depends": {
+                    "MOCK": "Select AST of 'author[firstname,lastname],categories.name,secretInfo'"
+                },
+                "value": ""
+            },
+            "secretInfo": {
+                "internal": true,
+                "map": {
+                    "default": {
+                        "primary": "secretInfo"
+                    }
+                }
+            },
+            "commentCount": {
+                "map": {
+                    "default": {
+                        "statistics": "commentCount"
+                    }
+                }
+            },
+            "comments": {
+                "primaryKey": [
+                    [
+                        "id"
+                    ]
+                ],
+                "resolvedPrimaryKey": {
+                    "primary": [
+                        "id"
+                    ]
+                },
+                "parentKey": null,
+                "childKey": {
+                    "primary": [
+                        "articleId"
+                    ]
+                },
+                "many": true,
+                "dataSources": {
+                    "primary": {
+                        "type": "mysql",
+                        "database": "contents",
+                        "table": "article_comment"
+                    }
+                },
+                "attributes": {
+                    "id": {
+                        "type": "int",
+                        "map": {
+                            "default": {
+                                "primary": "id"
+                            }
+                        },
+                        "filter": [
+                            "equal"
+                        ]
+                    },
+                    "user": {
+                        "resource": "user",
+                        "parentKey": {
+                            "primary": [
+                                "userId"
+                            ]
+                        },
+                        "childKey": null
+                    },
+                    "content": {
+                        "map": {
+                            "default": {
+                                "primary": "content"
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "user": {
+        "primaryKey": [
+            [
+                "id"
+            ]
+        ],
+        "resolvedPrimaryKey": {
+            "primary": [
+                "id"
+            ]
+        },
+        "dataSources": {
+            "primary": {
+                "type": "mysql",
+                "database": "contents",
+                "table": "user"
+            }
+        },
+        "attributes": {
+            "id": {
+                "type": "int",
+                "map": {
+                    "default": {
+                        "primary": "id"
+                    }
+                },
+                "filter": [
+                    "equal"
+                ]
+            },
+            "firstname": {
+                "map": {
+                    "default": {
+                        "primary": "firstname"
+                    }
+                }
+            },
+            "lastname": {
+                "map": {
+                    "default": {
+                        "primary": "lastname"
+                    }
+                }
+            }
+        }
+    }
+}
