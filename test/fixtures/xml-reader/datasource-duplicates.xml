@@ -1,0 +1,7 @@
+<?xml version="1.0"?>
+
+<resource xmlns:flora="urn:flora:options">
+    <!-- primary data source is defined twice -->
+    <flora:dataSource type="mysql" database="db" table="t"/>
+    <flora:dataSource type="mysql" database="db" table="t"/>
+</resource>

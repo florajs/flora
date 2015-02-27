@@ -1,0 +1,7 @@
+<?xml version="1.0"?>
+
+<resource xmlns:flora="urn:flora:options">
+    <flora:dataSource type="mysql" database="db"><![CDATA[
+        SELECT * FROM foo WHERE field = 'bar'
+    ]]></flora:dataSource>
+</resource>

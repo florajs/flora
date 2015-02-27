@@ -1,0 +1,8 @@
+<?xml version="1.0"?>
+
+<resource xmlns:flora="urn:flora:options">
+    <flora:subFilter attribute="someAttribute" filter="equal" />
+    <sub-resource type="resource" resource="some-resource">
+        <flora:subFilter attribute="otherAttribute" filter="equal" />
+    </sub-resource>
+</resource>

@@ -1,0 +1,11 @@
+<?xml version="1.0"?>
+
+<resource xmlns:flora="urn:flora:options">
+    <subresource1 type="resource" resource="otherresource"/>
+    <attr/>
+    <subresource2 primaryKey="id" parentKey="{primary}" childKey="{primary}">
+        <flora:dataSource type="mysql" database="db" table="table"/>
+        <id type="integer"/>
+        <name/>
+    </subresource2>
+</resource>

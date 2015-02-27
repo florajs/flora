@@ -37,6 +37,11 @@
     "engines": {
         "node": ">=0.10.0"
     },
+    "dependencies": {
+        "libxmljs": "0.13.x",
+        "lodash": "3.5.x",
+        "when": "3.7.x"
+    },
     "devDependencies": {
         "chai": "2.1.x",
         "chai-as-promised": "4.3.x",

@@ -1,0 +1,5 @@
+<?xml version="1.0"?>
+
+<resource xmlns:xyz="urn:flora:options">
+    <xyz:dataSource type="mysql" database="db" table="t"/>
+</resource>

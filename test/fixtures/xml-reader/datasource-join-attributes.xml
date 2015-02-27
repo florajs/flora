@@ -1,0 +1,15 @@
+<?xml version="1.0"?>
+
+<resource xmlns:flora="urn:flora:options">
+    <someAttribute/>
+    <sub-resource>
+        <flora:dataSource
+                type="mysql"
+                database="db"
+                table="some_table"
+                parentKey="{primary}"
+                childKey="{primary}"
+                joinVia="some_relation_table"
+                many="true" />
+    </sub-resource>
+</resource>

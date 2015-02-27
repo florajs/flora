@@ -1,0 +1,11 @@
+<?xml version="1.0"?>
+
+<resource xmlns:flora="urn:flora:options">
+    <someAttribute type="integer"/>
+    <someOtherAttribute order="true"/>
+    <someBooleanAttribute type="boolean" map="weirdField"/>
+    <group>
+        <subAttribute1 filter="equals"/>
+        <subAttribute2/>
+    </group>
+</resource>

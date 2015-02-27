@@ -1,0 +1,8 @@
+<?xml version="1.0"?>
+
+<resource primaryKey="pk_id" xmlns:flora="urn:flora:options">
+    <subresource1 primaryKey="id">
+        <flora:dataSource type="mysql" database="db" table="table"/>
+        <name />
+    </subresource1>
+</resource>
