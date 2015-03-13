@@ -1,0 +1,10 @@
+{
+  "getting-started": {
+    "title": "Getting Started",
+    "children": {
+      "first-steps": {
+        "title": "First Steps"
+      }
+    }
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "tags": {
+    "allowUnknownTags": false
+  },
+  "source": {
+    "include": ["./lib/"]
+  },
+  "opts": {
+    "readme": "./README.md",
+    "tutorials": "./tutorials/"
+  }
+}

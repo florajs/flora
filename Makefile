@@ -2,6 +2,7 @@ BIN = ./node_modules/.bin
 MOCHA = $(BIN)/_mocha
 ISTANBUL = $(BIN)/istanbul
 ESLINT = $(BIN)/eslint
+JSDOC = $(BIN)/jsdoc
 
 BUILDDIR = build
 TESTS = test
@@ -29,6 +30,11 @@ test-cov:
 
 lint:
 	@NODE_ENV=test $(ESLINT) lib/
+
+doc:
+	@NODE_ENV=test $(JSDOC) \
+		--configure ./jsdoc-conf.json \
+		--destination $(BUILDDIR)/docs
 
 clean:
 	@rm -rf $(BUILDDIR)
