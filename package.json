@@ -2,6 +2,9 @@
     "name": "flora",
     "version": "0.0.1",
     "description": "FLexible Open Rest API",
+    "scripts": {
+        "test": "make test"
+    },
     "keywords": [
         "api",
         "framework",
@@ -30,5 +33,16 @@
             "name": "Marco Baumgartl",
             "email": "marco.baumgartl@boerse-go.de"
         }
-    ]
+    ],
+    "engines": {
+        "node": ">=0.10.0"
+    },
+    "devDependencies": {
+        "chai": "2.1.x",
+        "chai-as-promised": "4.3.x",
+        "eslint": "0.17.0",
+        "istanbul": "0.3.x",
+        "mocha": "2.1.x",
+        "mock-fs": "2.5.x"
+    }
 }
