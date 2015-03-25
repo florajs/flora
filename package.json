@@ -2,6 +2,7 @@
     "name": "flora",
     "version": "0.0.1",
     "description": "FLexible Open Rest API",
+    "main": "index.js",
     "scripts": {
         "test": "make test"
     },
@@ -38,6 +39,7 @@
         "node": ">=0.10.0"
     },
     "dependencies": {
+        "bunyan": "1.3.x",
         "flora-ql": "~2.2.1",
         "libxmljs": "0.13.x",
         "lodash": "3.5.x",
