@@ -20,6 +20,8 @@ test:
 
 test-cov:
 	@NODE_ENV=test $(ISTANBUL) cover \
+		--report clover \
+		--report html \
 		--preserve-comments \
 		--dir $(BUILDDIR) \
 		$(MOCHA) \
