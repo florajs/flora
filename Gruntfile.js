@@ -16,7 +16,7 @@ module.exports = function(grunt) {
                     reporter: 'mocha-bamboo-reporter',
                     quiet: false
                 },
-                src: ['test/**/*.js']
+                src: ['<%= mochaTest.test.src %>']
             }
         },
 
@@ -50,11 +50,7 @@ module.exports = function(grunt) {
         }
     });
 
-    grunt.loadNpmTasks('grunt-contrib-clean');
-    grunt.loadNpmTasks('grunt-eslint');
-    grunt.loadNpmTasks('grunt-jsdoc');
-    grunt.loadNpmTasks('grunt-mocha-istanbul');
-    grunt.loadNpmTasks('grunt-mocha-test');
+    require('load-grunt-tasks')(grunt);
 
     grunt.registerTask('default', ['lint', 'test']);
     grunt.registerTask('doc', ['jsdoc']);
