@@ -4,7 +4,9 @@
     "description": "FLexible Open Rest API",
     "main": "index.js",
     "scripts": {
-        "test": "make test"
+        "test": "grunt test",
+        "doc": "grunt doc",
+        "lint": "grunt lint"
     },
     "keywords": [
         "api",
@@ -56,6 +58,13 @@
         "jsdoc": "^3.3.0-beta2",
         "mocha": "2.1.x",
         "mock-fs": "2.5.x",
-        "sinon": "1.13.x"
+        "sinon": "1.13.x",
+        "mocha-bamboo-reporter": "*",
+        "grunt": "0.4.x",
+        "grunt-contrib-clean": "0.6.x",
+        "grunt-eslint": "9.0.x",
+        "grunt-jsdoc": "0.5.x",
+        "grunt-mocha-istanbul": "2.3.x",
+        "grunt-mocha-test": "0.12.x"
     }
 }
