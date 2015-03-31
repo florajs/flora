@@ -4,9 +4,7 @@
   "description": "FLexible Open Rest API",
   "main": "index.js",
   "scripts": {
-    "test": "grunt test",
-    "doc": "grunt doc",
-    "lint": "grunt lint"
+    "test": "grunt test"
   },
   "keywords": [
     "api",
