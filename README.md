@@ -1,6 +1,6 @@
 Flora
 =====
-**+++ still under development - first alpha version is planned for Q2 2015 +++**
+**+++ still under development - first alpha version is planned for Q3/Q4 2015 +++**
 
 Flora is a FLexible Open Rest API framework for [node.js](http://nodejs.org/).
 
