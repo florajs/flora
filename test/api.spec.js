@@ -155,7 +155,7 @@ describe('Api', function () {
             });
         });
 
-        it('should fail when resource is unknown', function (done) {
+        xit('should fail when resource is unknown', function (done) {
             var request = new Request({
                 resource: 'foo'
             });

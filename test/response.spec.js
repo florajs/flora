@@ -42,7 +42,7 @@ describe('Response', function () {
             response.send('foo');
         });
 
-        it('should pass through generic Errors', function (done) {
+        xit('should pass through generic Errors', function (done) {
             var request = new Request();
             var response = new Response(request, function (err, res) {
                 expect(res.meta.err).to.be.an('object');
@@ -53,7 +53,7 @@ describe('Response', function () {
             response.send(new Error('bar'));
         });
 
-        it('should pass through httpStatusCode', function (done) {
+        xit('should pass through httpStatusCode', function (done) {
             var request = new Request();
             var response = new Response(request, function (err, res) {
                 expect(res.meta.err).to.be.an('object');
