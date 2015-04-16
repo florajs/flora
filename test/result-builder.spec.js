@@ -1,9 +1,9 @@
 'use strict';
 
 var resultBuilder = require('../lib/result-builder');
-var ImplementationError = require('../lib/errors').ImplementationError;
-var DataError = require('../lib/errors').DataError;
-var NotFoundError = require('../lib/errors').NotFoundError;
+var ImplementationError = require('flora-errors').ImplementationError;
+var DataError = require('flora-errors').DataError;
+var NotFoundError = require('flora-errors').NotFoundError;
 
 var _ = require('lodash');
 var expect = require('chai').expect;

@@ -1,8 +1,8 @@
 'use strict';
 
 var requestResolver = require('../lib/request-resolver');
-var RequestError = require('../lib/errors').RequestError;
-var ImplementationError = require('../lib/errors').ImplementationError;
+var RequestError = require('flora-errors').RequestError;
+var ImplementationError = require('flora-errors').ImplementationError;
 
 var _ = require('lodash');
 var expect = require('chai').expect;

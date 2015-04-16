@@ -1,7 +1,7 @@
 'use strict';
 
 var configParser = require('../lib/config-parser');
-var ImplementationError = require('../lib/errors').ImplementationError;
+var ImplementationError = require('flora-errors').ImplementationError;
 
 var _ = require('lodash');
 var expect = require('chai').expect;
