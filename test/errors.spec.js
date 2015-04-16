@@ -6,11 +6,12 @@ var AuthenticationError = errors.AuthenticationError;
 var AuthorizationError = errors.AuthorizationError;
 var NotFoundError = errors.NotFoundError;
 var ImplementationError = errors.ImplementationError;
+var ConnectionError = errors.ConnectionError;
 var DataError = errors.DataError;
 
 var expect = require('chai').expect;
 
-describe('error objects', function () {
+describe('flora-errors', function () {
     describe('RequestError', function () {
         it('has correct class hierarchy (for instanceof)', function () {
             try {
@@ -121,6 +122,45 @@ describe('error objects', function () {
                 expect(e).to.not.be.an.instanceof(ImplementationError);
                 expect(e).to.be.an.instanceof(Error);
             }
+        });
+    });
+
+    describe('ConnectionError', function () {
+        it('has correct class hierarchy (for instanceof)', function () {
+            try {
+                throw new ConnectionError('an error occurred');
+            } catch (e) {
+                expect(e).to.be.an.instanceof(ConnectionError);
+                expect(e).to.not.be.an.instanceof(ImplementationError);
+                expect(e).to.be.an.instanceof(Error);
+            }
+        });
+    });
+
+    describe('formatting', function () {
+        it('passes through error message for NotFoundError', function () {
+            var error = errors.format(new NotFoundError('foobar not found'));
+            expect(error.message).to.equal('foobar not found');
+        });
+
+        it('hides error message for ImplementationError', function () {
+            var error = errors.format(new ImplementationError('foobar error'));
+            expect(error.message).to.equal('Internal Server Error');
+        });
+
+        it('never passes through stack-trace', function () {
+            var error = errors.format(new NotFoundError('foobar not found'));
+            expect(error.stack).to.be.undefined;
+        });
+
+        it('always passes through error message when exposeErrors = true', function () {
+            var error = errors.format(new ImplementationError('foobar error'), {exposeErrors: true});
+            expect(error.message).to.equal('foobar error');
+        });
+
+        it('always passes through stack-trace when exposeErrors = true', function () {
+            var error = errors.format(new NotFoundError('foobar not found'), {exposeErrors: true});
+            expect(error.stack).to.be.an('array');
         });
     });
 });

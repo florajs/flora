@@ -144,24 +144,14 @@ describe('Api', function () {
             }, done);
         });
 
-        it('should execute simple requests', function (done) {
-            var request = new Request({
-                resource: 'test'
-            });
-            api.execute(request, function (err, response) {
-                expect(response).to.be.an('object');
-                expect(response.meta).to.be.an('object');
-                done();
-            });
-        });
-
-        xit('should fail when resource is unknown', function (done) {
+        it('should fail when resource is unknown', function (done) {
             var request = new Request({
                 resource: 'foo'
             });
             api.execute(request, function (err, response) {
-                expect(response.meta.err).to.be.an('object');
-                expect(response.meta.err.message).to.equal('Unknown resource "foo" in request');
+                expect(response).to.be.undefined;
+                expect(err).to.be.an('object');
+                expect(err.message).to.equal('Unknown resource "foo" in request');
                 done();
             });
         });

@@ -42,28 +42,14 @@ describe('Response', function () {
             response.send('foo');
         });
 
-        xit('should pass through generic Errors', function (done) {
+        it('should pass through Errors', function (done) {
             var request = new Request();
             var response = new Response(request, function (err, res) {
-                expect(res.meta.err).to.be.an('object');
-                expect(res.meta.err.message).to.eql('bar');
-                expect(res.statusCode).to.equal(500);
+                expect(err).to.be.an.instanceof(Error);
+                expect(res).to.be.undefined;
                 done();
             });
             response.send(new Error('bar'));
-        });
-
-        xit('should pass through httpStatusCode', function (done) {
-            var request = new Request();
-            var response = new Response(request, function (err, res) {
-                expect(res.meta.err).to.be.an('object');
-                expect(res.meta.err.message).to.eql('teapot');
-                expect(res.statusCode).to.equal(418);
-                done();
-            });
-            var e = new Error('teapot');
-            e.httpStatusCode = 418;
-            response.send(e);
         });
 
         it('cannot be called twice', function (done) {
