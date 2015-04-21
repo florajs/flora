@@ -129,10 +129,33 @@ describe('Api', function () {
     });
 
     describe('execute', function () {
-        var api;
+        it('should fail when resource is unknown', function (done) {
+            var api = new Api();
+            api.init({
+                log: log,
+                resourcesPath: resourcesPath,
+                dataSources: {
+                    test: {
+                        constructor: testDataSource
+                    }
+                }
+            }, function (err) {
+                if (err) return done(err);
 
-        before(function (done) {
-            api = new Api();
+                var request = new Request({
+                    resource: 'foo'
+                });
+                api.execute(request, function (err, response) {
+                    expect(response).to.be.undefined;
+                    expect(err).to.be.an('object');
+                    expect(err.message).to.equal('Unknown resource "foo" in request');
+                    api.close(done);
+                });
+            });
+        });
+
+        it('should fail when Api#init is not done', function (done) {
+            var api = new Api();
             api.init({
                 log: log,
                 resourcesPath: resourcesPath,
@@ -142,22 +165,15 @@ describe('Api', function () {
                     }
                 }
             }, done);
-        });
 
-        it('should fail when resource is unknown', function (done) {
             var request = new Request({
                 resource: 'foo'
             });
             api.execute(request, function (err, response) {
                 expect(response).to.be.undefined;
                 expect(err).to.be.an('object');
-                expect(err.message).to.equal('Unknown resource "foo" in request');
-                done();
+                expect(err.message).to.equal('Not initialized');
             });
-        });
-
-        after(function (done) {
-            api.close(done);
         });
     });
 });
