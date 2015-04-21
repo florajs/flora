@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resource primaryKey="id" xmlns:flora="urn:flora:options">
+    <flora:dataSource type="empty"/>
+    <foo/>
+    <id type="int"/>
+</resource>
