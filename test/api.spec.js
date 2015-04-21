@@ -93,7 +93,7 @@ describe('Api', function () {
                 }
             }
         }, function (err) {
-            expect(err).to.eql(null);
+            expect(err).not.to.be.an.instanceof(Error);
             done();
         });
     });
