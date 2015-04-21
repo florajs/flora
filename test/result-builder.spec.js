@@ -1,5 +1,6 @@
 'use strict';
 
+var bunyan = require('bunyan');
 var resultBuilder = require('../lib/result-builder');
 var ImplementationError = require('flora-errors').ImplementationError;
 var DataError = require('flora-errors').DataError;
@@ -8,6 +9,13 @@ var NotFoundError = require('flora-errors').NotFoundError;
 var _ = require('lodash');
 var expect = require('chai').expect;
 
+// mock Api instance
+var api = {
+    log: bunyan.createLogger({name: 'null', streams: []}),
+    getResource: function () {
+        return null;
+    }
+};
 
 describe('result-builder', function () {
     var defaultResolvedConfig = require('./fixtures/resolved-config.json');
@@ -31,7 +39,7 @@ describe('result-builder', function () {
                 data: []
             };
 
-            var result = resultBuilder(rawResults, resolvedConfig);
+            var result = resultBuilder(api, rawResults, resolvedConfig);
             expect(result).to.eql(expectedResult);
         });
 
@@ -47,7 +55,7 @@ describe('result-builder', function () {
             resolvedConfig.many = false;
 
             expect(function () {
-                resultBuilder(rawResults, resolvedConfig);
+                resultBuilder(api, rawResults, resolvedConfig);
             }).to.throw(NotFoundError, 'Requested item not found');
         });
 
@@ -76,7 +84,7 @@ describe('result-builder', function () {
                 }]
             };
 
-            var result = resultBuilder(rawResults, resolvedConfig);
+            var result = resultBuilder(api, rawResults, resolvedConfig);
             expect(result).to.eql(expectedResult);
         });
 
@@ -103,7 +111,7 @@ describe('result-builder', function () {
                 }
             };
 
-            var result = resultBuilder(rawResults, resolvedConfig);
+            var result = resultBuilder(api, rawResults, resolvedConfig);
             expect(result).to.eql(expectedResult);
         });
     });
@@ -139,7 +147,7 @@ describe('result-builder', function () {
             rawResults[0].data[0]['typetest'] = 100;
             resolvedConfig.attributes['typetest'].type = 'string';
 
-            var result = resultBuilder(rawResults, resolvedConfig);
+            var result = resultBuilder(api, rawResults, resolvedConfig);
             expect(result.data['typetest']).to.equal('100');
         });
 
@@ -150,7 +158,7 @@ describe('result-builder', function () {
             rawResults[0].data[0]['typetest'] = '100';
             resolvedConfig.attributes['typetest'].type = 'int';
 
-            var result = resultBuilder(rawResults, resolvedConfig);
+            var result = resultBuilder(api, rawResults, resolvedConfig);
             expect(result.data['typetest']).to.equal(100);
         });
 
@@ -161,7 +169,7 @@ describe('result-builder', function () {
             rawResults[0].data[0]['typetest'] = '100.1';
             resolvedConfig.attributes['typetest'].type = 'float';
 
-            var result = resultBuilder(rawResults, resolvedConfig);
+            var result = resultBuilder(api, rawResults, resolvedConfig);
             expect(result.data['typetest']).to.equal(100.1);
         });
 
@@ -173,7 +181,7 @@ describe('result-builder', function () {
             rawResults[0].data[0]['typetest'] = '1';
             resolvedConfig.attributes['typetest'].type = 'boolean';
 
-            var result = resultBuilder(rawResults, resolvedConfig);
+            var result = resultBuilder(api, rawResults, resolvedConfig);
             expect(result.data['typetest']).to.equal(true);
 
             // '0':
@@ -183,7 +191,7 @@ describe('result-builder', function () {
             rawResults[0].data[0]['typetest'] = '0';
             resolvedConfig.attributes['typetest'].type = 'boolean';
 
-            var result = resultBuilder(rawResults, resolvedConfig);
+            var result = resultBuilder(api, rawResults, resolvedConfig);
             expect(result.data['typetest']).to.equal(false);
         });
 
@@ -194,7 +202,7 @@ describe('result-builder', function () {
             rawResults[0].data[0]['typetest'] = '2015-03-03 15:00:00';
             resolvedConfig.attributes['typetest'].type = 'date';
 
-            var result = resultBuilder(rawResults, resolvedConfig);
+            var result = resultBuilder(api, rawResults, resolvedConfig);
             expect(result.data['typetest']).to.equal('2015-03-03T14:00:00.000Z');
         });
 
@@ -205,7 +213,7 @@ describe('result-builder', function () {
             rawResults[0].data[0]['typetest'] = '2015-03-03 15:00:00';
             resolvedConfig.attributes['typetest'].type = 'datetime';
 
-            var result = resultBuilder(rawResults, resolvedConfig);
+            var result = resultBuilder(api, rawResults, resolvedConfig);
             expect(result.data['typetest']).to.equal('2015-03-03T14:00:00.000Z');
         });
 
@@ -216,7 +224,7 @@ describe('result-builder', function () {
             rawResults[0].data[0]['typetest'] = '2015-03-03 15:00:00';
             resolvedConfig.attributes['typetest'].type = 'time';
 
-            var result = resultBuilder(rawResults, resolvedConfig);
+            var result = resultBuilder(api, rawResults, resolvedConfig);
             expect(result.data['typetest']).to.equal('2015-03-03T14:00:00.000Z');
         });
 
@@ -227,7 +235,7 @@ describe('result-builder', function () {
             rawResults[0].data[0]['typetest'] = null;
             resolvedConfig.attributes['typetest'].type = 'int';
 
-            var result = resultBuilder(rawResults, resolvedConfig);
+            var result = resultBuilder(api, rawResults, resolvedConfig);
             expect(result.data['typetest']).to.equal(null);
         });
     });
@@ -260,7 +268,7 @@ describe('result-builder', function () {
                 }
             };
 
-            var result = resultBuilder(rawResults, resolvedConfig);
+            var result = resultBuilder(api, rawResults, resolvedConfig);
             expect(result).to.eql(expectedResult);
         });
 
@@ -289,7 +297,7 @@ describe('result-builder', function () {
                 }
             };
 
-            var result = resultBuilder(rawResults, resolvedConfig);
+            var result = resultBuilder(api, rawResults, resolvedConfig);
             expect(result).to.eql(expectedResult);
         });
 
@@ -317,7 +325,7 @@ describe('result-builder', function () {
                 }
             };
 
-            var result = resultBuilder(rawResults, resolvedConfig);
+            var result = resultBuilder(api, rawResults, resolvedConfig);
             expect(result).to.eql(expectedResult);
         });
     });
@@ -359,7 +367,7 @@ describe('result-builder', function () {
                 }
             };
 
-            var result = resultBuilder(rawResults, resolvedConfig);
+            var result = resultBuilder(api, rawResults, resolvedConfig);
             expect(result).to.eql(expectedResult);
         });
 
@@ -410,7 +418,7 @@ describe('result-builder', function () {
                 }
             };
 
-            var result = resultBuilder(rawResults, resolvedConfig);
+            var result = resultBuilder(api, rawResults, resolvedConfig);
             expect(result).to.eql(expectedResult);
         });
 
@@ -456,7 +464,7 @@ describe('result-builder', function () {
                 }
             };
 
-            var result = resultBuilder(rawResults, resolvedConfig);
+            var result = resultBuilder(api, rawResults, resolvedConfig);
             expect(result).to.eql(expectedResult);
         });
 
@@ -509,7 +517,7 @@ describe('result-builder', function () {
                 }]
             };
 
-            var result = resultBuilder(rawResults, resolvedConfig);
+            var result = resultBuilder(api, rawResults, resolvedConfig);
             expect(result).to.eql(expectedResult);
         });
     });
@@ -528,7 +536,7 @@ describe('result-builder', function () {
             var resolvedConfig = _.cloneDeep(defaultResolvedConfig);
 
             expect(function () {
-                resultBuilder(rawResults, resolvedConfig);
+                resultBuilder(api, rawResults, resolvedConfig);
             }).to.throw(DataError, 'Result-row of "{root}" (DataSource "primary") ' +
                 'misses primary key attribute "id"');
         });
@@ -559,7 +567,7 @@ describe('result-builder', function () {
             var resolvedConfig = _.cloneDeep(defaultResolvedConfig);
 
             expect(function () {
-                resultBuilder(rawResults, resolvedConfig);
+                resultBuilder(api, rawResults, resolvedConfig);
             }).to.throw(DataError, 'Result-row 1 of "{root}" (DataSource "articleBody") ' +
                 'misses child key attribute "articleId"');
         });
@@ -590,7 +598,7 @@ describe('result-builder', function () {
             resolvedConfig.attributes['author'].selected = true;
 
             expect(function () {
-                resultBuilder(rawResults, resolvedConfig);
+                resultBuilder(api, rawResults, resolvedConfig);
             }).to.throw(DataError, 'Sub-resource "author" ' +
                 'misses key attribute "authorId" in parent result (DataSource "primary")');
         });
@@ -618,7 +626,7 @@ describe('result-builder', function () {
             var resolvedConfig = _.cloneDeep(defaultResolvedConfig);
 
             expect(function () {
-                resultBuilder(rawResults, resolvedConfig);
+                resultBuilder(api, rawResults, resolvedConfig);
             }).to.throw(DataError, 'Secondary DataSource "articleBody" of "{root}": ' +
                 'row with key "1" not found');
         });
@@ -647,7 +655,7 @@ describe('result-builder', function () {
             resolvedConfig.attributes['video'].selected = true;
 
             expect(function () {
-                resultBuilder(rawResults, resolvedConfig);
+                resultBuilder(api, rawResults, resolvedConfig);
             }).to.throw(DataError, 'Row with child key "1" not found ' +
                 'in sub-resource "video" (DataSource "primary")');
         });
@@ -667,7 +675,7 @@ describe('result-builder', function () {
             resolvedConfig.attributes['title'].selected = true;
 
             expect(function () {
-                resultBuilder(rawResults, resolvedConfig);
+                resultBuilder(api, rawResults, resolvedConfig);
             }).to.throw(DataError, 'Result-row ID "1" (DataSource "primary") misses attribute "title"');
         });
     });
@@ -686,7 +694,7 @@ describe('result-builder', function () {
             var resolvedConfig = _.cloneDeep(defaultResolvedConfig);
 
             expect(function () {
-                resultBuilder(rawResults, resolvedConfig);
+                resultBuilder(api, rawResults, resolvedConfig);
             }).to.throw(ImplementationError, 'Result-Builder: Unknown attribute "any.subresource"');
         });
 
@@ -696,7 +704,7 @@ describe('result-builder', function () {
             var resolvedConfig = _.cloneDeep(defaultResolvedConfig);
 
             expect(function () {
-                resultBuilder(rawResults, resolvedConfig);
+                resultBuilder(api, rawResults, resolvedConfig);
             }).to.throw(ImplementationError, 'Result for "{root}" (DataSource "primary") missing');
         });
 
@@ -714,7 +722,7 @@ describe('result-builder', function () {
             resolvedConfig.attributes['body'].selected = true;
 
             expect(function () {
-                resultBuilder(rawResults, resolvedConfig);
+                resultBuilder(api, rawResults, resolvedConfig);
             }).to.throw(ImplementationError, 'Secondary-Result for "{root}" (DataSource "articleBody") missing');
         });
     });
@@ -852,7 +860,7 @@ describe('result-builder', function () {
                 }
             };
 
-            var result = resultBuilder(rawResults, resolvedConfig);
+            var result = resultBuilder(api, rawResults, resolvedConfig);
             expect(result).to.eql(expectedResult);
         });
     });
