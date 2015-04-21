@@ -63,6 +63,7 @@
             "query": "SELECT\n            articleId AS articleId,\n            COUNT(id) AS commentCount\n        FROM comments\n        GROUP BY articleId"
         }
     },
+    "resourceName": "article",
     "subFilters": [
         {
             "attribute": [
@@ -194,6 +195,7 @@
                     "selectedDataSource": "primary"
                 }
             },
+            "resourceName": "user",
             "selected": false,
             "primaryDataSource": "primary"
         },
@@ -524,6 +526,7 @@
                             ]
                         }
                     },
+                    "resourceName": "user",
                     "attributes": {
                         "id": {
                             "type": "int",
