@@ -2,7 +2,7 @@
 
 module.exports = function (api) {
     return {
-        events: {
+        extensions: {
             // "item" extension
             // is called for every item that is handled by the resource-processor, also when the
             // resource is called as sub-resource from another resource.

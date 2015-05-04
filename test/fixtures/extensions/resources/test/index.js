@@ -2,7 +2,7 @@
 
 module.exports = function (api) {
     return {
-        events: {
+        extensions: {
             item: function (item) {
                 item.bar = 'baz';
             }
