@@ -54,7 +54,7 @@
     "benchmark": "1.0.x",
     "chai": "2.1.x",
     "chai-as-promised": "4.3.x",
-    "eslint": "0.17.0",
+    "eslint": "0.20.0",
     "grunt": "0.4.x",
     "grunt-cli": "^0.1.13",
     "grunt-contrib-clean": "0.6.x",
