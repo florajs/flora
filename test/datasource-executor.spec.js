@@ -17,8 +17,15 @@ var testDataSource = function testDataSource() {
     };
 };
 
-var dataSources = [];
-dataSources['test'] = testDataSource();
+var api = {
+    dataSources: {
+        test: testDataSource()
+    },
+
+    getResource: function () {
+        return null;
+    }
+};
 
 describe('datasource-executor', function () {
     describe('generic tests', function () {
@@ -29,21 +36,21 @@ describe('datasource-executor', function () {
 
     describe('error handling', function () {
         it('returns error on invalid request type', function (done) {
-            execute({request: {type: 'test-invalid'}}, dataSources, function (err) {
+            execute(api, {request: {type: 'test-invalid'}}, function (err) {
                 expect(err).to.be.an.instanceof(Error);
                 done();
             });
         });
 
         it('passes through errors from process call', function (done) {
-            sinon.stub(dataSources['test'], 'process', function (query, callback) {
+            sinon.stub(api.dataSources['test'], 'process', function (query, callback) {
                 callback(new Error('foo'));
             });
 
             var request = {request: {type: 'test'}};
 
-            execute(request, dataSources, function (err) {
-                dataSources['test'].process.restore();
+            execute(api, request, function (err) {
+                api.dataSources['test'].process.restore();
                 expect(err).to.be.an.instanceof(Error);
                 expect(err.message).to.equal('foo');
                 done();
@@ -58,7 +65,7 @@ describe('datasource-executor', function () {
                 }
             };
 
-            execute(request, dataSources, function (err) {
+            execute(api, request, function (err) {
                 expect(err).to.be.an.instanceof(Error);
                 expect(err.message).to.equal('Missing subFilter for attribute "bar"');
                 done();
@@ -76,14 +83,14 @@ describe('datasource-executor', function () {
         };
 
         it('does not throw errors', function (done) {
-            execute(request, dataSources, function (err) {
+            execute(api, request, function (err) {
                 expect(err).to.eql(null);
                 done();
             });
         });
 
         it('returns the correct result', function (done) {
-            execute(request, dataSources, function (err, result) {
+            execute(api, request, function (err, result) {
                 expect(result).to.eql([
                     {
                         attributePath: [],
@@ -124,7 +131,7 @@ describe('datasource-executor', function () {
 
         describe('with non-empty result', function () {
             before(function () {
-                sinon.stub(dataSources['test'], 'process', function (query, callback) {
+                sinon.stub(api.dataSources['test'], 'process', function (query, callback) {
                     if (query.table === 'email') {
                         return callback(null, {
                             data: [
@@ -163,11 +170,11 @@ describe('datasource-executor', function () {
             });
 
             after(function () {
-                dataSources['test'].process.restore();
+                api.dataSources['test'].process.restore();
             });
 
             it('does not throw errors', function (done) {
-                execute(request, dataSources, function (err) {
+                execute(api, request, function (err) {
                     if (err) throw err;
                     expect(err).to.eql(null);
                     done();
@@ -175,7 +182,7 @@ describe('datasource-executor', function () {
             });
 
             it('returns the correct result', function (done) {
-                execute(request, dataSources, function (err, result) {
+                execute(api, request, function (err, result) {
                     expect(result).to.eql([
                         {
                             attributePath: [],
@@ -194,7 +201,7 @@ describe('datasource-executor', function () {
 
         describe('with empty result', function () {
             before(function () {
-                sinon.stub(dataSources['test'], 'process', function (query, callback) {
+                sinon.stub(api.dataSources['test'], 'process', function (query, callback) {
                     if (query.table === 'email') {
                         return callback(null, {
                             data: [],
@@ -208,18 +215,18 @@ describe('datasource-executor', function () {
             });
 
             after(function () {
-                dataSources['test'].process.restore();
+                api.dataSources['test'].process.restore();
             });
 
             it('does not throw errors', function (done) {
-                execute(request, dataSources, function (err) {
+                execute(api, request, function (err) {
                     expect(err).to.eql(null);
                     done();
                 });
             });
 
             it('returns an empty main result', function (done) {
-                execute(request, dataSources, function (err, result) {
+                execute(api, request, function (err, result) {
                     expect(result).to.eql([
                         {
                             attributePath: [],
@@ -258,7 +265,7 @@ describe('datasource-executor', function () {
         };
 
         before(function() {
-            sinon.stub(dataSources['test'], 'process', function (query, callback) {
+            sinon.stub(api.dataSources['test'], 'process', function (query, callback) {
                 if (query.table === 'user') {
                     return callback(null, {
                         data: [
@@ -298,18 +305,18 @@ describe('datasource-executor', function () {
         });
 
         after(function () {
-            dataSources['test'].process.restore();
+            api.dataSources['test'].process.restore();
         });
 
         it('does not throw errors', function (done) {
-            execute(request, dataSources, function (err) {
+            execute(api, request, function (err) {
                 expect(err).to.eql(null);
                 done();
             });
         });
 
         it('integration test', function (done) {
-            execute(request, dataSources, function (err, result) {
+            execute(api, request, function (err, result) {
                 expect(result).to.eql([
                     {
                         attributePath: [],
@@ -371,7 +378,7 @@ describe('datasource-executor', function () {
         };
 
         before(function () {
-            sinon.stub(dataSources['test'], 'process', function (query, callback) {
+            sinon.stub(api.dataSources['test'], 'process', function (query, callback) {
                 if (query.table === 'article') {
                     return callback(null, {
                         data: [
@@ -419,18 +426,18 @@ describe('datasource-executor', function () {
         });
 
         after(function () {
-            dataSources['test'].process.restore();
+            api.dataSources['test'].process.restore();
         });
 
         it('does not throw errors', function (done) {
-            execute(request, dataSources, function (err) {
+            execute(api, request, function (err) {
                 expect(err).to.eql(null);
                 done();
             });
         });
 
         it('returns the correct result', function (done) {
-            execute(request, dataSources, function (err, result) {
+            execute(api, request, function (err, result) {
                 expect(err).to.eql(null);
                 expect(result).to.eql([
                     {
@@ -490,7 +497,7 @@ describe('datasource-executor', function () {
         };
 
         before(function () {
-            sinon.stub(dataSources['test'], 'process', function (query, callback) {
+            sinon.stub(api.dataSources['test'], 'process', function (query, callback) {
                 if (query.table === 'validemail') {
                     // filter parameter is transformed correctly
                     expect(query.filter).to.eql([[
@@ -555,18 +562,18 @@ describe('datasource-executor', function () {
         });
 
         after(function () {
-            dataSources['test'].process.restore();
+            api.dataSources['test'].process.restore();
         });
 
         it('does not throw errors', function (done) {
-            execute(request, dataSources, function (err) {
+            execute(api, request, function (err) {
                 expect(err).to.eql(null);
                 done();
             });
         });
 
         it('returns the correct result', function (done) {
-            execute(request, dataSources, function (err, result) {
+            execute(api, request, function (err, result) {
                 expect(result).to.eql([
                     {
                         attributePath: [],
