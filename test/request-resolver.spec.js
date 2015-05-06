@@ -226,6 +226,7 @@ describe('request-resolver', function () {
             };
 
             var dataSourceTree = {
+                resourceName: 'article',
                 attributePath: [],
                 dataSourceName: 'primary',
                 request: {
@@ -249,6 +250,7 @@ describe('request-resolver', function () {
             };
 
             var dataSourceTree = {
+                resourceName: 'article',
                 attributePath: [],
                 dataSourceName: 'primary',
                 request: {
@@ -279,6 +281,7 @@ describe('request-resolver', function () {
             };
 
             var dataSourceTree = {
+                resourceName: 'article',
                 attributePath: [],
                 dataSourceName: 'primary',
                 request: {
@@ -334,6 +337,7 @@ describe('request-resolver', function () {
             };
 
             var dataSourceTree = {
+                resourceName: 'article',
                 attributePath: [],
                 dataSourceName: 'primary',
                 request: {
@@ -394,6 +398,7 @@ describe('request-resolver', function () {
             };
 
             var dataSourceTree = {
+                resourceName: 'article',
                 attributePath: [],
                 dataSourceName: 'fulltextSearch',
                 request: {
@@ -420,6 +425,7 @@ describe('request-resolver', function () {
             };
 
             var dataSourceTree = {
+                resourceName: 'article',
                 attributePath: [],
                 dataSourceName: 'primary',
                 request: {
@@ -474,6 +480,7 @@ describe('request-resolver', function () {
             };
 
             var dataSourceTree = {
+                resourceName: 'article',
                 attributePath: [],
                 dataSourceName: 'primary',
                 request: {
@@ -498,6 +505,7 @@ describe('request-resolver', function () {
             };
 
             var dataSourceTree = {
+                resourceName: 'article',
                 attributePath: [],
                 dataSourceName: 'primary',
                 request: {
@@ -577,6 +585,7 @@ describe('request-resolver', function () {
             };
 
             var dataSourceTree = {
+                resourceName: 'article',
                 attributePath: [],
                 dataSourceName: 'primary',
                 request: {
@@ -625,6 +634,7 @@ describe('request-resolver', function () {
             };
 
             var dataSourceTree = {
+                resourceName: 'article',
                 attributePath: [],
                 dataSourceName: 'primary',
                 request: {
@@ -674,6 +684,7 @@ describe('request-resolver', function () {
             };
 
             var dataSourceTree = {
+                resourceName: 'article',
                 attributePath: [],
                 dataSourceName: 'primary',
                 request: {
@@ -685,6 +696,7 @@ describe('request-resolver', function () {
                 },
                 subRequests: [
                     {
+                        resourceName: 'user',
                         attributePath: ['author'],
                         dataSourceName: 'primary',
                         parentKey: ['authorId'],
@@ -722,6 +734,7 @@ describe('request-resolver', function () {
             };
 
             var dataSourceTree = {
+                resourceName: 'article',
                 attributePath: [],
                 dataSourceName: 'primary',
                 request: {
@@ -773,6 +786,7 @@ describe('request-resolver', function () {
             };
 
             var dataSourceTree = {
+                resourceName: 'article',
                 attributePath: [],
                 dataSourceName: 'primary',
                 request: {
@@ -838,6 +852,7 @@ describe('request-resolver', function () {
             };
 
             var dataSourceTree = {
+                resourceName: 'article',
                 attributePath: [],
                 dataSourceName: 'primary',
                 request: {
@@ -924,6 +939,7 @@ describe('request-resolver', function () {
             };
 
             var dataSourceTree = {
+                resourceName: 'article',
                 attributePath: [],
                 dataSourceName: 'primary',
                 request: {
@@ -983,6 +999,7 @@ describe('request-resolver', function () {
                         }
                     },
                     {
+                        resourceName: 'user',
                         attributePath: ['author'],
                         dataSourceName: 'primary',
                         parentKey: ['authorId'],
