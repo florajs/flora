@@ -3,6 +3,11 @@
 module.exports = function (api) {
     return {
         extensions: {
+            // "request" extension
+            request: function (request) {
+                console.log('Extension: request (resource scope)');
+            },
+
             // "item" extension
             // is called for every item that is handled by the resource-processor, also when the
             // resource is called as sub-resource from another resource.
@@ -21,6 +26,11 @@ module.exports = function (api) {
             // is called after the request has been executed and before the response is being built
             postExecute: function (rawResults) {
                 console.log('Extension: postExecute (resource scope)');
+            },
+
+            // "response" extension
+            response: function (response) {
+                console.log('Extension: response (resource scope)');
             }
         },
 
