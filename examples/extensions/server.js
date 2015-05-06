@@ -54,7 +54,7 @@ server.api.on('response', function (response, next) {
 // is called after the request-resolver has resolved the dataSourceTree.
 
 server.api.on('preExecute', function (dataSourceTree, next) {
-    console.log('preExecute');
+    console.log('preExecute (global)');
     // ...
     next();
 });
@@ -64,7 +64,7 @@ server.api.on('preExecute', function (dataSourceTree, next) {
 // is called after the request has been executed and before the response is being built
 
 server.api.on('postExecute', function (rawResults, next) {
-    console.log('postExecute');
+    console.log('postExecute (global)');
     // ...
     next();
 });
