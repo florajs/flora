@@ -13,7 +13,7 @@
     "max-depth": [2, 6],
     "max-len": [1, 120, 4],
     "max-nested-callbacks": [2, 4],
-    "max-params": [2, 3],
+    "max-params": [2, 4],
     "no-empty": 0,
     "no-loop-func": 0,
     "no-undef": 2,
