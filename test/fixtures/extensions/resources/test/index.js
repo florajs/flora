@@ -3,8 +3,8 @@
 module.exports = function (api) {
     return {
         extensions: {
-            item: function (item) {
-                item.bar = 'baz';
+            item: function (ev) {
+                ev.item.bar = 'baz';
             }
         },
 

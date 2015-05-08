@@ -36,7 +36,7 @@ describe('datasource-executor', function () {
 
     describe('error handling', function () {
         it('returns error on invalid request type', function (done) {
-            execute(api, {request: {type: 'test-invalid'}}, function (err) {
+            execute(api, {}, {request: {type: 'test-invalid'}}, function (err) {
                 expect(err).to.be.an.instanceof(Error);
                 done();
             });
@@ -47,9 +47,9 @@ describe('datasource-executor', function () {
                 callback(new Error('foo'));
             });
 
-            var request = {request: {type: 'test'}};
+            var dst = {request: {type: 'test'}};
 
-            execute(api, request, function (err) {
+            execute(api, {}, dst, function (err) {
                 api.dataSources['test'].process.restore();
                 expect(err).to.be.an.instanceof(Error);
                 expect(err.message).to.equal('foo');
@@ -58,14 +58,14 @@ describe('datasource-executor', function () {
         });
 
         it('detects missing subFilters', function (done) {
-            var request = {
+            var dst = {
                 request: {
                     type: 'test',
                     filter: [[{attribute: 'bar', operator: 'equal', valueFromSubFilter: true}]]
                 }
             };
 
-            execute(api, request, function (err) {
+            execute(api, {}, dst, function (err) {
                 expect(err).to.be.an.instanceof(Error);
                 expect(err.message).to.equal('Missing subFilter for attribute "bar"');
                 done();
@@ -74,7 +74,7 @@ describe('datasource-executor', function () {
     });
 
     describe('simple requests', function () {
-        var request = {
+        var dst = {
             attributePath: [],
             dataSourceName: 'ds',
             request: {
@@ -83,14 +83,14 @@ describe('datasource-executor', function () {
         };
 
         it('does not throw errors', function (done) {
-            execute(api, request, function (err) {
+            execute(api, {}, dst, function (err) {
                 expect(err).to.eql(null);
                 done();
             });
         });
 
         it('returns the correct result', function (done) {
-            execute(api, request, function (err, result) {
+            execute(api, {}, dst, function (err, result) {
                 expect(result).to.eql([
                     {
                         attributePath: [],
@@ -105,7 +105,7 @@ describe('datasource-executor', function () {
     });
 
     describe('subFilters', function () {
-        var request = {
+        var dst = {
             attributePath: [],
             dataSourceName: 'ds1',
             request: {
@@ -174,7 +174,7 @@ describe('datasource-executor', function () {
             });
 
             it('does not throw errors', function (done) {
-                execute(api, request, function (err) {
+                execute(api, {}, dst, function (err) {
                     if (err) throw err;
                     expect(err).to.eql(null);
                     done();
@@ -182,7 +182,7 @@ describe('datasource-executor', function () {
             });
 
             it('returns the correct result', function (done) {
-                execute(api, request, function (err, result) {
+                execute(api, {}, dst, function (err, result) {
                     expect(result).to.eql([
                         {
                             attributePath: [],
@@ -219,14 +219,14 @@ describe('datasource-executor', function () {
             });
 
             it('does not throw errors', function (done) {
-                execute(api, request, function (err) {
+                execute(api, {}, dst, function (err) {
                     expect(err).to.eql(null);
                     done();
                 });
             });
 
             it('returns an empty main result', function (done) {
-                execute(api, request, function (err, result) {
+                execute(api, {}, dst, function (err, result) {
                     expect(result).to.eql([
                         {
                             attributePath: [],
@@ -242,7 +242,7 @@ describe('datasource-executor', function () {
     });
 
     describe('subRequests', function () {
-        var request = {
+        var dst = {
             attributePath: [],
             dataSourceName: 'ds1',
             request: {
@@ -309,14 +309,14 @@ describe('datasource-executor', function () {
         });
 
         it('does not throw errors', function (done) {
-            execute(api, request, function (err) {
+            execute(api, {}, dst, function (err) {
                 expect(err).to.eql(null);
                 done();
             });
         });
 
         it('integration test', function (done) {
-            execute(api, request, function (err, result) {
+            execute(api, {}, dst, function (err, result) {
                 expect(result).to.eql([
                     {
                         attributePath: [],
@@ -346,7 +346,7 @@ describe('datasource-executor', function () {
     });
 
     describe('subRequests and subFilters', function () {
-        var request = {
+        var dst = {
             attributePath: [],
             request: {
                 type: 'test',
@@ -430,14 +430,14 @@ describe('datasource-executor', function () {
         });
 
         it('does not throw errors', function (done) {
-            execute(api, request, function (err) {
+            execute(api, {}, dst, function (err) {
                 expect(err).to.eql(null);
                 done();
             });
         });
 
         it('returns the correct result', function (done) {
-            execute(api, request, function (err, result) {
+            execute(api, {}, dst, function (err, result) {
                 expect(err).to.eql(null);
                 expect(result).to.eql([
                     {
@@ -464,7 +464,7 @@ describe('datasource-executor', function () {
     });
 
     describe('recursive subFilters', function () {
-        var request = {
+        var dst = {
             attributePath: [],
             dataSourceName: 'ds1',
             request: {
@@ -566,14 +566,14 @@ describe('datasource-executor', function () {
         });
 
         it('does not throw errors', function (done) {
-            execute(api, request, function (err) {
+            execute(api, {}, dst, function (err) {
                 expect(err).to.eql(null);
                 done();
             });
         });
 
         it('returns the correct result', function (done) {
-            execute(api, request, function (err, result) {
+            execute(api, {}, dst, function (err, result) {
                 expect(result).to.eql([
                     {
                         attributePath: [],

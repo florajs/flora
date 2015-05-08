@@ -14,7 +14,7 @@ server.run();
 // All extensions can be used synchronously when the "next" parameter is omitted, i.e. the function
 // has < 2 parameters (so a "dummy" parameter is needed if "next" is used)
 
-server.api.on('init', function (dummy, next) {
+server.api.on('init', function (ev, next) {
     console.log('Extension: init');
     next();
 });
@@ -23,7 +23,7 @@ server.api.on('init', function (dummy, next) {
 // Extension: "close"
 // is called when Api is closing.
 
-server.api.on('close', function (dummy, next) {
+server.api.on('close', function (ev, next) {
     console.log('Extension: close');
     next();
 });
@@ -32,7 +32,8 @@ server.api.on('close', function (dummy, next) {
 // Extension: "request"
 // is called on each request, before the request is handled.
 
-server.api.on('request', function (request, next) {
+server.api.on('request', function (ev, next) {
+    var request = ev.request;
     console.log('Extension: request');
     request.limit = 1; // modify the "limit" parameter
     request.select = 'foo'; // modify the "select" parameter to always select (only) the "foo" attribute
@@ -46,7 +47,8 @@ server.api.on('request', function (request, next) {
 // The resources' "preExecute" extensions are called after the global one (because they
 // are called for every (sub-) resource involved.
 
-server.api.on('preExecute', function (dataSourceTree, next) {
+server.api.on('preExecute', function (ev, next) {
+    var dataSourceTree = ev.dataSourceTree;
     console.log('Extension: preExecute');
     // ...
     next();
@@ -57,7 +59,8 @@ server.api.on('preExecute', function (dataSourceTree, next) {
 // is called after the request has been executed and before the response is being built.
 // The resources' "postExecute" extensions are called _before_ the global one.
 
-server.api.on('postExecute', function (rawResults, next) {
+server.api.on('postExecute', function (ev, next) {
+    var rawResults = ev.rawResults;
     console.log('Extension: postExecute');
     // ...
     next();
@@ -67,7 +70,8 @@ server.api.on('postExecute', function (rawResults, next) {
 // Extension: "response"
 // is called after the request is handled and before the response is sent.
 
-server.api.on('response', function (response, next) {
+server.api.on('response', function (ev, next) {
+    var response = ev.response;
     console.log('Extension: response');
 
     // modify response: add "baz: 'foo'" property to the complete response

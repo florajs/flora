@@ -54,7 +54,7 @@ describe('extensions', function () {
                 var api = new Api();
 
                 var initEmitted = false;
-                api.on('init', function (dummy, next) {
+                api.on('init', function (ev, next) {
                     expect(next).to.be.a('function');
                     initEmitted = true;
                     next();
@@ -80,9 +80,10 @@ describe('extensions', function () {
                     });
                 });
 
-                api.on('request', function (request) {
-                    expect(request).to.be.an('object');
-                    expect(request.resource).to.eql('test');
+                api.on('request', function (ev) {
+                    expect(ev).to.be.an('object');
+                    expect(ev.request).to.be.an('object');
+                    expect(ev.request.resource).to.eql('test');
                 });
             });
 
@@ -98,9 +99,10 @@ describe('extensions', function () {
                     });
                 });
 
-                api.on('request', function (request, next) {
-                    expect(request).to.be.an('object');
-                    expect(request.resource).to.eql('test');
+                api.on('request', function (ev, next) {
+                    expect(ev).to.be.an('object');
+                    expect(ev.request).to.be.an('object');
+                    expect(ev.request.resource).to.eql('test');
                     expect(next).to.be.a('function');
                     next();
                 });
@@ -122,9 +124,10 @@ describe('extensions', function () {
 
                 });
 
-                api.on('response', function (response) {
-                    expect(response).to.be.an('object');
-                    expect(response.data).to.be.an('array');
+                api.on('response', function (ev) {
+                    expect(ev).to.be.an('object');
+                    expect(ev.response).to.be.an('object');
+                    expect(ev.response.data).to.be.an('array');
                 });
             });
 
@@ -143,10 +146,11 @@ describe('extensions', function () {
 
                 var responseEmitted = false;
 
-                api.on('response', function (response, next) {
+                api.on('response', function (ev, next) {
                     responseEmitted = true;
-                    expect(response).to.be.an('object');
-                    expect(response.data).to.be.an('array');
+                    expect(ev).to.be.an('object');
+                    expect(ev.response).to.be.an('object');
+                    expect(ev.response.data).to.be.an('array');
                     expect(next).to.be.a('function');
                     next();
                 });
@@ -176,7 +180,7 @@ describe('extensions', function () {
                     });
                 });
 
-                api.on('close', function (dummy, next) {
+                api.on('close', function (ev, next) {
                     expect(next).to.be.a('function');
                     closeCalled = true;
                     next();
@@ -205,9 +209,10 @@ describe('extensions', function () {
 
                 });
 
-                api.on('preExecute', function (dataSourceTree) {
+                api.on('preExecute', function (ev) {
                     emitted = true;
-                    expect(dataSourceTree).to.be.an('object');
+                    expect(ev).to.be.an('object');
+                    expect(ev.dataSourceTree).to.be.an('object');
                 });
             });
 
@@ -228,9 +233,10 @@ describe('extensions', function () {
 
                 var responseEmitted = false;
 
-                api.on('preExecute', function (dataSourceTree, next) {
+                api.on('preExecute', function (ev, next) {
                     emitted = true;
-                    expect(dataSourceTree).to.be.an('object');
+                    expect(ev).to.be.an('object');
+                    expect(ev.dataSourceTree).to.be.an('object');
                     expect(next).to.be.a('function');
                     next();
                 });
@@ -254,9 +260,10 @@ describe('extensions', function () {
 
                 });
 
-                api.on('postExecute', function (rawResults) {
+                api.on('postExecute', function (ev) {
                     emitted = true;
-                    expect(rawResults).to.be.an('array');
+                    expect(ev).to.be.an('object');
+                    expect(ev.rawResults).to.be.an('array');
                 });
             });
 
@@ -277,9 +284,10 @@ describe('extensions', function () {
 
                 var responseEmitted = false;
 
-                api.on('postExecute', function (rawResults, next) {
+                api.on('postExecute', function (ev, next) {
                     emitted = true;
-                    expect(rawResults).to.be.an('array');
+                    expect(ev).to.be.an('object');
+                    expect(ev.rawResults).to.be.an('array');
                     expect(next).to.be.a('function');
                     next();
                 });
@@ -303,11 +311,12 @@ describe('extensions', function () {
 
                 });
 
-                api.on('response', function (response) {
-                    expect(response).to.be.an('object');
-                    expect(response.data).to.be.an('array');
-                    expect(response.data.length).to.greaterThan(0);
-                    expect(response.data[0]).to.eql({
+                api.on('response', function (ev) {
+                    expect(ev).to.be.an('object');
+                    expect(ev.response).to.be.an('object');
+                    expect(ev.response.data).to.be.an('array');
+                    expect(ev.response.data.length).to.greaterThan(0);
+                    expect(ev.response.data[0]).to.eql({
                         id: 1,
                         bar: 'baz' // this is set by "item" callback, see fixtures/excensions/test/index.js
                     });
