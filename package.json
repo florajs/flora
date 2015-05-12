@@ -45,8 +45,8 @@
     "flora-errors": "~0.1.0",
     "flora-cluster": "~0.4.0",
     "flora-ql": "~2.2.1",
-    "libxmljs": "0.13.x",
-    "lodash": "3.5.x",
+    "libxmljs": "0.14.x",
+    "lodash": "3.8.x",
     "serve-static": "1.9.x",
     "when": "3.7.x"
   },
