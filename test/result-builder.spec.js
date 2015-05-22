@@ -725,6 +725,24 @@ describe('result-builder', function () {
                 resultBuilder(api, rawResults, resolvedConfig);
             }).to.throw(ImplementationError, 'Secondary-Result for "{root}" (DataSource "articleBody") missing');
         });
+
+        it('fails if complete result of primary DataSource of sub-resource is missing', function () {
+            var rawResults = [{
+                attributePath: [],
+                dataSourceName: 'primary',
+                data: [{
+                    id: '1'
+                }],
+                totalCount: 1
+            }]; // "author"/"primary" result is missing here
+
+            var resolvedConfig = _.cloneDeep(defaultResolvedConfig);
+            resolvedConfig.attributes['author'].selected = true;
+
+            expect(function () {
+                resultBuilder(api, rawResults, resolvedConfig);
+            }).to.throw(ImplementationError, 'Result for "author" (DataSource "primary") missing');
+        });
     });
 
     describe('complex results', function () {
