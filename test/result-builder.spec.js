@@ -488,6 +488,8 @@ describe('result-builder', function () {
                 dataSourceName: 'primary',
                 data: [{
                     id: '1'
+                },{
+                    id: '2'
                 }],
                 totalCount: 1
             },{
@@ -497,7 +499,10 @@ describe('result-builder', function () {
                 childKey: ['articleId'],
                 data: [{
                     articleId: '1',
-                    body: 'Test-Body'
+                    body: 'Test-Body 1'
+                },{
+                    articleId: '2',
+                    body: 'Test-Body 2'
                 }],
                 totalCount: 1
             }];
@@ -513,7 +518,10 @@ describe('result-builder', function () {
                 },
                 data: [{
                     id: 1,
-                    body: 'Test-Body'
+                    body: 'Test-Body 1'
+                },{
+                    id: 2,
+                    body: 'Test-Body 2'
                 }]
             };
 
