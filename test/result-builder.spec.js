@@ -748,7 +748,7 @@ describe('result-builder', function () {
             resolvedConfig.attributes['author'].selected = true;
 
             expect(function () {
-                resultBuilder(api, rawResults, resolvedConfig);
+                resultBuilder(api, {}, rawResults, resolvedConfig);
             }).to.throw(ImplementationError, 'Result for "author" (DataSource "primary") missing');
         });
     });
