@@ -311,6 +311,24 @@ describe('request-resolver', function () {
             }).to.throw(RequestError, 'Unknown attribute "invalid" in request');
         });
 
+        it('fails when selecting unknown sub-attributes', function () {
+            // /article/?select=title.invalid
+            var req = {
+                resource: 'article',
+                select: {
+                    'title': {
+                        select: {
+                            'invalid': {}
+                        }
+                    }
+                }
+            };
+
+            expect(function () {
+                requestResolver(req, resourceConfigs);
+            }).to.throw(RequestError, 'Unknown attribute "title.invalid" in request');
+        });
+
         it('fails when selecting internal attributes', function () {
             // /article/?select=secretInfo
             var req = {
