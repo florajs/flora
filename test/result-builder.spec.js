@@ -228,6 +228,39 @@ describe('result-builder', function () {
             expect(result.data['typetest']).to.equal('2015-03-03T14:00:00.000Z');
         });
 
+        it('passes through objects type "raw" (preserves objects)', function () {
+            var rawResults = _.cloneDeep(castingRawResults);
+            var resolvedConfig = _.cloneDeep(castingResolvedConfig);
+
+            rawResults[0].data[0]['typetest'] = {foo: 'bar'};
+            resolvedConfig.attributes['typetest'].type = 'raw';
+
+            var result = resultBuilder(api, {}, rawResults, resolvedConfig);
+            expect(result.data['typetest']).to.eql({foo: 'bar'});
+        });
+
+        it('passes through objects type "raw" (preserves strings)', function () {
+            var rawResults = _.cloneDeep(castingRawResults);
+            var resolvedConfig = _.cloneDeep(castingResolvedConfig);
+
+            rawResults[0].data[0]['typetest'] = 'foo';
+            resolvedConfig.attributes['typetest'].type = 'raw';
+
+            var result = resultBuilder(api, {}, rawResults, resolvedConfig);
+            expect(result.data['typetest']).to.eql('foo');
+        });
+
+        it('passes through objects type "raw" (preserves integers)', function () {
+            var rawResults = _.cloneDeep(castingRawResults);
+            var resolvedConfig = _.cloneDeep(castingResolvedConfig);
+
+            rawResults[0].data[0]['typetest'] = 42;
+            resolvedConfig.attributes['typetest'].type = 'raw';
+
+            var result = resultBuilder(api, {}, rawResults, resolvedConfig);
+            expect(result.data['typetest']).to.eql(42);
+        });
+
         it('always passes through "null"', function () {
             var rawResults = _.cloneDeep(castingRawResults);
             var resolvedConfig = _.cloneDeep(castingResolvedConfig);
