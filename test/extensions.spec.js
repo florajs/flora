@@ -318,7 +318,7 @@ describe('extensions', function () {
                     expect(ev.response.data.length).to.greaterThan(0);
                     expect(ev.response.data[0]).to.eql({
                         id: 1,
-                        bar: 'baz' // this is set by "item" callback, see fixtures/excensions/test/index.js
+                        bar: 'baz' // this is set by "item" callback, see fixtures/extensions/test/index.js
                     });
                 });
             });
