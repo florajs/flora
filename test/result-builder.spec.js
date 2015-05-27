@@ -378,8 +378,10 @@ describe('result-builder', function () {
                 dataSourceName: 'primary',
                 data: [{
                     id: '1'
+                },{
+                    id: '2'
                 }],
-                totalCount: 1
+                totalCount: 2
             },{
                 attributePath: ['comments'],
                 dataSourceName: 'primary',
@@ -395,18 +397,20 @@ describe('result-builder', function () {
                     articleId: '1',
                     content: 'Comment 2'
                 }],
-                totalCount: 1
+                totalCount: 2
             }];
 
             var resolvedConfig = _.cloneDeep(defaultResolvedConfig);
-            resolvedConfig.many = false;
             resolvedConfig.attributes['id'].selected = true;
             resolvedConfig.attributes['comments'].selected = true;
             resolvedConfig.attributes['comments'].attributes['id'].selected = true;
             resolvedConfig.attributes['comments'].attributes['content'].selected = true;
 
             var expectedResult = {
-                data: {
+                cursor: {
+                    totalCount: 2
+                },
+                data: [{
                     id: 1,
                     comments: [{
                         id: 100,
@@ -415,7 +419,10 @@ describe('result-builder', function () {
                         id: 101,
                         content: 'Comment 2'
                     }]
-                }
+                },{
+                    id: 2,
+                    comments: []
+                }]
             };
 
             var result = resultBuilder(api, {}, rawResults, resolvedConfig);
@@ -461,6 +468,42 @@ describe('result-builder', function () {
                         firstname: 'Bob',
                         lastname: 'Tester'
                     }
+                }
+            };
+
+            var result = resultBuilder(api, {}, rawResults, resolvedConfig);
+            expect(result).to.eql(expectedResult);
+        });
+
+        it('builds result with n:1 relation ("null" keys mapped to "null"-objects)', function () {
+            // /article/?select=author
+            var rawResults = [{
+                attributePath: [],
+                dataSourceName: 'primary',
+                data: [{
+                    id: '1',
+                    authorId: null
+                }],
+                totalCount: 1
+            },{
+                attributePath: ['author'],
+                dataSourceName: 'primary',
+                parentKey: ['authorId'],
+                childKey: ['id'],
+                data: [],
+                totalCount: 0
+            }];
+
+            var resolvedConfig = _.cloneDeep(defaultResolvedConfig);
+            resolvedConfig.many = false;
+            resolvedConfig.attributes['id'].selected = true;
+            resolvedConfig.attributes['author'].selected = true;
+            resolvedConfig.attributes['author'].attributes['id'].selected = true;
+
+            var expectedResult = {
+                data: {
+                    id: 1,
+                    author: null
                 }
             };
 
@@ -664,7 +707,7 @@ describe('result-builder', function () {
 
             expect(function () {
                 resultBuilder(api, {}, rawResults, resolvedConfig);
-            }).to.throw(DataError, 'Row with child key "1" not found ' +
+            }).to.throw(DataError, 'Foreign key id = "1" not found ' +
                 'in sub-resource "video" (DataSource "primary")');
         });
 
