@@ -413,8 +413,10 @@ describe('result-builder', function () {
                     id: '1'
                 },{
                     id: '2'
+                },{
+                    id: '3'
                 }],
-                totalCount: 2
+                totalCount: 3
             },{
                 attributePath: ['comments'],
                 dataSourceName: 'primary',
@@ -424,13 +426,16 @@ describe('result-builder', function () {
                     id: '100',
                     articleId: '1',
                     content: 'Comment 1'
-                },
-                {
+                },{
                     id: '101',
                     articleId: '1',
                     content: 'Comment 2'
+                },{
+                    id: '102',
+                    articleId: '2',
+                    content: 'Comment 3'
                 }],
-                totalCount: 2
+                totalCount: 3
             }];
 
             var resolvedConfig = _.cloneDeep(defaultResolvedConfig);
@@ -441,7 +446,7 @@ describe('result-builder', function () {
 
             var expectedResult = {
                 cursor: {
-                    totalCount: 2
+                    totalCount: 3
                 },
                 data: [{
                     id: 1,
@@ -454,6 +459,12 @@ describe('result-builder', function () {
                     }]
                 },{
                     id: 2,
+                    comments: [{
+                        id: 102,
+                        content: 'Comment 3'
+                    }]
+                },{
+                    id: 3,
                     comments: []
                 }]
             };
