@@ -698,7 +698,7 @@ describe('result-builder', function () {
                 'misses key attribute "authorId" in parent result (DataSource "primary")');
         });
 
-        it('fails if row in secondary DataSource (by primary key) is missing', function () {
+        it('handles missing row in secondary DataSource (by primary key) as "null"', function () {
             var rawResults = [{
                 attributePath: [],
                 dataSourceName: 'primary',
@@ -719,14 +719,23 @@ describe('result-builder', function () {
             }];
 
             var resolvedConfig = _.cloneDeep(defaultResolvedConfig);
+            resolvedConfig.many = false;
+            resolvedConfig.attributes['id'].selected = true;
+            resolvedConfig.attributes['body'].selected = true;
+            resolvedConfig.attributes['body'].selectedDataSource = 'articleBody';
 
-            expect(function () {
-                resultBuilder(api, {}, rawResults, resolvedConfig);
-            }).to.throw(DataError, 'Secondary DataSource "articleBody" of "{root}": ' +
-                'row with key "1" not found');
+            var expectedResult = {
+                data: {
+                    id: 1,
+                    body: null
+                }
+            };
+
+            var result = resultBuilder(api, {}, rawResults, resolvedConfig);
+            expect(result).to.eql(expectedResult);
         });
 
-        it('fails if row in child resource is missing', function () {
+        it('handles missing row in child resource as "null"', function () {
             var rawResults = [{
                 attributePath: [],
                 dataSourceName: 'primary',
@@ -747,12 +756,19 @@ describe('result-builder', function () {
             }];
 
             var resolvedConfig = _.cloneDeep(defaultResolvedConfig);
+            resolvedConfig.many = false;
+            resolvedConfig.attributes['id'].selected = true;
             resolvedConfig.attributes['video'].selected = true;
 
-            expect(function () {
-                resultBuilder(api, {}, rawResults, resolvedConfig);
-            }).to.throw(DataError, 'Foreign key id = "1" not found ' +
-                'in sub-resource "video" (DataSource "primary")');
+            var expectedResult = {
+                data: {
+                    id: 1,
+                    video: null
+                }
+            };
+
+            var result = resultBuilder(api, {}, rawResults, resolvedConfig);
+            expect(result).to.eql(expectedResult);
         });
 
         it('fails if normal attribute is missing', function () {
