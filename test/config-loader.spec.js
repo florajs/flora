@@ -223,6 +223,9 @@ describe('config-loader', function () {
             resourcesLoaded = require(__dirname + '/fixtures/resources-loaded.json');
 
         configLoader(cfg, function (err, configs) {
+            // for manually generating fixture:
+            //console.log(JSON.stringify(configs, null, 4));
+
             expect(configs).to.eql(resourcesLoaded);
             done();
         });

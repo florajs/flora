@@ -112,9 +112,11 @@
     <!-- Article has multiple comments (1 : n) - comment has articleId -->
     <comments primaryKey="id" parentKey="{primary}" childKey="articleId" many="true">
         <flora:dataSource type="mysql" database="contents" table="article_comment"/>
+        <flora:dataSource name="likes" type="mysql" database="contents" table="comment_likes"/>
 
-        <id type="int"/>
+        <id type="int" map="id;likes:commentId"/>
         <user resource="user" parentKey="userId" childKey="{primary}"/>
         <content/>
+        <likes type="int" map="likes:count"/>
     </comments>
 </resource>

@@ -153,18 +153,28 @@
                         "type": "mysql",
                         "database": "contents",
                         "table": "article_comment"
+                    },
+                    "likes": {
+                        "type": "mysql",
+                        "database": "contents",
+                        "table": "comment_likes"
                     }
                 },
                 "attributes": {
                     "id": {
-                        "type": "int"
+                        "type": "int",
+                        "map": "id;likes:commentId"
                     },
                     "user": {
                         "resource": "user",
                         "parentKey": "userId",
                         "childKey": "{primary}"
                     },
-                    "content": {}
+                    "content": {},
+                    "likes": {
+                        "type": "int",
+                        "map": "likes:count"
+                    }
                 }
             }
         }

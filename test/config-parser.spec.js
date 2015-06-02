@@ -578,10 +578,15 @@ describe('config-parser', function () {
                 ['articleId', 'url', 'previewImage'];
             resourceConfigs['article'].attributes['comments'].dataSources['primary'].expectedAttributes =
                 ['articleId', 'id', 'userId', 'content'];
+            resourceConfigs['article'].attributes['comments'].dataSources['likes'].expectedAttributes =
+                ['commentId', 'count'];
             resourceConfigs['user'].dataSources['primary'].expectedAttributes =
                 ['id', 'firstname', 'lastname'];
 
             configParser(resourceConfigs, mockDataSources);
+
+            // for manually generating fixture:
+            //console.log(JSON.stringify(resourceConfigs, null, 4));
 
             expect(resourceConfigs).to.eql(resourceConfigsParsed);
         });

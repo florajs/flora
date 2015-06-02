@@ -5,20 +5,6 @@
                 "id"
             ]
         ],
-        "resolvedPrimaryKey": {
-            "primary": [
-                "id"
-            ],
-            "articleBody": [
-                "articleId"
-            ],
-            "fulltextSearch": [
-                "articleId"
-            ],
-            "statistics": [
-                "articleId"
-            ]
-        },
         "dataSources": {
             "primary": {
                 "type": "mysql",
@@ -109,11 +95,6 @@
                         "id"
                     ]
                 ],
-                "resolvedPrimaryKey": {
-                    "primary": [
-                        "id"
-                    ]
-                },
                 "parentKey": null,
                 "childKey": null,
                 "joinVia": "articleCategories",
@@ -163,6 +144,11 @@
                             }
                         }
                     }
+                },
+                "resolvedPrimaryKey": {
+                    "primary": [
+                        "id"
+                    ]
                 }
             },
             "countries": {
@@ -171,11 +157,6 @@
                         "id"
                     ]
                 ],
-                "resolvedPrimaryKey": {
-                    "primary": [
-                        "id"
-                    ]
-                },
                 "parentKey": {
                     "primary": [
                         "countries"
@@ -228,6 +209,11 @@
                             }
                         }
                     }
+                },
+                "resolvedPrimaryKey": {
+                    "primary": [
+                        "id"
+                    ]
                 }
             },
             "body": {
@@ -320,11 +306,6 @@
                         "id"
                     ]
                 ],
-                "resolvedPrimaryKey": {
-                    "primary": [
-                        "id"
-                    ]
-                },
                 "parentKey": null,
                 "childKey": {
                     "primary": [
@@ -337,6 +318,11 @@
                         "type": "mysql",
                         "database": "contents",
                         "table": "article_comment"
+                    },
+                    "likes": {
+                        "type": "mysql",
+                        "database": "contents",
+                        "table": "comment_likes"
                     }
                 },
                 "attributes": {
@@ -344,7 +330,8 @@
                         "type": "int",
                         "map": {
                             "default": {
-                                "primary": "id"
+                                "primary": "id",
+                                "likes": "commentId"
                             }
                         },
                         "filter": [
@@ -366,9 +353,39 @@
                                 "primary": "content"
                             }
                         }
+                    },
+                    "likes": {
+                        "type": "int",
+                        "map": {
+                            "default": {
+                                "likes": "count"
+                            }
+                        }
                     }
+                },
+                "resolvedPrimaryKey": {
+                    "primary": [
+                        "id"
+                    ],
+                    "likes": [
+                        "commentId"
+                    ]
                 }
             }
+        },
+        "resolvedPrimaryKey": {
+            "primary": [
+                "id"
+            ],
+            "articleBody": [
+                "articleId"
+            ],
+            "fulltextSearch": [
+                "articleId"
+            ],
+            "statistics": [
+                "articleId"
+            ]
         }
     },
     "user": {
@@ -377,11 +394,6 @@
                 "id"
             ]
         ],
-        "resolvedPrimaryKey": {
-            "primary": [
-                "id"
-            ]
-        },
         "dataSources": {
             "primary": {
                 "type": "mysql",
@@ -415,6 +427,11 @@
                     }
                 }
             }
+        },
+        "resolvedPrimaryKey": {
+            "primary": [
+                "id"
+            ]
         }
     }
 }

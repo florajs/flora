@@ -1,24 +1,11 @@
 {
     "many": true,
+    "resourceName": "article",
     "primaryKey": [
         [
             "id"
         ]
     ],
-    "resolvedPrimaryKey": {
-        "primary": [
-            "id"
-        ],
-        "articleBody": [
-            "articleId"
-        ],
-        "fulltextSearch": [
-            "articleId"
-        ],
-        "statistics": [
-            "articleId"
-        ]
-    },
     "dataSources": {
         "primary": {
             "type": "mysql",
@@ -63,7 +50,6 @@
             "query": "SELECT\n            articleId AS articleId,\n            COUNT(id) AS commentCount\n        FROM comments\n        GROUP BY articleId"
         }
     },
-    "resourceName": "article",
     "subFilters": [
         {
             "attribute": [
@@ -131,16 +117,12 @@
                 ]
             },
             "childKey": null,
+            "resourceName": "user",
             "primaryKey": [
                 [
                     "id"
                 ]
             ],
-            "resolvedPrimaryKey": {
-                "primary": [
-                    "id"
-                ]
-            },
             "dataSources": {
                 "primary": {
                     "type": "mysql",
@@ -195,7 +177,11 @@
                     "selectedDataSource": "primary"
                 }
             },
-            "resourceName": "user",
+            "resolvedPrimaryKey": {
+                "primary": [
+                    "id"
+                ]
+            },
             "selected": false,
             "primaryDataSource": "primary"
         },
@@ -205,11 +191,6 @@
                     "id"
                 ]
             ],
-            "resolvedPrimaryKey": {
-                "primary": [
-                    "id"
-                ]
-            },
             "parentKey": null,
             "childKey": null,
             "joinVia": "articleCategories",
@@ -259,6 +240,11 @@
                         }
                     }
                 }
+            },
+            "resolvedPrimaryKey": {
+                "primary": [
+                    "id"
+                ]
             }
         },
         "countries": {
@@ -267,11 +253,6 @@
                     "id"
                 ]
             ],
-            "resolvedPrimaryKey": {
-                "primary": [
-                    "id"
-                ]
-            },
             "parentKey": {
                 "primary": [
                     "countries"
@@ -324,6 +305,11 @@
                         }
                     }
                 }
+            },
+            "resolvedPrimaryKey": {
+                "primary": [
+                    "id"
+                ]
             }
         },
         "body": {
@@ -440,11 +426,6 @@
                     "id"
                 ]
             ],
-            "resolvedPrimaryKey": {
-                "primary": [
-                    "id"
-                ]
-            },
             "parentKey": null,
             "childKey": {
                 "primary": [
@@ -472,6 +453,11 @@
                             }
                         ]
                     ]
+                },
+                "likes": {
+                    "type": "mysql",
+                    "database": "contents",
+                    "table": "comment_likes"
                 }
             },
             "attributes": {
@@ -479,7 +465,8 @@
                     "type": "int",
                     "map": {
                         "default": {
-                            "primary": "id"
+                            "primary": "id",
+                            "likes": "commentId"
                         }
                     },
                     "filter": [
@@ -495,16 +482,12 @@
                         ]
                     },
                     "childKey": null,
+                    "resourceName": "user",
                     "primaryKey": [
                         [
                             "id"
                         ]
                     ],
-                    "resolvedPrimaryKey": {
-                        "primary": [
-                            "id"
-                        ]
-                    },
                     "dataSources": {
                         "primary": {
                             "type": "mysql",
@@ -526,7 +509,6 @@
                             ]
                         }
                     },
-                    "resourceName": "user",
                     "attributes": {
                         "id": {
                             "type": "int",
@@ -560,6 +542,11 @@
                             "selectedDataSource": "primary"
                         }
                     },
+                    "resolvedPrimaryKey": {
+                        "primary": [
+                            "id"
+                        ]
+                    },
                     "selected": false,
                     "primaryDataSource": "primary"
                 },
@@ -571,11 +558,41 @@
                     },
                     "selected": false,
                     "selectedDataSource": "primary"
+                },
+                "likes": {
+                    "type": "int",
+                    "map": {
+                        "default": {
+                            "likes": "count"
+                        }
+                    }
                 }
+            },
+            "resolvedPrimaryKey": {
+                "primary": [
+                    "id"
+                ],
+                "likes": [
+                    "commentId"
+                ]
             },
             "selected": false,
             "primaryDataSource": "primary"
         }
+    },
+    "resolvedPrimaryKey": {
+        "primary": [
+            "id"
+        ],
+        "articleBody": [
+            "articleId"
+        ],
+        "fulltextSearch": [
+            "articleId"
+        ],
+        "statistics": [
+            "articleId"
+        ]
     },
     "selected": true,
     "primaryDataSource": "primary"
