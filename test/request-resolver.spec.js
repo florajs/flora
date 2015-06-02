@@ -687,6 +687,75 @@ describe('request-resolver', function () {
             expect(resolvedRequest.dataSourceTree).to.eql(dataSourceTree);
         });
 
+        it('resolves selected sub-resource (1:n relation) with secondary DataSource', function () {
+            // /article/?select=comments[content,likes]
+            var req = {
+                resource: 'article',
+                select: {
+                    'comments': {
+                        select: {
+                            'content': {},
+                            'likes': {}
+                        }
+                    }
+                }
+            };
+
+            var dataSourceTree = {
+                resourceName: 'article',
+                attributePath: [],
+                dataSourceName: 'primary',
+                request: {
+                    type: 'mysql',
+                    database: 'contents',
+                    table: 'article',
+                    attributes: ['id'],
+                    limit: 10
+                },
+                subRequests: [
+                    {
+                        attributePath: ['comments'],
+                        dataSourceName: 'primary',
+                        parentKey: ['id'],
+                        childKey: ['articleId'],
+                        request: {
+                            type: 'mysql',
+                            database: 'contents',
+                            table: 'article_comment',
+                            attributes: ['id', 'articleId', 'content'],
+                            filter: [
+                                [
+                                    {attribute: 'articleId', operator: 'equal', valueFromParentKey: true}
+                                ]
+                            ]
+                        },
+                        subRequests: [
+                            {
+                                attributePath: ['comments'],
+                                dataSourceName: 'likes',
+                                parentKey: ['id'],
+                                childKey: ['commentId'],
+                                request: {
+                                    type: 'mysql',
+                                    database: 'contents',
+                                    table: 'comment_likes',
+                                    attributes: ['commentId', 'count'],
+                                    filter: [
+                                        [
+                                            {attribute: 'commentId', operator: 'equal', valueFromParentKey: true}
+                                        ]
+                                    ]
+                                }
+                            }
+                        ]
+                    }
+                ]
+            };
+
+            var resolvedRequest = requestResolver(req, resourceConfigs);
+            expect(resolvedRequest.dataSourceTree).to.eql(dataSourceTree);
+        });
+
         it('resolves selected sub-resource (n:1 relation)', function () {
             // /article/?select=author[firstname,lastname]
             var req = {
