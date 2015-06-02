@@ -154,6 +154,34 @@ describe('Api', function () {
             });
         });
 
+        it('should fail when action does not exist', function (done) {
+            var api = new Api();
+            api.init({
+                log: log,
+                resourcesPath: resourcesPath,
+                dataSources: {
+                    test: {
+                        constructor: testDataSource
+                    }
+                }
+            }, function (err) {
+                if (err) return done(err);
+
+                // mock empty resource:
+                api._resources['no-actions'] = {};
+
+                var request = new Request({
+                    resource: 'no-actions'
+                });
+                api.execute(request, function (err, response) {
+                    expect(response).to.be.undefined;
+                    expect(err).to.be.an('object');
+                    expect(err.message).to.equal('Action "retrieve" is not implemented');
+                    api.close(done);
+                });
+            });
+        });
+
         it('should fail when Api#init is not done', function (done) {
             var api = new Api();
             api.init({
