@@ -102,12 +102,14 @@
                     "primary": "title"
                 }
             },
+            "type": "string",
             "selected": false,
             "selectedDataSource": "primary"
         },
         "subTitle": {
             "deprecated": true,
             "value": null,
+            "type": "string",
             "selected": false
         },
         "author": {
@@ -164,6 +166,7 @@
                             "primary": "firstname"
                         }
                     },
+                    "type": "string",
                     "selected": false,
                     "selectedDataSource": "primary"
                 },
@@ -173,6 +176,7 @@
                             "primary": "lastname"
                         }
                     },
+                    "type": "string",
                     "selected": false,
                     "selectedDataSource": "primary"
                 }
@@ -230,7 +234,8 @@
                         "default": {
                             "primary": "name"
                         }
-                    }
+                    },
+                    "type": "string"
                 },
                 "isImportant": {
                     "type": "boolean",
@@ -289,21 +294,24 @@
                         "default": {
                             "primary": "name"
                         }
-                    }
+                    },
+                    "type": "string"
                 },
                 "iso": {
                     "map": {
                         "default": {
                             "primary": "iso"
                         }
-                    }
+                    },
+                    "type": "string"
                 },
                 "iso3": {
                     "map": {
                         "default": {
                             "primary": "iso3"
                         }
-                    }
+                    },
+                    "type": "string"
                 }
             },
             "resolvedPrimaryKey": {
@@ -318,6 +326,7 @@
                     "articleBody": "body"
                 }
             },
+            "type": "string",
             "selected": false,
             "selectedDataSource": "articleBody"
         },
@@ -355,6 +364,7 @@
                             "primary": "url"
                         }
                     },
+                    "type": "string",
                     "selected": false,
                     "selectedDataSource": "primary"
                 },
@@ -363,7 +373,8 @@
                         "default": {
                             "primary": "previewImage"
                         }
-                    }
+                    },
+                    "type": "string"
                 }
             },
             "selected": false,
@@ -377,6 +388,7 @@
                             "primary": "sourceName"
                         }
                     },
+                    "type": "string",
                     "selected": false,
                     "selectedDataSource": "primary"
                 },
@@ -386,6 +398,7 @@
                             "primary": "externalId"
                         }
                     },
+                    "type": "string",
                     "selected": false,
                     "selectedDataSource": "primary"
                 },
@@ -394,7 +407,8 @@
                         "default": {
                             "primary": "externalUrl"
                         }
-                    }
+                    },
+                    "type": "string"
                 }
             },
             "selected": false
@@ -403,7 +417,8 @@
             "depends": {
                 "MOCK": "Select AST of 'author[firstname,lastname],categories.name,secretInfo'"
             },
-            "value": ""
+            "value": "",
+            "type": "string"
         },
         "secretInfo": {
             "internal": true,
@@ -411,14 +426,16 @@
                 "default": {
                     "primary": "secretInfo"
                 }
-            }
+            },
+            "type": "string"
         },
         "commentCount": {
             "map": {
                 "default": {
                     "statistics": "commentCount"
                 }
-            }
+            },
+            "type": "string"
         },
         "comments": {
             "primaryKey": [
@@ -529,6 +546,7 @@
                                     "primary": "firstname"
                                 }
                             },
+                            "type": "string",
                             "selected": false,
                             "selectedDataSource": "primary"
                         },
@@ -538,6 +556,7 @@
                                     "primary": "lastname"
                                 }
                             },
+                            "type": "string",
                             "selected": false,
                             "selectedDataSource": "primary"
                         }
@@ -556,6 +575,7 @@
                             "primary": "content"
                         }
                     },
+                    "type": "string",
                     "selected": false,
                     "selectedDataSource": "primary"
                 },

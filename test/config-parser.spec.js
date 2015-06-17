@@ -190,6 +190,7 @@ describe('config-parser', function () {
             resourceConfigsParsed['test'].primaryKey = [['id'], ['context']];
             resourceConfigsParsed['test'].resolvedPrimaryKey = {'primary': ['id', 'ctx']};
             resourceConfigsParsed['test'].attributes['context'] = {
+                type: 'string',
                 map: {
                     'default': {
                         'primary': 'ctx'
@@ -394,11 +395,14 @@ describe('config-parser', function () {
             resourceConfigs['test'].attributes['meta'] = {attributes: {'title': {}}};
             resourceConfigs['test'].dataSources['primary'].expectedAttributes.push('meta.title');
             resourceConfigsParsed['test'].attributes['meta'] = {attributes: {
-                'title': {map: {
-                    'default': {
-                        'primary': 'meta.title'
+                'title': {
+                    type: 'string',
+                    map: {
+                        'default': {
+                            'primary': 'meta.title'
+                        }
                     }
-                }}
+                }
             }};
 
             configParser(resourceConfigs, mockDataSources);
@@ -469,7 +473,7 @@ describe('config-parser', function () {
             var resourceConfigsParsed = _.cloneDeep(minimalResourceConfigsParsed);
 
             resourceConfigs['test'].attributes['dummy'] = {value: 'null'};
-            resourceConfigsParsed['test'].attributes['dummy'] = {value: null};
+            resourceConfigsParsed['test'].attributes['dummy'] = {value: null, type: 'string'};
             // ... no "map" for "dummy" attribute and no "dummy" in expectedAttributes!
 
             configParser(resourceConfigs, mockDataSources);
@@ -482,7 +486,7 @@ describe('config-parser', function () {
             var resourceConfigsParsed = _.cloneDeep(minimalResourceConfigsParsed);
 
             resourceConfigs['test'].attributes['copyright'] = {depends: 'author[firstname,lastname]', value: ''};
-            resourceConfigsParsed['test'].attributes['copyright'] = {depends: {/* TODO */}, value: ''};
+            resourceConfigsParsed['test'].attributes['copyright'] = {depends: {/* TODO */}, value: '', type: 'string'};
 
             configParser(resourceConfigs, mockDataSources);
 
@@ -494,7 +498,7 @@ describe('config-parser', function () {
             var resourceConfigsParsed = _.cloneDeep(minimalResourceConfigsParsed);
 
             resourceConfigs['test'].attributes['dummy'] = {internal: 'true', value: ''};
-            resourceConfigsParsed['test'].attributes['dummy'] = {internal: true, value: ''};
+            resourceConfigsParsed['test'].attributes['dummy'] = {internal: true, value: '', type: 'string'};
 
             configParser(resourceConfigs, mockDataSources);
 
@@ -506,7 +510,7 @@ describe('config-parser', function () {
             var resourceConfigsParsed = _.cloneDeep(minimalResourceConfigsParsed);
 
             resourceConfigs['test'].attributes['dummy'] = {deprecated: 'true', value: ''};
-            resourceConfigsParsed['test'].attributes['dummy'] = {deprecated: true, value: ''};
+            resourceConfigsParsed['test'].attributes['dummy'] = {deprecated: true, value: '', type: 'string'};
 
             configParser(resourceConfigs, mockDataSources);
 
@@ -517,7 +521,7 @@ describe('config-parser', function () {
             resourceConfigsParsed = _.cloneDeep(minimalResourceConfigsParsed);
 
             resourceConfigs['test'].attributes['dummy'] = {deprecated: 'false', value: ''};
-            resourceConfigsParsed['test'].attributes['dummy'] = {deprecated: false, value: ''};
+            resourceConfigsParsed['test'].attributes['dummy'] = {deprecated: false, value: '', type: 'string'};
 
             configParser(resourceConfigs, mockDataSources);
 
