@@ -235,6 +235,9 @@ describe('request-resolver', function () {
                     table: 'article',
                     attributes: ['id'],
                     limit: 10
+                },
+                attributeOptions: {
+                    'id': {type: 'int'}
                 }
             };
 
@@ -264,6 +267,9 @@ describe('request-resolver', function () {
                             // TODO: Type mapping of primaryKey value to defined type
                         ]
                     ]
+                },
+                attributeOptions: {
+                    'id': {type: 'int'}
                 }
             };
 
@@ -290,6 +296,10 @@ describe('request-resolver', function () {
                     table: 'article',
                     attributes: ['id', 'title'],
                     limit: 10
+                },
+                attributeOptions: {
+                    'id': {type: 'int'},
+                    'title': {type: 'string'}
                 }
             };
 
@@ -369,6 +379,9 @@ describe('request-resolver', function () {
                         ]
                     ],
                     limit: 10
+                },
+                attributeOptions: {
+                    'id': {type: 'int'}
                 }
             };
 
@@ -426,6 +439,9 @@ describe('request-resolver', function () {
                     attributes: ['articleId'],
                     search: 'test',
                     limit: 10
+                },
+                attributeOptions: {
+                    'articleId': {type: 'int'}
                 }
             };
 
@@ -455,6 +471,9 @@ describe('request-resolver', function () {
                         {attribute: 'timestamp', direction: 'asc'}
                     ],
                     limit: 10
+                },
+                attributeOptions: {
+                    'id': {type: 'int'}
                 }
             };
 
@@ -507,6 +526,9 @@ describe('request-resolver', function () {
                     table: 'article',
                     attributes: ['id'],
                     limit: 100
+                },
+                attributeOptions: {
+                    'id': {type: 'int'}
                 }
             };
 
@@ -533,6 +555,9 @@ describe('request-resolver', function () {
                     attributes: ['id'],
                     limit: 50,
                     page: 2
+                },
+                attributeOptions: {
+                    'id': {type: 'int'}
                 }
             };
 
@@ -613,6 +638,9 @@ describe('request-resolver', function () {
                     attributes: ['id'],
                     limit: 10
                 },
+                attributeOptions: {
+                    'id': {type: 'int'}
+                },
                 subRequests: [
                     {
                         attributePath: ['video'],
@@ -629,6 +657,10 @@ describe('request-resolver', function () {
                                     {attribute: 'articleId', operator: 'equal', valueFromParentKey: true}
                                 ]
                             ]
+                        },
+                        attributeOptions: {
+                            'articleId': {type: 'int'},
+                            'url': {type: 'string'}
                         }
                     }
                 ]
@@ -662,6 +694,9 @@ describe('request-resolver', function () {
                     attributes: ['id'],
                     limit: 10
                 },
+                attributeOptions: {
+                    'id': {type: 'int'}
+                },
                 subRequests: [
                     {
                         attributePath: ['comments'],
@@ -678,6 +713,11 @@ describe('request-resolver', function () {
                                     {attribute: 'articleId', operator: 'equal', valueFromParentKey: true}
                                 ]
                             ]
+                        },
+                        attributeOptions: {
+                            'id': {type: 'int'},
+                            'articleId': {type: 'int'},
+                            'content': {type: 'string'}
                         }
                     }
                 ]
@@ -712,6 +752,9 @@ describe('request-resolver', function () {
                     attributes: ['id'],
                     limit: 10
                 },
+                attributeOptions: {
+                    'id': {type: 'int'}
+                },
                 subRequests: [
                     {
                         attributePath: ['comments'],
@@ -729,6 +772,11 @@ describe('request-resolver', function () {
                                 ]
                             ]
                         },
+                        attributeOptions: {
+                            'id': {type: 'int'},
+                            'articleId': {type: 'int'},
+                            'content': {type: 'string'}
+                        },
                         subRequests: [
                             {
                                 attributePath: ['comments'],
@@ -745,6 +793,10 @@ describe('request-resolver', function () {
                                             {attribute: 'commentId', operator: 'equal', valueFromParentKey: true}
                                         ]
                                     ]
+                                },
+                                attributeOptions: {
+                                    'commentId': {type: 'int'},
+                                    'count': {type: 'int'}
                                 }
                             }
                         ]
@@ -781,6 +833,10 @@ describe('request-resolver', function () {
                     attributes: ['id', 'authorId'],
                     limit: 10
                 },
+                attributeOptions: {
+                    'id': {type: 'int'},
+                    'authorId': {type: 'int'}
+                },
                 subRequests: [
                     {
                         resourceName: 'user',
@@ -798,6 +854,11 @@ describe('request-resolver', function () {
                                     {attribute: 'id', operator: 'equal', valueFromParentKey: true}
                                 ]
                             ]
+                        },
+                        attributeOptions: {
+                            'id': {type: 'int'},
+                            'firstname': {type: 'string'},
+                            'lastname': {type: 'string'}
                         }
                     }
                 ]
@@ -831,7 +892,8 @@ describe('request-resolver', function () {
                     attributes: ['id', 'countries'],
                     limit: 10
                 },
-                casts: {
+                attributeOptions: {
+                    'id': {type: 'int'},
                     'countries': {type: 'string', delimiter: ','}
                 },
                 subRequests: [
@@ -850,6 +912,11 @@ describe('request-resolver', function () {
                                     {attribute: 'iso', operator: 'equal', valueFromParentKey: true}
                                 ]
                             ]
+                        },
+                        attributeOptions: {
+                            'id': {type: 'int'},
+                            'iso': {type: 'string'},
+                            'name': {type: 'string'}
                         }
                     }
                 ]
@@ -883,6 +950,9 @@ describe('request-resolver', function () {
                     attributes: ['id'],
                     limit: 10
                 },
+                attributeOptions: {
+                    'id': {type: 'int'}
+                },
                 subRequests: [
                     {
                         attributePath: ['categories'],
@@ -900,6 +970,10 @@ describe('request-resolver', function () {
                                 ]
                             ]
                         },
+                        attributeOptions: {
+                            'articleId': {type: 'int'},
+                            'categoryId': {type: 'int'}
+                        },
                         subRequests: [
                             {
                                 attributePath: ['categories'],
@@ -916,6 +990,10 @@ describe('request-resolver', function () {
                                             {attribute: 'id', operator: 'equal', valueFromParentKey: true}
                                         ]
                                     ]
+                                },
+                                attributeOptions: {
+                                    'id': {type: 'int'},
+                                    'name': {type: 'string'}
                                 }
                             }
                         ]
@@ -949,6 +1027,9 @@ describe('request-resolver', function () {
                     attributes: ['id'],
                     limit: 10
                 },
+                attributeOptions: {
+                    'id': {type: 'int'}
+                },
                 subRequests: [
                     {
                         attributePath: [],
@@ -965,6 +1046,10 @@ describe('request-resolver', function () {
                                     {attribute: 'articleId', operator: 'equal', valueFromParentKey: true}
                                 ]
                             ]
+                        },
+                        attributeOptions: {
+                            'articleId': {type: 'int'},
+                            'body': {type: 'string'}
                         }
                     }
                 ]
@@ -1049,6 +1134,14 @@ describe('request-resolver', function () {
                     limit: 10,
                     page: 1
                 },
+                attributeOptions: {
+                    'id': {type: 'int'},
+                    'timestamp': {type: 'datetime'},
+                    'title': {type: 'string'},
+                    'sourceName': {type: 'string'},
+                    'externalId': {type: 'string'},
+                    'authorId': {type: 'int'}
+                },
                 /*TODO: Filter by sub-resource:
                 subFilters: [{
                     // This request can be optimized to a sub-query in main-request in SQL - TODO: How to do SQL-Shortcuts here?
@@ -1083,6 +1176,10 @@ describe('request-resolver', function () {
                                     {attribute: 'articleId', operator: 'equal', valueFromParentKey: true}
                                 ]
                             ]
+                        },
+                        attributeOptions: {
+                            'articleId': {type: 'int'},
+                            'body': {type: 'string'}
                         }
                     },
                     {
@@ -1101,6 +1198,11 @@ describe('request-resolver', function () {
                                     {attribute: 'id', operator: 'equal', valueFromParentKey: true}
                                 ]
                             ]
+                        },
+                        attributeOptions: {
+                            'id': {type: 'int'},
+                            'firstname': {type: 'string'},
+                            'lastname': {type: 'string'}
                         }
                     }
                 ]
