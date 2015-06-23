@@ -107,7 +107,7 @@
     <secretInfo internal="true"/>
 
     <!-- Count of comments per article - only queried if selected -->
-    <commentCount map="statistics:commentCount"/>
+    <commentCount type="int" map="statistics:commentCount"/>
 
     <!-- Article has multiple comments (1 : n) - comment has articleId -->
     <comments primaryKey="id" parentKey="{primary}" childKey="articleId" many="true">

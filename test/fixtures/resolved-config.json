@@ -430,12 +430,12 @@
             "type": "string"
         },
         "commentCount": {
+            "type": "int",
             "map": {
                 "default": {
                     "statistics": "commentCount"
                 }
-            },
-            "type": "string"
+            }
         },
         "comments": {
             "primaryKey": [

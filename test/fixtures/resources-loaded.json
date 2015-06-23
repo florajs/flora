@@ -141,6 +141,7 @@
                 "internal": "true"
             },
             "commentCount": {
+                "type": "int",
                 "map": "statistics:commentCount"
             },
             "comments": {
