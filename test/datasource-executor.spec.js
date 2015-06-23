@@ -588,4 +588,159 @@ describe('datasource-executor', function () {
             });
         });
     });
+
+    describe('type casting', function () {
+        var dst = {
+            attributePath: [],
+            request: {
+                type: 'test',
+                table: 'user'
+            },
+            attributeOptions: {
+                string2int: {type: 'int'},
+                string2float: {type: 'float'},
+                int2string: {type: 'string'},
+                string2boolean1: {type: 'boolean'},
+                string2boolean0: {type: 'boolean'},
+                int2boolean1: {type: 'boolean'},
+                int2boolean0: {type: 'boolean'},
+                string2datetime: {type: 'datetime'},
+                string2time: {type: 'datetime'},
+                string2date: {type: 'datetime'},
+                raw: {type: 'raw'},
+                null2int: {type: 'int'},
+                unknownType: {type: 'unknown'}
+            }
+        };
+
+        before(function () {
+            sinon.stub(api.dataSources['test'], 'process', function (query, callback) {
+                return callback(null, {
+                    data: [
+                        {
+                            string2int: '42',
+                            string2float: '3.1415',
+                            int2string: 42,
+                            string2boolean1: '1',
+                            string2boolean0: '0',
+                            int2boolean1: 1,
+                            int2boolean0: 0,
+                            string2datetime: '2015-06-17 12:13:14',
+                            string2time: '2015-06-17 12:13:14',
+                            string2date: '2015-06-17 12:13:14',
+                            raw: {foo: 'bar'},
+                            null2int: null,
+                            emptyType: {foo: 'bar'},
+                            unknownType: {foo: 'bar'}
+                        }
+                    ],
+                    totalCount: null
+                });
+            });
+        });
+
+        after(function () {
+            api.dataSources['test'].process.restore();
+        });
+
+        it('supports type casting', function () {
+            execute(api, {}, dst, function (err, result) {
+                expect(err).to.eql(null);
+                expect(result).to.be.an('array');
+                expect(result[0]).to.be.an('object');
+                expect(result[0].data).to.be.an('array');
+                expect(result[0].data[0]).to.be.an('object');
+            });
+        });
+
+        it('casts string to int', function () {
+            execute(api, {}, dst, function (err, result) {
+                expect(result[0].data[0].string2int).to.be.a('number');
+                expect(result[0].data[0].string2int).to.equal(42);
+            });
+        });
+
+        it('casts string to float', function () {
+            execute(api, {}, dst, function (err, result) {
+                expect(result[0].data[0].string2float).to.be.a('number');
+                expect(result[0].data[0].string2float).to.equal(3.1415);
+            });
+        });
+
+        it('casts int to string', function () {
+            execute(api, {}, dst, function (err, result) {
+                expect(result[0].data[0].int2string).to.be.a('string');
+                expect(result[0].data[0].int2string).to.equal('42');
+            });
+        });
+
+        it('casts string to boolean', function () {
+            execute(api, {}, dst, function (err, result) {
+                expect(result[0].data[0].string2boolean1).to.be.a('boolean');
+                expect(result[0].data[0].string2boolean1).to.equal(true);
+                expect(result[0].data[0].string2boolean0).to.be.a('boolean');
+                expect(result[0].data[0].string2boolean0).to.equal(false);
+            });
+        });
+
+        it('casts int to boolean', function () {
+            execute(api, {}, dst, function (err, result) {
+                expect(result[0].data[0].int2boolean1).to.be.a('boolean');
+                expect(result[0].data[0].int2boolean1).to.equal(true);
+                expect(result[0].data[0].int2boolean0).to.be.a('boolean');
+                expect(result[0].data[0].int2boolean0).to.equal(false);
+            });
+        });
+
+        it('casts string to datetime', function () {
+            execute(api, {}, dst, function (err, result) {
+                expect(result[0].data[0].string2datetime).to.be.a('string');
+                expect(result[0].data[0].string2datetime).to.equal('2015-06-17T10:13:14.000Z');
+            });
+        });
+
+        it('casts string to time', function () {
+            execute(api, {}, dst, function (err, result) {
+                expect(result[0].data[0].string2time).to.be.a('string');
+                expect(result[0].data[0].string2time).to.equal('2015-06-17T10:13:14.000Z');
+            });
+        });
+
+        it('casts string to date', function () {
+            execute(api, {}, dst, function (err, result) {
+                expect(result[0].data[0].string2date).to.be.a('string');
+                expect(result[0].data[0].string2date).to.equal('2015-06-17T10:13:14.000Z');
+            });
+        });
+
+        it('passes through raw data', function () {
+            execute(api, {}, dst, function (err, result) {
+                expect(result[0].data[0].raw).to.be.an('object');
+                expect(result[0].data[0].raw).to.eql({foo: 'bar'});
+            });
+        });
+
+        it('passes through null', function () {
+            execute(api, {}, dst, function (err, result) {
+                expect(err).to.eql(null);
+                expect(result[0].data[0].null2int).to.equal(null);
+            });
+        });
+
+        it('passes through empty type', function () {
+            execute(api, {}, dst, function (err, result) {
+                expect(err).to.eql(null);
+                expect(result[0].data[0].emptyType).to.be.an('object');
+                expect(result[0].data[0].emptyType).to.eql({foo: 'bar'});
+            });
+        });
+
+        it('passes through unknown type', function () {
+            execute(api, {}, dst, function (err, result) {
+                expect(err).to.eql(null);
+                expect(result[0].data[0].unknownType).to.be.an('object');
+                expect(result[0].data[0].unknownType).to.eql({foo: 'bar'});
+            });
+        });
+    });
 });
