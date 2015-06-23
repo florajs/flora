@@ -116,31 +116,6 @@ describe('result-builder', function () {
         });
     });
 
-    describe('type casting', function () {
-        var castingRawResults = [{
-            attributePath: [],
-            dataSourceName: 'primary',
-            data: [{
-                id: 1,
-                attribute: null
-            }],
-            totalCount: 1
-        }];
-
-        var castingResolvedConfig = _.cloneDeep(defaultResolvedConfig);
-        castingResolvedConfig.many = false;
-        castingResolvedConfig.attributes['id'].selected = true;
-        castingResolvedConfig.attributes['typetest'] = {
-            selected: true,
-            map: {
-                'default': {
-                    'primary': 'typetest'
-                }
-            },
-            selectedDataSource: 'primary'
-        };
-    });
-
     describe('attribute features', function () {
         it('builds result with nested attributes', function () {
             // /article/?select=source.name

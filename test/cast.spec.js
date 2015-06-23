@@ -22,14 +22,17 @@ describe('type casting', function () {
     });
 
     it('casts type "date"', function () {
+        // TODO: implement type "date" correctly
         expect(cast('2015-03-03 15:00:00', 'date')).to.equal('2015-03-03T14:00:00.000Z');
     });
 
     it('casts type "datetime"', function () {
+        // TODO: implement type "datetime" correctly
         expect(cast('2015-03-03 15:00:00', 'datetime')).to.equal('2015-03-03T14:00:00.000Z');
     });
 
     it('casts type "time"', function () {
+        // TODO: implement type "time" correctly
         expect(cast('2015-03-03 15:00:00', 'time')).to.equal('2015-03-03T14:00:00.000Z');
     });
 
