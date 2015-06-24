@@ -125,28 +125,6 @@ describe('config-parser', function () {
             }).to.throw(ImplementationError, 'Invalid DataSource type "unknown" in resource "test:{root}"');
         });
 
-        it('collects joinParentKey and joinChildKey attributes from dataSources', function () {
-            var resourceConfigs = _.cloneDeep(minimalResourceConfigs);
-            var resourceConfigsParsed = _.cloneDeep(minimalResourceConfigsParsed);
-
-            resourceConfigs['test'].dataSources['joinTest'] = {
-                type: 'testDataSource',
-                joinParentKey: 'parentId',
-                joinChildKey: 'childId',
-                expectedAttributes: ['parentId', 'childId']
-            };
-
-            resourceConfigsParsed['test'].dataSources['joinTest'] = {
-                type: 'testDataSource',
-                joinParentKey: ['parentId'],
-                joinChildKey: ['childId']
-            };
-
-            configParser(resourceConfigs, mockDataSources);
-
-            expect(resourceConfigs).to.eql(resourceConfigsParsed);
-        });
-
         it('parses subFilters and its options', function () {
             var resourceConfigs = _.cloneDeep(minimalResourceConfigs);
             var resourceConfigsParsed = _.cloneDeep(minimalResourceConfigsParsed);
@@ -264,51 +242,56 @@ describe('config-parser', function () {
                 'Path "subResource.id" references sub-resource in primaryKey in resource "test:{root}"');
         });
 
-        it('parses parentKey/childKey and collects its DataSource attributes', function () {
+        it('parses parentKey/childKey', function () {
             var resourceConfigs = _.cloneDeep(minimalResourceConfigs);
             var resourceConfigsParsed = _.cloneDeep(minimalResourceConfigsParsed);
 
+            resourceConfigs['test'].attributes['parentId'] = {type: 'int'};
+            resourceConfigs['test'].dataSources['primary'].
+                expectedAttributes = ['id', 'parentId'];
             resourceConfigs['test'].attributes['subResource'] = _.cloneDeep(minimalResourceConfigs['test']);
             resourceConfigs['test'].attributes['subResource'].parentKey = 'parentId';
             resourceConfigs['test'].attributes['subResource'].childKey = 'childId';
-            resourceConfigs['test'].dataSources['primary'].
-                expectedAttributes = ['id', 'parentId'];
+            resourceConfigs['test'].attributes['subResource'].attributes['childId'] = {type: 'int'};
             resourceConfigs['test'].attributes['subResource'].dataSources['primary'].
-                expectedAttributes = ['childId', 'id'];
+                expectedAttributes = ['id', 'childId'];
 
+            resourceConfigsParsed['test'].attributes['parentId'] = {
+                type: 'int',
+                map: {default: {'primary': 'parentId'}}
+            };
             resourceConfigsParsed['test'].attributes['subResource'] = _.cloneDeep(minimalResourceConfigsParsed['test']);
-            resourceConfigsParsed['test'].attributes['subResource'].parentKey = {'primary': ['parentId']};
-            resourceConfigsParsed['test'].attributes['subResource'].childKey = {'primary': ['childId']};
+            resourceConfigsParsed['test'].attributes['subResource'].parentKey = [['parentId']];
+            resourceConfigsParsed['test'].attributes['subResource'].childKey = [['childId']];
+            resourceConfigsParsed['test'].attributes['subResource'].attributes['childId'] = {
+                type: 'int',
+                map: {default: {'primary': 'childId'}}
+            };
 
             configParser(resourceConfigs, mockDataSources);
 
             expect(resourceConfigs).to.eql(resourceConfigsParsed);
         });
 
-        it('fails on invalid DataSource references in parentKey', function () {
+        xit('fails on invalid attributes in parentKey/childKey', function () {
             var resourceConfigs = _.cloneDeep(minimalResourceConfigs);
 
             resourceConfigs['test'].attributes['subResource'] = _.cloneDeep(minimalResourceConfigs['test']);
-            resourceConfigs['test'].attributes['subResource'].parentKey = 'unknownDataSource:id';
+            resourceConfigs['test'].attributes['subResource'].parentKey = 'unknownId';
             resourceConfigs['test'].attributes['subResource'].childKey = 'id';
 
             expect(function () {
                 configParser(resourceConfigs, mockDataSources);
             }).to.throw(ImplementationError,
-                'Unknown DataSource "unknownDataSource" in parentKey in sub-resource "test:subResource"');
-        });
+                'Unknown attribute "unknownId" in parentKey in sub-resource "test:subResource"');
 
-        it('fails on invalid DataSource references in childKey', function () {
-            var resourceConfigs = _.cloneDeep(minimalResourceConfigs);
-
-            resourceConfigs['test'].attributes['subResource'] = _.cloneDeep(minimalResourceConfigs['test']);
             resourceConfigs['test'].attributes['subResource'].parentKey = 'id';
-            resourceConfigs['test'].attributes['subResource'].childKey = 'unknownDataSource:id';
+            resourceConfigs['test'].attributes['subResource'].childKey = 'unknownId';
 
             expect(function () {
                 configParser(resourceConfigs, mockDataSources);
             }).to.throw(ImplementationError,
-                'Unknown DataSource "unknownDataSource" in childKey in sub-resource "test:subResource"');
+                'Unknown attribute "unknownId" in childKey in sub-resource "test:subResource"');
         });
 
         it('parses option "many"', function () {
@@ -336,6 +319,176 @@ describe('config-parser', function () {
                 configParser(resourceConfigs, mockDataSources);
             }).to.throw(ImplementationError,
                 'Unknown DataSource "unknownRelationTable" in joinVia in sub-resource "test:subResource"');
+        });
+
+        it('parses and resolves joinParentKey and joinChildKey attributes from dataSources', function () {
+            var resourceConfigs = _.cloneDeep(minimalResourceConfigs);
+            var resourceConfigsParsed = _.cloneDeep(minimalResourceConfigsParsed);
+
+            resourceConfigs['test'].attributes['subResource'] = _.cloneDeep(minimalResourceConfigs['test']);
+            resourceConfigs['test'].attributes['subResource'].joinVia = 'joinTest';
+            resourceConfigs['test'].attributes['subResource'].dataSources['joinTest'] = {
+                type: 'testDataSource',
+                joinParentKey: 'parentId',
+                joinChildKey: 'childId',
+                expectedAttributes: ['parentIdDbField', 'childIdDbField']
+            };
+            resourceConfigs['test'].attributes['subResource'].attributes['parentId'] = {
+                type: 'int',
+                map: 'joinTest:parentIdDbField'
+            };
+            resourceConfigs['test'].attributes['subResource'].attributes['childId'] = {
+                type: 'int',
+                map: 'joinTest:childIdDbField'
+            };
+
+            resourceConfigsParsed['test'].attributes['subResource'] = _.cloneDeep(minimalResourceConfigsParsed['test']);
+            resourceConfigsParsed['test'].attributes['subResource'].joinVia = 'joinTest';
+            resourceConfigsParsed['test'].attributes['subResource'].dataSources['joinTest'] = {
+                type: 'testDataSource',
+                joinParentKey: [['parentId']],
+                joinParentKeyResolved: ['parentIdDbField'],
+                joinChildKey: [['childId']],
+                joinChildKeyResolved: ['childIdDbField']
+            };
+            resourceConfigsParsed['test'].attributes['subResource'].attributes['parentId'] = {
+                type: 'int',
+                map: {'default': {'joinTest': 'parentIdDbField'}}
+            };
+            resourceConfigsParsed['test'].attributes['subResource'].attributes['childId'] = {
+                type: 'int',
+                map: {'default': {'joinTest': 'childIdDbField'}}
+            };
+
+            configParser(resourceConfigs, mockDataSources);
+
+            expect(resourceConfigs).to.eql(resourceConfigsParsed);
+        });
+
+        it('fails if only joinParentKey or joinChildKey is defined', function () {
+            // missing joinChildKey:
+            var resourceConfigs = _.cloneDeep(minimalResourceConfigs);
+
+            resourceConfigs['test'].attributes['subResource'] = _.cloneDeep(minimalResourceConfigs['test']);
+            resourceConfigs['test'].attributes['subResource'].joinVia = 'joinTest';
+            resourceConfigs['test'].attributes['subResource'].dataSources['joinTest'] = {
+                type: 'testDataSource',
+                joinParentKey: 'parentId'
+            };
+
+            expect(function () {
+                configParser(resourceConfigs, mockDataSources);
+            }).to.throw(ImplementationError,
+                'DataSource "joinTest" misses "joinChildKey" option in sub-resource "test:subResource"');
+
+            // missing joinParentKey:
+            resourceConfigs = _.cloneDeep(minimalResourceConfigs);
+
+            resourceConfigs['test'].attributes['subResource'] = _.cloneDeep(minimalResourceConfigs['test']);
+            resourceConfigs['test'].attributes['subResource'].joinVia = 'joinTest';
+            resourceConfigs['test'].attributes['subResource'].dataSources['joinTest'] = {
+                type: 'testDataSource',
+                joinChildKey: 'parentId'
+            };
+
+            expect(function () {
+                configParser(resourceConfigs, mockDataSources);
+            }).to.throw(ImplementationError,
+                'DataSource "joinTest" misses "joinParentKey" option in sub-resource "test:subResource"');
+        });
+
+        it('fails if joinParentKey/joinChildKey maps to unknown attributes', function () {
+            // unknown joinParentKey:
+            var resourceConfigs = _.cloneDeep(minimalResourceConfigs);
+
+            resourceConfigs['test'].attributes['subResource'] = _.cloneDeep(minimalResourceConfigs['test']);
+            resourceConfigs['test'].attributes['subResource'].joinVia = 'joinTest';
+            resourceConfigs['test'].attributes['subResource'].dataSources['joinTest'] = {
+                type: 'testDataSource',
+                joinParentKey: 'unknownParentId',
+                joinChildKey: 'childId'
+            };
+            resourceConfigs['test'].attributes['subResource'].attributes['childId'] = {
+                type: 'int',
+                map: 'joinTest:childIdDbField'
+            };
+
+            expect(function () {
+                configParser(resourceConfigs, mockDataSources);
+            }).to.throw(ImplementationError,
+                'Unknown attribute "unknownParentId" in joinParentKey in sub-resource "test:subResource"');
+
+            // unknown joinChildKey:
+            var resourceConfigs = _.cloneDeep(minimalResourceConfigs);
+
+            resourceConfigs['test'].attributes['subResource'] = _.cloneDeep(minimalResourceConfigs['test']);
+            resourceConfigs['test'].attributes['subResource'].joinVia = 'joinTest';
+            resourceConfigs['test'].attributes['subResource'].dataSources['joinTest'] = {
+                type: 'testDataSource',
+                joinParentKey: 'parentId',
+                joinChildKey: 'unknownChildId'
+            };
+            resourceConfigs['test'].attributes['subResource'].attributes['parentId'] = {
+                type: 'int',
+                map: 'joinTest:parentIdDbField'
+            };
+
+            expect(function () {
+                configParser(resourceConfigs, mockDataSources);
+            }).to.throw(ImplementationError,
+                'Unknown attribute "unknownChildId" in joinChildKey in sub-resource "test:subResource"');
+        });
+
+        it('fails if joinParentKey/joinChildKey attributes misses mapping to the DataSource', function () {
+            // Missing mapping in joinParentKey:
+            var resourceConfigs = _.cloneDeep(minimalResourceConfigs);
+
+            resourceConfigs['test'].attributes['subResource'] = _.cloneDeep(minimalResourceConfigs['test']);
+            resourceConfigs['test'].attributes['subResource'].joinVia = 'joinTest';
+            resourceConfigs['test'].attributes['subResource'].dataSources['primary'].expectedAttributes.push('otherMapping');
+            resourceConfigs['test'].attributes['subResource'].dataSources['joinTest'] = {
+                type: 'testDataSource',
+                joinParentKey: 'parentId',
+                joinChildKey: 'childId'
+            };
+            resourceConfigs['test'].attributes['subResource'].attributes['parentId'] = {
+                type: 'int',
+                map: 'otherMapping'
+            };
+            resourceConfigs['test'].attributes['subResource'].attributes['childId'] = {
+                type: 'int',
+                map: 'joinTest:childIdDbField'
+            };
+
+            expect(function () {
+                configParser(resourceConfigs, mockDataSources);
+            }).to.throw(ImplementationError,
+                'Attribute "parentId" not mapped to DataSource "joinTest" in joinParentKey in sub-resource "test:subResource"');
+
+            // Missing mapping in joinChildKey:
+            var resourceConfigs = _.cloneDeep(minimalResourceConfigs);
+
+            resourceConfigs['test'].attributes['subResource'] = _.cloneDeep(minimalResourceConfigs['test']);
+            resourceConfigs['test'].attributes['subResource'].joinVia = 'joinTest';
+            resourceConfigs['test'].attributes['subResource'].dataSources['primary'].expectedAttributes.push('otherMapping');
+            resourceConfigs['test'].attributes['subResource'].dataSources['joinTest'] = {
+                type: 'testDataSource',
+                joinParentKey: 'parentId',
+                joinChildKey: 'childId'
+            };
+            resourceConfigs['test'].attributes['subResource'].attributes['parentId'] = {
+                type: 'int',
+                map: 'joinTest:parentIdDbField'
+            };
+            resourceConfigs['test'].attributes['subResource'].attributes['childId'] = {
+                type: 'int',
+                map: 'otherMapping'
+            };
+
+            expect(function () {
+                configParser(resourceConfigs, mockDataSources);
+            }).to.throw(ImplementationError,
+                'Attribute "childId" not mapped to DataSource "joinTest" in joinChildKey in sub-resource "test:subResource"');
         });
     });
 
@@ -577,7 +730,7 @@ describe('config-parser', function () {
             resourceConfigs['article'].attributes['categories'].dataSources['articleCategories'].expectedAttributes =
                 ['articleId', 'categoryId'];
             resourceConfigs['article'].attributes['countries'].dataSources['primary'].expectedAttributes =
-                ['iso', 'id', 'name', 'iso3'];
+                ['id', 'name', 'iso', 'iso3'];
             resourceConfigs['article'].attributes['video'].dataSources['primary'].expectedAttributes =
                 ['articleId', 'url', 'previewImage'];
             resourceConfigs['article'].attributes['comments'].dataSources['primary'].expectedAttributes =

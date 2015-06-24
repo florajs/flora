@@ -112,13 +112,27 @@
             "type": "string",
             "selected": false
         },
+        "authorId": {
+            "internal": true,
+            "type": "int",
+            "map": {
+                "default": {
+                    "primary": "authorId"
+                }
+            },
+            "selectedDataSource": "primary"
+        },
         "author": {
-            "parentKey": {
-                "primary": [
+            "parentKey": [
+                [
                     "authorId"
                 ]
-            },
-            "childKey": null,
+            ],
+            "childKey": [
+                [
+                    "id"
+                ]
+            ],
             "resourceName": "user",
             "primaryKey": [
                 [
@@ -210,14 +224,42 @@
                     "database": "contents",
                     "table": "article_category",
                     "joinParentKey": [
-                        "articleId"
+                        [
+                            "articleId"
+                        ]
                     ],
                     "joinChildKey": [
+                        [
+                            "categoryId"
+                        ]
+                    ],
+                    "joinParentKeyResolved": [
+                        "articleId"
+                    ],
+                    "joinChildKeyResolved": [
                         "categoryId"
                     ]
                 }
             },
             "attributes": {
+                "articleId": {
+                    "internal": true,
+                    "type": "int",
+                    "map": {
+                        "default": {
+                            "articleCategories": "articleId"
+                        }
+                    }
+                },
+                "categoryId": {
+                    "internal": true,
+                    "type": "int",
+                    "map": {
+                        "default": {
+                            "articleCategories": "categoryId"
+                        }
+                    }
+                },
                 "id": {
                     "type": "int",
                     "map": {
@@ -252,23 +294,33 @@
                 ]
             }
         },
+        "countryIsoList": {
+            "internal": true,
+            "multiValued": true,
+            "type": "string",
+            "map": {
+                "default": {
+                    "primary": "countries"
+                }
+            },
+            "delimiter": ","
+        },
         "countries": {
             "primaryKey": [
                 [
                     "id"
                 ]
             ],
-            "parentKey": {
-                "primary": [
-                    "countries"
+            "parentKey": [
+                [
+                    "countryIsoList"
                 ]
-            },
-            "delimiter": ",",
-            "childKey": {
-                "primary": [
+            ],
+            "childKey": [
+                [
                     "iso"
                 ]
-            },
+            ],
             "many": true,
             "dataSources": {
                 "primary": {
@@ -331,12 +383,16 @@
             "selectedDataSource": "articleBody"
         },
         "video": {
-            "parentKey": null,
-            "childKey": {
-                "primary": [
+            "parentKey": [
+                [
+                    "id"
+                ]
+            ],
+            "childKey": [
+                [
                     "articleId"
                 ]
-            },
+            ],
             "dataSources": {
                 "primary": {
                     "type": "mysql",
@@ -358,6 +414,16 @@
                 }
             },
             "attributes": {
+                "articleId": {
+                    "internal": true,
+                    "type": "int",
+                    "map": {
+                        "default": {
+                            "primary": "articleId"
+                        }
+                    },
+                    "selectedDataSource": "primary"
+                },
                 "url": {
                     "map": {
                         "default": {
@@ -443,12 +509,16 @@
                     "id"
                 ]
             ],
-            "parentKey": null,
-            "childKey": {
-                "primary": [
+            "parentKey": [
+                [
+                    "id"
+                ]
+            ],
+            "childKey": [
+                [
                     "articleId"
                 ]
-            },
+            ],
             "many": true,
             "dataSources": {
                 "primary": {
@@ -478,6 +548,16 @@
                 }
             },
             "attributes": {
+                "articleId": {
+                    "internal": true,
+                    "type": "int",
+                    "map": {
+                        "default": {
+                            "primary": "articleId"
+                        }
+                    },
+                    "selectedDataSource": "primary"
+                },
                 "id": {
                     "type": "int",
                     "map": {
@@ -492,13 +572,27 @@
                     "selected": false,
                     "selectedDataSource": "primary"
                 },
+                "userId": {
+                    "internal": true,
+                    "type": "int",
+                    "map": {
+                        "default": {
+                            "primary": "userId"
+                        }
+                    },
+                    "selectedDataSource": "primary"
+                },
                 "user": {
-                    "parentKey": {
-                        "primary": [
+                    "parentKey": [
+                        [
                             "userId"
                         ]
-                    },
-                    "childKey": null,
+                    ],
+                    "childKey": [
+                        [
+                            "id"
+                        ]
+                    ],
                     "resourceName": "user",
                     "primaryKey": [
                         [

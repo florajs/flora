@@ -82,13 +82,22 @@
                 "value": null,
                 "type": "string"
             },
+            "authorId": {
+                "internal": true,
+                "type": "int",
+                "map": {
+                    "default": {
+                        "primary": "authorId"
+                    }
+                }
+            },
             "author": {
                 "resource": "user",
-                "parentKey": {
-                    "primary": [
+                "parentKey": [
+                    [
                         "authorId"
                     ]
-                },
+                ],
                 "childKey": null
             },
             "categories": {
@@ -112,14 +121,42 @@
                         "database": "contents",
                         "table": "article_category",
                         "joinParentKey": [
-                            "articleId"
+                            [
+                                "articleId"
+                            ]
                         ],
                         "joinChildKey": [
+                            [
+                                "categoryId"
+                            ]
+                        ],
+                        "joinParentKeyResolved": [
+                            "articleId"
+                        ],
+                        "joinChildKeyResolved": [
                             "categoryId"
                         ]
                     }
                 },
                 "attributes": {
+                    "articleId": {
+                        "internal": true,
+                        "type": "int",
+                        "map": {
+                            "default": {
+                                "articleCategories": "articleId"
+                            }
+                        }
+                    },
+                    "categoryId": {
+                        "internal": true,
+                        "type": "int",
+                        "map": {
+                            "default": {
+                                "articleCategories": "categoryId"
+                            }
+                        }
+                    },
                     "id": {
                         "type": "int",
                         "map": {
@@ -154,23 +191,33 @@
                     ]
                 }
             },
+            "countryIsoList": {
+                "internal": true,
+                "multiValued": true,
+                "type": "string",
+                "map": {
+                    "default": {
+                        "primary": "countries"
+                    }
+                },
+                "delimiter": ","
+            },
             "countries": {
                 "primaryKey": [
                     [
                         "id"
                     ]
                 ],
-                "parentKey": {
-                    "primary": [
-                        "countries"
+                "parentKey": [
+                    [
+                        "countryIsoList"
                     ]
-                },
-                "delimiter": ",",
-                "childKey": {
-                    "primary": [
+                ],
+                "childKey": [
+                    [
                         "iso"
                     ]
-                },
+                ],
                 "many": true,
                 "dataSources": {
                     "primary": {
@@ -232,11 +279,11 @@
             },
             "video": {
                 "parentKey": null,
-                "childKey": {
-                    "primary": [
+                "childKey": [
+                    [
                         "articleId"
                     ]
-                },
+                ],
                 "dataSources": {
                     "primary": {
                         "type": "mysql",
@@ -245,6 +292,15 @@
                     }
                 },
                 "attributes": {
+                    "articleId": {
+                        "internal": true,
+                        "type": "int",
+                        "map": {
+                            "default": {
+                                "primary": "articleId"
+                            }
+                        }
+                    },
                     "url": {
                         "map": {
                             "default": {
@@ -322,11 +378,11 @@
                     ]
                 ],
                 "parentKey": null,
-                "childKey": {
-                    "primary": [
+                "childKey": [
+                    [
                         "articleId"
                     ]
-                },
+                ],
                 "many": true,
                 "dataSources": {
                     "primary": {
@@ -341,6 +397,15 @@
                     }
                 },
                 "attributes": {
+                    "articleId": {
+                        "internal": true,
+                        "type": "int",
+                        "map": {
+                            "default": {
+                                "primary": "articleId"
+                            }
+                        }
+                    },
                     "id": {
                         "type": "int",
                         "map": {
@@ -353,13 +418,22 @@
                             "equal"
                         ]
                     },
+                    "userId": {
+                        "internal": true,
+                        "type": "int",
+                        "map": {
+                            "default": {
+                                "primary": "userId"
+                            }
+                        }
+                    },
                     "user": {
                         "resource": "user",
-                        "parentKey": {
-                            "primary": [
+                        "parentKey": [
+                            [
                                 "userId"
                             ]
-                        },
+                        ],
                         "childKey": null
                     },
                     "content": {

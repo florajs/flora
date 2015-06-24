@@ -894,7 +894,7 @@ describe('request-resolver', function () {
                 },
                 attributeOptions: {
                     'id': {type: 'int'},
-                    'countries': {type: 'string', delimiter: ','}
+                    'countries': {multiValued: true, type: 'string', delimiter: ','}
                 },
                 subRequests: [
                     {

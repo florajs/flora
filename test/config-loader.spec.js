@@ -226,8 +226,12 @@ describe('config-loader', function () {
             // for manually generating fixture:
             //console.log(JSON.stringify(configs, null, 4));
 
-            expect(configs).to.eql(resourcesLoaded);
-            done();
+            try {
+                expect(configs).to.eql(resourcesLoaded);
+                done();
+            } catch (e) {
+                done(e);
+            }
         });
     });
 

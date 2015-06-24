@@ -45,6 +45,10 @@
                 "deprecated": "true",
                 "value": "null"
             },
+            "authorId": {
+                "internal": "true",
+                "type": "int"
+            },
             "author": {
                 "resource": "user",
                 "parentKey": "authorId",
@@ -71,6 +75,16 @@
                     }
                 },
                 "attributes": {
+                    "articleId": {
+                        "internal": "true",
+                        "type": "int",
+                        "map": "articleCategories:articleId"
+                    },
+                    "categoryId": {
+                        "internal": "true",
+                        "type": "int",
+                        "map": "articleCategories:categoryId"
+                    },
                     "id": {
                         "type": "int"
                     },
@@ -80,10 +94,16 @@
                     }
                 }
             },
+            "countryIsoList": {
+                "internal": "true",
+                "multiValued": "true",
+                "type": "string",
+                "map": "countries",
+                "delimiter": ","
+            },
             "countries": {
                 "primaryKey": "id",
-                "parentKey": "countries",
-                "delimiter": ",",
+                "parentKey": "countryIsoList",
                 "childKey": "iso",
                 "many": "true",
                 "dataSources": {
@@ -116,6 +136,10 @@
                     }
                 },
                 "attributes": {
+                    "articleId": {
+                        "internal": "true",
+                        "type": "int"
+                    },
                     "url": {},
                     "previewImage": {}
                 }
@@ -162,9 +186,17 @@
                     }
                 },
                 "attributes": {
+                    "articleId": {
+                        "internal": "true",
+                        "type": "int"
+                    },
                     "id": {
                         "type": "int",
                         "map": "id;likes:commentId"
+                    },
+                    "userId": {
+                        "internal": "true",
+                        "type": "int"
                     },
                     "user": {
                         "resource": "user",

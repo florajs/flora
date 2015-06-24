@@ -42,6 +42,7 @@
     <subTitle deprecated="true" value="null"/>
 
     <!-- Relation: Article has one author (n : 1) - article has authorId -->
+    <authorId internal="true" type="int"/>
     <author resource="user" parentKey="authorId" childKey="{primary}"/>
 
     <!-- Relation: Article has multiple categories (m : n - with join-table).
@@ -52,6 +53,9 @@
         <flora:dataSource type="mysql" database="contents" table="category"/>
         <flora:dataSource name="articleCategories" type="mysql" database="contents"
             table="article_category" joinParentKey="articleId" joinChildKey="categoryId"/>
+
+        <articleId internal="true" type="int" map="articleCategories:articleId"/>
+        <categoryId internal="true" type="int" map="articleCategories:categoryId"/>
 
         <id type="int"/>
         <name/>
@@ -64,7 +68,8 @@
         delimiter is not needed.
         This is an example for a "legacy" data-model which can then be transparently
         redesigned "when needed" -->
-    <countries primaryKey="id" parentKey="countries" delimiter="," childKey="iso" many="true">
+    <countryIsoList internal="true" multiValued="true" type="string" map="countries" delimiter=","/>
+    <countries primaryKey="id" parentKey="countryIsoList" childKey="iso" many="true">
         <flora:dataSource type="mysql" database="contents" table="country"/>
 
         <id type="int"/>
@@ -84,6 +89,8 @@
         This is also an example for an inline defined sub-resource. -->
     <video parentKey="{primary}" childKey="articleId">
         <flora:dataSource type="mysql" database="contents" table="article_video"/>
+
+        <articleId internal="true" type="int"/>
 
         <url/>
         <previewImage/>
@@ -114,7 +121,10 @@
         <flora:dataSource type="mysql" database="contents" table="article_comment"/>
         <flora:dataSource name="likes" type="mysql" database="contents" table="comment_likes"/>
 
+        <articleId internal="true" type="int"/>
+
         <id type="int" map="id;likes:commentId"/>
+        <userId internal="true" type="int"/>
         <user resource="user" parentKey="userId" childKey="{primary}"/>
         <content/>
         <likes type="int" map="likes:count"/>
