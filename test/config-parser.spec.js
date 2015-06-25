@@ -205,19 +205,27 @@ describe('config-parser', function () {
             expect(resourceConfigs).to.eql(resourceConfigsParsed);
         });
 
-        it('fails if primaryKey is not mapped to all DataSources', function () {
+        it('fails on missing primaryKey', function () {
             var resourceConfigs = _.cloneDeep(minimalResourceConfigs);
 
-            resourceConfigs['test'].primaryKey = 'id,context';
-            resourceConfigs['test'].dataSources['secondary'] = {type: 'testDataSource'};
-            resourceConfigs['test'].attributes['id'] = {map: 'id;secondary:id'};
-            resourceConfigs['test'].attributes['context'] = {map: 'ctx'};
+            delete resourceConfigs['test'].primaryKey;
 
             expect(function () {
                 configParser(resourceConfigs, mockDataSources);
-            }).to.throw(ImplementationError,
-                'Primary key attribute "context" is not mapped to "secondary" DataSource ' +
-                'in primaryKey in resource "test:{root}"');
+            }).to.throw(ImplementationError, 'Missing primaryKey in resource "test:{root}"');
+        });
+
+        it('fails on missing primaryKey in inline-sub-resource', function () {
+            var resourceConfigs = _.cloneDeep(minimalResourceConfigs);
+
+            resourceConfigs['test'].attributes['subResource'] = _.cloneDeep(minimalResourceConfigs['test']);
+            delete resourceConfigs['test'].attributes['subResource'].primaryKey;
+            resourceConfigs['test'].attributes['subResource'].parentKey = '{primary}';
+            resourceConfigs['test'].attributes['subResource'].childKey = '{primary}';
+
+            expect(function () {
+                configParser(resourceConfigs, mockDataSources);
+            }).to.throw(ImplementationError, 'Missing primaryKey in sub-resource "test:subResource"');
         });
 
         it('fails if primaryKey references unknown attributes', function () {
@@ -240,6 +248,21 @@ describe('config-parser', function () {
                 configParser(resourceConfigs, mockDataSources);
             }).to.throw(ImplementationError,
                 'Path "subResource.id" references sub-resource in primaryKey in resource "test:{root}"');
+        });
+
+        it('fails if primaryKey is not mapped to all DataSources', function () {
+            var resourceConfigs = _.cloneDeep(minimalResourceConfigs);
+
+            resourceConfigs['test'].primaryKey = 'id,context';
+            resourceConfigs['test'].dataSources['secondary'] = {type: 'testDataSource'};
+            resourceConfigs['test'].attributes['id'] = {map: 'id;secondary:id'};
+            resourceConfigs['test'].attributes['context'] = {map: 'ctx'};
+
+            expect(function () {
+                configParser(resourceConfigs, mockDataSources);
+            }).to.throw(ImplementationError,
+                'Primary key attribute "context" is not mapped to "secondary" DataSource ' +
+                'in primaryKey in resource "test:{root}"');
         });
 
         it('parses parentKey/childKey', function () {

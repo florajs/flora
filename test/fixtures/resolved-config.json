@@ -383,6 +383,11 @@
             "selectedDataSource": "articleBody"
         },
         "video": {
+            "primaryKey": [
+                [
+                    "articleId"
+                ]
+            ],
             "parentKey": [
                 [
                     "id"
@@ -442,6 +447,11 @@
                     },
                     "type": "string"
                 }
+            },
+            "resolvedPrimaryKey": {
+                "primary": [
+                    "articleId"
+                ]
             },
             "selected": false,
             "primaryDataSource": "primary"

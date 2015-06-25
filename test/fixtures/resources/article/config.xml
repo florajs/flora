@@ -87,7 +87,7 @@
         primary DataSource) of main-resource.
         To avoid redundant attributes, primaryKey is not needed if childKey is present.
         This is also an example for an inline defined sub-resource. -->
-    <video parentKey="{primary}" childKey="articleId">
+    <video primaryKey="articleId" parentKey="{primary}" childKey="{primary}">
         <flora:dataSource type="mysql" database="contents" table="article_video"/>
 
         <articleId internal="true" type="int"/>

@@ -278,12 +278,13 @@
                 "type": "string"
             },
             "video": {
-                "parentKey": null,
-                "childKey": [
+                "primaryKey": [
                     [
                         "articleId"
                     ]
                 ],
+                "parentKey": null,
+                "childKey": null,
                 "dataSources": {
                     "primary": {
                         "type": "mysql",
@@ -317,6 +318,11 @@
                         },
                         "type": "string"
                     }
+                },
+                "resolvedPrimaryKey": {
+                    "primary": [
+                        "articleId"
+                    ]
                 }
             },
             "source": {

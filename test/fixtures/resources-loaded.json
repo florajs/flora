@@ -126,8 +126,9 @@
                 "map": "articleBody:body"
             },
             "video": {
+                "primaryKey": "articleId",
                 "parentKey": "{primary}",
-                "childKey": "articleId",
+                "childKey": "{primary}",
                 "dataSources": {
                     "primary": {
                         "type": "mysql",
