@@ -144,6 +144,20 @@ describe('config-parser', function () {
             expect(resourceConfigs).to.eql(resourceConfigsParsed);
         });
 
+        it('fails if subFilters defined for included sub-resource', function () {
+            var resourceConfigs = _.cloneDeep(minimalResourceConfigs);
+
+            resourceConfigs['test'].attributes['subResource'] = {
+                resource: 'test',
+                subFilters: []
+            };
+
+            expect(function () {
+                configParser(resourceConfigs, mockDataSources);
+            }).to.throw(ImplementationError,
+                'Adding subFilters for included sub-resource is not allowed in sub-resource "test:subResource"');
+        });
+
         it('fails on syntactically invalid option "resource"', function () {
             var resourceConfigs = {
                 "test": {
@@ -177,6 +191,19 @@ describe('config-parser', function () {
             };
 
             // no default filter for composite keys:
+            delete resourceConfigsParsed['test'].attributes['id'].filter;
+
+            configParser(resourceConfigs, mockDataSources);
+
+            expect(resourceConfigs).to.eql(resourceConfigsParsed);
+        });
+
+        it('does not set default filter on hidden primaryKey', function () {
+            var resourceConfigs = _.cloneDeep(minimalResourceConfigs);
+            var resourceConfigsParsed = _.cloneDeep(minimalResourceConfigsParsed);
+
+            resourceConfigs['test'].attributes['id'].internal = 'true';
+            resourceConfigsParsed['test'].attributes['id'].internal = true;
             delete resourceConfigsParsed['test'].attributes['id'].filter;
 
             configParser(resourceConfigs, mockDataSources);
@@ -248,6 +275,20 @@ describe('config-parser', function () {
                 configParser(resourceConfigs, mockDataSources);
             }).to.throw(ImplementationError,
                 'Path "subResource.id" references sub-resource in primaryKey in resource "test:{root}"');
+        });
+
+        it('fails if primaryKey is overwritten for included sub-resource', function () {
+            var resourceConfigs = _.cloneDeep(minimalResourceConfigs);
+
+            resourceConfigs['test'].attributes['subResource'] = {
+                resource: 'test',
+                primaryKey: 'id'
+            };
+
+            expect(function () {
+                configParser(resourceConfigs, mockDataSources);
+            }).to.throw(ImplementationError,
+                'Overwriting primaryKey for included sub-resource is not allowed in sub-resource "test:subResource"');
         });
 
         it('fails if primaryKey is not mapped to all DataSources', function () {
@@ -630,6 +671,17 @@ describe('config-parser', function () {
             configParser(resourceConfigs, mockDataSources);
 
             expect(resourceConfigs).to.eql(resourceConfigsParsed);
+
+            // test "true":
+            resourceConfigs = _.cloneDeep(minimalResourceConfigs);
+            resourceConfigsParsed = _.cloneDeep(minimalResourceConfigsParsed);
+
+            resourceConfigs['test'].attributes['id'].order = 'true';
+            resourceConfigsParsed['test'].attributes['id'].order = ['asc', 'desc'];
+
+            configParser(resourceConfigs, mockDataSources);
+
+            expect(resourceConfigs).to.eql(resourceConfigsParsed);
         });
 
         it('fails on invalid order options', function () {
@@ -655,6 +707,18 @@ describe('config-parser', function () {
             configParser(resourceConfigs, mockDataSources);
 
             expect(resourceConfigs).to.eql(resourceConfigsParsed);
+        });
+
+        it('fails if "value" has mapping defined', function () {
+            var resourceConfigs = _.cloneDeep(minimalResourceConfigs);
+            var resourceConfigsParsed = _.cloneDeep(minimalResourceConfigsParsed);
+
+            resourceConfigs['test'].attributes['dummy'] = {value: 'null', map: 'dummy'};
+
+            expect(function () {
+                configParser(resourceConfigs, mockDataSources);
+            }).to.throw(ImplementationError,
+                'Static "value" in combination with "map" makes no sense in attribute "test:dummy"');
         });
 
         xit('parses option "depends" as Select-AST', function () {
