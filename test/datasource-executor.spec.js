@@ -175,7 +175,7 @@ describe('datasource-executor', function () {
 
             it('does not throw errors', function (done) {
                 execute(api, {}, dst, function (err) {
-                    if (err) throw err;
+                    if (err) return done(err);
                     expect(err).to.eql(null);
                     done();
                 });
