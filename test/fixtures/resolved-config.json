@@ -113,7 +113,7 @@
             "selected": false
         },
         "authorId": {
-            "internal": true,
+            "hidden": true,
             "type": "int",
             "map": {
                 "default": {
@@ -243,7 +243,7 @@
             },
             "attributes": {
                 "articleId": {
-                    "internal": true,
+                    "hidden": true,
                     "type": "int",
                     "map": {
                         "default": {
@@ -252,7 +252,7 @@
                     }
                 },
                 "categoryId": {
-                    "internal": true,
+                    "hidden": true,
                     "type": "int",
                     "map": {
                         "default": {
@@ -295,7 +295,7 @@
             }
         },
         "countryIsoList": {
-            "internal": true,
+            "hidden": true,
             "multiValued": true,
             "type": "string",
             "map": {
@@ -420,7 +420,7 @@
             },
             "attributes": {
                 "articleId": {
-                    "internal": true,
+                    "hidden": true,
                     "type": "int",
                     "map": {
                         "default": {
@@ -497,7 +497,7 @@
             "type": "string"
         },
         "secretInfo": {
-            "internal": true,
+            "hidden": true,
             "map": {
                 "default": {
                     "primary": "secretInfo"
@@ -559,7 +559,7 @@
             },
             "attributes": {
                 "articleId": {
-                    "internal": true,
+                    "hidden": true,
                     "type": "int",
                     "map": {
                         "default": {
@@ -583,7 +583,7 @@
                     "selectedDataSource": "primary"
                 },
                 "userId": {
-                    "internal": true,
+                    "hidden": true,
                     "type": "int",
                     "map": {
                         "default": {

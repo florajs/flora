@@ -202,8 +202,8 @@ describe('config-parser', function () {
             var resourceConfigs = _.cloneDeep(minimalResourceConfigs);
             var resourceConfigsParsed = _.cloneDeep(minimalResourceConfigsParsed);
 
-            resourceConfigs['test'].attributes['id'].internal = 'true';
-            resourceConfigsParsed['test'].attributes['id'].internal = true;
+            resourceConfigs['test'].attributes['id'].hidden = 'true';
+            resourceConfigsParsed['test'].attributes['id'].hidden = true;
             delete resourceConfigsParsed['test'].attributes['id'].filter;
 
             configParser(resourceConfigs, mockDataSources);
@@ -733,12 +733,12 @@ describe('config-parser', function () {
             expect(resourceConfigs).to.eql(resourceConfigsParsed);
         });
 
-        it('parses option "internal"', function () {
+        it('parses option "hidden"', function () {
             var resourceConfigs = _.cloneDeep(minimalResourceConfigs);
             var resourceConfigsParsed = _.cloneDeep(minimalResourceConfigsParsed);
 
-            resourceConfigs['test'].attributes['dummy'] = {internal: 'true', value: ''};
-            resourceConfigsParsed['test'].attributes['dummy'] = {internal: true, value: '', type: 'string'};
+            resourceConfigs['test'].attributes['dummy'] = {hidden: 'true', value: ''};
+            resourceConfigsParsed['test'].attributes['dummy'] = {hidden: true, value: '', type: 'string'};
 
             configParser(resourceConfigs, mockDataSources);
 

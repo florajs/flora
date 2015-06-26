@@ -46,7 +46,7 @@
                 "value": "null"
             },
             "authorId": {
-                "internal": "true",
+                "hidden": "true",
                 "type": "int"
             },
             "author": {
@@ -76,12 +76,12 @@
                 },
                 "attributes": {
                     "articleId": {
-                        "internal": "true",
+                        "hidden": "true",
                         "type": "int",
                         "map": "articleCategories:articleId"
                     },
                     "categoryId": {
-                        "internal": "true",
+                        "hidden": "true",
                         "type": "int",
                         "map": "articleCategories:categoryId"
                     },
@@ -95,7 +95,7 @@
                 }
             },
             "countryIsoList": {
-                "internal": "true",
+                "hidden": "true",
                 "multiValued": "true",
                 "type": "string",
                 "map": "countries",
@@ -138,7 +138,7 @@
                 },
                 "attributes": {
                     "articleId": {
-                        "internal": "true",
+                        "hidden": "true",
                         "type": "int"
                     },
                     "url": {},
@@ -163,7 +163,7 @@
                 "value": ""
             },
             "secretInfo": {
-                "internal": "true"
+                "hidden": "true"
             },
             "commentCount": {
                 "type": "int",
@@ -188,7 +188,7 @@
                 },
                 "attributes": {
                     "articleId": {
-                        "internal": "true",
+                        "hidden": "true",
                         "type": "int"
                     },
                     "id": {
@@ -196,7 +196,7 @@
                         "map": "id;likes:commentId"
                     },
                     "userId": {
-                        "internal": "true",
+                        "hidden": "true",
                         "type": "int"
                     },
                     "user": {

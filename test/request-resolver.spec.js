@@ -339,7 +339,7 @@ describe('request-resolver', function () {
             }).to.throw(RequestError, 'Unknown attribute "title.invalid" in request');
         });
 
-        it('fails when selecting internal attributes', function () {
+        it('fails when selecting hidden attributes', function () {
             // /article/?select=secretInfo
             var req = {
                 resource: 'article',
@@ -350,7 +350,7 @@ describe('request-resolver', function () {
 
             expect(function () {
                 requestResolver(req, resourceConfigs);
-            }).to.throw(RequestError, 'Unknown attribute "secretInfo" in request - it is an internal attribute');
+            }).to.throw(RequestError, 'Unknown attribute "secretInfo" in request - it is a hidden attribute');
         });
 
         it('resolves request with filter', function () {
