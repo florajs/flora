@@ -111,6 +111,17 @@ describe('request-resolver', function () {
             }).to.throw(ImplementationError, 'Resource inclusion depth too big (included from: resource1 -> resource2' /* ...) */);
         });
 
+        it('fails if no DataSources defined at root', function () {
+            var configs = _.cloneDeep(resourceConfigs);
+            delete configs['article'].dataSources;
+
+            var req = {resource: 'article'};
+
+            expect(function () {
+                requestResolver(req, configs);
+            }).to.throw(ImplementationError, 'No DataSources defined in resource');
+        });
+
         it('selects primary key in attribute tree automatically', function () {
             var req = {resource: 'article'};
 
@@ -449,6 +460,18 @@ describe('request-resolver', function () {
             expect(resolvedRequest.dataSourceTree).to.eql(dataSourceTree);
         });
 
+        it('fails on search when resource does not support it', function () {
+            // /user/?search=test
+            var req = {
+                resource: 'user',
+                search: 'test'
+            };
+
+            expect(function () {
+                requestResolver(req, resourceConfigs);
+            }).to.throw(RequestError, 'Resource does not support fulltext-search');
+        });
+
         it('resolves request with order', function () {
             // /article/?order=date:desc
             var req = {
@@ -579,6 +602,22 @@ describe('request-resolver', function () {
     });
 
     describe('high level error handling', function () {
+        it('fails on "id"-option on sub-resource-nodes', function () {
+            // /article/?select=comments(id=1)
+            var req = {
+                resource: 'article',
+                select: {
+                    'comments': {
+                        id: 1
+                    }
+                }
+            };
+
+            expect(function () {
+                requestResolver(req, resourceConfigs);
+            }).to.throw(RequestError, 'ID option only allowed at root (in "comments")');
+        });
+
         it('fails on sub-resource-options on non-resource-nodes', function () {
             // /article/?select=source(limit=20)
             var req = {
