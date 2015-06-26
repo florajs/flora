@@ -605,8 +605,8 @@ describe('datasource-executor', function () {
                 int2boolean1: {type: 'boolean'},
                 int2boolean0: {type: 'boolean'},
                 string2datetime: {type: 'datetime'},
-                string2time: {type: 'datetime'},
-                string2date: {type: 'datetime'},
+                string2time: {type: 'time'},
+                string2date: {type: 'date'},
                 raw: {type: 'raw'},
                 null2int: {type: 'int'},
                 unknownType: {type: 'unknown'}
@@ -702,14 +702,14 @@ describe('datasource-executor', function () {
         it('casts string to time', function () {
             execute(api, {}, dst, function (err, result) {
                 expect(result[0].data[0].string2time).to.be.a('string');
-                expect(result[0].data[0].string2time).to.equal('2015-06-17T10:13:14.000Z');
+                expect(result[0].data[0].string2time).to.equal('10:13:14.000Z');
             });
         });
 
         it('casts string to date', function () {
             execute(api, {}, dst, function (err, result) {
                 expect(result[0].data[0].string2date).to.be.a('string');
-                expect(result[0].data[0].string2date).to.equal('2015-06-17T10:13:14.000Z');
+                expect(result[0].data[0].string2date).to.equal('2015-06-17');
             });
         });
 
