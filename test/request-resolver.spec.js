@@ -157,8 +157,10 @@ describe('request-resolver', function () {
                     },
                     "resource2": {
                         "resource": "resource2",
-                        "parentKey": null,
-                        "childKey": null
+                        "parentKey": [["id"]],
+                        "resolvedParentKey": {"primary": ["id"]},
+                        "childKey": [["id"]],
+                        "resolvedChildKey": {"primary": ["id"]}
                     }
                 }
             },

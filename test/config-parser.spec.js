@@ -80,17 +80,31 @@ describe('config-parser', function () {
             var resourceConfigs = {
                 "test": {
                     "resource": "test2"
-                }
+                },
+                "test2": _.cloneDeep(minimalResourceConfigs['test'])
             };
             var resourceConfigsParsed = {
                 "test": {
                     "resource": "test2"
-                }
+                },
+                "test2": _.cloneDeep(minimalResourceConfigsParsed['test'])
             };
 
             configParser(resourceConfigs, mockDataSources);
 
             expect(resourceConfigs).to.eql(resourceConfigsParsed);
+        });
+
+        it('fails on unknown "symlink"-resource', function () {
+            var resourceConfigs = {
+                "test": {
+                    "resource": "test2"
+                }
+            };
+
+            expect(function () {
+                configParser(resourceConfigs, mockDataSources);
+            }).to.throw(ImplementationError, 'Unknown resource "test2" in resource "test:{root}"');
         });
     });
 
@@ -103,6 +117,16 @@ describe('config-parser', function () {
             expect(function () {
                 configParser(resourceConfigs, mockDataSources);
             }).to.throw(ImplementationError, 'Invalid option "type" in resource "test:{root}"');
+        });
+
+        it('fails on unknown sub-resource', function () {
+            var resourceConfigs = _.cloneDeep(minimalResourceConfigs);
+
+            resourceConfigs['test'].attributes['subResource'] = {resource: 'unknown'};
+
+            expect(function () {
+                configParser(resourceConfigs, mockDataSources);
+            }).to.throw(ImplementationError, 'Unknown resource "unknown" in sub-resource "test:subResource"');
         });
 
         it('fails on DataSources without "type" option', function () {
@@ -302,32 +326,121 @@ describe('config-parser', function () {
             expect(function () {
                 configParser(resourceConfigs, mockDataSources);
             }).to.throw(ImplementationError,
-                'Primary key attribute "context" is not mapped to "secondary" DataSource ' +
+                'Key attribute "context" is not mapped to "secondary" DataSource ' +
                 'in primaryKey in resource "test:{root}"');
         });
 
-        it('parses parentKey/childKey', function () {
+        it('parses and resolves parentKey/childKey', function () {
             var resourceConfigs = _.cloneDeep(minimalResourceConfigs);
             var resourceConfigsParsed = _.cloneDeep(minimalResourceConfigsParsed);
 
-            resourceConfigs['test'].attributes['parentId'] = {type: 'int'};
+            resourceConfigs['test'].attributes['parentId'] = {type: 'int', map: 'parentIdDbField'};
             resourceConfigs['test'].dataSources['primary'].
-                expectedAttributes = ['id', 'parentId'];
+                expectedAttributes = ['id', 'parentIdDbField'];
             resourceConfigs['test'].attributes['subResource'] = _.cloneDeep(minimalResourceConfigs['test']);
             resourceConfigs['test'].attributes['subResource'].parentKey = 'parentId';
             resourceConfigs['test'].attributes['subResource'].childKey = 'childId';
-            resourceConfigs['test'].attributes['subResource'].attributes['childId'] = {type: 'int'};
+            resourceConfigs['test'].attributes['subResource'].attributes['childId'] =
+                {type: 'int', map: 'childIdDbField'};
+            resourceConfigs['test'].attributes['subResource'].dataSources['primary'].
+                expectedAttributes = ['id', 'childIdDbField'];
+
+            resourceConfigsParsed['test'].attributes['parentId'] = {
+                type: 'int',
+                map: {default: {'primary': 'parentIdDbField'}}
+            };
+            resourceConfigsParsed['test'].attributes['subResource'] = _.cloneDeep(minimalResourceConfigsParsed['test']);
+            resourceConfigsParsed['test'].attributes['subResource'].parentKey = [['parentId']];
+            resourceConfigsParsed['test'].attributes['subResource'].resolvedParentKey = {'primary': ['parentIdDbField']};
+            resourceConfigsParsed['test'].attributes['subResource'].childKey = [['childId']];
+            resourceConfigsParsed['test'].attributes['subResource'].resolvedChildKey = {'primary': ['childIdDbField']};
+            resourceConfigsParsed['test'].attributes['subResource'].attributes['childId'] = {
+                type: 'int',
+                map: {default: {'primary': 'childIdDbField'}}
+            };
+
+            configParser(resourceConfigs, mockDataSources);
+
+            expect(resourceConfigs).to.eql(resourceConfigsParsed);
+        });
+
+        it('parses and resolves composite parentKey/childKey', function () {
+            var resourceConfigs = _.cloneDeep(minimalResourceConfigs);
+            var resourceConfigsParsed = _.cloneDeep(minimalResourceConfigsParsed);
+
+            resourceConfigs['test'].attributes['parentId'] = {type: 'int', map: 'parentIdDbField'};
+            resourceConfigs['test'].attributes['context'] = {type: 'int', map: 'contextDbField'};
+            resourceConfigs['test'].dataSources['primary'].
+                expectedAttributes = ['id', 'parentIdDbField', 'contextDbField'];
+            resourceConfigs['test'].attributes['subResource'] = _.cloneDeep(minimalResourceConfigs['test']);
+            resourceConfigs['test'].attributes['subResource'].parentKey = 'parentId,context';
+            resourceConfigs['test'].attributes['subResource'].childKey = 'childId,context';
+            resourceConfigs['test'].attributes['subResource'].attributes['childId'] =
+                {type: 'int', map: 'childIdDbField'};
+            resourceConfigs['test'].attributes['subResource'].attributes['context'] =
+                {type: 'int', map: 'contextDbField'};
+            resourceConfigs['test'].attributes['subResource'].dataSources['primary'].
+                expectedAttributes = ['id', 'childIdDbField', 'contextDbField'];
+
+            resourceConfigsParsed['test'].attributes['parentId'] = {
+                type: 'int',
+                map: {default: {'primary': 'parentIdDbField'}}
+            };
+            resourceConfigsParsed['test'].attributes['context'] = {
+                type: 'int',
+                map: {default: {'primary': 'contextDbField'}}
+            };
+            resourceConfigsParsed['test'].attributes['subResource'] =
+                _.cloneDeep(minimalResourceConfigsParsed['test']);
+            resourceConfigsParsed['test'].attributes['subResource'].parentKey = [['parentId'], ['context']];
+            resourceConfigsParsed['test'].attributes['subResource'].resolvedParentKey =
+                {'primary': ['parentIdDbField', 'contextDbField']};
+            resourceConfigsParsed['test'].attributes['subResource'].childKey = [['childId'], ['context']];
+            resourceConfigsParsed['test'].attributes['subResource'].resolvedChildKey =
+                {'primary': ['childIdDbField', 'contextDbField']};
+            resourceConfigsParsed['test'].attributes['subResource'].attributes['childId'] = {
+                type: 'int',
+                map: {default: {'primary': 'childIdDbField'}}
+            };
+            resourceConfigsParsed['test'].attributes['subResource'].attributes['context'] = {
+                type: 'int',
+                map: {default: {'primary': 'contextDbField'}}
+            };
+
+            configParser(resourceConfigs, mockDataSources);
+
+            expect(resourceConfigs).to.eql(resourceConfigsParsed);
+        });
+
+        it('parses and resolves parentKey/childKey in nested attributes', function () {
+            var resourceConfigs = _.cloneDeep(minimalResourceConfigs);
+            var resourceConfigsParsed = _.cloneDeep(minimalResourceConfigsParsed);
+
+            resourceConfigs['test'].attributes['meta'] = {attributes: {}};
+            resourceConfigs['test'].attributes['meta'].attributes['parentId'] = {type: 'int', map: 'parentId'};
+            resourceConfigs['test'].dataSources['primary'].
+                expectedAttributes = ['id', 'parentId'];
+            resourceConfigs['test'].attributes['subResource'] = _.cloneDeep(minimalResourceConfigs['test']);
+            resourceConfigs['test'].attributes['subResource'].parentKey = 'meta.parentId';
+            resourceConfigs['test'].attributes['subResource'].childKey = 'meta.childId';
+            resourceConfigs['test'].attributes['subResource'].attributes['meta'] = {attributes: {}};
+            resourceConfigs['test'].attributes['subResource'].attributes['meta'].attributes['childId'] =
+                {type: 'int', map: 'childId'};
             resourceConfigs['test'].attributes['subResource'].dataSources['primary'].
                 expectedAttributes = ['id', 'childId'];
 
-            resourceConfigsParsed['test'].attributes['parentId'] = {
+            resourceConfigsParsed['test'].attributes['meta'] = {attributes: {}};
+            resourceConfigsParsed['test'].attributes['meta'].attributes['parentId'] = {
                 type: 'int',
                 map: {default: {'primary': 'parentId'}}
             };
             resourceConfigsParsed['test'].attributes['subResource'] = _.cloneDeep(minimalResourceConfigsParsed['test']);
-            resourceConfigsParsed['test'].attributes['subResource'].parentKey = [['parentId']];
-            resourceConfigsParsed['test'].attributes['subResource'].childKey = [['childId']];
-            resourceConfigsParsed['test'].attributes['subResource'].attributes['childId'] = {
+            resourceConfigsParsed['test'].attributes['subResource'].parentKey = [['meta', 'parentId']];
+            resourceConfigsParsed['test'].attributes['subResource'].resolvedParentKey = {'primary': ['parentId']};
+            resourceConfigsParsed['test'].attributes['subResource'].childKey = [['meta', 'childId']];
+            resourceConfigsParsed['test'].attributes['subResource'].resolvedChildKey = {'primary': ['childId']};
+            resourceConfigsParsed['test'].attributes['subResource'].attributes['meta'] = {attributes: {}};
+            resourceConfigsParsed['test'].attributes['subResource'].attributes['meta'].attributes['childId'] = {
                 type: 'int',
                 map: {default: {'primary': 'childId'}}
             };
@@ -337,10 +450,50 @@ describe('config-parser', function () {
             expect(resourceConfigs).to.eql(resourceConfigsParsed);
         });
 
-        xit('fails on invalid attributes in parentKey/childKey', function () {
+        it('fails on missing parentKey/childKey', function () {
             var resourceConfigs = _.cloneDeep(minimalResourceConfigs);
+            resourceConfigs['test'].attributes['subResource'] = {};
+            resourceConfigs['test'].attributes['subResource'].resource = 'test';
+            resourceConfigs['test'].attributes['subResource'].childKey = 'childId';
 
+            expect(function () {
+                configParser(resourceConfigs, mockDataSources);
+            }).to.throw(ImplementationError, 'Missing parentKey in sub-resource "test:subResource"');
+
+            // same for childKey:
+            resourceConfigs = _.cloneDeep(minimalResourceConfigs);
+            resourceConfigs['test'].attributes['subResource'] = {};
+            resourceConfigs['test'].attributes['subResource'].resource = 'test';
+            resourceConfigs['test'].attributes['subResource'].parentKey = 'parentId';
+
+            expect(function () {
+                configParser(resourceConfigs, mockDataSources);
+            }).to.throw(ImplementationError, 'Missing childKey in sub-resource "test:subResource"');
+        });
+
+        it('fails on missing parentKey/childKey in inline-sub-resource', function () {
+            var resourceConfigs = _.cloneDeep(minimalResourceConfigs);
             resourceConfigs['test'].attributes['subResource'] = _.cloneDeep(minimalResourceConfigs['test']);
+            resourceConfigs['test'].attributes['subResource'].childKey = 'childId';
+
+            expect(function () {
+                configParser(resourceConfigs, mockDataSources);
+            }).to.throw(ImplementationError, 'Missing parentKey in sub-resource "test:subResource"');
+
+            // same for childKey:
+            resourceConfigs = _.cloneDeep(minimalResourceConfigs);
+            resourceConfigs['test'].attributes['subResource'] = _.cloneDeep(minimalResourceConfigs['test']);
+            resourceConfigs['test'].attributes['subResource'].parentKey = 'parentId';
+
+            expect(function () {
+                configParser(resourceConfigs, mockDataSources);
+            }).to.throw(ImplementationError, 'Missing childKey in sub-resource "test:subResource"');
+        });
+
+        it('fails if parentKey/childKey references unknown attributes', function () {
+            var resourceConfigs = _.cloneDeep(minimalResourceConfigs);
+            resourceConfigs['test'].attributes['subResource'] = {};
+            resourceConfigs['test'].attributes['subResource'].resource = 'test';
             resourceConfigs['test'].attributes['subResource'].parentKey = 'unknownId';
             resourceConfigs['test'].attributes['subResource'].childKey = 'id';
 
@@ -349,6 +502,10 @@ describe('config-parser', function () {
             }).to.throw(ImplementationError,
                 'Unknown attribute "unknownId" in parentKey in sub-resource "test:subResource"');
 
+            // same for childKey:
+            resourceConfigs = _.cloneDeep(minimalResourceConfigs);
+            resourceConfigs['test'].attributes['subResource'] = {};
+            resourceConfigs['test'].attributes['subResource'].resource = 'test';
             resourceConfigs['test'].attributes['subResource'].parentKey = 'id';
             resourceConfigs['test'].attributes['subResource'].childKey = 'unknownId';
 
@@ -358,19 +515,130 @@ describe('config-parser', function () {
                 'Unknown attribute "unknownId" in childKey in sub-resource "test:subResource"');
         });
 
+        it('fails if parentKey/childKey references attribute in sub-resource', function () {
+            var resourceConfigs = _.cloneDeep(minimalResourceConfigs);
+            resourceConfigs['test'].attributes['otherResource'] = _.cloneDeep(minimalResourceConfigs['test']);
+            resourceConfigs['test'].attributes['otherResource'].parentKey = 'id';
+            resourceConfigs['test'].attributes['otherResource'].childKey = 'id';
+            resourceConfigs['test'].attributes['subResource'] = _.cloneDeep(minimalResourceConfigs['test']);
+            resourceConfigs['test'].attributes['subResource'].parentKey = 'otherResource.id';
+            resourceConfigs['test'].attributes['subResource'].childKey = 'id';
+
+            expect(function () {
+                configParser(resourceConfigs, mockDataSources);
+            }).to.throw(ImplementationError,
+                'Path "otherResource.id" references sub-resource in parentKey in sub-resource "test:subResource"');
+
+            // same for childKey:
+            resourceConfigs = _.cloneDeep(minimalResourceConfigs);
+            resourceConfigs['test'].attributes['subResource'] = _.cloneDeep(minimalResourceConfigs['test']);
+            resourceConfigs['test'].attributes['subResource'].parentKey = 'id';
+            resourceConfigs['test'].attributes['subResource'].childKey = 'otherResource.id';
+            resourceConfigs['test'].attributes['subResource'].attributes['otherResource'] =
+                _.cloneDeep(minimalResourceConfigs['test']);
+            resourceConfigs['test'].attributes['subResource'].attributes['otherResource'].
+                parentKey = 'otherResource.id';
+            resourceConfigs['test'].attributes['subResource'].attributes['otherResource'].
+                childKey = 'id';
+
+            expect(function () {
+                configParser(resourceConfigs, mockDataSources);
+            }).to.throw(ImplementationError,
+                'Path "otherResource.id" references sub-resource in childKey in sub-resource "test:subResource"');
+        });
+
+        it('fails if parentKey/childKey is not mapped to primary DataSources', function () {
+            var resourceConfigs = _.cloneDeep(minimalResourceConfigs);
+            resourceConfigs['test'].dataSources['secondary'] = {type: 'testDataSource'};
+            resourceConfigs['test'].dataSources['secondary'].expectedAttributes = ['id', 'parentId'];
+            resourceConfigs['test'].attributes['id'] = {map: 'id;secondary:id'};
+            resourceConfigs['test'].attributes['parentId'] = {type: 'int', map: 'secondary:parentId'};
+            resourceConfigs['test'].attributes['subResource'] = _.cloneDeep(minimalResourceConfigs['test']);
+            resourceConfigs['test'].attributes['subResource'].parentKey = 'parentId';
+            resourceConfigs['test'].attributes['subResource'].childKey = 'id';
+
+            expect(function () {
+                configParser(resourceConfigs, mockDataSources);
+            }).to.throw(ImplementationError,
+                'Key attribute "parentId" is not mapped to "primary" DataSource ' +
+                'in parentKey in sub-resource "test:subResource"');
+
+            // same for childKey:
+            resourceConfigs = _.cloneDeep(minimalResourceConfigs);
+            resourceConfigs['test'].attributes['subResource'] = _.cloneDeep(minimalResourceConfigs['test']);
+            resourceConfigs['test'].attributes['subResource'].dataSources['secondary'] = {type: 'testDataSource'};
+            resourceConfigs['test'].attributes['subResource'].dataSources['secondary'].
+                expectedAttributes = ['id', 'childId'];
+            resourceConfigs['test'].attributes['subResource'].parentKey = 'id';
+            resourceConfigs['test'].attributes['subResource'].childKey = 'childId';
+            resourceConfigs['test'].attributes['subResource'].attributes['id'] = {map: 'id;secondary:id'};
+            resourceConfigs['test'].attributes['subResource'].attributes['childId'] =
+                {type: 'int', map: 'secondary:childId'};
+
+            expect(function () {
+                configParser(resourceConfigs, mockDataSources);
+            }).to.throw(ImplementationError,
+                'Key attribute "childId" is not mapped to "primary" DataSource ' +
+                'in childKey in sub-resource "test:subResource"');
+        });
+
+        it('ignores incomplete key mappings to other DataSources in resolved key', function () {
+            var resourceConfigs = _.cloneDeep(minimalResourceConfigs);
+            resourceConfigs['test'].dataSources['primary'].expectedAttributes = ['id', 'keyPart2'];
+            resourceConfigs['test'].dataSources['secondary'] = {type: 'testDataSource'};
+            resourceConfigs['test'].dataSources['secondary'].expectedAttributes = ['id', 'keyPart2'];
+            resourceConfigs['test'].dataSources['third'] = {type: 'testDataSource'};
+            resourceConfigs['test'].dataSources['third'].expectedAttributes = ['id'];
+            resourceConfigs['test'].attributes['id'].map = 'id;secondary:id;third:id';
+            resourceConfigs['test'].attributes['keyPart2'] = {type: 'int', map: 'keyPart2;secondary:keyPart2'};
+            resourceConfigs['test'].attributes['subResource'] = _.cloneDeep(minimalResourceConfigs['test']);
+            resourceConfigs['test'].attributes['subResource'].dataSources['primary'].
+                expectedAttributes = ['id', 'keyPart2'];
+            resourceConfigs['test'].attributes['subResource'].parentKey = 'id,keyPart2';
+            resourceConfigs['test'].attributes['subResource'].childKey = 'id,keyPart2';
+            resourceConfigs['test'].attributes['subResource'].attributes['keyPart2'] = {type: 'int'};
+
+            var resolvedParentKey = {
+                'primary': ['id', 'keyPart2'],
+                'secondary': ['id', 'keyPart2']
+                // ... and we especially do not expect this in resolvedParentKey:
+                // 'third': ['id']
+            };
+
+            configParser(resourceConfigs, mockDataSources);
+
+            expect(resourceConfigs['test'].attributes['subResource'].resolvedParentKey).
+                to.eql(resolvedParentKey);
+        });
+
+        it('fails if parentKey and childKey have different length', function () {
+            var resourceConfigs = _.cloneDeep(minimalResourceConfigs);
+            resourceConfigs['test'].dataSources['primary'].
+                expectedAttributes = ['id', 'parentId'];
+            resourceConfigs['test'].attributes['parentId'] = {type: 'int'};
+            resourceConfigs['test'].attributes['subResource'] = _.cloneDeep(minimalResourceConfigs['test']);
+            resourceConfigs['test'].attributes['subResource'].parentKey = 'id,parentId';
+            resourceConfigs['test'].attributes['subResource'].childKey = 'id';
+
+            expect(function () {
+                configParser(resourceConfigs, mockDataSources);
+            }).to.throw(ImplementationError,
+                'Composite key length of parentKey (2) does not match childKey length (1) ' +
+                'in sub-resource "test:subResource"');
+        });
+
         it('parses option "many"', function () {
             var resourceConfigs = _.cloneDeep(minimalResourceConfigs);
             var resourceConfigsParsed = _.cloneDeep(minimalResourceConfigsParsed);
 
             resourceConfigs['test'].attributes['subResource'] = _.cloneDeep(minimalResourceConfigs['test']);
             resourceConfigs['test'].attributes['subResource'].many = 'true';
-
-            resourceConfigsParsed['test'].attributes['subResource'] = _.cloneDeep(minimalResourceConfigsParsed['test']);
-            resourceConfigsParsed['test'].attributes['subResource'].many = true;
+            resourceConfigs['test'].attributes['subResource'].parentKey = 'id';
+            resourceConfigs['test'].attributes['subResource'].childKey = 'id';
 
             configParser(resourceConfigs, mockDataSources);
 
-            expect(resourceConfigs).to.eql(resourceConfigsParsed);
+            expect(resourceConfigs['test'].attributes['subResource'].many).to.be.true;
         });
 
         it('fails on invalid DataSource reference in joinVia', function () {
@@ -390,6 +658,8 @@ describe('config-parser', function () {
             var resourceConfigsParsed = _.cloneDeep(minimalResourceConfigsParsed);
 
             resourceConfigs['test'].attributes['subResource'] = _.cloneDeep(minimalResourceConfigs['test']);
+            resourceConfigs['test'].attributes['subResource'].parentKey = 'id';
+            resourceConfigs['test'].attributes['subResource'].childKey = 'id';
             resourceConfigs['test'].attributes['subResource'].joinVia = 'joinTest';
             resourceConfigs['test'].attributes['subResource'].dataSources['joinTest'] = {
                 type: 'testDataSource',
@@ -407,6 +677,10 @@ describe('config-parser', function () {
             };
 
             resourceConfigsParsed['test'].attributes['subResource'] = _.cloneDeep(minimalResourceConfigsParsed['test']);
+            resourceConfigsParsed['test'].attributes['subResource'].parentKey = [['id']];
+            resourceConfigsParsed['test'].attributes['subResource'].resolvedParentKey = {'primary': ['id']};
+            resourceConfigsParsed['test'].attributes['subResource'].childKey = [['id']];
+            resourceConfigsParsed['test'].attributes['subResource'].resolvedChildKey = {'primary': ['id']};
             resourceConfigsParsed['test'].attributes['subResource'].joinVia = 'joinTest';
             resourceConfigsParsed['test'].attributes['subResource'].dataSources['joinTest'] = {
                 type: 'testDataSource',
@@ -696,7 +970,7 @@ describe('config-parser', function () {
                 '(option "order" in attribute "test:id")');
         });
 
-        it('handles "value" option (no default mapping for static vaules) and parses "null" as null', function () {
+        it('handles "value" option (no default mapping for static values) and parses "null" as null', function () {
             var resourceConfigs = _.cloneDeep(minimalResourceConfigs);
             var resourceConfigsParsed = _.cloneDeep(minimalResourceConfigsParsed);
 

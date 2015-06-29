@@ -133,6 +133,16 @@
                     "id"
                 ]
             ],
+            "resolvedParentKey": {
+                "primary": [
+                    "authorId"
+                ]
+            },
+            "resolvedChildKey": {
+                "primary": [
+                    "id"
+                ]
+            },
             "resourceName": "user",
             "primaryKey": [
                 [
@@ -209,8 +219,16 @@
                     "id"
                 ]
             ],
-            "parentKey": null,
-            "childKey": null,
+            "parentKey": [
+                [
+                    "id"
+                ]
+            ],
+            "childKey": [
+                [
+                    "id"
+                ]
+            ],
             "joinVia": "articleCategories",
             "many": true,
             "dataSources": {
@@ -292,6 +310,25 @@
                 "primary": [
                     "id"
                 ]
+            },
+            "resolvedParentKey": {
+                "primary": [
+                    "id"
+                ],
+                "articleBody": [
+                    "articleId"
+                ],
+                "fulltextSearch": [
+                    "articleId"
+                ],
+                "statistics": [
+                    "articleId"
+                ]
+            },
+            "resolvedChildKey": {
+                "primary": [
+                    "id"
+                ]
             }
         },
         "countryIsoList": {
@@ -369,6 +406,16 @@
             "resolvedPrimaryKey": {
                 "primary": [
                     "id"
+                ]
+            },
+            "resolvedParentKey": {
+                "primary": [
+                    "countries"
+                ]
+            },
+            "resolvedChildKey": {
+                "primary": [
+                    "iso"
                 ]
             }
         },
@@ -449,6 +496,25 @@
                 }
             },
             "resolvedPrimaryKey": {
+                "primary": [
+                    "articleId"
+                ]
+            },
+            "resolvedParentKey": {
+                "primary": [
+                    "id"
+                ],
+                "articleBody": [
+                    "articleId"
+                ],
+                "fulltextSearch": [
+                    "articleId"
+                ],
+                "statistics": [
+                    "articleId"
+                ]
+            },
+            "resolvedChildKey": {
                 "primary": [
                     "articleId"
                 ]
@@ -603,6 +669,16 @@
                             "id"
                         ]
                     ],
+                    "resolvedParentKey": {
+                        "primary": [
+                            "userId"
+                        ]
+                    },
+                    "resolvedChildKey": {
+                        "primary": [
+                            "id"
+                        ]
+                    },
                     "resourceName": "user",
                     "primaryKey": [
                         [
@@ -698,6 +774,25 @@
                 ],
                 "likes": [
                     "commentId"
+                ]
+            },
+            "resolvedParentKey": {
+                "primary": [
+                    "id"
+                ],
+                "articleBody": [
+                    "articleId"
+                ],
+                "fulltextSearch": [
+                    "articleId"
+                ],
+                "statistics": [
+                    "articleId"
+                ]
+            },
+            "resolvedChildKey": {
+                "primary": [
+                    "articleId"
                 ]
             },
             "selected": false,

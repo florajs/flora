@@ -98,7 +98,21 @@
                         "authorId"
                     ]
                 ],
-                "childKey": null
+                "childKey": [
+                    [
+                        "id"
+                    ]
+                ],
+                "resolvedParentKey": {
+                    "primary": [
+                        "authorId"
+                    ]
+                },
+                "resolvedChildKey": {
+                    "primary": [
+                        "id"
+                    ]
+                }
             },
             "categories": {
                 "primaryKey": [
@@ -106,8 +120,16 @@
                         "id"
                     ]
                 ],
-                "parentKey": null,
-                "childKey": null,
+                "parentKey": [
+                    [
+                        "id"
+                    ]
+                ],
+                "childKey": [
+                    [
+                        "id"
+                    ]
+                ],
                 "joinVia": "articleCategories",
                 "many": true,
                 "dataSources": {
@@ -189,6 +211,25 @@
                     "primary": [
                         "id"
                     ]
+                },
+                "resolvedParentKey": {
+                    "primary": [
+                        "id"
+                    ],
+                    "articleBody": [
+                        "articleId"
+                    ],
+                    "fulltextSearch": [
+                        "articleId"
+                    ],
+                    "statistics": [
+                        "articleId"
+                    ]
+                },
+                "resolvedChildKey": {
+                    "primary": [
+                        "id"
+                    ]
                 }
             },
             "countryIsoList": {
@@ -267,6 +308,16 @@
                     "primary": [
                         "id"
                     ]
+                },
+                "resolvedParentKey": {
+                    "primary": [
+                        "countries"
+                    ]
+                },
+                "resolvedChildKey": {
+                    "primary": [
+                        "iso"
+                    ]
                 }
             },
             "body": {
@@ -283,8 +334,16 @@
                         "articleId"
                     ]
                 ],
-                "parentKey": null,
-                "childKey": null,
+                "parentKey": [
+                    [
+                        "id"
+                    ]
+                ],
+                "childKey": [
+                    [
+                        "articleId"
+                    ]
+                ],
                 "dataSources": {
                     "primary": {
                         "type": "mysql",
@@ -320,6 +379,25 @@
                     }
                 },
                 "resolvedPrimaryKey": {
+                    "primary": [
+                        "articleId"
+                    ]
+                },
+                "resolvedParentKey": {
+                    "primary": [
+                        "id"
+                    ],
+                    "articleBody": [
+                        "articleId"
+                    ],
+                    "fulltextSearch": [
+                        "articleId"
+                    ],
+                    "statistics": [
+                        "articleId"
+                    ]
+                },
+                "resolvedChildKey": {
                     "primary": [
                         "articleId"
                     ]
@@ -383,7 +461,11 @@
                         "id"
                     ]
                 ],
-                "parentKey": null,
+                "parentKey": [
+                    [
+                        "id"
+                    ]
+                ],
                 "childKey": [
                     [
                         "articleId"
@@ -440,7 +522,21 @@
                                 "userId"
                             ]
                         ],
-                        "childKey": null
+                        "childKey": [
+                            [
+                                "id"
+                            ]
+                        ],
+                        "resolvedParentKey": {
+                            "primary": [
+                                "userId"
+                            ]
+                        },
+                        "resolvedChildKey": {
+                            "primary": [
+                                "id"
+                            ]
+                        }
                     },
                     "content": {
                         "map": {
@@ -465,6 +561,25 @@
                     ],
                     "likes": [
                         "commentId"
+                    ]
+                },
+                "resolvedParentKey": {
+                    "primary": [
+                        "id"
+                    ],
+                    "articleBody": [
+                        "articleId"
+                    ],
+                    "fulltextSearch": [
+                        "articleId"
+                    ],
+                    "statistics": [
+                        "articleId"
+                    ]
+                },
+                "resolvedChildKey": {
+                    "primary": [
+                        "articleId"
                     ]
                 }
             }
