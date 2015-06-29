@@ -152,10 +152,10 @@
                                 "categoryId"
                             ]
                         ],
-                        "joinParentKeyResolved": [
+                        "resolvedJoinParentKey": [
                             "articleId"
                         ],
-                        "joinChildKeyResolved": [
+                        "resolvedJoinChildKey": [
                             "categoryId"
                         ]
                     }

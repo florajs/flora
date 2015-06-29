@@ -685,9 +685,9 @@ describe('config-parser', function () {
             resourceConfigsParsed['test'].attributes['subResource'].dataSources['joinTest'] = {
                 type: 'testDataSource',
                 joinParentKey: [['parentId']],
-                joinParentKeyResolved: ['parentIdDbField'],
+                resolvedJoinParentKey: ['parentIdDbField'],
                 joinChildKey: [['childId']],
-                joinChildKeyResolved: ['childIdDbField']
+                resolvedJoinChildKey: ['childIdDbField']
             };
             resourceConfigsParsed['test'].attributes['subResource'].attributes['parentId'] = {
                 type: 'int',
@@ -801,7 +801,7 @@ describe('config-parser', function () {
             expect(function () {
                 configParser(resourceConfigs, mockDataSources);
             }).to.throw(ImplementationError,
-                'Attribute "parentId" not mapped to DataSource "joinTest" in joinParentKey in sub-resource "test:subResource"');
+                'Key attribute "parentId" is not mapped to "joinTest" DataSource in joinParentKey in sub-resource "test:subResource"');
 
             // Missing mapping in joinChildKey:
             var resourceConfigs = _.cloneDeep(minimalResourceConfigs);
@@ -826,7 +826,7 @@ describe('config-parser', function () {
             expect(function () {
                 configParser(resourceConfigs, mockDataSources);
             }).to.throw(ImplementationError,
-                'Attribute "childId" not mapped to DataSource "joinTest" in joinChildKey in sub-resource "test:subResource"');
+                'Key attribute "childId" is not mapped to "joinTest" DataSource in joinChildKey in sub-resource "test:subResource"');
         });
     });
 
