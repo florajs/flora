@@ -589,7 +589,7 @@ describe('datasource-executor', function () {
         });
     });
 
-    describe('type casting', function () {
+    describe('type casting in requests', function () {
         var dst = {
             attributePath: [],
             request: {
@@ -674,19 +674,29 @@ describe('datasource-executor', function () {
             });
         });
 
-        it('casts string to boolean', function () {
+        it('casts string to boolean ("1")', function () {
             execute(api, {}, dst, function (err, result) {
                 expect(result[0].data[0].string2boolean1).to.be.a('boolean');
                 expect(result[0].data[0].string2boolean1).to.equal(true);
+            });
+        });
+
+        it('casts string to boolean ("0")', function () {
+            execute(api, {}, dst, function (err, result) {
                 expect(result[0].data[0].string2boolean0).to.be.a('boolean');
                 expect(result[0].data[0].string2boolean0).to.equal(false);
             });
         });
 
-        it('casts int to boolean', function () {
+        it('casts int to boolean (1)', function () {
             execute(api, {}, dst, function (err, result) {
                 expect(result[0].data[0].int2boolean1).to.be.a('boolean');
                 expect(result[0].data[0].int2boolean1).to.equal(true);
+            });
+        });
+
+        it('casts int to boolean (0)', function () {
+            execute(api, {}, dst, function (err, result) {
                 expect(result[0].data[0].int2boolean0).to.be.a('boolean');
                 expect(result[0].data[0].int2boolean0).to.equal(false);
             });
@@ -741,6 +751,138 @@ describe('datasource-executor', function () {
                 expect(result[0].data[0].unknownType).to.be.an('object');
                 expect(result[0].data[0].unknownType).to.eql({foo: 'bar'});
             });
+        });
+    });
+
+    describe('type casting in subFilters', function () {
+        var dst = {
+            attributePath: [],
+            request: {
+                type: 'test',
+                table: 'article',
+                filter: [[{ attribute: 'authorId', operator: 'equal', valueFromSubFilter: true }]],
+                _expect: '__EXPECT__'
+            },
+            subFilters: [{
+                parentKey: ['authorId'],
+                childKey: ['id'],
+                request: {
+                    type: 'test',
+                    table: 'user',
+                    _value: '__VALUE__'
+                },
+                attributeOptions: {
+                    id: {type: '__TYPE__'}
+                }
+            }]
+        };
+
+        before(function () {
+            sinon.stub(api.dataSources['test'], 'process', function (query, callback) {
+                if (query.table === 'article') {
+                    try {
+                        expect(query).to.be.an('object');
+                        expect(query.filter).to.be.an('array');
+                        expect(query.filter.length).to.equal(1);
+                        expect(query.filter[0]).to.be.an('array');
+                        expect(query.filter[0][0].value).to.be.an('array');
+                        expect(query.filter[0][0].value.length).to.equal(1);
+                        expect(query.filter[0][0].value[0]).to.eql(query._expect);
+                    } catch (e) {
+                        callback(e);
+                    }
+
+                    return callback(null, {data: []});
+                }
+
+                return callback(null, {
+                    data: [{id: query._value}],
+                    totalCount: null
+                });
+            });
+        });
+
+        after(function () {
+            api.dataSources['test'].process.restore();
+        });
+
+        it('casts string to int', function (done) {
+            dst.request._expect = 42;
+            dst.subFilters[0].request._value = '42';
+            dst.subFilters[0].attributeOptions.id.type = 'int';
+            execute(api, {}, dst, done);
+        });
+
+        it('casts string to float', function (done) {
+            // this does not really make sense, but works
+            dst.request._expect = 3.1415;
+            dst.subFilters[0].request._value = '3.1415';
+            dst.subFilters[0].attributeOptions.id.type = 'float';
+            execute(api, {}, dst, done);
+        });
+
+        it('casts int to string', function (done) {
+            dst.request._expect = '42'
+            dst.subFilters[0].request._value = 42;
+            dst.subFilters[0].attributeOptions.id.type = 'string';
+            execute(api, {}, dst, done);
+        });
+
+        it('casts string to boolean ("1")', function (done) {
+            dst.request._expect = true;
+            dst.subFilters[0].request._value = '1';
+            dst.subFilters[0].attributeOptions.id.type = 'boolean';
+            execute(api, {}, dst, done);
+        });
+
+        it('casts string to boolean ("0")', function (done) {
+            dst.request._expect = false;
+            dst.subFilters[0].request._value = '0';
+            dst.subFilters[0].attributeOptions.id.type = 'boolean';
+            execute(api, {}, dst, done);
+        });
+
+        it('casts int to boolean (1)', function (done) {
+            dst.request._expect = true;
+            dst.subFilters[0].request._value = 1;
+            dst.subFilters[0].attributeOptions.id.type = 'boolean';
+            execute(api, {}, dst, done);
+        });
+
+        it('casts int to boolean (0)', function (done) {
+            dst.request._expect = false;
+            dst.subFilters[0].request._value = 0;
+            dst.subFilters[0].attributeOptions.id.type = 'boolean';
+            execute(api, {}, dst, done);
+        });
+
+        it('casts string to datetime', function (done) {
+            dst.request._expect = '2015-06-17T10:13:14.000Z';
+            dst.subFilters[0].request._value = '2015-06-17 12:13:14';
+            dst.subFilters[0].attributeOptions.id.type = 'datetime';
+            execute(api, {}, dst, done);
+        });
+
+        it('casts string to time', function (done) {
+            dst.request._expect = '10:13:14.000Z';
+            dst.subFilters[0].request._value = '2015-06-17 12:13:14';
+            dst.subFilters[0].attributeOptions.id.type = 'time';
+            execute(api, {}, dst, done);
+        });
+
+        it('casts string to date', function (done) {
+            dst.request._expect = '2015-06-17';
+            dst.subFilters[0].request._value = '2015-06-17 12:13:14';
+            dst.subFilters[0].attributeOptions.id.type = 'date';
+            execute(api, {}, dst, done);
+        });
+
+        it('passes through null', function (done) {
+            // this may or may not make sense
+            dst.request._expect = null;
+            dst.subFilters[0].request._value = null;
+            dst.subFilters[0].attributeOptions.id.type = 'int';
+            execute(api, {}, dst, done);
         });
     });
 });
