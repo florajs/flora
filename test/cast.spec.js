@@ -3,7 +3,7 @@
 var expect = require('chai').expect;
 var cast = require('../lib/cast');
 
-describe.only('type casting', function () {
+describe('type casting', function () {
     it('casts type "string"', function () {
         expect(cast(100, {type: 'string'})).to.equal('100');
     });
