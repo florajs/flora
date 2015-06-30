@@ -71,4 +71,11 @@ describe('type casting', function () {
             expect(cast('1,2,3', {type: 'string', delimiter: ','})).to.eql(['1', '2', '3']);
         });
     });
+
+    describe('multiValued', function () {
+        it('handles multiValued values one by one', function () {
+            expect(cast(['1', '2', '3'], {type: 'int', multiValued: true})).to.eql([1, 2, 3]);
+            expect(cast([1, 2, 3], {type: 'string', multiValued: true})).to.eql(['1', '2', '3']);
+        });
+    });
 });
