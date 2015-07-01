@@ -301,6 +301,16 @@ describe('config-parser', function () {
                 'Path "subResource.id" references sub-resource in primaryKey in resource "test:{root}"');
         });
 
+        it('fails if primaryKey references multiValued attribute', function () {
+            var resourceConfigs = _.cloneDeep(minimalResourceConfigs);
+
+            resourceConfigs['test'].attributes['id'].multiValued = 'true';
+
+            expect(function () {
+                configParser(resourceConfigs, mockDataSources);
+            }).to.throw(ImplementationError, 'Key attribute "id" must not be multiValued in primaryKey in resource "test:{root}"');
+        });
+
         it('fails if primaryKey is overwritten for included sub-resource', function () {
             var resourceConfigs = _.cloneDeep(minimalResourceConfigs);
 
@@ -545,6 +555,39 @@ describe('config-parser', function () {
                 configParser(resourceConfigs, mockDataSources);
             }).to.throw(ImplementationError,
                 'Path "otherResource.id" references sub-resource in childKey in sub-resource "test:subResource"');
+        });
+
+        it('fails if composite parentKey references multiValued attribute', function () {
+            var resourceConfigs = _.cloneDeep(minimalResourceConfigs);
+            resourceConfigs['test'].attributes['parentId'] = {type: 'int', multiValued: 'true'};
+            resourceConfigs['test'].dataSources['primary'].expectedAttributes = ['id', 'parentId'];
+            resourceConfigs['test'].attributes['subResource'] = _.cloneDeep(minimalResourceConfigs['test']);
+            resourceConfigs['test'].attributes['subResource'].parentKey = 'id,parentId';
+            resourceConfigs['test'].attributes['subResource'].childKey = 'id,childId';
+            resourceConfigs['test'].attributes['subResource'].attributes['childId'] = {type: 'int'};
+            resourceConfigs['test'].attributes['subResource'].dataSources['primary'].
+                expectedAttributes = ['id', 'childId'];
+
+            expect(function () {
+                configParser(resourceConfigs, mockDataSources);
+            }).to.throw(ImplementationError,
+                'Composite key attribute "parentId" must not be multiValued in parentKey in sub-resource "test:subResource"');
+        });
+
+        it('fails if childKey references multiValued attribute', function () {
+            var resourceConfigs = _.cloneDeep(minimalResourceConfigs);
+            resourceConfigs['test'].attributes['subResource'] = _.cloneDeep(minimalResourceConfigs['test']);
+            resourceConfigs['test'].attributes['subResource'].parentKey = 'id';
+            resourceConfigs['test'].attributes['subResource'].childKey = 'childId';
+            resourceConfigs['test'].attributes['subResource'].attributes['childId'] =
+                {type: 'int', multiValued: 'true'};
+            resourceConfigs['test'].attributes['subResource'].dataSources['primary'].
+                expectedAttributes = ['id', 'childId'];
+
+            expect(function () {
+                configParser(resourceConfigs, mockDataSources);
+            }).to.throw(ImplementationError,
+                'Key attribute "childId" must not be multiValued in childKey in sub-resource "test:subResource"');
         });
 
         it('fails if parentKey/childKey is not mapped to primary DataSources', function () {
