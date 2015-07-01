@@ -688,6 +688,7 @@ describe('request-resolver', function () {
                         dataSourceName: 'primary',
                         parentKey: ['id'],
                         childKey: ['articleId'],
+                        uniqueChildKey: true,
                         request: {
                             type: 'mysql',
                             database: 'contents',
@@ -744,6 +745,7 @@ describe('request-resolver', function () {
                         dataSourceName: 'primary',
                         parentKey: ['id'],
                         childKey: ['articleId'],
+                        uniqueChildKey: false,
                         request: {
                             type: 'mysql',
                             database: 'contents',
@@ -802,6 +804,7 @@ describe('request-resolver', function () {
                         dataSourceName: 'primary',
                         parentKey: ['id'],
                         childKey: ['articleId'],
+                        uniqueChildKey: false,
                         request: {
                             type: 'mysql',
                             database: 'contents',
@@ -824,6 +827,7 @@ describe('request-resolver', function () {
                                 dataSourceName: 'likes',
                                 parentKey: ['id'],
                                 childKey: ['commentId'],
+                                uniqueChildKey: true,
                                 request: {
                                     type: 'mysql',
                                     database: 'contents',
@@ -885,6 +889,7 @@ describe('request-resolver', function () {
                         dataSourceName: 'primary',
                         parentKey: ['authorId'],
                         childKey: ['id'],
+                        uniqueChildKey: true,
                         request: {
                             type: 'mysql',
                             database: 'contents',
@@ -943,6 +948,7 @@ describe('request-resolver', function () {
                         dataSourceName: 'primary',
                         parentKey: ['countries'],
                         childKey: ['iso'],
+                        uniqueChildKey: true,
                         request: {
                             type: 'mysql',
                             database: 'contents',
@@ -1000,6 +1006,7 @@ describe('request-resolver', function () {
                         dataSourceName: 'articleCategories',
                         parentKey: ['id'],
                         childKey: ['articleId'],
+                        uniqueChildKey: false,
                         request: {
                             type: 'mysql',
                             database: 'contents',
@@ -1021,6 +1028,7 @@ describe('request-resolver', function () {
                                 dataSourceName: 'primary',
                                 parentKey: ['categoryId'],
                                 childKey: ['id'],
+                                uniqueChildKey: true,
                                 request: {
                                     type: 'mysql',
                                     database: 'contents',
@@ -1077,6 +1085,7 @@ describe('request-resolver', function () {
                         dataSourceName: 'articleBody',
                         parentKey: ['id'],
                         childKey: ['articleId'],
+                        uniqueChildKey: true,
                         request: {
                             type: 'mysql',
                             database: 'contents',
@@ -1207,6 +1216,7 @@ describe('request-resolver', function () {
                         dataSourceName: 'articleBody',
                         parentKey: ['id'],
                         childKey: ['articleId'],
+                        uniqueChildKey: true,
                         request: {
                             type: 'mysql',
                             database: 'contents',
@@ -1229,6 +1239,7 @@ describe('request-resolver', function () {
                         dataSourceName: 'primary',
                         parentKey: ['authorId'],
                         childKey: ['id'],
+                        uniqueChildKey: true,
                         request: {
                             type: 'mysql',
                             database: 'contents',

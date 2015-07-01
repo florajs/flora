@@ -221,6 +221,7 @@ describe('result-builder', function () {
                 dataSourceName: 'primary',
                 parentKey: ['id'],
                 childKey: ['articleId'],
+                uniqueChildKey: true,
                 data: [{
                     articleId: '1',
                     url: 'http://example.com/video/123'
@@ -265,6 +266,7 @@ describe('result-builder', function () {
                 dataSourceName: 'primary',
                 parentKey: ['id'],
                 childKey: ['articleId'],
+                uniqueChildKey: false,
                 data: [{
                     id: 100,
                     articleId: 1,
@@ -331,6 +333,7 @@ describe('result-builder', function () {
                 dataSourceName: 'primary',
                 parentKey: ['authorId'],
                 childKey: ['id'],
+                uniqueChildKey: true,
                 data: [{
                     id: 10,
                     firstname: 'Bob',
@@ -377,6 +380,7 @@ describe('result-builder', function () {
                 dataSourceName: 'primary',
                 parentKey: ['authorId'],
                 childKey: ['id'],
+                uniqueChildKey: true,
                 data: [],
                 totalCount: 0
             }];
@@ -427,6 +431,7 @@ describe('result-builder', function () {
                 dataSourceName: 'articleBody',
                 parentKey: ['id'],
                 childKey: ['articleId'],
+                uniqueChildKey: true,
                 data: [{
                     articleId: '1',
                     body: 'Test-Body 1'
@@ -492,6 +497,7 @@ describe('result-builder', function () {
                 dataSourceName: 'articleBody',
                 parentKey: ['id'],
                 childKey: ['articleId'],
+                uniqueChildKey: true,
                 data: [{
                     articleId: 1,
                     body: 'Test-Body'
@@ -524,6 +530,7 @@ describe('result-builder', function () {
                 dataSourceName: 'primary',
                 parentKey: ['authorId'],
                 childKey: ['id'],
+                uniqueChildKey: true,
                 data: [{
                     id: 10,
                     firstname: 'Bob',
@@ -554,6 +561,7 @@ describe('result-builder', function () {
                 dataSourceName: 'articleBody',
                 parentKey: ['id'],
                 childKey: ['articleId'],
+                uniqueChildKey: true,
                 data: [{
                     articleId: 10, // does not match ID from primary DataSource
                     body: 'Test-Body'
@@ -591,6 +599,7 @@ describe('result-builder', function () {
                 dataSourceName: 'primary',
                 parentKey: ['id'],
                 childKey: ['articleId'],
+                uniqueChildKey: true,
                 data: [{
                     articleId: 10, // does not match ID from parent resource
                     url: 'http://example.com/video/123'
@@ -718,6 +727,7 @@ describe('result-builder', function () {
                 dataSourceName: 'articleBody',
                 parentKey: ['id'],
                 childKey: ['articleId'],
+                uniqueChildKey: true,
                 data: [{
                     articleId: 1,
                     body: 'Test-Body'
@@ -728,6 +738,7 @@ describe('result-builder', function () {
                 dataSourceName: 'primary',
                 parentKey: ['authorId'],
                 childKey: ['id'],
+                uniqueChildKey: true,
                 data: [{
                     id: 10,
                     firstname: 'Bob'
@@ -738,6 +749,7 @@ describe('result-builder', function () {
                 dataSourceName: 'primary',
                 parentKey: ['id'],
                 childKey: ['articleId'],
+                uniqueChildKey: true,
                 data: [{
                     articleId: 1,
                     url: 'http://example.com/video/123'
@@ -748,6 +760,7 @@ describe('result-builder', function () {
                 dataSourceName: 'primary',
                 parentKey: ['id'],
                 childKey: ['articleId'],
+                uniqueChildKey: false,
                 data: [{
                     id: 100,
                     articleId: 1,
@@ -765,6 +778,7 @@ describe('result-builder', function () {
                 dataSourceName: 'primary',
                 parentKey: ['userId'],
                 childKey: ['id'],
+                uniqueChildKey: true,
                 data: [{
                     id: 20,
                     lastname: 'Commenter'
