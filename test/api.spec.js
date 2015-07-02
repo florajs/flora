@@ -145,10 +145,10 @@ describe('Api', function () {
                 var request = new Request({
                     resource: 'foo'
                 });
-                api.execute(request, function (err, response) {
+                api.execute(request, function (err2, response) {
                     expect(response).to.be.undefined;
-                    expect(err).to.be.an('object');
-                    expect(err.message).to.equal('Unknown resource "foo" in request');
+                    expect(err2).to.be.an('object');
+                    expect(err2.message).to.equal('Unknown resource "foo" in request');
                     api.close(done);
                 });
             });
@@ -173,10 +173,10 @@ describe('Api', function () {
                 var request = new Request({
                     resource: 'no-actions'
                 });
-                api.execute(request, function (err, response) {
+                api.execute(request, function (err2, response) {
                     expect(response).to.be.undefined;
-                    expect(err).to.be.an('object');
-                    expect(err.message).to.equal('Action "retrieve" is not implemented');
+                    expect(err2).to.be.an('object');
+                    expect(err2.message).to.equal('Action "retrieve" is not implemented');
                     api.close(done);
                 });
             });

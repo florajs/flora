@@ -1,6 +1,7 @@
 {
   "env": {
-    "node": true
+    "node": true,
+    "mocha": true
   },
   "rules": {
     "block-scoped-var": 2,
@@ -12,7 +13,7 @@
     "indent": 4,
     "max-depth": [2, 6],
     "max-len": [1, 120, 4],
-    "max-nested-callbacks": [2, 4],
+    "max-nested-callbacks": [2, 5],
     "max-params": [2, 4],
     "no-empty": 0,
     "no-loop-func": 0,
