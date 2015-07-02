@@ -84,13 +84,14 @@ describe('datasource-executor', function () {
 
         it('does not throw errors', function (done) {
             execute(api, {}, dst, function (err) {
-                expect(err).to.eql(null);
+                if (err) return done(err);
                 done();
             });
         });
 
         it('returns the correct result', function (done) {
             execute(api, {}, dst, function (err, result) {
+                if (err) return done(err);
                 expect(result).to.eql([
                     {
                         attributePath: [],
@@ -183,6 +184,7 @@ describe('datasource-executor', function () {
 
             it('returns the correct result', function (done) {
                 execute(api, {}, dst, function (err, result) {
+                    if (err) return done(err);
                     expect(result).to.eql([
                         {
                             attributePath: [],
@@ -220,13 +222,14 @@ describe('datasource-executor', function () {
 
             it('does not throw errors', function (done) {
                 execute(api, {}, dst, function (err) {
-                    expect(err).to.eql(null);
+                    if (err) return done(err);
                     done();
                 });
             });
 
             it('returns an empty main result', function (done) {
                 execute(api, {}, dst, function (err, result) {
+                    if (err) return done(err);
                     expect(result).to.eql([
                         {
                             attributePath: [],
@@ -310,13 +313,14 @@ describe('datasource-executor', function () {
 
         it('does not throw errors', function (done) {
             execute(api, {}, dst, function (err) {
-                expect(err).to.eql(null);
+                if (err) return done(err);
                 done();
             });
         });
 
         it('integration test', function (done) {
             execute(api, {}, dst, function (err, result) {
+                if (err) return done(err);
                 expect(result).to.eql([
                     {
                         attributePath: [],
@@ -431,14 +435,14 @@ describe('datasource-executor', function () {
 
         it('does not throw errors', function (done) {
             execute(api, {}, dst, function (err) {
-                expect(err).to.eql(null);
+                if (err) return done(err);
                 done();
             });
         });
 
         it('returns the correct result', function (done) {
             execute(api, {}, dst, function (err, result) {
-                expect(err).to.eql(null);
+                if (err) return done(err);
                 expect(result).to.eql([
                     {
                         attributePath: [],
@@ -567,13 +571,14 @@ describe('datasource-executor', function () {
 
         it('does not throw errors', function (done) {
             execute(api, {}, dst, function (err) {
-                expect(err).to.eql(null);
+                if (err) return done(err);
                 done();
             });
         });
 
         it('returns the correct result', function (done) {
             execute(api, {}, dst, function (err, result) {
+                if (err) return done(err);
                 expect(result).to.eql([
                     {
                         attributePath: [],
@@ -645,7 +650,7 @@ describe('datasource-executor', function () {
 
         it('supports type casting', function () {
             execute(api, {}, dst, function (err, result) {
-                expect(err).to.eql(null);
+                if (err) return done(err);
                 expect(result).to.be.an('array');
                 expect(result[0]).to.be.an('object');
                 expect(result[0].data).to.be.an('array');
