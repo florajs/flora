@@ -759,6 +759,117 @@ describe('datasource-executor', function () {
         });
     });
 
+    describe('delimiter in subFilters', function () {
+        before(function () {
+            sinon.stub(api.dataSources['test'], 'process', function (query, callback) {
+                if (query.table === 'email') {
+                    // valueFromSubFilter (validemail) is transformed correctly
+                    expect(query.filter).to.eql([[
+                        {
+                            attribute: 'userId',
+                            operator: 'equal',
+                            valueFromParentKey: true,
+                            value: [10, 11, 12, 20, 21]
+                        }
+                    ]]);
+
+                    return callback(null, {
+                        data: [
+                            {id: 10, email: 'user1-0@example.com'},
+                            {id: 11, email: 'user1-1@example.com'},
+                            {id: 20, email: 'user2-0@example.com'},
+                            {id: 21, email: 'user2-1@example.com'}
+                        ],
+                        totalCount: null
+                    });
+                }
+
+                if (query.table === 'user') {
+                    return callback(null, {
+                        data: [
+                            {id: 1, emailIds: '10,11,12'},
+                            {id: 2, emailIds: '20,21'}
+                        ],
+                        totalCount: null
+                    });
+                }
+
+                callback(null, {
+                    data: [],
+                    totalCount: null
+                });
+            });
+        });
+
+        after(function () {
+            api.dataSources['test'].process.restore();
+        });
+
+        var dst = {
+            attributePath: [],
+            dataSourceName: 'user',
+            request: {
+                type: 'test',
+                table: 'user',
+                attributes: ['id', 'emailIds']
+            },
+            attributeOptions: {
+                emailIds: {
+                    type: 'int',
+                    delimiter: ',',
+                    multiValued: true
+                },
+                userId: {
+                    type: 'int',
+                    storedType: 'string'
+                }
+            },
+            subRequests: [
+                {
+                    attributePath: ['email'],
+                    dataSourceName: 'ds2',
+                    parentKey: ['emailIds'],
+                    childKey: ['id'],
+                    request: {
+                        type: 'test',
+                        table: 'email',
+                        attributes: ['id', 'email'],
+                        filter: [[{attribute: 'userId', operator: 'equal', valueFromParentKey: true}]]
+                    }
+                }
+            ]
+        };
+
+        it('does not throw errors', function (done) {
+            execute(api, {}, dst, function (err) {
+                if (err) return done(err);
+                done();
+            });
+        });
+
+        it('resolves emailIds', function (done) {
+            execute(api, {}, dst, function (err, results) {
+                expect(results[0].data).to.eql([
+                    { id: 1, emailIds: [ 10, 11, 12 ] },
+                    { id: 2, emailIds: [ 20, 21 ] }
+                ]);
+                done();
+            });
+        });
+
+        it('resolves email entries', function (done) {
+            execute(api, {}, dst, function (err, results) {
+                expect(results[1].data).to.eql([
+                    { id: 10, email: 'user1-0@example.com' },
+                    { id: 11, email: 'user1-1@example.com' },
+                    { id: 20, email: 'user2-0@example.com' },
+                    { id: 21, email: 'user2-1@example.com' }
+                ]);
+                done();
+            });
+        });
+    });
+
     describe('type casting in subFilters', function () {
         var dst = {
             attributePath: [],
