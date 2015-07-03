@@ -870,6 +870,85 @@ describe('datasource-executor', function () {
         });
     });
 
+    describe('casting to storedType in subFilters', function () {
+        before(function () {
+            sinon.stub(api.dataSources['test'], 'process', function (query, callback) {
+                if (query.table === 'quotes') {
+                    return callback(null, {
+                        data: [
+                            {instrumentId: 1, exchangeId: 10, value: 1000},
+                            {instrumentId: 1, exchangeId: 20, value: 2000},
+                            {instrumentId: 2, exchangeId: 30, value: 3000}
+                        ],
+                        totalCount: null
+                    });
+                }
+
+                if (query.table === 'instruments') {
+                    expect(query.filter).to.eql([[
+                        {
+                            attribute: ['id', 'exchangeId'],
+                            operator: 'equal',
+                            valueFromSubFilter: true,
+                            value: [[1], ['2']]
+                        }
+                    ]]);
+                    return callback(null, {
+                        data: [],
+                        totalCount: null
+                    });
+                }
+
+                callback(null, {
+                    data: [],
+                    totalCount: null
+                });
+            });
+        });
+
+        after(function () {
+            api.dataSources['test'].process.restore();
+        });
+
+        var dst = {
+            attributePath: [],
+            dataSourceName: 'ds1',
+            request: {
+                type: 'test',
+                table: 'instruments',
+                filter: [
+                    [
+                        {attribute: ['id', 'exchangeId'], operator: 'equal', valueFromSubFilter: true}
+                    ]
+                ]
+            },
+            attributeOptions: {
+                exchangeId: {
+                    type: 'int',
+                    storedType: 'string'
+                }
+            },
+            subFilters: [
+                {
+                    parentKey: ['id', 'exchangeId'],
+                    childKey: ['instrumentId'],
+                    request: {
+                        type: 'test',
+                        table: 'quotes'
+                    }
+                }
+            ]
+        };
+
+        it('does not throw errors', function (done) {
+            execute(api, {}, dst, function (err) {
+                if (err) return done(err);
+                done();
+            });
+        });
+
+    });
+
     describe('type casting in subFilters', function () {
         var dst = {
             attributePath: [],
