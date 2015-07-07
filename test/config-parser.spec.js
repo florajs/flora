@@ -831,6 +831,62 @@ describe('config-parser', function () {
                 'Unknown attribute "unknownChildId" in joinChildKey in sub-resource "test:subResource"');
         });
 
+        it('fails if joinParentKey/joinChildKey key length does not match', function () {
+            // parent key length does not match:
+            var resourceConfigs = _.cloneDeep(minimalResourceConfigs);
+
+            resourceConfigs['test'].attributes['subResource'] = _.cloneDeep(minimalResourceConfigs['test']);
+            resourceConfigs['test'].attributes['subResource'].parentKey = 'id,id'; // key length does not fit!
+            resourceConfigs['test'].attributes['subResource'].childKey = 'id';
+            resourceConfigs['test'].attributes['subResource'].joinVia = 'joinTest';
+            resourceConfigs['test'].attributes['subResource'].dataSources['joinTest'] = {
+                type: 'testDataSource',
+                joinParentKey: 'parentId',
+                joinChildKey: 'childId',
+                expectedAttributes: ['parentIdDbField', 'childIdDbField']
+            };
+            resourceConfigs['test'].attributes['subResource'].attributes['parentId'] = {
+                type: 'int',
+                map: 'joinTest:parentIdDbField'
+            };
+            resourceConfigs['test'].attributes['subResource'].attributes['childId'] = {
+                type: 'int',
+                map: 'joinTest:childIdDbField'
+            };
+
+            expect(function () {
+                configParser(resourceConfigs, mockDataSources);
+            }).to.throw(ImplementationError, 'Composite key length of parentKey (2) does not match ' +
+                'joinParentKey length (1) of DataSource "joinTest" in sub-resource "test:subResource"');
+
+            // child key length does not match:
+            var resourceConfigs = _.cloneDeep(minimalResourceConfigs);
+
+            resourceConfigs['test'].attributes['subResource'] = _.cloneDeep(minimalResourceConfigs['test']);
+            resourceConfigs['test'].attributes['subResource'].parentKey = 'id';
+            resourceConfigs['test'].attributes['subResource'].childKey = 'id,id'; // key length does not fit!
+            resourceConfigs['test'].attributes['subResource'].joinVia = 'joinTest';
+            resourceConfigs['test'].attributes['subResource'].dataSources['joinTest'] = {
+                type: 'testDataSource',
+                joinParentKey: 'parentId',
+                joinChildKey: 'childId',
+                expectedAttributes: ['parentIdDbField', 'childIdDbField']
+            };
+            resourceConfigs['test'].attributes['subResource'].attributes['parentId'] = {
+                type: 'int',
+                map: 'joinTest:parentIdDbField'
+            };
+            resourceConfigs['test'].attributes['subResource'].attributes['childId'] = {
+                type: 'int',
+                map: 'joinTest:childIdDbField'
+            };
+
+            expect(function () {
+                configParser(resourceConfigs, mockDataSources);
+            }).to.throw(ImplementationError, 'Composite key length of childKey (2) does not match ' +
+                'joinChildKey length (1) of DataSource "joinTest" in sub-resource "test:subResource"');
+        });
+
         it('fails if joinParentKey/joinChildKey attributes misses mapping to the DataSource', function () {
             // Missing mapping in joinParentKey:
             var resourceConfigs = _.cloneDeep(minimalResourceConfigs);
