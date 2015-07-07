@@ -756,6 +756,36 @@ describe('result-builder', function () {
                 'misses key attribute "authorId" in parent result (DataSource "primary")');
         });
 
+        it('fails if uniqueChildKey is not unique', function () {
+            var rawResults = [{
+                attributePath: [],
+                dataSourceName: 'primary',
+                data: [
+                    {id: 1, authorId: 10}
+                ],
+                totalCount: 1
+            },{
+                attributePath: ['author'],
+                dataSourceName: 'primary',
+                parentKey: ['authorId'],
+                childKey: ['id'],
+                multiValuedParentKey: false,
+                uniqueChildKey: true,
+                data: [
+                    {id: 10, firstname: 'Bob', lastname: 'Tester'},
+                    {id: 10, firstname: 'Bob 2', lastname: 'Tester 2'}
+                ],
+                totalCount: 2
+            }];
+
+            var resolvedConfig = _.cloneDeep(defaultResolvedConfig);
+            resolvedConfig.attributes['author'].selected = true;
+
+            expect(function () {
+                resultBuilder(api, {}, rawResults, resolvedConfig);
+            }).to.throw(DataError, 'Result-row 1 of "author" (DataSource "primary") has duplicate child key "10"');
+        });
+
         it('handles missing row in secondary DataSource (by primary key) as "null"', function () {
             var rawResults = [{
                 attributePath: [],
