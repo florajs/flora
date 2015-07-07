@@ -236,27 +236,37 @@
                 "primary": {
                     "type": "mysql",
                     "database": "contents",
-                    "table": "category"
+                    "table": "category",
+                    "attributes": [
+                        "id",
+                        "name"
+                    ],
+                    "filter": [
+                        [
+                            {
+                                "attribute": "id",
+                                "operator": "equal",
+                                "valueFromParentKey": true
+                            }
+                        ]
+                    ]
                 },
                 "articleCategories": {
                     "type": "mysql",
                     "database": "contents",
                     "table": "article_category",
-                    "joinParentKey": [
-                        [
-                            "articleId"
-                        ]
-                    ],
-                    "joinChildKey": [
-                        [
-                            "categoryId"
-                        ]
-                    ],
-                    "resolvedJoinParentKey": [
-                        "articleId"
-                    ],
-                    "resolvedJoinChildKey": [
+                    "attributes": [
+                        "articleId",
                         "categoryId"
+                    ],
+                    "filter": [
+                        [
+                            {
+                                "attribute": "articleId",
+                                "operator": "equal",
+                                "valueFromParentKey": true
+                            }
+                        ]
                     ]
                 }
             },
@@ -268,7 +278,8 @@
                         "default": {
                             "articleCategories": "articleId"
                         }
-                    }
+                    },
+                    "selectedDataSource": "articleCategories"
                 },
                 "categoryId": {
                     "hidden": true,
@@ -277,7 +288,8 @@
                         "default": {
                             "articleCategories": "categoryId"
                         }
-                    }
+                    },
+                    "selectedDataSource": "articleCategories"
                 },
                 "id": {
                     "type": "int",
@@ -288,7 +300,9 @@
                     },
                     "filter": [
                         "equal"
-                    ]
+                    ],
+                    "selected": false,
+                    "selectedDataSource": "primary"
                 },
                 "name": {
                     "map": {
@@ -296,7 +310,9 @@
                             "primary": "name"
                         }
                     },
-                    "type": "string"
+                    "type": "string",
+                    "selected": false,
+                    "selectedDataSource": "primary"
                 },
                 "isImportant": {
                     "type": "boolean",
@@ -330,7 +346,9 @@
                 "primary": [
                     "id"
                 ]
-            }
+            },
+            "selected": false,
+            "primaryDataSource": "primary"
         },
         "countryIsoList": {
             "hidden": true,

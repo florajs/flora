@@ -1289,6 +1289,11 @@ describe('request-resolver', function () {
                             'lastname': {}
                         }
                     },
+                    'categories': {
+                        select: {
+                            'name': {}
+                        }
+                    },
                     'countries': {
                         select: {
                             'name': {}

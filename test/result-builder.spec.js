@@ -504,8 +504,118 @@ describe('result-builder', function () {
                 'in parent result is not an array (DataSource "primary")');
         });
 
-        xit('builds result with m:n relation - with join-table', function () {
+        it('builds result with m:n relation - with join-table', function () {
             // /article/?select=categories.name
+            var rawResults = [{
+                attributePath: [],
+                dataSourceName: 'primary',
+                data: [
+                    {id: 1},
+                    {id: 2},
+                    {id: 3}
+                ],
+                totalCount: 3
+            },{
+                attributePath: ['categories'],
+                dataSourceName: 'articleCategories',
+                parentKey: ['id'],
+                childKey: ['articleId'],
+                multiValuedParentKey: false,
+                uniqueChildKey: false,
+                data: [
+                    {articleId: 1, categoryId: 100},
+                    {articleId: 1, categoryId: 200},
+                    {articleId: 1, categoryId: 300},
+                    {articleId: 2, categoryId: 100}
+                ],
+                totalCount: 4
+            },{
+                attributePath: ['categories'],
+                dataSourceName: 'primary',
+                parentKey: ['categoryId'],
+                childKey: ['id'],
+                multiValuedParentKey: false,
+                uniqueChildKey: true,
+                data: [
+                    {id: 100, name: 'Breaking News'},
+                    {id: 200, name: 'Sport'},
+                    {id: 300, name: 'Fun'}
+                ],
+                totalCount: 3
+            }];
+
+            var resolvedConfig = _.cloneDeep(defaultResolvedConfig);
+            resolvedConfig.attributes['id'].selected = true;
+            resolvedConfig.attributes['categories'].selected = true;
+            resolvedConfig.attributes['categories'].attributes['id'].selected = true;
+            resolvedConfig.attributes['categories'].attributes['name'].selected = true;
+
+            var expectedResult = {
+                cursor: {totalCount: 3},
+                data: [{
+                    id: 1,
+                    categories: [
+                        {id: 100, name: 'Breaking News'},
+                        {id: 200, name: 'Sport'},
+                        {id: 300, name: 'Fun'}
+                    ]
+                },{
+                    id: 2,
+                    categories: [{id: 100, name: 'Breaking News'}]
+                },{
+                    id: 3,
+                    categories: []
+                }]
+            };
+
+            var result = resultBuilder(api, {}, rawResults, resolvedConfig);
+            expect(result).to.eql(expectedResult);
+        });
+
+        it('fails on missing key attributes in join-table for m:n relation', function () {
+            // /article/?select=categories.name
+            var rawResults = [{
+                attributePath: [],
+                dataSourceName: 'primary',
+                data: [
+                    {id: 1}
+                ],
+                totalCount: 1
+            },{
+                attributePath: ['categories'],
+                dataSourceName: 'articleCategories',
+                parentKey: ['id'],
+                childKey: ['articleId'],
+                multiValuedParentKey: false,
+                uniqueChildKey: false,
+                data: [
+                    {articleId: 1, categoryId: 100},
+                    {articleId: 1, otherId: 200} // categoryId attribute is missing here
+                ],
+                totalCount: 2
+            },{
+                attributePath: ['categories'],
+                dataSourceName: 'primary',
+                parentKey: ['categoryId'],
+                childKey: ['id'],
+                multiValuedParentKey: false,
+                uniqueChildKey: true,
+                data: [
+                    {id: 100, name: 'Breaking News'}
+                ],
+                totalCount: 1
+            }];
+
+            var resolvedConfig = _.cloneDeep(defaultResolvedConfig);
+            resolvedConfig.attributes['id'].selected = true;
+            resolvedConfig.attributes['categories'].selected = true;
+            resolvedConfig.attributes['categories'].attributes['id'].selected = true;
+            resolvedConfig.attributes['categories'].attributes['name'].selected = true;
+
+            expect(function () {
+                resultBuilder(api, {}, rawResults, resolvedConfig);
+            }).to.throw(DataError, 'Sub-resource "categories" misses key attribute "categoryId" ' +
+                'in joinVia result (DataSource "articleCategories")');
         });
     });
 
