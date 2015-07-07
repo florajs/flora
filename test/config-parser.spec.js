@@ -311,6 +311,17 @@ describe('config-parser', function () {
             }).to.throw(ImplementationError, 'Key attribute "id" must not be multiValued in primaryKey in resource "test:{root}"');
         });
 
+        it('fails if primaryKey references static ("value") attribute', function () {
+            var resourceConfigs = _.cloneDeep(minimalResourceConfigs);
+
+            resourceConfigs['test'].attributes['id'] = {value: 'static'};
+
+            expect(function () {
+                configParser(resourceConfigs, mockDataSources);
+            }).to.throw(ImplementationError, 'Key attribute "id" is not mapped to "primary" DataSource ' +
+                'in primaryKey in resource "test:{root}"');
+        });
+
         it('fails if primaryKey is overwritten for included sub-resource', function () {
             var resourceConfigs = _.cloneDeep(minimalResourceConfigs);
 
