@@ -221,6 +221,7 @@ describe('result-builder', function () {
                 dataSourceName: 'primary',
                 parentKey: ['id'],
                 childKey: ['articleId'],
+                multiValuedParentKey: false,
                 uniqueChildKey: true,
                 data: [{
                     articleId: '1',
@@ -266,6 +267,7 @@ describe('result-builder', function () {
                 dataSourceName: 'primary',
                 parentKey: ['id'],
                 childKey: ['articleId'],
+                multiValuedParentKey: false,
                 uniqueChildKey: false,
                 data: [{
                     id: 100,
@@ -333,6 +335,7 @@ describe('result-builder', function () {
                 dataSourceName: 'primary',
                 parentKey: ['authorId'],
                 childKey: ['id'],
+                multiValuedParentKey: false,
                 uniqueChildKey: true,
                 data: [{
                     id: 10,
@@ -380,6 +383,7 @@ describe('result-builder', function () {
                 dataSourceName: 'primary',
                 parentKey: ['authorId'],
                 childKey: ['id'],
+                multiValuedParentKey: false,
                 uniqueChildKey: true,
                 data: [],
                 totalCount: 0
@@ -405,8 +409,99 @@ describe('result-builder', function () {
         xit('builds result with n:1 relation (with composite primary keys)', function () {
         });
 
-        xit('builds result with m:n relation - with multi-values and delimiter', function () {
+        it('builds result with m:n relation - with multi-values', function () {
             // /article/?select=countries.name
+            var rawResults = [{
+                attributePath: [],
+                dataSourceName: 'primary',
+                data: [
+                    {id: 1, countries: ['DE', 'EN', 'FR']},
+                    {id: 2, countries: ['EN']},
+                    {id: 3, countries: []},
+                    {id: 4, countries: null}
+                ],
+                totalCount: 4
+            },{
+                attributePath: ['countries'],
+                dataSourceName: 'primary',
+                parentKey: ['countries'],
+                childKey: ['iso'],
+                multiValuedParentKey: true,
+                uniqueChildKey: true,
+                data: [
+                    {id: 1, iso: 'DE', name: 'Germany'},
+                    {id: 2, iso: 'EN', name: 'England'},
+                    {id: 3, iso: 'FR', name: 'France'}
+                ],
+                totalCount: 3
+            }];
+
+            var resolvedConfig = _.cloneDeep(defaultResolvedConfig);
+            resolvedConfig.attributes['id'].selected = true;
+            resolvedConfig.attributes['countries'].selected = true;
+            resolvedConfig.attributes['countries'].attributes['id'].selected = true;
+            resolvedConfig.attributes['countries'].attributes['name'].selected = true;
+
+            var expectedResult = {
+                cursor: {totalCount: 4},
+                data: [{
+                    id: 1,
+                    countries: [
+                        {id: 1, name: 'Germany'},
+                        {id: 2, name: 'England'},
+                        {id: 3, name: 'France'}
+                    ]
+                },{
+                    id: 2,
+                    countries: [{id: 2, name: 'England'}]
+                },{
+                    id: 3,
+                    countries: []
+                },{
+                    id: 4,
+                    countries: []
+                }]
+            };
+
+            var result = resultBuilder(api, {}, rawResults, resolvedConfig);
+            expect(result).to.eql(expectedResult);
+        });
+
+        it('fails on invalid multiValued attributes in m:n relation', function () {
+            // /article/?select=countries.name
+            var rawResults = [{
+                attributePath: [],
+                dataSourceName: 'primary',
+                data: [
+                    {id: 1, countries: ['DE', 'EN', 'FR']},
+                    {id: 2, countries: 'EN'} // not an array
+                ],
+                totalCount: 2
+            },{
+                attributePath: ['countries'],
+                dataSourceName: 'primary',
+                parentKey: ['countries'],
+                childKey: ['iso'],
+                multiValuedParentKey: true,
+                uniqueChildKey: true,
+                data: [
+                    {id: 1, iso: 'DE', name: 'Germany'},
+                    {id: 2, iso: 'EN', name: 'England'},
+                    {id: 3, iso: 'FR', name: 'France'}
+                ],
+                totalCount: 3
+            }];
+
+            var resolvedConfig = _.cloneDeep(defaultResolvedConfig);
+            resolvedConfig.attributes['id'].selected = true;
+            resolvedConfig.attributes['countries'].selected = true;
+            resolvedConfig.attributes['countries'].attributes['id'].selected = true;
+            resolvedConfig.attributes['countries'].attributes['name'].selected = true;
+
+            expect(function () {
+                resultBuilder(api, {}, rawResults, resolvedConfig);
+            }).to.throw(DataError, 'Sub-resource "countries" multiValued key attribute "countries" ' +
+                'in parent result is not an array (DataSource "primary")');
         });
 
         xit('builds result with m:n relation - with join-table', function () {
@@ -431,6 +526,7 @@ describe('result-builder', function () {
                 dataSourceName: 'articleBody',
                 parentKey: ['id'],
                 childKey: ['articleId'],
+                multiValuedParentKey: false,
                 uniqueChildKey: true,
                 data: [{
                     articleId: '1',
@@ -497,6 +593,7 @@ describe('result-builder', function () {
                 dataSourceName: 'articleBody',
                 parentKey: ['id'],
                 childKey: ['articleId'],
+                multiValuedParentKey: false,
                 uniqueChildKey: true,
                 data: [{
                     articleId: 1,
@@ -530,6 +627,7 @@ describe('result-builder', function () {
                 dataSourceName: 'primary',
                 parentKey: ['authorId'],
                 childKey: ['id'],
+                multiValuedParentKey: false,
                 uniqueChildKey: true,
                 data: [{
                     id: 10,
@@ -561,6 +659,7 @@ describe('result-builder', function () {
                 dataSourceName: 'articleBody',
                 parentKey: ['id'],
                 childKey: ['articleId'],
+                multiValuedParentKey: false,
                 uniqueChildKey: true,
                 data: [{
                     articleId: 10, // does not match ID from primary DataSource
@@ -599,6 +698,7 @@ describe('result-builder', function () {
                 dataSourceName: 'primary',
                 parentKey: ['id'],
                 childKey: ['articleId'],
+                multiValuedParentKey: false,
                 uniqueChildKey: true,
                 data: [{
                     articleId: 10, // does not match ID from parent resource
@@ -727,6 +827,7 @@ describe('result-builder', function () {
                 dataSourceName: 'articleBody',
                 parentKey: ['id'],
                 childKey: ['articleId'],
+                multiValuedParentKey: false,
                 uniqueChildKey: true,
                 data: [{
                     articleId: 1,
@@ -738,6 +839,7 @@ describe('result-builder', function () {
                 dataSourceName: 'primary',
                 parentKey: ['authorId'],
                 childKey: ['id'],
+                multiValuedParentKey: false,
                 uniqueChildKey: true,
                 data: [{
                     id: 10,
@@ -749,6 +851,7 @@ describe('result-builder', function () {
                 dataSourceName: 'primary',
                 parentKey: ['id'],
                 childKey: ['articleId'],
+                multiValuedParentKey: false,
                 uniqueChildKey: true,
                 data: [{
                     articleId: 1,
@@ -760,6 +863,7 @@ describe('result-builder', function () {
                 dataSourceName: 'primary',
                 parentKey: ['id'],
                 childKey: ['articleId'],
+                multiValuedParentKey: false,
                 uniqueChildKey: false,
                 data: [{
                     id: 100,
@@ -778,6 +882,7 @@ describe('result-builder', function () {
                 dataSourceName: 'primary',
                 parentKey: ['userId'],
                 childKey: ['id'],
+                multiValuedParentKey: false,
                 uniqueChildKey: true,
                 data: [{
                     id: 20,

@@ -688,6 +688,7 @@ describe('request-resolver', function () {
                         dataSourceName: 'primary',
                         parentKey: ['id'],
                         childKey: ['articleId'],
+                        multiValuedParentKey: false,
                         uniqueChildKey: true,
                         request: {
                             type: 'mysql',
@@ -745,6 +746,7 @@ describe('request-resolver', function () {
                         dataSourceName: 'primary',
                         parentKey: ['id'],
                         childKey: ['articleId'],
+                        multiValuedParentKey: false,
                         uniqueChildKey: false,
                         request: {
                             type: 'mysql',
@@ -804,6 +806,7 @@ describe('request-resolver', function () {
                         dataSourceName: 'primary',
                         parentKey: ['id'],
                         childKey: ['articleId'],
+                        multiValuedParentKey: false,
                         uniqueChildKey: false,
                         request: {
                             type: 'mysql',
@@ -827,6 +830,7 @@ describe('request-resolver', function () {
                                 dataSourceName: 'likes',
                                 parentKey: ['id'],
                                 childKey: ['commentId'],
+                                multiValuedParentKey: false,
                                 uniqueChildKey: true,
                                 request: {
                                     type: 'mysql',
@@ -889,6 +893,7 @@ describe('request-resolver', function () {
                         dataSourceName: 'primary',
                         parentKey: ['authorId'],
                         childKey: ['id'],
+                        multiValuedParentKey: false,
                         uniqueChildKey: true,
                         request: {
                             type: 'mysql',
@@ -948,6 +953,7 @@ describe('request-resolver', function () {
                         dataSourceName: 'primary',
                         parentKey: ['countries'],
                         childKey: ['iso'],
+                        multiValuedParentKey: true,
                         uniqueChildKey: true,
                         request: {
                             type: 'mysql',
@@ -1006,6 +1012,7 @@ describe('request-resolver', function () {
                         dataSourceName: 'articleCategories',
                         parentKey: ['id'],
                         childKey: ['articleId'],
+                        multiValuedParentKey: false,
                         uniqueChildKey: false,
                         request: {
                             type: 'mysql',
@@ -1028,6 +1035,7 @@ describe('request-resolver', function () {
                                 dataSourceName: 'primary',
                                 parentKey: ['categoryId'],
                                 childKey: ['id'],
+                                multiValuedParentKey: false,
                                 uniqueChildKey: true,
                                 request: {
                                     type: 'mysql',
@@ -1085,6 +1093,7 @@ describe('request-resolver', function () {
                         dataSourceName: 'articleBody',
                         parentKey: ['id'],
                         childKey: ['articleId'],
+                        multiValuedParentKey: false,
                         uniqueChildKey: true,
                         request: {
                             type: 'mysql',
@@ -1216,6 +1225,7 @@ describe('request-resolver', function () {
                         dataSourceName: 'articleBody',
                         parentKey: ['id'],
                         childKey: ['articleId'],
+                        multiValuedParentKey: false,
                         uniqueChildKey: true,
                         request: {
                             type: 'mysql',
@@ -1239,6 +1249,7 @@ describe('request-resolver', function () {
                         dataSourceName: 'primary',
                         parentKey: ['authorId'],
                         childKey: ['id'],
+                        multiValuedParentKey: false,
                         uniqueChildKey: true,
                         request: {
                             type: 'mysql',
@@ -1276,6 +1287,11 @@ describe('request-resolver', function () {
                         select: {
                             'firstname': {},
                             'lastname': {}
+                        }
+                    },
+                    'countries': {
+                        select: {
+                            'name': {}
                         }
                     },
                     'body': {},
