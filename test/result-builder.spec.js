@@ -723,7 +723,7 @@ describe('result-builder', function () {
                 'misses child key attribute "articleId"');
         });
 
-        it('fails if a parent key attribute is missing', function () {
+        it('handles missing parent key attribute as "null"', function () {
             var rawResults = [{
                 attributePath: [],
                 dataSourceName: 'primary',
@@ -748,12 +748,29 @@ describe('result-builder', function () {
             }];
 
             var resolvedConfig = _.cloneDeep(defaultResolvedConfig);
+            resolvedConfig.attributes['id'].selected = true;
             resolvedConfig.attributes['author'].selected = true;
 
+            var expectedResult = {
+                cursor: {
+                    totalCount: 1
+                },
+                data: [{
+                    id: 1,
+                    author: null
+                }]
+            };
+
+            var result = resultBuilder(api, {}, rawResults, resolvedConfig);
+            expect(result).to.eql(expectedResult);
+
+            /*
+            // TODO: Strict mode?
             expect(function () {
                 resultBuilder(api, {}, rawResults, resolvedConfig);
             }).to.throw(DataError, 'Sub-resource "author" ' +
                 'misses key attribute "authorId" in parent result (DataSource "primary")');
+            */
         });
 
         it('fails if uniqueChildKey is not unique', function () {
