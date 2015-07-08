@@ -5,6 +5,14 @@ module.exports = function (api) {
         extensions: {
             item: function (ev) {
                 ev.item.bar = 'baz';
+            },
+
+            preExecute: function (ev) {
+                ev.request._preExecuteArgs = ev;
+            },
+
+            postExecute: function (ev) {
+                ev.request._postExecuteArgs = ev;
             }
         },
 

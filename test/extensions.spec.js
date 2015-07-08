@@ -117,8 +117,8 @@ describe('extensions', function () {
                     if (err) return done(err);
 
                     var request = new Request({resource: 'test'});
-                    api.execute(request, function (err) {
-                        if (err) return done(err);
+                    api.execute(request, function (err2) {
+                        if (err2) return done(err2);
                         api.close(done);
                     });
 
@@ -137,8 +137,8 @@ describe('extensions', function () {
                     if (err) return done(err);
 
                     var request = new Request({resource: 'test'});
-                    api.execute(request, function (err, response) {
-                        if (err) return done(err);
+                    api.execute(request, function (err2, response) {
+                        if (err2) return done(err2);
                         expect(responseEmitted).to.eql(true);
                         api.close(done);
                     });
@@ -191,110 +191,6 @@ describe('extensions', function () {
         });
     });
 
-    describe('resource-processor', function () {
-        describe('preExecute', function() {
-            it('is emitted with a dataSourceTree', function (done) {
-                var api = new Api();
-                var emitted = false;
-
-                api.init(testConfig, function (err) {
-                    if (err) return done(err);
-
-                    var request = new Request({resource: 'test'});
-                    api.execute(request, function (err) {
-                        if (err) return done(err);
-                        expect(emitted).to.eql(true);
-                        api.close(done);
-                    });
-
-                });
-
-                api.on('preExecute', function (ev) {
-                    emitted = true;
-                    expect(ev).to.be.an('object');
-                    expect(ev.dataSourceTree).to.be.an('object');
-                });
-            });
-
-            it('can be called asynchronously', function (done) {
-                var api = new Api();
-                var emitted = false;
-
-                api.init(testConfig, function (err) {
-                    if (err) return done(err);
-
-                    var request = new Request({resource: 'test'});
-                    api.execute(request, function (err) {
-                        if (err) return done(err);
-                        expect(emitted).to.eql(true);
-                        api.close(done);
-                    });
-                });
-
-                var responseEmitted = false;
-
-                api.on('preExecute', function (ev, next) {
-                    emitted = true;
-                    expect(ev).to.be.an('object');
-                    expect(ev.dataSourceTree).to.be.an('object');
-                    expect(next).to.be.a('function');
-                    next();
-                });
-            });
-        });
-
-        describe('postExecute', function() {
-            it('is emitted with rawResults', function (done) {
-                var api = new Api();
-                var emitted = false;
-
-                api.init(testConfig, function (err) {
-                    if (err) return done(err);
-
-                    var request = new Request({resource: 'test'});
-                    api.execute(request, function (err) {
-                        if (err) return done(err);
-                        expect(emitted).to.eql(true);
-                        api.close(done);
-                    });
-
-                });
-
-                api.on('postExecute', function (ev) {
-                    emitted = true;
-                    expect(ev).to.be.an('object');
-                    expect(ev.rawResults).to.be.an('array');
-                });
-            });
-
-            it('can be called asynchronously', function (done) {
-                var api = new Api();
-                var emitted = false;
-
-                api.init(testConfig, function (err) {
-                    if (err) return done(err);
-
-                    var request = new Request({resource: 'test'});
-                    api.execute(request, function (err) {
-                        if (err) return done(err);
-                        expect(emitted).to.eql(true);
-                        api.close(done);
-                    });
-                });
-
-                var responseEmitted = false;
-
-                api.on('postExecute', function (ev, next) {
-                    emitted = true;
-                    expect(ev).to.be.an('object');
-                    expect(ev.rawResults).to.be.an('array');
-                    expect(next).to.be.a('function');
-                    next();
-                });
-            });
-        });
-    });
-
     describe('resource', function () {
         describe('item', function () {
             it('is emitted when an item is handled', function (done) {
@@ -304,11 +200,10 @@ describe('extensions', function () {
                     if (err) return done(err);
 
                     var request = new Request({resource: 'test'});
-                    api.execute(request, function (err) {
-                        if (err) return done(err);
+                    api.execute(request, function (err2) {
+                        if (err2) return done(err2);
                         api.close(done);
                     });
-
                 });
 
                 api.on('response', function (ev) {
@@ -320,6 +215,57 @@ describe('extensions', function () {
                         id: 1,
                         bar: 'baz' // this is set by "item" callback, see fixtures/extensions/test/index.js
                     });
+                });
+            });
+        });
+
+        describe('preExecute', function() {
+            it('is emitted with a dataSourceTree', function (done) {
+                var api = new Api();
+
+                api.init(testConfig, function (err) {
+                    if (err) return done(err);
+
+                    var request = new Request({resource: 'test'});
+                    api.execute(request, function (err2) {
+                        if (err2) return done(err2);
+                        api.close(done);
+                    });
+                });
+
+                api.on('response', function (ev) {
+                    expect(ev).to.be.an('object');
+                    expect(ev.response).to.be.an('object');
+
+                    // this is set by "preExecute" callback, see fixtures/extensions/test/index.js
+                    expect(ev.request._preExecuteArgs).to.be.an('object');
+                    expect(ev.request._preExecuteArgs.dataSourceTree).to.be.an('object');
+                });
+            });
+        });
+
+        describe('postExecute', function() {
+            it('is emitted with rawResults', function (done) {
+                var api = new Api();
+
+                api.init(testConfig, function (err) {
+                    if (err) return done(err);
+
+                    var request = new Request({resource: 'test'});
+                    api.execute(request, function (err2) {
+                        if (err2) return done(err2);
+                        api.close(done);
+                    });
+                });
+
+                api.on('response', function (ev) {
+                    expect(ev).to.be.an('object');
+                    expect(ev.response).to.be.an('object');
+
+                    // this is set by "postExecute" callback, see fixtures/extensions/test/index.js
+                    expect(ev.request._postExecuteArgs).to.be.an('object');
+                    expect(ev.request._postExecuteArgs.rawResults).to.be.an('object');
+                    expect(ev.request._postExecuteArgs.rawResults.data).to.be.an('array');
                 });
             });
         });
