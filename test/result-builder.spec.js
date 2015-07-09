@@ -572,6 +572,44 @@ describe('result-builder', function () {
             expect(result).to.eql(expectedResult);
         });
 
+        it('does not depend on primary result when joinVia result is empty', function () {
+            // /article/?select=categories.name
+            var rawResults = [{
+                attributePath: [],
+                dataSourceName: 'primary',
+                data: [
+                    {id: 1}
+                ],
+                totalCount: 1
+            },{
+                attributePath: ['categories'],
+                dataSourceName: 'articleCategories',
+                parentKey: ['id'],
+                childKey: ['articleId'],
+                multiValuedParentKey: false,
+                uniqueChildKey: false,
+                data: [],
+                totalCount: 0
+            }];
+
+            var resolvedConfig = _.cloneDeep(defaultResolvedConfig);
+            resolvedConfig.attributes['id'].selected = true;
+            resolvedConfig.attributes['categories'].selected = true;
+            resolvedConfig.attributes['categories'].attributes['id'].selected = true;
+            resolvedConfig.attributes['categories'].attributes['name'].selected = true;
+
+            var expectedResult = {
+                cursor: {totalCount: 1},
+                data: [{
+                    id: 1,
+                    categories: []
+                }]
+            };
+
+            var result = resultBuilder(api, {}, rawResults, resolvedConfig);
+            expect(result).to.eql(expectedResult);
+        });
+
         it('fails on missing key attributes in join-table for m:n relation', function () {
             // /article/?select=categories.name
             var rawResults = [{
