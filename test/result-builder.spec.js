@@ -504,8 +504,8 @@ describe('result-builder', function () {
                 'in parent result is not an array (DataSource "primary")');
         });
 
-        it('builds result with m:n relation - with join-table', function () {
-            // /article/?select=categories.name
+        it('builds result with m:n relation - with join-table + additional fields', function () {
+            // /article/?select=categories[name,order]
             var rawResults = [{
                 attributePath: [],
                 dataSourceName: 'primary',
@@ -523,10 +523,10 @@ describe('result-builder', function () {
                 multiValuedParentKey: false,
                 uniqueChildKey: false,
                 data: [
-                    {articleId: 1, categoryId: 100},
-                    {articleId: 1, categoryId: 200},
-                    {articleId: 1, categoryId: 300},
-                    {articleId: 2, categoryId: 100}
+                    {articleId: 1, categoryId: 100, order: 1},
+                    {articleId: 1, categoryId: 200, order: 2},
+                    {articleId: 1, categoryId: 300, order: 3},
+                    {articleId: 2, categoryId: 100, order: 11}
                 ],
                 totalCount: 4
             },{
@@ -549,19 +549,20 @@ describe('result-builder', function () {
             resolvedConfig.attributes['categories'].selected = true;
             resolvedConfig.attributes['categories'].attributes['id'].selected = true;
             resolvedConfig.attributes['categories'].attributes['name'].selected = true;
+            resolvedConfig.attributes['categories'].attributes['order'].selected = true;
 
             var expectedResult = {
                 cursor: {totalCount: 3},
                 data: [{
                     id: 1,
                     categories: [
-                        {id: 100, name: 'Breaking News'},
-                        {id: 200, name: 'Sport'},
-                        {id: 300, name: 'Fun'}
+                        {id: 100, name: 'Breaking News', order: 1},
+                        {id: 200, name: 'Sport', order: 2},
+                        {id: 300, name: 'Fun', order: 3}
                     ]
                 },{
                     id: 2,
-                    categories: [{id: 100, name: 'Breaking News'}]
+                    categories: [{id: 100, name: 'Breaking News', order: 11}]
                 },{
                     id: 3,
                     categories: []
