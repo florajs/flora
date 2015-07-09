@@ -979,14 +979,15 @@ describe('request-resolver', function () {
             expect(resolvedRequest.dataSourceTree).to.eql(dataSourceTree);
         });
 
-        it('resolves selected sub-resource (m:n - with join-table)', function () {
-            // /article/?select=categories.name
+        it('resolves selected sub-resource (m:n - with join-table + additional fields)', function () {
+            // /article/?select=categories[name,order]
             var req = {
                 resource: 'article',
                 select: {
                     'categories': {
                         select: {
-                            'name': {}
+                            'name': {},
+                            'order': {}
                         }
                     }
                 }
@@ -1018,7 +1019,7 @@ describe('request-resolver', function () {
                             type: 'mysql',
                             database: 'contents',
                             table: 'article_category',
-                            attributes: ['articleId', 'categoryId'],
+                            attributes: ['articleId', 'categoryId', 'order'],
                             filter: [
                                 [
                                     {attribute: 'articleId', operator: 'equal', valueFromParentKey: true}
@@ -1027,7 +1028,8 @@ describe('request-resolver', function () {
                         },
                         attributeOptions: {
                             'articleId': {type: 'int'},
-                            'categoryId': {type: 'int'}
+                            'categoryId': {type: 'int'},
+                            'order': {type: 'int'}
                         },
                         subRequests: [
                             {
@@ -1322,7 +1324,7 @@ describe('request-resolver', function () {
                                 }
                             }
                         }
-                    },
+                    }
                 }
             };
 
