@@ -1208,6 +1208,10 @@ describe('config-parser', function () {
                 ['articleId', 'id', 'userId', 'content'];
             resourceConfigs['article'].attributes['comments'].dataSources['likes'].expectedAttributes =
                 ['commentId', 'count'];
+            resourceConfigs['article'].attributes['versions'].dataSources['primary'].expectedAttributes =
+                ['articleId', 'versionId', 'title', 'body'];
+            resourceConfigs['article'].attributes['versions'].attributes['versioninfo'].dataSources['primary'].expectedAttributes =
+                ['articleId', 'versionId', 'modified', 'username'];
             resourceConfigs['user'].dataSources['primary'].expectedAttributes =
                 ['id', 'firstname', 'lastname'];
 

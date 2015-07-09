@@ -849,6 +849,225 @@
             },
             "selected": false,
             "primaryDataSource": "primary"
+        },
+        "versions": {
+            "primaryKey": [
+                [
+                    "articleId"
+                ],
+                [
+                    "versionId"
+                ]
+            ],
+            "parentKey": [
+                [
+                    "id"
+                ]
+            ],
+            "childKey": [
+                [
+                    "articleId"
+                ]
+            ],
+            "many": true,
+            "dataSources": {
+                "primary": {
+                    "type": "mysql",
+                    "database": "contents",
+                    "table": "article_versions",
+                    "attributes": [
+                        "articleId",
+                        "versionId",
+                        "title"
+                    ],
+                    "filter": [
+                        [
+                            {
+                                "attribute": "articleId",
+                                "operator": "equal",
+                                "valueFromParentKey": true
+                            }
+                        ]
+                    ]
+                }
+            },
+            "attributes": {
+                "articleId": {
+                    "hidden": true,
+                    "type": "int",
+                    "map": {
+                        "default": {
+                            "primary": "articleId"
+                        }
+                    },
+                    "selectedDataSource": "primary"
+                },
+                "versionId": {
+                    "type": "int",
+                    "map": {
+                        "default": {
+                            "primary": "versionId"
+                        }
+                    },
+                    "selected": false,
+                    "selectedDataSource": "primary"
+                },
+                "title": {
+                    "map": {
+                        "default": {
+                            "primary": "title"
+                        }
+                    },
+                    "type": "string",
+                    "selected": false,
+                    "selectedDataSource": "primary"
+                },
+                "body": {
+                    "map": {
+                        "default": {
+                            "primary": "body"
+                        }
+                    },
+                    "type": "string"
+                },
+                "versioninfo": {
+                    "primaryKey": [
+                        [
+                            "articleId"
+                        ],
+                        [
+                            "versionId"
+                        ]
+                    ],
+                    "parentKey": [
+                        [
+                            "articleId"
+                        ],
+                        [
+                            "versionId"
+                        ]
+                    ],
+                    "childKey": [
+                        [
+                            "articleId"
+                        ],
+                        [
+                            "versionId"
+                        ]
+                    ],
+                    "dataSources": {
+                        "primary": {
+                            "type": "mysql",
+                            "database": "contents",
+                            "table": "article_versioninfo",
+                            "attributes": [
+                                "articleId",
+                                "versionId",
+                                "modified"
+                            ],
+                            "filter": [
+                                [
+                                    {
+                                        "attribute": [
+                                            "articleId",
+                                            "versionId"
+                                        ],
+                                        "operator": "equal",
+                                        "valueFromParentKey": true
+                                    }
+                                ]
+                            ]
+                        }
+                    },
+                    "attributes": {
+                        "articleId": {
+                            "hidden": true,
+                            "type": "int",
+                            "map": {
+                                "default": {
+                                    "primary": "articleId"
+                                }
+                            },
+                            "selectedDataSource": "primary"
+                        },
+                        "versionId": {
+                            "hidden": true,
+                            "type": "int",
+                            "map": {
+                                "default": {
+                                    "primary": "versionId"
+                                }
+                            },
+                            "selectedDataSource": "primary"
+                        },
+                        "modified": {
+                            "type": "datetime",
+                            "map": {
+                                "default": {
+                                    "primary": "modified"
+                                }
+                            },
+                            "selected": false,
+                            "selectedDataSource": "primary"
+                        },
+                        "username": {
+                            "map": {
+                                "default": {
+                                    "primary": "username"
+                                }
+                            },
+                            "type": "string"
+                        }
+                    },
+                    "resolvedPrimaryKey": {
+                        "primary": [
+                            "articleId",
+                            "versionId"
+                        ]
+                    },
+                    "resolvedParentKey": {
+                        "primary": [
+                            "articleId",
+                            "versionId"
+                        ]
+                    },
+                    "resolvedChildKey": {
+                        "primary": [
+                            "articleId",
+                            "versionId"
+                        ]
+                    },
+                    "selected": false,
+                    "primaryDataSource": "primary"
+                }
+            },
+            "resolvedPrimaryKey": {
+                "primary": [
+                    "articleId",
+                    "versionId"
+                ]
+            },
+            "resolvedParentKey": {
+                "primary": [
+                    "id"
+                ],
+                "articleBody": [
+                    "articleId"
+                ],
+                "fulltextSearch": [
+                    "articleId"
+                ],
+                "statistics": [
+                    "articleId"
+                ]
+            },
+            "resolvedChildKey": {
+                "primary": [
+                    "articleId"
+                ]
+            },
+            "selected": false,
+            "primaryDataSource": "primary"
         }
     },
     "resolvedPrimaryKey": {

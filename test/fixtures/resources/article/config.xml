@@ -132,4 +132,26 @@
         <content/>
         <likes type="int" map="likes:count"/>
     </comments>
+
+    <!-- Primary key is a composite key - but link to parent only by articleId -->
+    <versions primaryKey="articleId,versionId" parentKey="{primary}" childKey="articleId" many="true">
+        <flora:dataSource type="mysql" database="contents" table="article_versions"/>
+
+        <articleId hidden="true" type="int"/>
+        <versionId type="int"/>
+
+        <title/>
+        <body/>
+
+        <!-- Link by composite key -->
+        <versioninfo primaryKey="articleId,versionId" parentKey="{primary}" childKey="{primary}">
+            <flora:dataSource type="mysql" database="contents" table="article_versioninfo"/>
+
+            <articleId hidden="true" type="int"/>
+            <versionId hidden="true" type="int"/>
+
+            <modified type="datetime"/>
+            <username/>
+        </versioninfo>
+    </versions>
 </resource>

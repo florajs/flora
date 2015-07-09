@@ -1278,7 +1278,10 @@ describe('request-resolver', function () {
         });
 
         it('resolves resolved-config.json fixture correctly', function () {
-            // /article/?select=date,title,subTitle,author[firstname,lastname],categories[name,order],countries.name,body,video.url,source[name,externalId],comments[content,user[firstname,lastname]]
+            // /article/?select=date,title,subTitle,author[firstname,lastname],
+            //     categories[name,order],countries.name,body,video.url,
+            //     source[name,externalId],comments[content,user[firstname,lastname]],
+            //     versions[title,versioninfo.modified]
             var req = {
                 resource: 'article',
                 select: {
@@ -1321,6 +1324,16 @@ describe('request-resolver', function () {
                                 select: {
                                     'firstname': {},
                                     'lastname': {}
+                                }
+                            }
+                        }
+                    },
+                    'versions': {
+                        select: {
+                            'title': {},
+                            'versioninfo': {
+                                select: {
+                                    'modified': {}
                                 }
                             }
                         }

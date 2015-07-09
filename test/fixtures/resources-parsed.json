@@ -590,6 +590,181 @@
                         "articleId"
                     ]
                 }
+            },
+            "versions": {
+                "primaryKey": [
+                    [
+                        "articleId"
+                    ],
+                    [
+                        "versionId"
+                    ]
+                ],
+                "parentKey": [
+                    [
+                        "id"
+                    ]
+                ],
+                "childKey": [
+                    [
+                        "articleId"
+                    ]
+                ],
+                "many": true,
+                "dataSources": {
+                    "primary": {
+                        "type": "mysql",
+                        "database": "contents",
+                        "table": "article_versions"
+                    }
+                },
+                "attributes": {
+                    "articleId": {
+                        "hidden": true,
+                        "type": "int",
+                        "map": {
+                            "default": {
+                                "primary": "articleId"
+                            }
+                        }
+                    },
+                    "versionId": {
+                        "type": "int",
+                        "map": {
+                            "default": {
+                                "primary": "versionId"
+                            }
+                        }
+                    },
+                    "title": {
+                        "map": {
+                            "default": {
+                                "primary": "title"
+                            }
+                        },
+                        "type": "string"
+                    },
+                    "body": {
+                        "map": {
+                            "default": {
+                                "primary": "body"
+                            }
+                        },
+                        "type": "string"
+                    },
+                    "versioninfo": {
+                        "primaryKey": [
+                            [
+                                "articleId"
+                            ],
+                            [
+                                "versionId"
+                            ]
+                        ],
+                        "parentKey": [
+                            [
+                                "articleId"
+                            ],
+                            [
+                                "versionId"
+                            ]
+                        ],
+                        "childKey": [
+                            [
+                                "articleId"
+                            ],
+                            [
+                                "versionId"
+                            ]
+                        ],
+                        "dataSources": {
+                            "primary": {
+                                "type": "mysql",
+                                "database": "contents",
+                                "table": "article_versioninfo"
+                            }
+                        },
+                        "attributes": {
+                            "articleId": {
+                                "hidden": true,
+                                "type": "int",
+                                "map": {
+                                    "default": {
+                                        "primary": "articleId"
+                                    }
+                                }
+                            },
+                            "versionId": {
+                                "hidden": true,
+                                "type": "int",
+                                "map": {
+                                    "default": {
+                                        "primary": "versionId"
+                                    }
+                                }
+                            },
+                            "modified": {
+                                "type": "datetime",
+                                "map": {
+                                    "default": {
+                                        "primary": "modified"
+                                    }
+                                }
+                            },
+                            "username": {
+                                "map": {
+                                    "default": {
+                                        "primary": "username"
+                                    }
+                                },
+                                "type": "string"
+                            }
+                        },
+                        "resolvedPrimaryKey": {
+                            "primary": [
+                                "articleId",
+                                "versionId"
+                            ]
+                        },
+                        "resolvedParentKey": {
+                            "primary": [
+                                "articleId",
+                                "versionId"
+                            ]
+                        },
+                        "resolvedChildKey": {
+                            "primary": [
+                                "articleId",
+                                "versionId"
+                            ]
+                        }
+                    }
+                },
+                "resolvedPrimaryKey": {
+                    "primary": [
+                        "articleId",
+                        "versionId"
+                    ]
+                },
+                "resolvedParentKey": {
+                    "primary": [
+                        "id"
+                    ],
+                    "articleBody": [
+                        "articleId"
+                    ],
+                    "fulltextSearch": [
+                        "articleId"
+                    ],
+                    "statistics": [
+                        "articleId"
+                    ]
+                },
+                "resolvedChildKey": {
+                    "primary": [
+                        "articleId"
+                    ]
+                }
             }
         },
         "resolvedPrimaryKey": {
