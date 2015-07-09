@@ -1199,7 +1199,7 @@ describe('config-parser', function () {
             resourceConfigs['article'].attributes['categories'].dataSources['primary'].expectedAttributes =
                 ['id', 'name', 'isImportant'];
             resourceConfigs['article'].attributes['categories'].dataSources['articleCategories'].expectedAttributes =
-                ['articleId', 'categoryId'];
+                ['articleId', 'categoryId', 'order'];
             resourceConfigs['article'].attributes['countries'].dataSources['primary'].expectedAttributes =
                 ['id', 'name', 'iso', 'iso3'];
             resourceConfigs['article'].attributes['video'].dataSources['primary'].expectedAttributes =

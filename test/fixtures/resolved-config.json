@@ -257,7 +257,8 @@
                     "table": "article_category",
                     "attributes": [
                         "articleId",
-                        "categoryId"
+                        "categoryId",
+                        "order"
                     ],
                     "filter": [
                         [
@@ -321,6 +322,16 @@
                             "primary": "isImportant"
                         }
                     }
+                },
+                "order": {
+                    "type": "int",
+                    "map": {
+                        "default": {
+                            "articleCategories": "order"
+                        }
+                    },
+                    "selected": false,
+                    "selectedDataSource": "articleCategories"
                 }
             },
             "resolvedPrimaryKey": {

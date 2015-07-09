@@ -205,6 +205,14 @@
                                 "primary": "isImportant"
                             }
                         }
+                    },
+                    "order": {
+                        "type": "int",
+                        "map": {
+                            "default": {
+                                "articleCategories": "order"
+                            }
+                        }
                     }
                 },
                 "resolvedPrimaryKey": {

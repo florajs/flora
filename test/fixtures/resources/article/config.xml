@@ -60,6 +60,9 @@
         <id type="int"/>
         <name/>
         <isImportant type="boolean"/>
+
+        <!-- Select additional fields from join-table: -->
+        <order type="int" map="articleCategories:order"/>
     </categories>
 
     <!-- Relation: Article has multiple countries (m : n - with multi-values).

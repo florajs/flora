@@ -91,6 +91,10 @@
                     "name": {},
                     "isImportant": {
                         "type": "boolean"
+                    },
+                    "order": {
+                        "type": "int",
+                        "map": "articleCategories:order"
                     }
                 }
             },
