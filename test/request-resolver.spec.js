@@ -1122,9 +1122,152 @@ describe('request-resolver', function () {
     });
 
     describe('handling of composite primary keys', function () {
-        it('selects all key attributes in attribute tree automatically');
+        it('resolves composite primaryKey linked by non-composite key', function () {
+            // /article/?select=versions.title
+            var req = {
+                resource: 'article',
+                select: {
+                    'versions': {
+                        select: {
+                            'title': {}
+                        }
+                    }
+                }
+            };
 
-        it('requests all key attributes from DataSource');
+            var dataSourceTree = {
+                resourceName: 'article',
+                attributePath: [],
+                dataSourceName: 'primary',
+                request: {
+                    type: 'mysql',
+                    database: 'contents',
+                    table: 'article',
+                    attributes: ['id'],
+                    limit: 10
+                },
+                attributeOptions: {
+                    'id': {type: 'int'}
+                },
+                subRequests: [
+                    {
+                        attributePath: ['versions'],
+                        dataSourceName: 'primary',
+                        parentKey: ['id'],
+                        childKey: ['articleId'],
+                        multiValuedParentKey: false,
+                        uniqueChildKey: false,
+                        request: {
+                            type: 'mysql',
+                            database: 'contents',
+                            table: 'article_versions',
+                            attributes: ['articleId', 'versionId', 'title'],
+                            filter: [
+                                [
+                                    {attribute: 'articleId', operator: 'equal', valueFromParentKey: true}
+                                ]
+                            ]
+                        },
+                        attributeOptions: {
+                            'articleId': {type: 'int'},
+                            'versionId': {type: 'int'},
+                            'title': {type: 'string'}
+                        }
+                    }
+                ]
+            };
+
+            var resolvedRequest = requestResolver(req, resourceConfigs);
+            expect(resolvedRequest.dataSourceTree).to.eql(dataSourceTree);
+        });
+
+        it('resolves composite parentKey/childKey', function () {
+            // /article/?select=versions.versioninfo.modified
+            var req = {
+                resource: 'article',
+                select: {
+                    'versions': {
+                        select: {
+                            'versioninfo': {
+                                select: {
+                                    'modified': {}
+                                }
+                            }
+                        }
+                    }
+                }
+            };
+
+            var dataSourceTree = {
+                resourceName: 'article',
+                attributePath: [],
+                dataSourceName: 'primary',
+                request: {
+                    type: 'mysql',
+                    database: 'contents',
+                    table: 'article',
+                    attributes: ['id'],
+                    limit: 10
+                },
+                attributeOptions: {
+                    'id': {type: 'int'}
+                },
+                subRequests: [
+                    {
+                        attributePath: ['versions'],
+                        dataSourceName: 'primary',
+                        parentKey: ['id'],
+                        childKey: ['articleId'],
+                        multiValuedParentKey: false,
+                        uniqueChildKey: false,
+                        request: {
+                            type: 'mysql',
+                            database: 'contents',
+                            table: 'article_versions',
+                            attributes: ['articleId', 'versionId'],
+                            filter: [
+                                [
+                                    {attribute: 'articleId', operator: 'equal', valueFromParentKey: true}
+                                ]
+                            ]
+                        },
+                        attributeOptions: {
+                            'articleId': {type: 'int'},
+                            'versionId': {type: 'int'}
+                        },
+                        subRequests: [
+                            {
+                                attributePath: ['versions', 'versioninfo'],
+                                dataSourceName: 'primary',
+                                parentKey: ['articleId', 'versionId'],
+                                childKey: ['articleId', 'versionId'],
+                                multiValuedParentKey: false,
+                                uniqueChildKey: true,
+                                request: {
+                                    type: 'mysql',
+                                    database: 'contents',
+                                    table: 'article_versioninfo',
+                                    attributes: ['articleId', 'versionId', 'modified'],
+                                    filter: [
+                                        [
+                                            {attribute: ['articleId', 'versionId'], operator: 'equal', valueFromParentKey: true}
+                                        ]
+                                    ]
+                                },
+                                attributeOptions: {
+                                    'articleId': {type: 'int'},
+                                    'versionId': {type: 'int'},
+                                    'modified': {type: 'datetime'}
+                                }
+                            }
+                        ]
+                    }
+                ]
+            };
+
+            var resolvedRequest = requestResolver(req, resourceConfigs);
+            expect(resolvedRequest.dataSourceTree).to.eql(dataSourceTree);
+        });
     });
 
     describe('complex request resolving', function () {
