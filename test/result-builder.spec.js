@@ -320,6 +320,91 @@ describe('result-builder', function () {
             expect(result).to.eql(expectedResult);
         });
 
+        it('builds result with 1:n relation (with composite primary keys)', function () {
+            // /article/?select=versions.versioninfo.modified
+            var rawResults = [{
+                attributePath: [],
+                dataSourceName: 'primary',
+                data: [{
+                    id: 1
+                },{
+                    id: 2
+                }],
+                totalCount: 2
+            },{
+                attributePath: ['versions'],
+                dataSourceName: 'primary',
+                parentKey: ['id'],
+                childKey: ['articleId'],
+                multiValuedParentKey: false,
+                uniqueChildKey: false,
+                data: [{
+                    articleId: 1,
+                    versionId: 101
+                },{
+                    articleId: 1,
+                    versionId: 102
+                },{
+                    articleId: 1,
+                    versionId: 103
+                }],
+                totalCount: 3
+            },{
+                attributePath: ['versions', 'versioninfo'],
+                dataSourceName: 'primary',
+                parentKey: ['articleId', 'versionId'],
+                childKey: ['articleId', 'versionId'],
+                multiValuedParentKey: false,
+                uniqueChildKey: true,
+                data: [{
+                    articleId: 1,
+                    versionId: 101,
+                    modified: '2015-07-10T15:21:27+02:00'
+                },{
+                    articleId: 1,
+                    versionId: 102,
+                    modified: '2015-07-10T15:21:28+02:00'
+                },{
+                    articleId: 1,
+                    versionId: 103,
+                    modified: '2015-07-10T15:21:29+02:00'
+                }],
+                totalCount: 3
+            }];
+
+            var resolvedConfig = _.cloneDeep(defaultResolvedConfig);
+            resolvedConfig.attributes['id'].selected = true;
+            resolvedConfig.attributes['versions'].selected = true;
+            resolvedConfig.attributes['versions'].attributes['versionId'].selected = true;
+            resolvedConfig.attributes['versions'].attributes['versioninfo'].selected = true;
+            resolvedConfig.attributes['versions'].attributes['versioninfo'].attributes['modified'].selected = true;
+
+            var expectedResult = {
+                cursor: {
+                    totalCount: 2
+                },
+                data: [{
+                    id: 1,
+                    versions: [{
+                        versionId: 101,
+                        versioninfo: {modified: '2015-07-10T15:21:27+02:00'}
+                    },{
+                        versionId: 102,
+                        versioninfo: {modified: '2015-07-10T15:21:28+02:00'}
+                    },{
+                        versionId: 103,
+                        versioninfo: {modified: '2015-07-10T15:21:29+02:00'}
+                    }]
+                },{
+                    id: 2,
+                    versions: []
+                }]
+            };
+
+            var result = resultBuilder(api, {}, rawResults, resolvedConfig);
+            expect(result).to.eql(expectedResult);
+        });
+
         it('builds result with n:1 relation', function () {
             // /article/?select=author[firstname,lastname]
             var rawResults = [{
@@ -404,9 +489,6 @@ describe('result-builder', function () {
 
             var result = resultBuilder(api, {}, rawResults, resolvedConfig);
             expect(result).to.eql(expectedResult);
-        });
-
-        xit('builds result with n:1 relation (with composite primary keys)', function () {
         });
 
         it('builds result with m:n relation - with multi-values', function () {
