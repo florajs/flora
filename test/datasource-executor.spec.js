@@ -707,14 +707,14 @@ describe('datasource-executor', function () {
             });
         });
 
-        it('casts string to datetime', function () {
+        xit('casts string to datetime', function () {
             execute(api, {}, dst, function (err, result) {
                 expect(result[0].data[0].string2datetime).to.be.a('string');
                 expect(result[0].data[0].string2datetime).to.equal('2015-06-17T10:13:14.000Z');
             });
         });
 
-        it('casts string to time', function () {
+        xit('casts string to time', function () {
             execute(api, {}, dst, function (err, result) {
                 expect(result[0].data[0].string2time).to.be.a('string');
                 expect(result[0].data[0].string2time).to.equal('10:13:14.000Z');
