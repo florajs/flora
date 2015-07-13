@@ -1058,14 +1058,14 @@ describe('datasource-executor', function () {
             execute(api, {}, dst, done);
         });
 
-        it('casts string to time', function (done) {
+        xit('casts string to time', function (done) {
             dst.request._expect = '10:13:14.000Z';
             dst.subFilters[0].request._value = '2015-06-17 12:13:14';
             dst.subFilters[0].attributeOptions.id.type = 'time';
             execute(api, {}, dst, done);
         });
 
-        it('casts string to date', function (done) {
+        xit('casts string to date', function (done) {
             dst.request._expect = '2015-06-17';
             dst.subFilters[0].request._value = '2015-06-17 12:13:14';
             dst.subFilters[0].attributeOptions.id.type = 'date';
