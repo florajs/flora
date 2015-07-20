@@ -27,8 +27,8 @@ describe('Request', function () {
         expect((new Request()).format).to.equal('json');
     });
 
-    it('should instantiate a timer', function () {
-        expect((new Request()).timer).to.be.an('object');
+    it('should instantiate a _profiler', function () {
+        expect((new Request())._profiler).to.be.an('object');
     });
 
     it('should store httpRequest', function () {
