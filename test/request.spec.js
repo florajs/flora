@@ -31,9 +31,9 @@ describe('Request', function () {
         expect((new Request())._profiler).to.be.an('object');
     });
 
-    it('should store httpRequest', function () {
+    it('should store _httpRequest', function () {
         expect((new Request({
-            httpRequest: 'foo'
-        })).httpRequest).to.equal('foo');
+            _httpRequest: 'foo'
+        }))._httpRequest).to.equal('foo');
     });
 });
