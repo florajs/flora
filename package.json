@@ -43,7 +43,7 @@
     "async-eventemitter": "^0.2.2",
     "bunyan": "1.4.x",
     "chokidar": "^1.0.4",
-    "flora-cluster": "^0.4.0",
+    "flora-cluster": "^0.5.0",
     "flora-errors": "^0.2.0",
     "flora-ql": "^2.4.0",
     "libxmljs": "0.14.x",
