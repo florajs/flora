@@ -74,5 +74,14 @@ describe('type casting', function () {
             expect(cast(['1', '2', '3'], {type: 'int', multiValued: true})).to.eql([1, 2, 3]);
             expect(cast([1, 2, 3], {type: 'string', multiValued: true})).to.eql(['1', '2', '3']);
         });
+
+        it('handles null as empty array', function () {
+            expect(cast(null, {multiValued: true})).to.eql([]);
+        });
+
+        it('casts scalar value to single-valued array', function () {
+            expect(cast(42, {multiValued: true, type: 'int'})).to.eql([42]);
+            expect(cast('42', {multiValued: true, type: 'int'})).to.eql([42]);
+        });
     });
 });
