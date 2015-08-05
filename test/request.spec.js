@@ -27,6 +27,12 @@ describe('Request', function () {
         expect((new Request()).format).to.equal('json');
     });
 
+    it('should store _status', function () {
+        expect((new Request({
+            _status: 'foo'
+        }))._status).to.equal('foo');
+    });
+
     it('should instantiate a _profiler', function () {
         expect((new Request())._profiler).to.be.an('object');
     });
