@@ -60,7 +60,7 @@ describe('Response', function () {
                 if (count === 1) {
                     res.send('baz');
                 } else if (count === 2) {
-                    expect(err).to.be.an('object');
+                    expect(err).to.be.an('error');
                     expect(err.message).to.equal('Response#send was already called');
                     done();
                 }

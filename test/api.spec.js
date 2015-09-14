@@ -192,15 +192,16 @@ describe('Api', function () {
                         constructor: testDataSource
                     }
                 }
-            }, done);
+            }, function () {});
 
             var request = new Request({
                 resource: 'foo'
             });
             api.execute(request, function (err, response) {
                 expect(response).to.be.undefined;
-                expect(err).to.be.an('object');
+                expect(err).to.be.an('error');
                 expect(err.message).to.equal('Not initialized');
+                done();
             });
         });
     });
