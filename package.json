@@ -42,7 +42,7 @@
   "dependencies": {
     "async": "^1.3.0",
     "async-eventemitter": "^0.2.2",
-    "bunyan": "1.4.x",
+    "bunyan": "1.5.x",
     "chokidar": "^1.0.4",
     "flora-cluster": "^0.5.0",
     "flora-errors": "^0.2.0",
@@ -54,22 +54,22 @@
   },
   "devDependencies": {
     "benchmark": "1.0.x",
-    "chai": "2.1.x",
-    "chai-as-promised": "4.3.x",
-    "eslint": "0.20.0",
+    "chai": "3.2.x",
+    "chai-as-promised": "5.1.x",
+    "eslint": "1.4.x",
     "grunt": "0.4.x",
     "grunt-cli": "^0.1.13",
     "grunt-contrib-clean": "0.6.x",
-    "grunt-eslint": "12.0.x",
-    "grunt-jsdoc": "0.5.x",
-    "grunt-mocha-istanbul": "^2.4.0",
+    "grunt-eslint": "17.1.x",
+    "grunt-jsdoc": "0.6.x",
+    "grunt-mocha-istanbul": "^3.0.1",
     "grunt-mocha-test": "0.12.x",
     "istanbul": "0.3.x",
     "jsdoc": "^3.3.0-beta2",
     "load-grunt-tasks": "^3.1.0",
-    "mocha": "2.2.x",
+    "mocha": "2.3.x",
     "mocha-bamboo-reporter": "*",
     "mock-fs": "3.2.x",
-    "sinon": "1.13.x"
+    "sinon": "1.16.x"
   }
 }
