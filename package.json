@@ -36,7 +36,7 @@
     }
   ],
   "engines": {
-    "node": ">=0.10.0 <4.0",
+    "node": ">=0.10.0",
     "iojs": ">=2.0"
   },
   "dependencies": {
@@ -69,7 +69,7 @@
     "load-grunt-tasks": "^3.1.0",
     "mocha": "2.3.x",
     "mocha-bamboo-reporter": "*",
-    "mock-fs": "3.2.x",
+    "mock-fs": "tschaub/mock-fs#6bb14913d622b5522adf247dccb67433fb1e86fa",
     "sinon": "1.16.x"
   }
 }
