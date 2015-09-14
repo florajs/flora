@@ -8,7 +8,7 @@ env:
   - CXX=g++-4.8
 addons:
   apt:
-    source:
+    sources:
       - ubuntu-toolchain-r-test
     packages:
       - gcc-4.8
