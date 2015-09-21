@@ -757,7 +757,7 @@ describe('config-parser', function () {
             expect(resourceConfigs).to.eql(resourceConfigsParsed);
         });
 
-        it('fails if only joinParentKey or joinChildKey is defined', function () {
+        it('fails if joinParentKey or joinChildKey is missing', function () {
             // missing joinChildKey:
             var resourceConfigs = _.cloneDeep(minimalResourceConfigs);
 
@@ -782,6 +782,18 @@ describe('config-parser', function () {
                 type: 'testDataSource',
                 joinChildKey: 'parentId'
             };
+
+            expect(function () {
+                configParser(resourceConfigs, mockDataSources);
+            }).to.throw(ImplementationError,
+                'DataSource "joinTest" misses "joinParentKey" option in sub-resource "test:subResource"');
+
+            // missing both:
+            resourceConfigs = _.cloneDeep(minimalResourceConfigs);
+
+            resourceConfigs['test'].attributes['subResource'] = _.cloneDeep(minimalResourceConfigs['test']);
+            resourceConfigs['test'].attributes['subResource'].joinVia = 'joinTest';
+            resourceConfigs['test'].attributes['subResource'].dataSources['joinTest'] = {type: 'testDataSource'};
 
             expect(function () {
                 configParser(resourceConfigs, mockDataSources);
