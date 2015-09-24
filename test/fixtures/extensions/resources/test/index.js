@@ -8,11 +8,11 @@ module.exports = function (api) {
             },
 
             preExecute: function (ev) {
-                ev.request._preExecuteArgs = ev;
+                ev.floraRequest._preExecuteArgs = ev;
             },
 
             postExecute: function (ev) {
-                ev.request._postExecuteArgs = ev;
+                ev.floraRequest._postExecuteArgs = ev;
             }
         },
 
