@@ -42,4 +42,10 @@ describe('Request', function () {
             _httpRequest: 'foo'
         }))._httpRequest).to.equal('foo');
     });
+
+    it('should store custom properties', function () {
+        expect(new Request({ customParam: 1337 }))
+            .to.have.property('customParam')
+            .and.to.equal(1337);
+    });
 });
