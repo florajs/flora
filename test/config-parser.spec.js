@@ -1117,12 +1117,13 @@ describe('config-parser', function () {
                 'Static "value" in combination with "map" makes no sense in attribute "test:dummy"');
         });
 
-        xit('parses option "depends" as Select-AST', function () {
+        it('parses option "depends" as Select-AST', function () {
             var resourceConfigs = _.cloneDeep(minimalResourceConfigs);
             var resourceConfigsParsed = _.cloneDeep(minimalResourceConfigsParsed);
 
             resourceConfigs['test'].attributes['copyright'] = {depends: 'author[firstname,lastname]', value: ''};
-            resourceConfigsParsed['test'].attributes['copyright'] = {depends: {/* TODO */}, value: '', type: 'string'};
+            resourceConfigsParsed['test'].attributes['copyright'] =
+                {depends: {'author': {select: {'firstname': {}, 'lastname': {}}}}, value: '', type: 'string'};
 
             configParser(resourceConfigs, mockDataSources);
 

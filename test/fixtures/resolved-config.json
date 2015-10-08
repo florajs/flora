@@ -609,7 +609,18 @@
         },
         "copyright": {
             "depends": {
-                "MOCK": "Select AST of 'author[firstname,lastname],categories.name,secretInfo'"
+                "author": {
+                    "select": {
+                        "firstname": {},
+                        "lastname": {}
+                    }
+                },
+                "categories": {
+                    "select": {
+                        "name": {}
+                    }
+                },
+                "secretInfo": {}
             },
             "value": "",
             "type": "string"

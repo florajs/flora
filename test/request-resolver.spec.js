@@ -1065,6 +1065,143 @@ describe('request-resolver', function () {
         });
     });
 
+    describe('handling of dependencies', function () {
+        it('selects dependant attributes internally (but not externally)', function () {
+            var configs = _.cloneDeep(resourceConfigs);
+            configs['article'].attributes['copyright'].depends =
+                {'date': {}};
+
+            // /article/?select=copyright
+            var req = {
+                resource: 'article',
+                select: {
+                    'copyright': {}
+                }
+            };
+
+            var dataSourceTree = {
+                resourceName: 'article',
+                attributePath: [],
+                dataSourceName: 'primary',
+                request: {
+                    type: 'mysql',
+                    database: 'contents',
+                    table: 'article',
+                    attributes: ['id', 'timestamp'],
+                    limit: 10
+                },
+                attributeOptions: {
+                    'id': {type: 'int'},
+                    'timestamp': {type: 'datetime'}
+                }
+            };
+
+            var resolvedRequest = requestResolver(req, configs);
+            expect(resolvedRequest.dataSourceTree).to.eql(dataSourceTree);
+            expect(resolvedRequest.resolvedConfig.
+                attributes['date'].selected).not.to.be.true;
+        });
+
+        it('allows to depend on hidden attributes', function () {
+            var configs = _.cloneDeep(resourceConfigs);
+            configs['article'].attributes['copyright'].depends =
+                {'secretInfo': {}};
+
+            // /article/?select=copyright
+            var req = {
+                resource: 'article',
+                select: {
+                    'copyright': {}
+                }
+            };
+
+            var dataSourceTree = {
+                resourceName: 'article',
+                attributePath: [],
+                dataSourceName: 'primary',
+                request: {
+                    type: 'mysql',
+                    database: 'contents',
+                    table: 'article',
+                    attributes: ['id', 'secretInfo'],
+                    limit: 10
+                },
+                attributeOptions: {
+                    'id': {type: 'int'},
+                    'secretInfo': {type: 'string'}
+                }
+            };
+
+            var resolvedRequest = requestResolver(req, configs);
+            expect(resolvedRequest.dataSourceTree).to.eql(dataSourceTree);
+            expect(resolvedRequest.resolvedConfig.
+                attributes['secretInfo'].selected).not.to.be.true;
+        });
+
+        it('selects dependant sub-resources internally', function () {
+            var configs = _.cloneDeep(resourceConfigs);
+            configs['article'].attributes['copyright'].depends =
+                {'author': {select: {'firstname': {}, 'lastname': {}}}};
+
+            // /article/?select=copyright
+            var req = {
+                resource: 'article',
+                select: {
+                    'copyright': {}
+                }
+            };
+
+            var dataSourceTree = {
+                resourceName: 'article',
+                attributePath: [],
+                dataSourceName: 'primary',
+                request: {
+                    type: 'mysql',
+                    database: 'contents',
+                    table: 'article',
+                    attributes: ['id', 'authorId'],
+                    limit: 10
+                },
+                attributeOptions: {
+                    'id': {type: 'int'},
+                    'authorId': {type: 'int'}
+                },
+                subRequests: [
+                    {
+                        resourceName: 'user',
+                        attributePath: ['author'],
+                        dataSourceName: 'primary',
+                        parentKey: ['authorId'],
+                        childKey: ['id'],
+                        multiValuedParentKey: false,
+                        uniqueChildKey: true,
+                        request: {
+                            type: 'mysql',
+                            database: 'contents',
+                            table: 'user',
+                            attributes: ['id', 'firstname', 'lastname'],
+                            filter: [
+                                [
+                                    {attribute: 'id', operator: 'equal', valueFromParentKey: true}
+                                ]
+                            ]
+                        },
+                        attributeOptions: {
+                            'id': {type: 'int'},
+                            'firstname': {type: 'string'},
+                            'lastname': {type: 'string'}
+                        }
+                    }
+                ]
+            };
+
+            var resolvedRequest = requestResolver(req, configs);
+            expect(resolvedRequest.dataSourceTree).to.eql(dataSourceTree);
+            expect(resolvedRequest.resolvedConfig.
+                attributes['author'].attributes['firstname'].selected).not.to.be.true;
+        });
+    });
+
     describe('handling of multiple DataSources per resource', function () {
         it('resolves selected field from Sub-DataSource', function () {
             // /article/?select=body
