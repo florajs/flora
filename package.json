@@ -47,7 +47,7 @@
     "flora-cluster": "^0.5.0",
     "flora-errors": "^0.2.0",
     "flora-ql": "^2.4.0",
-    "libxmljs": "^0.14.3",
+    "libxmljs": "^0.15.0",
     "lodash": "^3.10.1",
     "serve-static": "^1.10.0",
     "when": "^3.7.3"
@@ -64,7 +64,7 @@
     "grunt-jsdoc": "^1.0.0",
     "grunt-mocha-istanbul": "^3.0.1",
     "grunt-mocha-test": "^0.12.7",
-    "istanbul": "^0.3.21",
+    "istanbul": "^0.4.0",
     "jsdoc": "^3.3.0-beta2",
     "load-grunt-tasks": "^3.1.0",
     "mocha": "^2.3.3",
