@@ -618,7 +618,7 @@ describe('request-parser', function () {
         describe('attributes without parameters', function () {
             it('returns the parts as object keys', function () {
                 expect(selectParser('foo')).to.eql({foo: {}});
-                
+
             });
 
             it('works for multiple parts', function () {
@@ -673,7 +673,7 @@ describe('request-parser', function () {
             it('fails on empty children "a[]"', function () {
                 expect(function () { selectParser('a[]'); }).to.throw(Error);
             });
-            
+
             it('parses simple children "a[b]"', function () {
                 expect(selectParser('a[b]')).to.eql({a: {select: {b: {}}}});
             });
@@ -741,6 +741,10 @@ describe('request-parser', function () {
         describe('attributes with children (dot notation)', function () {
             it('parses "a.b"', function () {
                 expect(selectParser('a.b')).to.eql({a: {select: {b: {}}}});
+            });
+
+            it('parses "a.*"', function () {
+                expect(selectParser('a.*')).to.eql({a: {select: {'*': {}}}});
             });
 
             it('parses children with parameters', function () {
