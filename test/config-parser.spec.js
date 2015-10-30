@@ -192,7 +192,24 @@ describe('config-parser', function () {
             expect(function () {
                 configParser(resourceConfigs, mockDataSources);
             }).to.throw(ImplementationError,
-                'Invalid identifier "!test" (option "resource" in resource "test:{root}")');
+                'Invalid resource name "!test" (option "resource" in resource "test:{root}")');
+        });
+
+        it('allows sub-resources with "/"', function () {
+            var resourceConfigs = {
+                "test": {
+                    "resource": "test/subresource"
+                },
+                "test/subresource": {
+                    "resource": "test/subresource"
+                }
+            };
+
+            expect(function () {
+                configParser(resourceConfigs, mockDataSources);
+            }).to.not.throw(ImplementationError);
+
+            expect(resourceConfigs['test'].resource).to.equal('test/subresource');
         });
 
         it('parses and resolves composite primaryKey', function () {
