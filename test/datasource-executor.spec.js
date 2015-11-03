@@ -349,6 +349,171 @@ describe('datasource-executor', function () {
         });
     });
 
+    describe('subRequests with empty condition (null)', function () {
+        var dst = {
+            attributePath: [],
+            dataSourceName: 'ds1',
+            request: {
+                type: 'test',
+                table: 'article'
+            },
+            subRequests: [
+                {
+                    attributePath: ['author'],
+                    dataSourceName: 'ds2',
+                    parentKey: ['authorId'],
+                    childKey: ['id'],
+                    request: {
+                        type: 'test',
+                        table: 'user',
+                        filter: [[{attribute: 'id', operator: 'equal', valueFromParentKey: true}]]
+                    }
+                }
+            ]
+        };
+
+        before(function() {
+            sinon.stub(api.dataSources['test'], 'process', function (query, callback) {
+                if (query.table === 'article') {
+                    return callback(null, {
+                        data: [
+                            {id: 1, authorId: null},
+                            {id: 2, authorId: null}
+                        ],
+                        totalCount: null
+                    });
+                }
+
+                if (query.table === 'user') {
+                    // As authorId is always null, no user needs to be fetched
+                    return callback(new Error('This should not be called'));
+                }
+
+                callback(null, {
+                    data: [],
+                    totalCount: null
+                });
+            });
+        });
+
+        after(function () {
+            api.dataSources['test'].process.restore();
+        });
+
+        it('does not execute the subRequest', function (done) {
+            execute(api, {}, dst, function (err) {
+                if (err) return done(err);
+                done();
+            });
+        });
+
+        it('returns the correct result', function (done) {
+            execute(api, {}, dst, function (err, result) {
+                if (err) return done(err);
+                expect(result).to.eql([
+                    {
+                        attributePath: [],
+                        dataSourceName: 'ds1',
+                        data: [{id: 1, authorId: null}, {id: 2, authorId: null}],
+                        totalCount: null
+                    },
+                    {
+                        attributePath: ['author'],
+                        dataSourceName: 'ds2',
+                        data: [],
+                        childKey: ['id'],
+                        parentKey: ['authorId'],
+                        totalCount: 0
+                    }
+                ]);
+                done();
+            });
+        });
+    });
+
+    describe('subRequests with empty condition (undefined)', function () {
+        // In some cases, dataSources (e.g. Solr) may not return fields if they do not exist
+        var dst = {
+            attributePath: [],
+            dataSourceName: 'ds1',
+            request: {
+                type: 'test',
+                table: 'article'
+            },
+            subRequests: [
+                {
+                    attributePath: ['author'],
+                    dataSourceName: 'ds2',
+                    parentKey: ['authorId'],
+                    childKey: ['id'],
+                    request: {
+                        type: 'test',
+                        table: 'user',
+                        filter: [[{attribute: 'id', operator: 'equal', valueFromParentKey: true}]]
+                    }
+                }
+            ]
+        };
+
+        before(function() {
+            sinon.stub(api.dataSources['test'], 'process', function (query, callback) {
+                if (query.table === 'article') {
+                    return callback(null, {
+                        data: [
+                            {id: 1},
+                            {id: 2}
+                        ],
+                        totalCount: null
+                    });
+                }
+
+                if (query.table === 'user') {
+                    // As authorId is always null, no user needs to be fetched
+                    return callback(new Error('This should not be called'));
+                }
+
+                callback(null, {
+                    data: [],
+                    totalCount: null
+                });
+            });
+        });
+
+        after(function () {
+            api.dataSources['test'].process.restore();
+        });
+
+        it('does not execute the subRequest', function (done) {
+            execute(api, {}, dst, function (err) {
+                if (err) return done(err);
+                done();
+            });
+        });
+
+        it('returns the correct result', function (done) {
+            execute(api, {}, dst, function (err, result) {
+                if (err) return done(err);
+                expect(result).to.eql([
+                    {
+                        attributePath: [],
+                        dataSourceName: 'ds1',
+                        data: [{id: 1}, {id: 2}],
+                        totalCount: null
+                    },
+                    {
+                        attributePath: ['author'],
+                        dataSourceName: 'ds2',
+                        data: [],
+                        childKey: ['id'],
+                        parentKey: ['authorId'],
+                        totalCount: 0
+                    }
+                ]);
+                done();
+            });
+        });
+    });
+
     describe('subRequests and subFilters', function () {
         var dst = {
             attributePath: [],
