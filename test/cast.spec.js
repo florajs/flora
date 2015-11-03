@@ -35,11 +35,11 @@ describe('type casting', function () {
         expect(cast('foo', {type: 'time'})).to.equal(null);
     });
 
-    xit('casts type "datetime"', function () {
+    it('casts type "datetime"', function () {
         expect(cast('2015-03-03 15:00:00', {type: 'datetime'})).to.equal('2015-03-03T14:00:00.000Z');
     });
 
-    xit('casts type "time"', function () {
+    it('casts type "time"', function () {
         expect(cast('2015-03-03 15:00:00', {type: 'time'})).to.equal('14:00:00.000Z');
     });
 

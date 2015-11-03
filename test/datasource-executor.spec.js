@@ -872,14 +872,14 @@ describe('datasource-executor', function () {
             });
         });
 
-        xit('casts string to datetime', function () {
+        it('casts string to datetime', function () {
             execute(api, {}, dst, function (err, result) {
                 expect(result[0].data[0].string2datetime).to.be.a('string');
                 expect(result[0].data[0].string2datetime).to.equal('2015-06-17T10:13:14.000Z');
             });
         });
 
-        xit('casts string to time', function () {
+        it('casts string to time', function () {
             execute(api, {}, dst, function (err, result) {
                 expect(result[0].data[0].string2time).to.be.a('string');
                 expect(result[0].data[0].string2time).to.equal('10:13:14.000Z');
@@ -1216,21 +1216,21 @@ describe('datasource-executor', function () {
             execute(api, {}, dst, done);
         });
 
-        xit('casts string to datetime', function (done) {
+        it('casts string to datetime', function (done) {
             dst.request._expect = '2015-06-17T10:13:14.000Z';
             dst.subFilters[0].request._value = '2015-06-17 12:13:14';
             dst.subFilters[0].attributeOptions.id.type = 'datetime';
             execute(api, {}, dst, done);
         });
 
-        xit('casts string to time', function (done) {
+        it('casts string to time', function (done) {
             dst.request._expect = '10:13:14.000Z';
             dst.subFilters[0].request._value = '2015-06-17 12:13:14';
             dst.subFilters[0].attributeOptions.id.type = 'time';
             execute(api, {}, dst, done);
         });
 
-        xit('casts string to date', function (done) {
+        it('casts string to date', function (done) {
             dst.request._expect = '2015-06-17';
             dst.subFilters[0].request._value = '2015-06-17 12:13:14';
             dst.subFilters[0].attributeOptions.id.type = 'date';
