@@ -986,7 +986,7 @@ describe('datasource-executor', function () {
                 },
                 userId: {
                     type: 'int',
-                    storedType: 'string'
+                    storedType: {type: 'string'}
                 }
             },
             subRequests: [
@@ -1090,7 +1090,7 @@ describe('datasource-executor', function () {
             attributeOptions: {
                 exchangeId: {
                     type: 'int',
-                    storedType: 'string'
+                    storedType: {type: 'string'}
                 }
             },
             subFilters: [
