@@ -19,6 +19,7 @@ describe('Response', function () {
         var request = new Request();
         var response = new Response(request);
         expect(response.meta).to.be.an('object');
+        expect(response.meta.headers).to.be.an('object');
         expect(response.data).to.eql(null);
     });
 
