@@ -23,6 +23,12 @@ describe('Response', function () {
         expect(response.data).to.eql(null);
     });
 
+    it('should have default status code', function () {
+        var request = new Request();
+        var response = new Response(request);
+        expect(response.meta.statusCode).to.eql(200);
+    });
+
     describe('send', function () {
         it('should call the callback', function (done) {
             var request = new Request();
