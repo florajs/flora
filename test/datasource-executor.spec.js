@@ -774,9 +774,9 @@ describe('datasource-executor', function () {
                 string2boolean0: {type: 'boolean'},
                 int2boolean1: {type: 'boolean'},
                 int2boolean0: {type: 'boolean'},
-                string2datetime: {type: 'datetime'},
-                string2time: {type: 'time'},
-                string2date: {type: 'date'},
+                string2datetime: {type: 'datetime', storedType: {type: 'datetime', options: {tz: 'Europe/Berlin'}}},
+                string2time: {type: 'time', storedType: {type: 'datetime', options: {tz: 'Europe/Berlin'}}},
+                string2date: {type: 'date', storedType: {type: 'datetime', options: {tz: 'Europe/Berlin'}}},
                 raw: {type: 'raw'},
                 null2int: {type: 'int'},
                 unknownType: {type: 'unknown'}
@@ -872,21 +872,21 @@ describe('datasource-executor', function () {
             });
         });
 
-        xit('casts string to datetime', function () {
+        it('casts string to datetime', function () {
             execute(api, {}, dst, function (err, result) {
                 expect(result[0].data[0].string2datetime).to.be.a('string');
                 expect(result[0].data[0].string2datetime).to.equal('2015-06-17T10:13:14.000Z');
             });
         });
 
-        xit('casts string to time', function () {
+        it('casts string to time', function () {
             execute(api, {}, dst, function (err, result) {
                 expect(result[0].data[0].string2time).to.be.a('string');
                 expect(result[0].data[0].string2time).to.equal('10:13:14.000Z');
             });
         });
 
-        xit('casts string to date', function () {
+        it('casts string to date', function () {
             execute(api, {}, dst, function (err, result) {
                 expect(result[0].data[0].string2date).to.be.a('string');
                 expect(result[0].data[0].string2date).to.equal('2015-06-17');
@@ -1115,27 +1115,31 @@ describe('datasource-executor', function () {
     });
 
     describe('type casting in subFilters', function () {
-        var dst = {
-            attributePath: [],
-            request: {
-                type: 'test',
-                table: 'article',
-                filter: [[{ attribute: 'authorId', operator: 'equal', valueFromSubFilter: true }]],
-                _expect: '__EXPECT__'
-            },
-            subFilters: [{
-                parentKey: ['authorId'],
-                childKey: ['id'],
+        var dst;
+
+        beforeEach(function () {
+            dst = {
+                attributePath: [],
                 request: {
                     type: 'test',
-                    table: 'user',
-                    _value: '__VALUE__'
+                    table: 'article',
+                    filter: [[{ attribute: 'authorId', operator: 'equal', valueFromSubFilter: true }]],
+                    _expect: '__EXPECT__'
                 },
-                attributeOptions: {
-                    id: {type: '__TYPE__'}
-                }
-            }]
-        };
+                subFilters: [{
+                    parentKey: ['authorId'],
+                    childKey: ['id'],
+                    request: {
+                        type: 'test',
+                        table: 'user',
+                        _value: '__VALUE__'
+                    },
+                    attributeOptions: {
+                        id: {type: '__TYPE__'}
+                    }
+                }]
+            };
+        });
 
         before(function () {
             sinon.stub(api.dataSources['test'], 'process', function (query, callback) {
@@ -1216,24 +1220,27 @@ describe('datasource-executor', function () {
             execute(api, {}, dst, done);
         });
 
-        xit('casts string to datetime', function (done) {
+        it('casts string to datetime (with timezone)', function (done) {
             dst.request._expect = '2015-06-17T10:13:14.000Z';
             dst.subFilters[0].request._value = '2015-06-17 12:13:14';
             dst.subFilters[0].attributeOptions.id.type = 'datetime';
+            dst.subFilters[0].attributeOptions.id.storedType = {type: 'datetime', tz: 'Europe/Berlin'};
             execute(api, {}, dst, done);
         });
 
-        xit('casts string to time', function (done) {
+        it('casts string to time (with timezone)', function (done) {
             dst.request._expect = '10:13:14.000Z';
             dst.subFilters[0].request._value = '2015-06-17 12:13:14';
             dst.subFilters[0].attributeOptions.id.type = 'time';
+            dst.subFilters[0].attributeOptions.id.storedType = {type: 'datetime', tz: 'Europe/Berlin'};
             execute(api, {}, dst, done);
         });
 
-        xit('casts string to date', function (done) {
+        it('casts string to date (with timezone)', function (done) {
             dst.request._expect = '2015-06-17';
             dst.subFilters[0].request._value = '2015-06-17 12:13:14';
             dst.subFilters[0].attributeOptions.id.type = 'date';
+            dst.subFilters[0].attributeOptions.id.storedType = {type: 'datetime', tz: 'Europe/Berlin'};
             execute(api, {}, dst, done);
         });
 

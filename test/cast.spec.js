@@ -21,26 +21,88 @@ describe('type casting', function () {
         expect(cast('0', {type: 'boolean'})).to.equal(false);
     });
 
-    xit('casts type "date"', function () {
-        expect(cast('2015-03-03 15:00:00', {type: 'date'})).to.equal('2015-03-03');
+    describe('casts type "datetime" with timezone', function () {
+        it('casts invalid datetime values to null', function () {
+            expect(cast('0000-00-00 00:00:00', {type: 'datetime'})).to.equal(null);
+            expect(cast('foo', {type: 'datetime'})).to.equal(null);
+        });
+
+        it('"2015-03-03 15:00:00" to datetime (Europe/Berlin)', function () {
+            expect(cast('2015-03-03 15:00:00', {
+                type: 'datetime',
+                storedType: {type: "datetime", options: {tz: "Europe/Berlin"}}
+            })).to.equal('2015-03-03T14:00:00.000Z');
+        });
+
+        it('"2015-03-03 00:00:00" to datetime (Europe/Berlin)', function () {
+            expect(cast('2015-03-03 00:00:00', {
+                type: 'datetime',
+                storedType: {type: "datetime", options: {tz: "Europe/Berlin"}}
+            })).to.equal('2015-03-02T23:00:00.000Z');
+        });
+
+        it('"2015-03-03 03:00:00" to datetime (America/New_York)', function () {
+            expect(cast('2015-03-03 03:00:00', {
+                type: 'datetime',
+                storedType: {type: "datetime", options: {tz: "America/New_York"}}
+            })).to.equal('2015-03-03T08:00:00.000Z');
+        });
     });
 
-    it('casts invalid date values to null', function () {
-        expect(cast('0000-00-00 00:00:00', {type: 'date'})).to.equal(null);
-        expect(cast('0000-00-00 00:00:00', {type: 'datetime'})).to.equal(null);
-        expect(cast('0000-00-00 00:00:00', {type: 'time'})).to.equal(null);
+    describe('casts type "date" with timezone', function () {
+        it('casts invalid datetime values to null', function () {
+            expect(cast('0000-00-00 00:00:00', {type: 'date'})).to.equal(null);
+            expect(cast('foo', {type: 'date'})).to.equal(null);
+        });
 
-        expect(cast('foo', {type: 'date'})).to.equal(null);
-        expect(cast('foo', {type: 'datetime'})).to.equal(null);
-        expect(cast('foo', {type: 'time'})).to.equal(null);
+        it('"2015-03-03 15:00:00" to date (Europe/Berlin)', function () {
+            expect(cast('2015-03-03 15:00:00', {
+                type: 'date',
+                storedType: {type: "datetime", options: {tz: "Europe/Berlin"}}
+            })).to.equal('2015-03-03');
+        });
+
+        it('"2015-03-03 00:00:00" to date (Europe/Berlin)', function () {
+            expect(cast('2015-03-03 00:00:00', {
+                type: 'date',
+                storedType: {type: "datetime", options: {tz: "Europe/Berlin"}}
+            })).to.equal('2015-03-02');
+        });
+
+        it('"2015-03-03 03:00:00" to date (America/New_York)', function () {
+            expect(cast('2015-03-03 03:00:00', {
+                type: 'date',
+                storedType: {type: "datetime", options: {tz: "America/New_York"}}
+            })).to.equal('2015-03-03');
+        });
     });
 
-    xit('casts type "datetime"', function () {
-        expect(cast('2015-03-03 15:00:00', {type: 'datetime'})).to.equal('2015-03-03T14:00:00.000Z');
-    });
+    describe('casts type "time" with timezone', function () {
+        it('casts invalid time values to null', function () {
+            expect(cast('0000-00-00 00:00:00', {type: 'time'})).to.equal(null);
+            expect(cast('foo', {type: 'time'})).to.equal(null);
+        });
 
-    xit('casts type "time"', function () {
-        expect(cast('2015-03-03 15:00:00', {type: 'time'})).to.equal('14:00:00.000Z');
+        it('"2015-03-03 15:00:00" to time (Europe/Berlin)', function () {
+            expect(cast('2015-03-03 15:00:00', {
+                type: 'time',
+                storedType: {type: "datetime", options: {tz: "Europe/Berlin"}}
+            })).to.equal('14:00:00.000Z');
+        });
+
+        it('"2015-03-03 00:00:00" to time (Europe/Berlin)', function () {
+            expect(cast('2015-03-03 00:00:00', {
+                type: 'time',
+                storedType: {type: "datetime", options: {tz: "Europe/Berlin"}}
+            })).to.equal('23:00:00.000Z');
+        });
+
+        it('"2015-03-03 03:00:00" to time (America/New_York)', function () {
+            expect(cast('2015-03-03 03:00:00', {
+                type: 'time',
+                storedType: {type: "datetime", options: {tz: "America/New_York"}}
+            })).to.equal('08:00:00.000Z');
+        });
     });
 
     it('passes through objects type "raw" (preserves objects)', function () {
