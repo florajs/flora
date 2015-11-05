@@ -1224,15 +1224,23 @@ describe('datasource-executor', function () {
             dst.request._expect = '2015-06-17T10:13:14.000Z';
             dst.subFilters[0].request._value = '2015-06-17 12:13:14';
             dst.subFilters[0].attributeOptions.id.type = 'datetime';
-            dst.subFilters[0].attributeOptions.id.storedType = {type: 'datetime', tz: 'Europe/Berlin'};
+            dst.subFilters[0].attributeOptions.id.storedType = {type: 'datetime', options: {tz: 'Europe/Berlin'}};
             execute(api, {}, dst, done);
         });
 
-        it('casts string to time (with timezone)', function (done) {
+        it('casts string to datetime (with timezone)', function (done) {
+            dst.request._expect = '2015-06-17T16:13:14.000Z';
+            dst.subFilters[0].request._value = '2015-06-17 12:13:14';
+            dst.subFilters[0].attributeOptions.id.type = 'datetime';
+            dst.subFilters[0].attributeOptions.id.storedType = {type: 'datetime', options: {tz: 'America/New_York'}};
+            execute(api, {}, dst, done);
+        });
+
+        it('casts string to time (with different timezone)', function (done) {
             dst.request._expect = '10:13:14.000Z';
             dst.subFilters[0].request._value = '2015-06-17 12:13:14';
             dst.subFilters[0].attributeOptions.id.type = 'time';
-            dst.subFilters[0].attributeOptions.id.storedType = {type: 'datetime', tz: 'Europe/Berlin'};
+            dst.subFilters[0].attributeOptions.id.storedType = {type: 'datetime', options: {tz: 'Europe/Berlin'}};
             execute(api, {}, dst, done);
         });
 
@@ -1240,7 +1248,7 @@ describe('datasource-executor', function () {
             dst.request._expect = '2015-06-17';
             dst.subFilters[0].request._value = '2015-06-17 12:13:14';
             dst.subFilters[0].attributeOptions.id.type = 'date';
-            dst.subFilters[0].attributeOptions.id.storedType = {type: 'datetime', tz: 'Europe/Berlin'};
+            dst.subFilters[0].attributeOptions.id.storedType = {type: 'datetime', options: {tz: 'Europe/Berlin'}};
             execute(api, {}, dst, done);
         });
 
