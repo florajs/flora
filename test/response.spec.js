@@ -23,6 +23,15 @@ describe('Response', function () {
         expect(response.data).to.eql(null);
     });
 
+    it('should not expose headers in response.meta', function (done) {
+        var request = new Request();
+        var response = new Response(request, function (err, res) {
+            expect(res.meta.propertyIsEnumerable('headers')).to.equal(false);
+            done();
+        });
+        response.send();
+    });
+
     it('should have default status code', function () {
         var request = new Request();
         var response = new Response(request);
