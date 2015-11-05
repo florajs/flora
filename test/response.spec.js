@@ -16,16 +16,14 @@ describe('Response', function () {
     });
 
     it('should have basic properties', function () {
-        var request = new Request();
-        var response = new Response(request);
+        var response = new Response(new Request());
         expect(response.meta).to.be.an('object');
         expect(response.meta.headers).to.be.an('object');
         expect(response.data).to.eql(null);
     });
 
     it('should not expose headers in response.meta', function (done) {
-        var request = new Request();
-        var response = new Response(request, function (err, res) {
+        var response = new Response(new Request(), function (err, res) {
             expect(res.meta.propertyIsEnumerable('headers')).to.equal(false);
             done();
         });
@@ -33,15 +31,13 @@ describe('Response', function () {
     });
 
     it('should have default status code', function () {
-        var request = new Request();
-        var response = new Response(request);
+        var response = new Response(new Request());
         expect(response.meta.statusCode).to.eql(200);
     });
 
     describe('send', function () {
         it('should call the callback', function (done) {
-            var request = new Request();
-            var response = new Response(request, function (err) {
+            var response = new Response(new Request(), function (err) {
                 expect(err).to.eql(null);
                 done();
             });
@@ -49,8 +45,7 @@ describe('Response', function () {
         });
 
         it('should pass through the payload', function (done) {
-            var request = new Request();
-            var response = new Response(request, function (err, res) {
+            var response = new Response(new Request(), function (err, res) {
                 expect(res).to.eql(response);
                 expect(res.data).to.eql('foo');
                 done();
@@ -59,8 +54,7 @@ describe('Response', function () {
         });
 
         it('should pass through Errors', function (done) {
-            var request = new Request();
-            var response = new Response(request, function (err, res) {
+            var response = new Response(new Request(), function (err, res) {
                 expect(err).to.be.an.instanceof(Error);
                 expect(res).to.be.undefined;
                 done();
@@ -70,8 +64,7 @@ describe('Response', function () {
 
         it('cannot be called twice', function (done) {
             var count = 0;
-            var request = new Request();
-            var response = new Response(request, function (err, res) {
+            var response = new Response(new Request(), function (err, res) {
                 count++;
                 if (count === 1) {
                     res.send('baz');
