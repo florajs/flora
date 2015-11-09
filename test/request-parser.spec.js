@@ -411,10 +411,10 @@ describe('request-parser', function () {
         });
 
         it('should throw an error for numbers < 1', function () {
-            expect((function () { limitParser(0); })).to.throw(RangeError);
-            expect((function () { limitParser("0"); })).to.throw(RangeError);
-            expect((function () { limitParser(-1); })).to.throw(RangeError);
-            expect((function () { limitParser(-100); })).to.throw(RangeError);
+            expect((function () { limitParser(0); })).to.throw(Error);
+            expect((function () { limitParser("0"); })).to.throw(Error);
+            expect((function () { limitParser(-1); })).to.throw(Error);
+            expect((function () { limitParser(-100); })).to.throw(Error);
         });
     });
 
@@ -555,10 +555,10 @@ describe('request-parser', function () {
         });
 
         it('should throw an error for numbers < 1', function () {
-            expect((function () { pageParser(0); })).to.throw(RangeError);
-            expect((function () { pageParser("0"); })).to.throw(RangeError);
-            expect((function () { pageParser(-1); })).to.throw(RangeError);
-            expect((function () { pageParser(-100); })).to.throw(RangeError);
+            expect((function () { pageParser(0); })).to.throw(Error);
+            expect((function () { pageParser("0"); })).to.throw(Error);
+            expect((function () { pageParser(-1); })).to.throw(Error);
+            expect((function () { pageParser(-100); })).to.throw(Error);
         });
     });
 
