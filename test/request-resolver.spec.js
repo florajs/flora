@@ -415,7 +415,7 @@ describe('request-resolver', function () {
 
             expect(function () {
                 requestResolver(req, resourceConfigs);
-            }).to.throw(RequestError, 'Attribute "title" can not be filtered');
+            }).to.throw(RequestError, 'Can not filter by attribute "title"');
         });
 
         it('fails when filtering attributes with unallowed operators', function () {
@@ -431,7 +431,7 @@ describe('request-resolver', function () {
 
             expect(function () {
                 requestResolver(req, resourceConfigs);
-            }).to.throw(RequestError, 'Attribute "date" can not be filtered with "notEqual" (allowed operators: greaterOrEqual, lessOrEqual)');
+            }).to.throw(RequestError, 'Can not filter by attribute "date" with "notEqual" (allowed operators: greaterOrEqual, lessOrEqual)');
         });
 
         it('resolves request with search', function () {
@@ -1400,6 +1400,62 @@ describe('request-resolver', function () {
                         ]
                     }
                 ]
+            };
+
+            var resolvedRequest = requestResolver(req, resourceConfigs);
+            expect(resolvedRequest.dataSourceTree).to.eql(dataSourceTree);
+        });
+    });
+
+    describe('filter by sub-resources', function () {
+        it('resolves filter by sub-resource (n : 1 relation)', function () {
+            // /article/?filter=author.id=11,12,13
+            var req = {
+                resource: 'article',
+                filter: [
+                    [
+                        {attribute: ['author', 'id'], operator: 'equal', value: [11, 12, 13]}
+                    ]
+                ]
+            };
+
+            var dataSourceTree = {
+                resourceName: 'article',
+                attributePath: [],
+                dataSourceName: 'primary',
+                request: {
+                    type: 'mysql',
+                    database: 'contents',
+                    table: 'article',
+                    attributes: ['id'],
+                    filter: [
+                        [
+                            {attribute: 'authorId', operator: 'equal', valueFromSubFilter: true}
+                        ]
+                    ],
+                    limit: 10
+                },
+                attributeOptions: {
+                    'id': {type: 'int'}
+                },
+                subFilters: [{
+                    parentKey: ['authorId'],
+                    childKey: ['id'],
+                    request: {
+                        type: 'mysql',
+                        database: 'contents',
+                        table: 'user',
+                        attributes: ['id'],
+                        filter: [
+                            [
+                                {attribute: 'id', operator: 'equal', value: [11, 12, 13]}
+                            ]
+                        ]
+                    },
+                    attributeOptions: {
+                        'id': {type: 'int'}
+                    }
+                }]
             };
 
             var resolvedRequest = requestResolver(req, resourceConfigs);

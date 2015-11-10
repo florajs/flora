@@ -25,6 +25,14 @@
         },
         "subFilters": [
             {
+                "attribute": "author.id",
+                "filter": "equal"
+            },
+            {
+                "attribute": "categories.id",
+                "filter": "equal"
+            },
+            {
                 "attribute": "categories.isImportant",
                 "filter": "equal"
             }

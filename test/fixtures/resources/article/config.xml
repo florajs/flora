@@ -23,6 +23,12 @@
     ]]></flora:dataSource>
 
 
+    <!-- Enable article-filter by author IDs (n : 1 relation) -->
+    <flora:subFilter attribute="author.id" filter="equal"/>
+
+    <!-- Enable article-filter by category IDs (m : n relation) -->
+    <flora:subFilter attribute="categories.id" filter="equal"/>
+
     <!-- Enable article-filter by important categories (filter by sub-resource-attribute) -->
     <flora:subFilter attribute="categories.isImportant" filter="equal"/>
 
