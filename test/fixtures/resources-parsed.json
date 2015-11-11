@@ -39,7 +39,17 @@
             },
             {
                 "attribute": [
-                    "categories",
+                    "video",
+                    "youtubeId"
+                ],
+                "filter": [
+                    "equal"
+                ]
+            },
+            {
+                "attribute": [
+                    "comments",
+                    "user",
                     "id"
                 ],
                 "filter": [
@@ -49,7 +59,7 @@
             {
                 "attribute": [
                     "categories",
-                    "isImportant"
+                    "id"
                 ],
                 "filter": [
                     "equal"
@@ -399,6 +409,17 @@
                         "map": {
                             "default": {
                                 "primary": "previewImage"
+                            }
+                        },
+                        "type": "string"
+                    },
+                    "youtubeId": {
+                        "filter": [
+                            "equal"
+                        ],
+                        "map": {
+                            "default": {
+                                "primary": "youtubeId"
                             }
                         },
                         "type": "string"

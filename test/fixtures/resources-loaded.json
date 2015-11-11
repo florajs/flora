@@ -26,15 +26,19 @@
         "subFilters": [
             {
                 "attribute": "author.id",
-                "filter": "equal"
+                "filter": "true"
+            },
+            {
+                "attribute": "video.youtubeId",
+                "filter": "true"
+            },
+            {
+                "attribute": "comments.user.id",
+                "filter": "true"
             },
             {
                 "attribute": "categories.id",
-                "filter": "equal"
-            },
-            {
-                "attribute": "categories.isImportant",
-                "filter": "equal"
+                "filter": "true"
             }
         ],
         "attributes": {
@@ -154,7 +158,10 @@
                         "type": "int"
                     },
                     "url": {},
-                    "previewImage": {}
+                    "previewImage": {},
+                    "youtubeId": {
+                        "filter": "true"
+                    }
                 }
             },
             "source": {

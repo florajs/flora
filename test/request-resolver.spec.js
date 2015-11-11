@@ -1645,7 +1645,7 @@ describe('request-resolver', function () {
     });
 
     describe('filter by sub-resources', function () {
-        it('resolves filter by sub-resource (n : 1 relation)', function () {
+        it('resolves filter by sub-resource primary key', function () {
             // /article/?filter=author.id=11,12,13
             var req = {
                 resource: 'article',
@@ -1692,6 +1692,132 @@ describe('request-resolver', function () {
                     attributeOptions: {
                         'id': {type: 'int'}
                     }
+                }]
+            };
+
+            var resolvedRequest = requestResolver(req, resourceConfigs);
+            expect(resolvedRequest.dataSourceTree).to.eql(dataSourceTree);
+        });
+
+        it('resolves filter by sub-resource-attribute', function () {
+            // /article/?filter=video.youtubeId="xyz123"
+            var req = {
+                resource: 'article',
+                filter: [
+                    [
+                        {attribute: ['video', 'youtubeId'], operator: 'equal', value: 'xyz123'}
+                    ]
+                ]
+            };
+
+            var dataSourceTree = {
+                resourceName: 'article',
+                attributePath: [],
+                dataSourceName: 'primary',
+                request: {
+                    type: 'mysql',
+                    database: 'contents',
+                    table: 'article',
+                    attributes: ['id'],
+                    filter: [
+                        [
+                            {attribute: 'id', operator: 'equal', valueFromSubFilter: true}
+                        ]
+                    ],
+                    limit: 10
+                },
+                attributeOptions: {
+                    'id': {type: 'int'}
+                },
+                subFilters: [{
+                    parentKey: ['id'],
+                    childKey: ['articleId'],
+                    request: {
+                        type: 'mysql',
+                        database: 'contents',
+                        table: 'article_video',
+                        attributes: ['articleId'],
+                        filter: [
+                            [
+                                {attribute: 'youtubeId', operator: 'equal', value: 'xyz123'}
+                            ]
+                        ]
+                    },
+                    attributeOptions: {
+                        'articleId': {type: 'int'}
+                    }
+                }]
+            };
+
+            var resolvedRequest = requestResolver(req, resourceConfigs);
+            expect(resolvedRequest.dataSourceTree).to.eql(dataSourceTree);
+        });
+
+        it('resolves filter by sub-sub-resource', function () {
+            // /article/?filter=comments.user.id=123
+            var req = {
+                resource: 'article',
+                filter: [
+                    [
+                        {attribute: ['comments', 'user', 'id'], operator: 'equal', value: 123}
+                    ]
+                ]
+            };
+
+            var dataSourceTree = {
+                resourceName: 'article',
+                attributePath: [],
+                dataSourceName: 'primary',
+                request: {
+                    type: 'mysql',
+                    database: 'contents',
+                    table: 'article',
+                    attributes: ['id'],
+                    filter: [
+                        [
+                            {attribute: 'id', operator: 'equal', valueFromSubFilter: true}
+                        ]
+                    ],
+                    limit: 10
+                },
+                attributeOptions: {
+                    'id': {type: 'int'}
+                },
+                subFilters: [{
+                    parentKey: ['id'],
+                    childKey: ['articleId'],
+                    request: {
+                        type: 'mysql',
+                        database: 'contents',
+                        table: 'article_comment',
+                        attributes: ['articleId'],
+                        filter: [
+                            [
+                                {attribute: 'userId', operator: 'equal', valueFromSubFilter: true}
+                            ]
+                        ]
+                    },
+                    attributeOptions: {
+                        'articleId': {type: 'int'}
+                    },
+                    subFilters: [{
+                        parentKey: ['userId'],
+                        childKey: ['id'],
+                        request: {
+                            type: 'mysql',
+                            database: 'contents',
+                            table: 'user',
+                            attributes: ['id'],
+                            filter: [
+                                [
+                                    {attribute: 'id', operator: 'equal', value: 123}
+                                ]
+                            ]
+                        },
+                        attributeOptions: {
+                            'id': {type: 'int'}
+                        }
+                    }]
                 }]
             };
 

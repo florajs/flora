@@ -23,14 +23,17 @@
     ]]></flora:dataSource>
 
 
-    <!-- Enable article-filter by author IDs (n : 1 relation) -->
-    <flora:subFilter attribute="author.id" filter="equal"/>
+    <!-- Enable article-filter by author IDs (filter by sub-resource primary key) -->
+    <flora:subFilter attribute="author.id" filter="true"/>
 
-    <!-- Enable article-filter by category IDs (m : n relation) -->
-    <flora:subFilter attribute="categories.id" filter="equal"/>
+    <!-- Enable article-filter by video youtubeId (filter by sub-resource-attribute) -->
+    <flora:subFilter attribute="video.youtubeId" filter="true"/>
 
-    <!-- Enable article-filter by important categories (filter by sub-resource-attribute) -->
-    <flora:subFilter attribute="categories.isImportant" filter="equal"/>
+    <!-- Enable article-filter by comments by user ID (filter by sub-sub-resource) -->
+    <flora:subFilter attribute="comments.user.id" filter="true"/>
+
+    <!-- Enable article-filter by category IDs (filter by sub-resource with joinVia) -->
+    <flora:subFilter attribute="categories.id" filter="true"/>
 
 
     <!-- Primary key must always be mapped to all DataSources -->
@@ -103,6 +106,7 @@
 
         <url/>
         <previewImage/>
+        <youtubeId filter="true"/>
     </video>
 
     <!-- Grouping of attributes (without own DataSource).

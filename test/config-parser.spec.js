@@ -1233,7 +1233,7 @@ describe('config-parser', function () {
             resourceConfigs['article'].attributes['countries'].dataSources['primary'].expectedAttributes =
                 ['id', 'name', 'iso', 'iso3'];
             resourceConfigs['article'].attributes['video'].dataSources['primary'].expectedAttributes =
-                ['articleId', 'url', 'previewImage'];
+                ['articleId', 'url', 'previewImage', 'youtubeId'];
             resourceConfigs['article'].attributes['comments'].dataSources['primary'].expectedAttributes =
                 ['articleId', 'id', 'userId', 'content'];
             resourceConfigs['article'].attributes['comments'].dataSources['likes'].expectedAttributes =
