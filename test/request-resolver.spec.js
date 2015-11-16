@@ -603,6 +603,243 @@ describe('request-resolver', function () {
         });
     });
 
+    describe('defaultLimit and maxLimit', function () {
+        it('uses defaultLimit if no limit is given', function () {
+            var resourceConfigs2 = _.cloneDeep(resourceConfigs);
+            resourceConfigs2['article']['defaultLimit'] = 42;
+
+            // /article/
+            var req = {
+                resource: 'article'
+            };
+
+            var dataSourceTree = {
+                resourceName: 'article',
+                attributePath: [],
+                dataSourceName: 'primary',
+                request: {
+                    type: 'mysql',
+                    database: 'contents',
+                    table: 'article',
+                    attributes: ['id'],
+                    limit: 42
+                },
+                attributeOptions: {
+                    'id': {type: 'int'}
+                }
+            };
+
+            var resolvedRequest = requestResolver(req, resourceConfigs2);
+            expect(resolvedRequest.dataSourceTree).to.eql(dataSourceTree);
+        });
+
+        it('uses limit to override defaultLimit', function () {
+            var resourceConfigs2 = _.cloneDeep(resourceConfigs);
+            resourceConfigs2['article']['defaultLimit'] = 42;
+
+            // /article/
+            var req = {
+                resource: 'article',
+                limit: 44
+            };
+
+            var dataSourceTree = {
+                resourceName: 'article',
+                attributePath: [],
+                dataSourceName: 'primary',
+                request: {
+                    type: 'mysql',
+                    database: 'contents',
+                    table: 'article',
+                    attributes: ['id'],
+                    limit: 44
+                },
+                attributeOptions: {
+                    'id': {type: 'int'}
+                }
+            };
+
+            var resolvedRequest = requestResolver(req, resourceConfigs2);
+            expect(resolvedRequest.dataSourceTree).to.eql(dataSourceTree);
+        });
+
+        it('uses maxLimit if no limit is given', function () {
+            var resourceConfigs2 = _.cloneDeep(resourceConfigs);
+            resourceConfigs2['article']['maxLimit'] = 43;
+
+            // /article/
+            var req = {
+                resource: 'article',
+            };
+
+            var dataSourceTree = {
+                resourceName: 'article',
+                attributePath: [],
+                dataSourceName: 'primary',
+                request: {
+                    type: 'mysql',
+                    database: 'contents',
+                    table: 'article',
+                    attributes: ['id'],
+                    limit: 43
+                },
+                attributeOptions: {
+                    'id': {type: 'int'}
+                }
+            };
+
+            var resolvedRequest = requestResolver(req, resourceConfigs2);
+            expect(resolvedRequest.dataSourceTree).to.eql(dataSourceTree);
+        });
+
+        it('uses defaultLimit even if maxLimit is given', function () {
+            var resourceConfigs2 = _.cloneDeep(resourceConfigs);
+            resourceConfigs2['article']['maxLimit'] = 43;
+            resourceConfigs2['article']['defaultLimit'] = 40;
+
+            // /article/
+            var req = {
+                resource: 'article',
+            };
+
+            var dataSourceTree = {
+                resourceName: 'article',
+                attributePath: [],
+                dataSourceName: 'primary',
+                request: {
+                    type: 'mysql',
+                    database: 'contents',
+                    table: 'article',
+                    attributes: ['id'],
+                    limit: 40
+                },
+                attributeOptions: {
+                    'id': {type: 'int'}
+                }
+            };
+
+            var resolvedRequest = requestResolver(req, resourceConfigs2);
+            expect(resolvedRequest.dataSourceTree).to.eql(dataSourceTree);
+        });
+
+        it('uses limit if limit <= maxLimit', function () {
+            var resourceConfigs2 = _.cloneDeep(resourceConfigs);
+            resourceConfigs2['article']['maxLimit'] = 43;
+
+            // /article/
+            var req = {
+                resource: 'article',
+                limit: 42
+            };
+
+            var dataSourceTree = {
+                resourceName: 'article',
+                attributePath: [],
+                dataSourceName: 'primary',
+                request: {
+                    type: 'mysql',
+                    database: 'contents',
+                    table: 'article',
+                    attributes: ['id'],
+                    limit: 42
+                },
+                attributeOptions: {
+                    'id': {type: 'int'}
+                }
+            };
+
+            var resolvedRequest = requestResolver(req, resourceConfigs2);
+            expect(resolvedRequest.dataSourceTree).to.eql(dataSourceTree);
+        });
+
+        it('fails if limit > maxLimit', function () {
+            var resourceConfigs2 = _.cloneDeep(resourceConfigs);
+            resourceConfigs2['article']['maxLimit'] = 43;
+
+            // /article/
+            var req = {
+                resource: 'article',
+                limit: 44
+            };
+
+            expect(function () {
+                requestResolver(req, resourceConfigs2);
+            }).to.throw(RequestError, 'Invalid limit 44, maxLimit is 43');
+        });
+    });
+
+    describe('defaultOrder', function () {
+        it('uses defaultOrder if no order is given', function () {
+            var resourceConfigs2 = _.cloneDeep(resourceConfigs);
+            resourceConfigs2['article']['defaultOrder'] = [{
+                attribute: ['date'],
+                direction: 'asc'
+            }];
+
+            // /article/
+            var req = {
+                resource: 'article'
+            };
+
+            var dataSourceTree = {
+                resourceName: 'article',
+                attributePath: [],
+                dataSourceName: 'primary',
+                request: {
+                    type: 'mysql',
+                    database: 'contents',
+                    table: 'article',
+                    attributes: ['id'],
+                    limit: 10,
+                    order: [{attribute: "timestamp", direction: "asc"}]
+                },
+                attributeOptions: {
+                    'id': {type: 'int'}
+                }
+            };
+
+            var resolvedRequest = requestResolver(req, resourceConfigs2);
+            expect(resolvedRequest.dataSourceTree).to.eql(dataSourceTree);
+        });
+
+        it('uses order to override defaultOrder', function () {
+            var resourceConfigs2 = _.cloneDeep(resourceConfigs);
+            resourceConfigs2['article']['defaultOrder'] = [{
+                attribute: ['date'],
+                direction: 'asc'
+            }];
+
+            // /article/
+            var req = {
+                resource: 'article',
+                order: [{
+                    attribute: ['date'],
+                    direction: 'desc'
+                }]
+            };
+
+            var dataSourceTree = {
+                resourceName: 'article',
+                attributePath: [],
+                dataSourceName: 'primary',
+                request: {
+                    type: 'mysql',
+                    database: 'contents',
+                    table: 'article',
+                    attributes: ['id'],
+                    limit: 10,
+                    order: [{attribute: "timestamp", direction: "desc"}]
+                },
+                attributeOptions: {
+                    'id': {type: 'int'}
+                }
+            };
+
+            var resolvedRequest = requestResolver(req, resourceConfigs2);
+            expect(resolvedRequest.dataSourceTree).to.eql(dataSourceTree);
+        });
+    });
+
     describe('high level error handling', function () {
         it('fails on "id"-option on sub-resource-nodes', function () {
             // /article/?select=comments(id=1)
