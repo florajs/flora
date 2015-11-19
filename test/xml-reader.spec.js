@@ -156,7 +156,6 @@ describe('xml-reader', function () {
     it('should generate an error if XML cannot be parsed', function (done) {
         xmlReader(__dirname + '/fixtures/xml-reader/broken.xml', function (err) {
             expect(err).to.be.instanceof(Error);
-            expect(err.message).to.have.string('Premature end of data in tag resource');
             done();
         });
     });
