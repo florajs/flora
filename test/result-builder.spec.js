@@ -1001,7 +1001,7 @@ describe('result-builder', function () {
             expect(result).to.eql(expectedResult);
         });
 
-        it('fails if normal attribute is missing', function () {
+        it('handles missing attribute as null', function () {
             var rawResults = [{
                 attributePath: [],
                 dataSourceName: 'primary',
@@ -1013,11 +1013,17 @@ describe('result-builder', function () {
             }];
 
             var resolvedConfig = _.cloneDeep(defaultResolvedConfig);
+            resolvedConfig.many = false;
             resolvedConfig.attributes['title'].selected = true;
 
-            expect(function () {
-                resultBuilder(api, {}, rawResults, resolvedConfig);
-            }).to.throw(DataError, 'Result-row ID "1" (DataSource "primary") misses attribute "title"');
+            var expectedResult = {
+                data: {
+                    title: null
+                }
+            };
+
+            var result = resultBuilder(api, {}, rawResults, resolvedConfig);
+            expect(result).to.eql(expectedResult);
         });
     });
 
