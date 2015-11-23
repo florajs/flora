@@ -22,6 +22,15 @@ describe('Response', function () {
         expect(response.data).to.eql(null);
     });
 
+    it('should have writeable meta.headers property', function () {
+        var response = new Response(new Request());
+
+        expect(function () {
+            response.meta.headers = {'Content-Type': 'application/pdf'};
+        }).to.not.throw(Error);
+        expect(response.meta.headers).to.have.property('Content-Type');
+    });
+
     it('should not expose headers in response.meta', function () {
         var response = new Response(new Request());
         expect(response.meta.propertyIsEnumerable('headers')).to.be.false;
