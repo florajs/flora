@@ -71,6 +71,7 @@
     "mocha": "^2.3.3",
     "mocha-bamboo-reporter": "^1.1.0",
     "mock-fs": "^3.4.0",
-    "sinon": "^1.17.1"
+    "sinon": "^1.17.1",
+    "sinon-chai": "^2.8.0"
   }
 }
