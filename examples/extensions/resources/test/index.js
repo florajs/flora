@@ -3,6 +3,13 @@
 module.exports = function (api) {
     return {
         extensions: {
+            // "init" extension
+            // is called once, when the resource is invoked for the first time
+            init: function (cb) {
+                console.log('Extension: init');
+                cb();
+            },
+
             // "request" extension
             request: function (ev) {
                 var request = ev.request;

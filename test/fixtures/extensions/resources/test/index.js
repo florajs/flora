@@ -3,6 +3,8 @@
 module.exports = function (api) {
     return {
         extensions: {
+            init: function () {},
+
             item: function (ev) {
                 ev.item.bar = 'baz';
             },

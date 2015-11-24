@@ -1,10 +1,14 @@
 'use strict';
 
-var expect = require('chai').expect;
+var chai = require('chai');
 var path = require('path');
 var bunyan = require('bunyan');
+var sinon = require('sinon');
 var Api = require('../').Api;
 var Request = require('../lib/request');
+
+var expect = chai.expect;
+chai.use(require('sinon-chai'));
 
 var log = bunyan.createLogger({name: 'null', streams: []});
 var resourcesPath = path.join(__dirname, 'fixtures', 'extensions', 'resources');
@@ -192,6 +196,76 @@ describe('extensions', function () {
     });
 
     describe('resource', function () {
+        describe('init (sync)', function () {
+            it('is emitted once when the resource is called for the first time', function (done) {
+                var api = new Api();
+                var spy;
+
+                api.init(testConfig, function (err) {
+                    if (err) return done(err);
+
+                    var resource = api.getResource('test');
+                    spy = sinon.spy(resource.extensions, 'init');
+
+                    var request = new Request({resource: 'test'});
+                    api.execute(request, function (err2) {
+                        if (err2) return done(err2);
+                        expect(spy).to.be.calledOnce;
+                        api.close(done);
+                    });
+                });
+            });
+
+            it('is emitted only once', function (done) {
+                var api = new Api();
+                var spy;
+
+                api.init(testConfig, function (err) {
+                    if (err) return done(err);
+
+                    var resource = api.getResource('test');
+                    spy = sinon.spy(resource.extensions, 'init');
+
+                    var request = new Request({resource: 'test'});
+                    api.execute(request, function (err2) {
+                        if (err2) return done(err2);
+
+                        api.execute(request, function (err3) {
+                            if (err2) return done(err2);
+                            expect(spy).to.be.calledOnce;
+                            api.close(done);
+                        });
+                    });
+                });
+            });
+        });
+
+        describe('init (async)', function () {
+            it('is emitted once when the resource is called for the first time', function (done) {
+                var api = new Api();
+                var spy;
+
+                api.init(testConfig, function (err) {
+                    if (err) return done(err);
+
+                    var resource = api.getResource('test');
+
+                    resource.extensions.init = function (cb) {
+                        cb();
+                    };
+
+                    spy = sinon.spy(resource.extensions, 'init');
+
+                    var request = new Request({resource: 'test'});
+                    api.execute(request, function (err2) {
+                        if (err2) return done(err2);
+                        expect(spy).to.be.calledOnce;
+                        api.close(done);
+                    });
+                });
+            });
+        });
+
         describe('item', function () {
             it('is emitted when an item is handled', function (done) {
                 var api = new Api();
