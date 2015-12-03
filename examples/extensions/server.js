@@ -34,6 +34,7 @@ server.api.on('close', function (ev, next) {
 
 server.api.on('request', function (ev, next) {
     var request = ev.request;
+    var response = ev.response;
     console.log('Extension: request');
     request.limit = 1; // modify the "limit" parameter
     request.select = 'foo'; // modify the "select" parameter to always select (only) the "foo" attribute
