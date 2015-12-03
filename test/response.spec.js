@@ -19,7 +19,6 @@ describe('Response', function () {
         var response = new Response(new Request());
         expect(response.meta).to.be.an('object');
         expect(response.meta.headers).to.be.an('object');
-        expect(response.data).to.eql(null);
     });
 
     it('should have writeable meta.headers property', function () {
