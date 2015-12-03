@@ -146,7 +146,6 @@ describe('Api', function () {
                     resource: 'foo'
                 });
                 api.execute(request, function (err2, response) {
-                    expect(response).to.be.undefined;
                     expect(err2).to.be.an('object');
                     expect(err2.message).to.equal('Unknown resource "foo" in request');
                     api.close(done);
@@ -174,7 +173,6 @@ describe('Api', function () {
                     resource: 'no-actions'
                 });
                 api.execute(request, function (err2, response) {
-                    expect(response).to.be.undefined;
                     expect(err2).to.be.an('object');
                     expect(err2.message).to.equal('Action "retrieve" is not implemented');
                     api.close(done);
