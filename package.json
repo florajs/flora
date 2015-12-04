@@ -44,7 +44,7 @@
     "async-eventemitter": "^0.2.2",
     "bunyan": "^1.5.1",
     "chokidar": "^1.0.4",
-    "flora-cluster": "^0.5.0",
+    "flora-cluster": "^0.5.1",
     "flora-errors": "^0.2.0",
     "flora-ql": "^2.4.0",
     "lodash": "^3.10.1",
