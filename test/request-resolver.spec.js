@@ -1300,6 +1300,74 @@ describe('request-resolver', function () {
             var resolvedRequest = requestResolver(req, resourceConfigs);
             expect(resolvedRequest.dataSourceTree).to.eql(dataSourceTree);
         });
+
+        it('combines filter for selected sub-resource', function () {
+            // /article/?select=comments(filter=id=3 OR id=4)
+            var req = {
+                resource: 'article',
+                select: {
+                    'comments': {
+                        filter: [
+                            [
+                                {attribute: ['id'], operator: 'equal', value: 3}
+                            ],
+                            [
+                                {attribute: ['id'], operator: 'equal', value: 4}
+                            ]
+                        ]
+                    }
+                }
+            };
+
+            var dataSourceTree = {
+                resourceName: 'article',
+                attributePath: [],
+                dataSourceName: 'primary',
+                request: {
+                    type: 'mysql',
+                    database: 'contents',
+                    table: 'article',
+                    attributes: ['id'],
+                    limit: 10
+                },
+                attributeOptions: {
+                    'id': {type: 'int'}
+                },
+                subRequests: [
+                    {
+                        attributePath: ['comments'],
+                        dataSourceName: 'primary',
+                        parentKey: ['id'],
+                        childKey: ['articleId'],
+                        multiValuedParentKey: false,
+                        uniqueChildKey: false,
+                        request: {
+                            type: 'mysql',
+                            database: 'contents',
+                            table: 'article_comment',
+                            attributes: ['id', 'articleId'],
+                            filter: [
+                                [
+                                    {attribute: 'id', operator: 'equal', value: 3},
+                                    {attribute: 'articleId', operator: 'equal', valueFromParentKey: true}
+                                ],
+                                [
+                                    {attribute: 'id', operator: 'equal', value: 4},
+                                    {attribute: 'articleId', operator: 'equal', valueFromParentKey: true}
+                                ]
+                            ]
+                        },
+                        attributeOptions: {
+                            'id': {type: 'int'},
+                            'articleId': {type: 'int'}
+                        }
+                    }
+                ]
+            };
+
+            var resolvedRequest = requestResolver(req, resourceConfigs);
+            expect(resolvedRequest.dataSourceTree).to.eql(dataSourceTree);
+        });
     });
 
     describe('handling of dependencies', function () {
