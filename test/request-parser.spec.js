@@ -638,6 +638,14 @@ describe('request-parser', function () {
                 expect((function () { selectParser('foo(a=1)'); })).not.to.throw(Error);
             });
 
+            xit('accepts array parameters', function () {
+                expect((function () { selectParser('foo(filter=id=1,2)'); })).to.eql({
+                    foo: {
+                        filter: [{attribute: ['id'], operator: 'equal', value: [1, 2]}]
+                    }
+                });
+            });
+
             it('does not accept invalid operators', function () {
                 expect((function () { selectParser('foo(limit>3)'); })).to.throw(Error);
             });
