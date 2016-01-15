@@ -48,7 +48,7 @@
     "flora-errors": "^0.2.0",
     "flora-ql": "^2.4.0",
     "lodash": "^3.10.1",
-    "moment-timezone": "^0.4.1",
+    "moment-timezone": "^0.5.0",
     "serve-static": "^1.10.0",
     "when": "^3.7.3",
     "xmldom": "^0.1.19"
