@@ -1892,13 +1892,89 @@ describe('request-resolver', function () {
             var resolvedRequest = requestResolver(req, resourceConfigs);
             expect(resolvedRequest.dataSourceTree).to.eql(dataSourceTree);
         });
+
+        it('resolves filter by sub-resource with joinVia', function () {
+            // /article/?filter=categories.id=1234
+            var req = {
+                resource: 'article',
+                filter: [
+                    [
+                        {attribute: ['categories', 'id'], operator: 'equal', value: 1234}
+                    ]
+                ]
+            };
+
+            var dataSourceTree = {
+                resourceName: 'article',
+                attributePath: [],
+                dataSourceName: 'primary',
+                request: {
+                    type: 'mysql',
+                    database: 'contents',
+                    table: 'article',
+                    attributes: ['id'],
+                    filter: [
+                        [
+                            {attribute: 'id', operator: 'equal', valueFromSubFilter: true}
+                        ]
+                    ],
+                    limit: 10
+                },
+                attributeOptions: {
+                    'id': {type: 'int'}
+                },
+                subFilters: [{
+                    parentKey: ['id'],
+                    childKey: ['articleId'],
+                    request: {
+                        type: 'mysql',
+                        database: 'contents',
+                        table: 'article_category',
+                        joinParentKey: [['articleId']],
+                        joinChildKey: [['categoryId']],
+                        resolvedJoinParentKey: ['articleId'],
+                        resolvedJoinChildKey: ['categoryId'],
+                        attributes: ['articleId'],
+                        filter: [
+                            [
+                                {attribute: 'categoryId', operator: 'equal', valueFromSubFilter: true}
+                            ]
+                        ]
+                    },
+                    attributeOptions: {
+                        'articleId': {type: 'int'}
+                    },
+                    subFilters: [{
+                        parentKey: ['categoryId'],
+                        childKey: ['id'],
+                        request: {
+                            type: 'mysql',
+                            database: 'contents',
+                            table: 'category',
+                            attributes: ['id'],
+                            filter: [
+                                [
+                                    {attribute: 'id', operator: 'equal', value: 1234}
+                                ]
+                            ]
+                        },
+                        attributeOptions: {
+                            'id': {type: 'int'}
+                        }
+                    }]
+                }]
+            };
+
+            var resolvedRequest = requestResolver(req, resourceConfigs);
+            expect(resolvedRequest.dataSourceTree).to.eql(dataSourceTree);
+        });
     });
 
     describe('complex request resolving', function () {
         it('resolves full-featured request', function () {
             // /article/?
             // select=date,title,subTitle,source[name,externalId],body,author[firstname,lastname]&
-            // filter=date<=2014-12-01T00:00:00%2B01:00 AND categories.isImportant=true&
+            // filter=date<=2014-12-01T00:00:00%2B01:00 AND categories.id=12,13&
             // order=date:desc&
             // limit=10&
             // page=1
@@ -1925,9 +2001,7 @@ describe('request-resolver', function () {
                 filter: [
                     [
                         {attribute: ['date'], operator: 'lessOrEqual', value: '2014-12-01T00:00:00+01:00'},
-                        /*TODO: Filter by sub-resource:
-                        {attribute: ['categories', 'isImportant'], operator: 'equal', value: true}
-                        */
+                        {attribute: ['categories', 'id'], operator: 'equal', value: [12, 13]}
                     ]
                 ],
                 order: [{
@@ -1950,9 +2024,7 @@ describe('request-resolver', function () {
                     filter: [
                         [
                             {attribute: 'timestamp', operator: 'lessOrEqual', value: '2014-12-01T00:00:00+01:00'},
-                            /*TODO: Filter by sub-resource:
-                            {attribute: 'categoryId', operator: 'equal', valueFromSubFilter: 'TODO'}
-                            */
+                            {attribute: 'id', operator: 'equal', valueFromSubFilter: true}
                         ]
                     ],
                     order: [{
@@ -1970,24 +2042,46 @@ describe('request-resolver', function () {
                     'externalId': {type: 'string'},
                     'authorId': {type: 'int'}
                 },
-                /*TODO: Filter by sub-resource:
                 subFilters: [{
-                    // This request can be optimized to a sub-query in main-request in SQL - TODO: How to do SQL-Shortcuts here?
-                    parentKey: ['categoryId'],
-                    childKey: ['id'],
+                    parentKey: ['id'],
+                    childKey: ['articleId'],
                     request: {
                         type: 'mysql',
                         database: 'contents',
-                        table: 'categories',
-                        attributes: ['id'],
+                        table: 'article_category',
+                        joinParentKey: [['articleId']],
+                        joinChildKey: [['categoryId']],
+                        resolvedJoinParentKey: ['articleId'],
+                        resolvedJoinChildKey: ['categoryId'],
+                        attributes: ['articleId'],
                         filter: [
                             [
-                                {attribute: 'isImportant', operator: 'equal', value: true}
+                                {attribute: 'categoryId', operator: 'equal', valueFromSubFilter: true}
                             ]
                         ]
-                    }
+                    },
+                    attributeOptions: {
+                        'articleId': {type: 'int'}
+                    },
+                    subFilters: [{
+                        parentKey: ['categoryId'],
+                        childKey: ['id'],
+                        request: {
+                            type: 'mysql',
+                            database: 'contents',
+                            table: 'category',
+                            attributes: ['id'],
+                            filter: [
+                                [
+                                    {attribute: 'id', operator: 'equal', value: [12, 13]}
+                                ]
+                            ]
+                        },
+                        attributeOptions: {
+                            'id': {type: 'int'}
+                        }
+                    }]
                 }],
-                */
                 subRequests: [
                     {
                         attributePath: [],
