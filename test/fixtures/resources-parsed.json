@@ -35,6 +35,9 @@
                 ],
                 "filter": [
                     "equal"
+                ],
+                "rewriteTo": [
+                    "authorId"
                 ]
             },
             {

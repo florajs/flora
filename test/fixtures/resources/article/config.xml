@@ -24,7 +24,7 @@
 
 
     <!-- Enable article-filter by author IDs (filter by sub-resource primary key) -->
-    <flora:subFilter attribute="author.id" filter="true"/>
+    <flora:subFilter attribute="author.id" filter="true" rewriteTo="authorId"/>
 
     <!-- Enable article-filter by video youtubeId (filter by sub-resource-attribute) -->
     <flora:subFilter attribute="video.youtubeId" filter="true"/>

@@ -26,7 +26,8 @@
         "subFilters": [
             {
                 "attribute": "author.id",
-                "filter": "true"
+                "filter": "true",
+                "rewriteTo": "authorId"
             },
             {
                 "attribute": "video.youtubeId",

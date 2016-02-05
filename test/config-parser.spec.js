@@ -155,12 +155,14 @@ describe('config-parser', function () {
 
             resourceConfigs['test'].subFilters = [{
                 attribute: 'author.groupId',
-                filter: 'true'
+                filter: 'true',
+                rewriteTo: 'authorGroupId'
             }];
 
             resourceConfigsParsed['test'].subFilters = [{
                 attribute: ['author', 'groupId'],
-                filter: ['equal']
+                filter: ['equal'],
+                rewriteTo: ['authorGroupId']
             }];
 
             configParser(resourceConfigs, mockDataSources);

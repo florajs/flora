@@ -59,6 +59,9 @@
             ],
             "filter": [
                 "equal"
+            ],
+            "rewriteTo": [
+                "authorId"
             ]
         },
         {

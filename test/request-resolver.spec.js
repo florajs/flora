@@ -1713,7 +1713,10 @@ describe('request-resolver', function () {
     });
 
     describe('filter by sub-resources', function () {
-        it('resolves filter by sub-resource primary key', function () {
+        it('resolves filter by sub-resource primary key without "rewriteTo"', function () {
+            var configs = _.cloneDeep(resourceConfigs);
+            delete configs['article'].subFilters[0].rewriteTo;
+
             // /article/?filter=author.id=11,12,13
             var req = {
                 resource: 'article',
@@ -1761,6 +1764,42 @@ describe('request-resolver', function () {
                         'id': {type: 'int'}
                     }
                 }]
+            };
+
+            var resolvedRequest = requestResolver(req, configs);
+            expect(resolvedRequest.dataSourceTree).to.eql(dataSourceTree);
+        });
+
+        it('resolves filter by sub-resource primary key with "rewriteTo"', function () {
+            // /article/?filter=author.id=11,12,13
+            var req = {
+                resource: 'article',
+                filter: [
+                    [
+                        {attribute: ['author', 'id'], operator: 'equal', value: [11, 12, 13]}
+                    ]
+                ]
+            };
+
+            var dataSourceTree = {
+                resourceName: 'article',
+                attributePath: [],
+                dataSourceName: 'primary',
+                request: {
+                    type: 'mysql',
+                    database: 'contents',
+                    table: 'article',
+                    attributes: ['id'],
+                    filter: [
+                        [
+                            {attribute: 'authorId', operator: 'equal', value: [11, 12, 13]}
+                        ]
+                    ],
+                    limit: 10
+                },
+                attributeOptions: {
+                    'id': {type: 'int'}
+                }
             };
 
             var resolvedRequest = requestResolver(req, resourceConfigs);
