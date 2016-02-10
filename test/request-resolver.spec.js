@@ -603,160 +603,84 @@ describe('request-resolver', function () {
         });
     });
 
-    describe('defaultLimit and maxLimit', function () {
+    describe('limit, defaultLimit and maxLimit', function () {
         it('uses defaultLimit if no limit is given', function () {
             var resourceConfigs2 = _.cloneDeep(resourceConfigs);
-            resourceConfigs2['article']['defaultLimit'] = 42;
+            resourceConfigs2['article'].defaultLimit = 42;
 
-            // /article/
             var req = {
                 resource: 'article'
             };
 
-            var dataSourceTree = {
-                resourceName: 'article',
-                attributePath: [],
-                dataSourceName: 'primary',
-                request: {
-                    type: 'mysql',
-                    database: 'contents',
-                    table: 'article',
-                    attributes: ['id'],
-                    limit: 42
-                },
-                attributeOptions: {
-                    'id': {type: 'int'}
-                }
-            };
-
             var resolvedRequest = requestResolver(req, resourceConfigs2);
-            expect(resolvedRequest.dataSourceTree).to.eql(dataSourceTree);
+            resolvedRequest = resolvedRequest.dataSourceTree.request;
+
+            expect(resolvedRequest).to.have.property('limit', 42);
         });
 
         it('uses limit to override defaultLimit', function () {
             var resourceConfigs2 = _.cloneDeep(resourceConfigs);
-            resourceConfigs2['article']['defaultLimit'] = 42;
+            resourceConfigs2['article'].defaultLimit = 42;
 
-            // /article/
             var req = {
                 resource: 'article',
                 limit: 44
             };
 
-            var dataSourceTree = {
-                resourceName: 'article',
-                attributePath: [],
-                dataSourceName: 'primary',
-                request: {
-                    type: 'mysql',
-                    database: 'contents',
-                    table: 'article',
-                    attributes: ['id'],
-                    limit: 44
-                },
-                attributeOptions: {
-                    'id': {type: 'int'}
-                }
-            };
-
             var resolvedRequest = requestResolver(req, resourceConfigs2);
-            expect(resolvedRequest.dataSourceTree).to.eql(dataSourceTree);
+            resolvedRequest = resolvedRequest.dataSourceTree.request;
+
+            expect(resolvedRequest).to.have.property('limit', 44);
         });
 
         it('uses maxLimit if no limit is given', function () {
             var resourceConfigs2 = _.cloneDeep(resourceConfigs);
-            resourceConfigs2['article']['maxLimit'] = 43;
+            resourceConfigs2['article'].maxLimit = 43;
 
-            // /article/
             var req = {
                 resource: 'article',
             };
 
-            var dataSourceTree = {
-                resourceName: 'article',
-                attributePath: [],
-                dataSourceName: 'primary',
-                request: {
-                    type: 'mysql',
-                    database: 'contents',
-                    table: 'article',
-                    attributes: ['id'],
-                    limit: 43
-                },
-                attributeOptions: {
-                    'id': {type: 'int'}
-                }
-            };
-
             var resolvedRequest = requestResolver(req, resourceConfigs2);
-            expect(resolvedRequest.dataSourceTree).to.eql(dataSourceTree);
+            resolvedRequest = resolvedRequest.dataSourceTree.request;
+
+            expect(resolvedRequest).to.have.property('limit', 43);
         });
 
         it('uses defaultLimit even if maxLimit is given', function () {
             var resourceConfigs2 = _.cloneDeep(resourceConfigs);
-            resourceConfigs2['article']['maxLimit'] = 43;
-            resourceConfigs2['article']['defaultLimit'] = 40;
+            resourceConfigs2['article'].maxLimit = 43;
+            resourceConfigs2['article'].defaultLimit = 40;
 
-            // /article/
             var req = {
                 resource: 'article',
             };
 
-            var dataSourceTree = {
-                resourceName: 'article',
-                attributePath: [],
-                dataSourceName: 'primary',
-                request: {
-                    type: 'mysql',
-                    database: 'contents',
-                    table: 'article',
-                    attributes: ['id'],
-                    limit: 40
-                },
-                attributeOptions: {
-                    'id': {type: 'int'}
-                }
-            };
-
             var resolvedRequest = requestResolver(req, resourceConfigs2);
-            expect(resolvedRequest.dataSourceTree).to.eql(dataSourceTree);
+            resolvedRequest = resolvedRequest.dataSourceTree.request;
+
+            expect(resolvedRequest).to.have.property('limit', 40);
         });
 
         it('uses limit if limit <= maxLimit', function () {
             var resourceConfigs2 = _.cloneDeep(resourceConfigs);
-            resourceConfigs2['article']['maxLimit'] = 43;
+            resourceConfigs2['article'].maxLimit = 45;
 
-            // /article/
             var req = {
                 resource: 'article',
-                limit: 42
-            };
-
-            var dataSourceTree = {
-                resourceName: 'article',
-                attributePath: [],
-                dataSourceName: 'primary',
-                request: {
-                    type: 'mysql',
-                    database: 'contents',
-                    table: 'article',
-                    attributes: ['id'],
-                    limit: 42
-                },
-                attributeOptions: {
-                    'id': {type: 'int'}
-                }
+                limit: 45
             };
 
             var resolvedRequest = requestResolver(req, resourceConfigs2);
-            expect(resolvedRequest.dataSourceTree).to.eql(dataSourceTree);
+            resolvedRequest = resolvedRequest.dataSourceTree.request;
+
+            expect(resolvedRequest).to.have.property('limit', 45);
         });
 
         it('fails if limit > maxLimit', function () {
             var resourceConfigs2 = _.cloneDeep(resourceConfigs);
-            resourceConfigs2['article']['maxLimit'] = 43;
+            resourceConfigs2['article'].maxLimit = 43;
 
-            // /article/
             var req = {
                 resource: 'article',
                 limit: 44
@@ -765,6 +689,162 @@ describe('request-resolver', function () {
             expect(function () {
                 requestResolver(req, resourceConfigs2);
             }).to.throw(RequestError, 'Invalid limit 44, maxLimit is 43');
+        });
+
+        it('allows limit = 0', function () {
+            var req = {
+                resource: 'article',
+                limit: 0
+            };
+
+            var resolvedRequest = requestResolver(req, resourceConfigs);
+            resolvedRequest = resolvedRequest.dataSourceTree.request;
+
+            expect(resolvedRequest).to.have.property('limit', 0);
+        });
+
+        it('fails on limit on single resources', function () {
+            var req = {
+                resource: 'article',
+                id: 1,
+                limit: 2
+            };
+
+            expect(function () {
+                requestResolver(req, resourceConfigs);
+            }).to.throw(RequestError, 'Invalid limit on a single resource');
+        });
+    });
+
+    describe('limit, defaultLimit and maxLimit in sub-resources', function () {
+        it('uses defaultLimit if no limit is given', function () {
+            var resourceConfigs2 = _.cloneDeep(resourceConfigs);
+            resourceConfigs2['article'].attributes['comments'].defaultLimit = 42;
+
+            var req = {
+                resource: 'article',
+                id: 1,
+                select: {
+                    'comments': {}
+                }
+            };
+
+            var resolvedRequest = requestResolver(req, resourceConfigs2);
+            var resolvedSubRequest = resolvedRequest.dataSourceTree.subRequests[0].request;
+
+            expect(resolvedSubRequest).to.have.property('limit', 42);
+        });
+
+        it('uses limit to override defaultLimit', function () {
+            var resourceConfigs2 = _.cloneDeep(resourceConfigs);
+            resourceConfigs2['article'].attributes['comments'].defaultLimit = 42;
+
+            var req = {
+                resource: 'article',
+                id: 1,
+                select: {
+                    'comments': {
+                        limit: 44
+                    }
+                }
+            };
+
+            var resolvedRequest = requestResolver(req, resourceConfigs2);
+            var resolvedSubRequest = resolvedRequest.dataSourceTree.subRequests[0].request;
+
+            expect(resolvedSubRequest).to.have.property('limit', 44);
+        });
+
+        it('uses maxLimit if no limit is given', function () {
+            var resourceConfigs2 = _.cloneDeep(resourceConfigs);
+            resourceConfigs2['article'].attributes['comments'].maxLimit = 43;
+
+            var req = {
+                resource: 'article',
+                id: 1,
+                select: {
+                    'comments': {}
+                }
+            };
+
+            var resolvedRequest = requestResolver(req, resourceConfigs2);
+            var resolvedSubRequest = resolvedRequest.dataSourceTree.subRequests[0].request;
+
+            expect(resolvedSubRequest).to.have.property('limit', 43);
+        });
+
+        it('uses defaultLimit even if maxLimit is given', function () {
+            var resourceConfigs2 = _.cloneDeep(resourceConfigs);
+            resourceConfigs2['article'].attributes['comments'].maxLimit = 43;
+            resourceConfigs2['article'].attributes['comments'].defaultLimit = 40;
+
+            var req = {
+                resource: 'article',
+                id: 1,
+                select: {
+                    'comments': {}
+                }
+            };
+
+            var resolvedRequest = requestResolver(req, resourceConfigs2);
+            var resolvedSubRequest = resolvedRequest.dataSourceTree.subRequests[0].request;
+
+            expect(resolvedSubRequest).to.have.property('limit', 40);
+        });
+
+        it('uses limit if limit <= maxLimit', function () {
+            var resourceConfigs2 = _.cloneDeep(resourceConfigs);
+            resourceConfigs2['article'].attributes['comments'].maxLimit = 45;
+
+            var req = {
+                resource: 'article',
+                id: 1,
+                select: {
+                    'comments': {
+                        limit: 45
+                    }
+                }
+            };
+
+            var resolvedRequest = requestResolver(req, resourceConfigs2);
+            var resolvedSubRequest = resolvedRequest.dataSourceTree.subRequests[0].request;
+
+            expect(resolvedSubRequest).to.have.property('limit', 45);
+        });
+
+        it('fails if limit > maxLimit', function () {
+            var resourceConfigs2 = _.cloneDeep(resourceConfigs);
+            resourceConfigs2['article'].attributes['comments'].maxLimit = 45;
+
+            var req = {
+                resource: 'article',
+                id: 1,
+                select: {
+                    'comments': {
+                        limit: 46
+                    }
+                }
+            };
+
+            expect(function () {
+                requestResolver(req, resourceConfigs2);
+            }).to.throw(RequestError, 'Invalid limit 46, maxLimit is 45 (in "comments")');
+        });
+
+        it('fails on limit on single sub-resources', function () {
+            var req = {
+                resource: 'article',
+                id: 1,
+                select: {
+                    'author': {
+                        limit: 2
+                    }
+                }
+            };
+
+            expect(function () {
+                requestResolver(req, resourceConfigs);
+            }).to.throw(RequestError, 'Invalid limit on a single resource (in "author")');
         });
     });
 
