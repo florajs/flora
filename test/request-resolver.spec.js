@@ -616,6 +616,7 @@ describe('request-resolver', function () {
             resolvedRequest = resolvedRequest.dataSourceTree.request;
 
             expect(resolvedRequest).to.have.property('limit', 42);
+            expect(resolvedRequest).to.not.have.property('limitPer');
         });
 
         it('uses limit to override defaultLimit', function () {
@@ -631,6 +632,7 @@ describe('request-resolver', function () {
             resolvedRequest = resolvedRequest.dataSourceTree.request;
 
             expect(resolvedRequest).to.have.property('limit', 44);
+            expect(resolvedRequest).to.not.have.property('limitPer');
         });
 
         it('uses maxLimit if no limit is given', function () {
@@ -645,6 +647,7 @@ describe('request-resolver', function () {
             resolvedRequest = resolvedRequest.dataSourceTree.request;
 
             expect(resolvedRequest).to.have.property('limit', 43);
+            expect(resolvedRequest).to.not.have.property('limitPer');
         });
 
         it('uses defaultLimit even if maxLimit is given', function () {
@@ -660,6 +663,7 @@ describe('request-resolver', function () {
             resolvedRequest = resolvedRequest.dataSourceTree.request;
 
             expect(resolvedRequest).to.have.property('limit', 40);
+            expect(resolvedRequest).to.not.have.property('limitPer');
         });
 
         it('uses limit if limit <= maxLimit', function () {
@@ -675,6 +679,7 @@ describe('request-resolver', function () {
             resolvedRequest = resolvedRequest.dataSourceTree.request;
 
             expect(resolvedRequest).to.have.property('limit', 45);
+            expect(resolvedRequest).to.not.have.property('limitPer');
         });
 
         it('fails if limit > maxLimit', function () {
@@ -701,6 +706,7 @@ describe('request-resolver', function () {
             resolvedRequest = resolvedRequest.dataSourceTree.request;
 
             expect(resolvedRequest).to.have.property('limit', 0);
+            expect(resolvedRequest).to.not.have.property('limitPer');
         });
 
         it('fails on limit on single resources', function () {
@@ -717,6 +723,23 @@ describe('request-resolver', function () {
     });
 
     describe('limit, defaultLimit and maxLimit in sub-resources', function () {
+        it('resolves "limitPer" inside a "many" relation', function () {
+            var req = {
+                resource: 'article',
+                select: {
+                    'comments': {
+                        limit: 5
+                    }
+                }
+            };
+
+            var resolvedRequest = requestResolver(req, resourceConfigs);
+            var resolvedSubRequest = resolvedRequest.dataSourceTree.subRequests[0].request;
+
+            expect(resolvedSubRequest).to.have.property('limit', 5);
+            expect(resolvedSubRequest).to.have.property('limitPer', 'articleId');
+        });
+
         it('uses defaultLimit if no limit is given', function () {
             var resourceConfigs2 = _.cloneDeep(resourceConfigs);
             resourceConfigs2['article'].attributes['comments'].defaultLimit = 42;
@@ -733,6 +756,7 @@ describe('request-resolver', function () {
             var resolvedSubRequest = resolvedRequest.dataSourceTree.subRequests[0].request;
 
             expect(resolvedSubRequest).to.have.property('limit', 42);
+            expect(resolvedSubRequest).to.not.have.property('limitPer');
         });
 
         it('uses limit to override defaultLimit', function () {
@@ -753,6 +777,7 @@ describe('request-resolver', function () {
             var resolvedSubRequest = resolvedRequest.dataSourceTree.subRequests[0].request;
 
             expect(resolvedSubRequest).to.have.property('limit', 44);
+            expect(resolvedSubRequest).to.not.have.property('limitPer');
         });
 
         it('uses maxLimit if no limit is given', function () {
@@ -771,6 +796,7 @@ describe('request-resolver', function () {
             var resolvedSubRequest = resolvedRequest.dataSourceTree.subRequests[0].request;
 
             expect(resolvedSubRequest).to.have.property('limit', 43);
+            expect(resolvedSubRequest).to.not.have.property('limitPer');
         });
 
         it('uses defaultLimit even if maxLimit is given', function () {
@@ -790,6 +816,7 @@ describe('request-resolver', function () {
             var resolvedSubRequest = resolvedRequest.dataSourceTree.subRequests[0].request;
 
             expect(resolvedSubRequest).to.have.property('limit', 40);
+            expect(resolvedSubRequest).to.not.have.property('limitPer');
         });
 
         it('uses limit if limit <= maxLimit', function () {
@@ -810,6 +837,7 @@ describe('request-resolver', function () {
             var resolvedSubRequest = resolvedRequest.dataSourceTree.subRequests[0].request;
 
             expect(resolvedSubRequest).to.have.property('limit', 45);
+            expect(resolvedSubRequest).to.not.have.property('limitPer');
         });
 
         it('fails if limit > maxLimit', function () {
