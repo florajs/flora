@@ -790,6 +790,87 @@ describe('result-builder', function () {
             var result = resultBuilder(api, {}, rawResults, resolvedConfig);
             expect(result).to.eql(expectedResult);
         });
+
+        it('builds result with parentKey from secondary DataSource', function () {
+            // /article/?select=author[firstname,lastname]
+            var rawResults = [{
+                attributePath: [],
+                dataSourceName: 'primary',
+                data: [{
+                    id: 1
+                },{
+                    id: 2
+                }],
+                totalCount: 1
+            },{
+                attributePath: [],
+                dataSourceName: 'articleBody',
+                parentKey: ['id'],
+                childKey: ['articleId'],
+                multiValuedParentKey: false,
+                uniqueChildKey: true,
+                data: [{
+                    articleId: '1',
+                    body: 'Test-Body 1',
+                    authorId: 10
+                },{
+                    articleId: '2',
+                    body: 'Test-Body 2',
+                    authorId: 10
+                }],
+                totalCount: 2
+            },{
+                attributePath: ['author'],
+                dataSourceName: 'primary',
+                parentKey: ['authorId'],
+                childKey: ['id'],
+                multiValuedParentKey: false,
+                uniqueChildKey: true,
+                data: [{
+                    id: 10,
+                    firstname: 'Bob',
+                    lastname: 'Tester'
+                }],
+                totalCount: 1
+            }];
+
+            var resolvedConfig = _.cloneDeep(defaultResolvedConfig);
+            resolvedConfig.attributes['id'].selected = true;
+            // move authorId to articleBody DataSource for this test:
+            resolvedConfig.attributes['author'].parentDataSource = 'articleBody';
+            resolvedConfig.attributes['author'].selected = true;
+            resolvedConfig.attributes['author'].attributes['id'].selected = true;
+            resolvedConfig.attributes['author'].attributes['firstname'].selected = true;
+            resolvedConfig.attributes['author'].attributes['lastname'].selected = true;
+            resolvedConfig.attributes['body'].selected = true;
+            resolvedConfig.attributes['body'].selectedDataSource = 'articleBody';
+
+            var expectedResult = {
+                cursor: {
+                    totalCount: 1
+                },
+                data: [{
+                    id: 1,
+                    author: {
+                        id: 10,
+                        firstname: 'Bob',
+                        lastname: 'Tester'
+                    },
+                    body: 'Test-Body 1'
+                },{
+                    id: 2,
+                    author: {
+                        id: 10,
+                        firstname: 'Bob',
+                        lastname: 'Tester'
+                    },
+                    body: 'Test-Body 2'
+                }]
+            };
+
+            var result = resultBuilder(api, {}, rawResults, resolvedConfig);
+            expect(result).to.eql(expectedResult);
+        });
     });
 
     describe('error handling on data level', function () {

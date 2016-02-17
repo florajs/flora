@@ -183,7 +183,7 @@ describe('request-resolver', function () {
                     }
                 }
             }
-        }
+        };
 
         var mergeRequest = {
             resource: 'resource1',
@@ -1669,6 +1669,93 @@ describe('request-resolver', function () {
             var resolvedRequest = requestResolver(req, resourceConfigs);
             expect(resolvedRequest.dataSourceTree).to.eql(dataSourceTree);
         });
+
+        it('resolves parentKey in secondary DataSources', function () {
+            // /article/?select=author&search=test
+            var req = {
+                resource: 'article',
+                select: {
+                    'author': {
+                        select: {
+                            'firstname': {},
+                            'lastname': {}
+                        }
+                    }
+                },
+                search: 'test'
+            };
+
+            var dataSourceTree = {
+                resourceName: 'article',
+                attributePath: [],
+                dataSourceName: 'fulltextSearch',
+                request: {
+                    type: 'solr',
+                    core: 'article',
+                    searchable: 'true',
+                    attributes: ['articleId'],
+                    search: 'test',
+                    limit: 10
+                },
+                attributeOptions: {
+                    'articleId': {type: 'int'}
+                },
+                subRequests: [{
+                    attributePath: [],
+                    dataSourceName: 'primary',
+                    parentKey: ['articleId'],
+                    childKey: ['id'],
+                    multiValuedParentKey: false,
+                    uniqueChildKey: true,
+                    request: {
+                        type: 'mysql',
+                        database: 'contents',
+                        table: 'article',
+                        attributes: ['id', 'authorId'],
+                        filter: [
+                            [
+                                {attribute: 'id', operator: 'equal', valueFromParentKey: true}
+                            ]
+                        ]
+                    },
+                    attributeOptions: {
+                        'id': {type: 'int'},
+                        'authorId': {type: 'int'}
+                    },
+                    subRequests: [
+                        {
+                            resourceName: 'user',
+                            attributePath: ['author'],
+                            dataSourceName: 'primary',
+                            parentKey: ['authorId'],
+                            childKey: ['id'],
+                            multiValuedParentKey: false,
+                            uniqueChildKey: true,
+                            request: {
+                                type: 'mysql',
+                                database: 'contents',
+                                table: 'user',
+                                attributes: ['id', 'firstname', 'lastname'],
+                                filter: [
+                                    [
+                                        {attribute: 'id', operator: 'equal', valueFromParentKey: true}
+                                    ]
+                                ]
+                            },
+                            attributeOptions: {
+                                'id': {type: 'int'},
+                                'firstname': {type: 'string'},
+                                'lastname': {type: 'string'}
+                            }
+                        }
+                    ]
+                }]
+            };
+
+            var resolvedRequest = requestResolver(req, resourceConfigs);
+            expect(resolvedRequest.dataSourceTree).to.eql(dataSourceTree);
+            expect(resolvedRequest.resolvedConfig.attributes['author'].parentDataSource).to.equal('primary');
+        });
     });
 
     describe('handling of composite primary keys', function () {
@@ -2118,6 +2205,215 @@ describe('request-resolver', function () {
     });
 
     describe('complex request resolving', function () {
+        it('resolves two overlapping composite parentKeys in different secondary DataSources', function () {
+            var testResourceConfigs = {
+                "resource1": {
+                    "primaryKey": [["id"]],
+                    "resolvedPrimaryKey": {"primary": ["id"], "secondary1": ["id"], "secondary2": ["id"]},
+                    "dataSources": {
+                        "primary": {"type": "test"},
+                        "secondary1": {"type": "test"},
+                        "secondary2": {"type": "test"}
+                    },
+                    "attributes": {
+                        "id": {
+                            "type": "int",
+                            "map": {"default": {"primary": "id", "secondary1": "id", "secondary2": "id"}}
+                        },
+                        "firstKeyPart": {
+                            "type": "int",
+                            "map": {"default": {"secondary1": "firstKeyPart", "secondary2": "firstKeyPart"}}
+                        },
+                        "keyPart1": {
+                            "type": "int",
+                            "map": {"default": {"secondary1": "keyPart1"}}
+                        },
+                        "keyPart2": {
+                            "type": "int",
+                            "map": {"default": {"secondary2": "keyPart2"}}
+                        },
+                        "subResource1": {
+                            "primaryKey": [["firstKeyPart"], ["keyPart1"]],
+                            "resolvedPrimaryKey": {"primary": ["firstKeyPart", "keyPart1"]},
+                            "parentKey": [["firstKeyPart"], ["keyPart1"]],
+                            "resolvedParentKey": {"secondary1": ["firstKeyPart", "keyPart1"]},
+                            "childKey": [["firstKeyPart"], ["keyPart1"]],
+                            "resolvedChildKey": {"primary": ["firstKeyPart", "keyPart1"]},
+                            "dataSources": {
+                                "primary": {"type": "test"}
+                            },
+                            "attributes": {
+                                "firstKeyPart": {
+                                    "type": "int",
+                                    "map": {"default": {"primary": "firstKeyPart"}}
+                                },
+                                "keyPart1": {
+                                    "type": "int",
+                                    "map": {"default": {"primary": "keyPart1"}}
+                                },
+                                "name": {
+                                    "type": "string",
+                                    "map": {"default": {"primary": "name"}}
+                                }
+                            }
+                        },
+                        "subResource2": {
+                            "primaryKey": [["firstKeyPart"], ["keyPart2"]],
+                            "resolvedPrimaryKey": {"primary": ["firstKeyPart", "keyPart2"]},
+                            "parentKey": [["firstKeyPart"], ["keyPart2"]],
+                            "resolvedParentKey": {"secondary2": ["firstKeyPart", "keyPart2"]},
+                            "childKey": [["firstKeyPart"], ["keyPart2"]],
+                            "resolvedChildKey": {"primary": ["firstKeyPart", "keyPart2"]},
+                            "dataSources": {
+                                "primary": {"type": "test"}
+                            },
+                            "attributes": {
+                                "firstKeyPart": {
+                                    "type": "int",
+                                    "map": {"default": {"primary": "firstKeyPart"}}
+                                },
+                                "keyPart2": {
+                                    "type": "int",
+                                    "map": {"default": {"primary": "keyPart2"}}
+                                },
+                                "name": {
+                                    "type": "string",
+                                    "map": {"default": {"primary": "name"}}
+                                }
+                            }
+                        }
+                    }
+                }
+            };
+
+            // /resource1/?select=subResource1.name,subResource2.name
+            var req = {
+                resource: 'resource1',
+                select: {
+                    'subResource1': {
+                        select: {
+                            'name': {}
+                        }
+                    },
+                    'subResource2': {
+                        select: {
+                            'name': {}
+                        }
+                    }
+                }
+            };
+
+            var dataSourceTree = {
+                resourceName: 'resource1',
+                attributePath: [],
+                dataSourceName: 'primary',
+                request: {
+                    type: 'test',
+                    attributes: ['id'],
+                    limit: 10
+                },
+                attributeOptions: {
+                    'id': {type: 'int'}
+                },
+                subRequests: [{
+                    attributePath: [],
+                    dataSourceName: 'secondary1',
+                    parentKey: ['id'],
+                    childKey: ['id'],
+                    multiValuedParentKey: false,
+                    uniqueChildKey: true,
+                    request: {
+                        type: 'test',
+                        attributes: ['id', 'firstKeyPart', 'keyPart1'],
+                        filter: [
+                            [
+                                {attribute: 'id', operator: 'equal', valueFromParentKey: true}
+                            ]
+                        ]
+                    },
+                    attributeOptions: {
+                        'id': {type: 'int'},
+                        'firstKeyPart': {type: 'int'},
+                        'keyPart1': {type: 'int'}
+                    },
+                    subRequests: [
+                        {
+                            attributePath: ['subResource1'],
+                            dataSourceName: 'primary',
+                            parentKey: ['firstKeyPart', 'keyPart1'],
+                            childKey: ['firstKeyPart', 'keyPart1'],
+                            multiValuedParentKey: false,
+                            uniqueChildKey: true,
+                            request: {
+                                type: 'test',
+                                attributes: ['firstKeyPart', 'keyPart1', 'name'],
+                                filter: [
+                                    [
+                                        {attribute: ['firstKeyPart', 'keyPart1'], operator: 'equal', valueFromParentKey: true}
+                                    ]
+                                ]
+                            },
+                            attributeOptions: {
+                                'firstKeyPart': {type: 'int'},
+                                'keyPart1': {type: 'int'},
+                                'name': {type: 'string'}
+                            }
+                        }
+                    ]
+                },{
+                    attributePath: [],
+                    dataSourceName: 'secondary2',
+                    parentKey: ['id'],
+                    childKey: ['id'],
+                    multiValuedParentKey: false,
+                    uniqueChildKey: true,
+                    request: {
+                        type: 'test',
+                        attributes: ['id', 'firstKeyPart', 'keyPart2'],
+                        filter: [
+                            [
+                                {attribute: 'id', operator: 'equal', valueFromParentKey: true}
+                            ]
+                        ]
+                    },
+                    attributeOptions: {
+                        'id': {type: 'int'},
+                        'firstKeyPart': {type: 'int'},
+                        'keyPart2': {type: 'int'}
+                    },
+                    subRequests: [
+                        {
+                            attributePath: ['subResource2'],
+                            dataSourceName: 'primary',
+                            parentKey: ['firstKeyPart', 'keyPart2'],
+                            childKey: ['firstKeyPart', 'keyPart2'],
+                            multiValuedParentKey: false,
+                            uniqueChildKey: true,
+                            request: {
+                                type: 'test',
+                                attributes: ['firstKeyPart', 'keyPart2', 'name'],
+                                filter: [
+                                    [
+                                        {attribute: ['firstKeyPart', 'keyPart2'], operator: 'equal', valueFromParentKey: true}
+                                    ]
+                                ]
+                            },
+                            attributeOptions: {
+                                'firstKeyPart': {type: 'int'},
+                                'keyPart2': {type: 'int'},
+                                'name': {type: 'string'}
+                            }
+                        }
+                    ]
+                }]
+            };
+
+            var resolvedRequest = requestResolver(req, testResourceConfigs);
+            expect(resolvedRequest.dataSourceTree).to.eql(dataSourceTree);
+            expect(resolvedRequest.resolvedConfig.attributes['subResource1'].parentDataSource).to.equal('secondary1');
+            expect(resolvedRequest.resolvedConfig.attributes['subResource2'].parentDataSource).to.equal('secondary2');
+        });
+
         it('resolves full-featured request', function () {
             // /article/?
             // select=date,title,subTitle,source[name,externalId],body,author[firstname,lastname]&

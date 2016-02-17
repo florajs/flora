@@ -620,7 +620,7 @@ describe('config-parser', function () {
                 'Key attribute "childId" must not be multiValued in childKey in sub-resource "test:subResource"');
         });
 
-        it('fails if parentKey/childKey is not mapped to primary DataSources', function () {
+        it('allows parentKey mapping to secondary DataSource', function () {
             var resourceConfigs = _.cloneDeep(minimalResourceConfigs);
             resourceConfigs['test'].dataSources['secondary'] = {type: 'testDataSource'};
             resourceConfigs['test'].dataSources['secondary'].expectedAttributes = ['id', 'parentId'];
@@ -632,12 +632,31 @@ describe('config-parser', function () {
 
             expect(function () {
                 configParser(resourceConfigs, mockDataSources);
-            }).to.throw(ImplementationError,
-                'Key attribute "parentId" is not mapped to "primary" DataSource ' +
-                'in parentKey in sub-resource "test:subResource"');
+            }).to.not.throw(Error);
+        });
 
-            // same for childKey:
-            resourceConfigs = _.cloneDeep(minimalResourceConfigs);
+        it('fails if parentKey is not mappable to a single DataSource', function () {
+            var resourceConfigs = _.cloneDeep(minimalResourceConfigs);
+            resourceConfigs['test'].dataSources['secondary'] = {type: 'testDataSource'};
+            resourceConfigs['test'].dataSources['secondary'].expectedAttributes = ['id', 'parentId1'];
+            resourceConfigs['test'].dataSources['third'] = {type: 'testDataSource'};
+            resourceConfigs['test'].dataSources['third'].expectedAttributes = ['id', 'parentId2'];
+            resourceConfigs['test'].attributes['id'] = {map: 'id;secondary:id;third:id'};
+            resourceConfigs['test'].attributes['parentId1'] = {type: 'int', map: 'secondary:parentId1'};
+            resourceConfigs['test'].attributes['parentId2'] = {type: 'int', map: 'third:parentId2'};
+            resourceConfigs['test'].attributes['subResource'] = _.cloneDeep(minimalResourceConfigs['test']);
+            resourceConfigs['test'].attributes['subResource'].parentKey = 'parentId1,parentId2';
+            resourceConfigs['test'].attributes['subResource'].childKey = 'id,id'; // lazy, but ok for this test :-)
+
+            expect(function () {
+                configParser(resourceConfigs, mockDataSources);
+            }).to.throw(ImplementationError,
+                'Key is not mappable to a single DataSource ' +
+                'in parentKey in sub-resource "test:subResource"');
+        });
+
+        it('fails if childKey is not mapped to primary DataSources', function () {
+            var resourceConfigs = _.cloneDeep(minimalResourceConfigs);
             resourceConfigs['test'].attributes['subResource'] = _.cloneDeep(minimalResourceConfigs['test']);
             resourceConfigs['test'].attributes['subResource'].dataSources['secondary'] = {type: 'testDataSource'};
             resourceConfigs['test'].attributes['subResource'].dataSources['secondary'].
