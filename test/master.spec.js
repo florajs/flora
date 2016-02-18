@@ -11,6 +11,15 @@ describe('Master', function () {
     });
 
     it('should be instantiable', function () {
-        expect(new Master()).to.be.an('object');
+        expect(new Master(path.join(__dirname, 'fixtures', 'master-config.js'))).to.be.an('object');
+    });
+
+    it('should allow to register plugins', function () {
+        var plugin = {
+            register: function (master, options) {}
+        };
+
+        var master = new Master(path.join(__dirname, 'fixtures', 'master-config.js'));
+        master.register(plugin);
     });
 });

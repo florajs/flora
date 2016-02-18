@@ -128,6 +128,34 @@ describe('Api', function () {
         });
     });
 
+    describe('plugins', function () {
+        it('should allow to register plugins', function () {
+            var plugin = {
+                register: function (master, options) {
+                    //done();
+                }
+            };
+
+            var api = new Api();
+            api.register(plugin);
+        });
+
+        it('should plugins registered before init', function (done) {
+            var plugin = {
+                register: function (master, options) {
+                    done();
+                }
+            };
+
+            var api = new Api();
+            api.register(plugin);
+            api.init({
+                log: log,
+                resourcesPath: resourcesPath
+            }, function (err) {});
+        });
+    });
+
     describe('execute', function () {
         it('should fail when resource is unknown', function (done) {
             var api = new Api();
