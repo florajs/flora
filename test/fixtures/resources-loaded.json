@@ -20,7 +20,7 @@
             "statistics": {
                 "type": "mysql",
                 "database": "contents",
-                "query": "SELECT\n            articleId AS articleId,\n            COUNT(id) AS commentCount\n        FROM comments\n        GROUP BY articleId"
+                "query": "SELECT\n                articleId AS articleId,\n                COUNT(id) AS commentCount\n            FROM comments\n            GROUP BY articleId"
             }
         },
         "subFilters": [

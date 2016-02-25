@@ -14,13 +14,15 @@
     <flora:dataSource name="fulltextSearch" type="solr" core="article" searchable="true"/>
 
     <!-- Aggregate statistics for article comments -->
-    <flora:dataSource name="statistics" type="mysql" database="contents"><![CDATA[
-        SELECT
-            articleId AS articleId,
-            COUNT(id) AS commentCount
-        FROM comments
-        GROUP BY articleId
-    ]]></flora:dataSource>
+    <flora:dataSource name="statistics" type="mysql" database="contents">
+        <flora:option name="query"><![CDATA[
+            SELECT
+                articleId AS articleId,
+                COUNT(id) AS commentCount
+            FROM comments
+            GROUP BY articleId
+        ]]></flora:option>
+    </flora:dataSource>
 
 
     <!-- Enable article-filter by author IDs (filter by sub-resource primary key) -->

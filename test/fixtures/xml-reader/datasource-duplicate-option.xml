@@ -2,8 +2,7 @@
 
 <resource xmlns:flora="urn:flora:options">
     <flora:dataSource type="mysql" database="db">
-        <flora:option name="query"><![CDATA[
-            SELECT * FROM foo WHERE field = 'bar'
-        ]]></flora:option>
+        <flora:option name="query">SELECT 'foo'</flora:option>
+        <flora:option name="query">SELECT 'bar'</flora:option>
     </flora:dataSource>
 </resource>

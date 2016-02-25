@@ -49,10 +49,26 @@ describe('xml-reader', function () {
             });
         });
 
+        it('should throw an error on option w/o name attribute', function (done) {
+            xmlReader(__dirname + '/fixtures/xml-reader/datasource-option-without-name-attr.xml', function (err) {
+                expect(err).to.be.instanceof(Error);
+                expect(err.message).to.have.string('flora:option element requires a name attribute');
+                done();
+            });
+        });
+
+        it('should throw an error on duplicate option names', function (done) {
+            xmlReader(__dirname + '/fixtures/xml-reader/datasource-duplicate-option.xml', function (err) {
+                expect(err).to.be.instanceof(Error);
+                expect(err.message).to.have.string('Data source option "query" already defined');
+                done();
+            });
+        });
+
         it('should throw an error on duplicate data source names', function (done) {
             xmlReader(__dirname + '/fixtures/xml-reader/datasource-duplicates.xml', function (err) {
                 expect(err).to.be.instanceof(Error);
-                expect(err.message).to.have.string('Data source "primary" already exists');
+                expect(err.message).to.have.string('Data source "primary" already defined');
                 done();
             });
         });
