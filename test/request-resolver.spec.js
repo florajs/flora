@@ -1611,7 +1611,75 @@ describe('request-resolver', function () {
             var resolvedRequest = requestResolver(req, configs);
             expect(resolvedRequest.dataSourceTree).to.eql(dataSourceTree);
             expect(resolvedRequest.resolvedConfig.
-                attributes['author'].attributes['firstname'].selected).not.to.be.true;
+                attributes['author'].selected).not.to.be.true;
+        });
+
+        it('handles "depends" + "select" on same sub-resource', function () {
+            var configs = _.cloneDeep(resourceConfigs);
+            configs['article'].attributes['copyright'].depends =
+                {'author': {select: {'firstname': {}, 'lastname': {}}}};
+
+            // /article/?select=copyright,author.firstname
+            var req = {
+                resource: 'article',
+                select: {
+                    'copyright': {},
+                    'author': {select: {'firstname': {}}}
+                }
+            };
+
+            var dataSourceTree = {
+                resourceName: 'article',
+                attributePath: [],
+                dataSourceName: 'primary',
+                request: {
+                    type: 'mysql',
+                    database: 'contents',
+                    table: 'article',
+                    attributes: ['id', 'authorId'],
+                    limit: 10
+                },
+                attributeOptions: {
+                    'id': {type: 'int'},
+                    'authorId': {type: 'int'}
+                },
+                subRequests: [
+                    {
+                        resourceName: 'user',
+                        attributePath: ['author'],
+                        dataSourceName: 'primary',
+                        parentKey: ['authorId'],
+                        childKey: ['id'],
+                        multiValuedParentKey: false,
+                        uniqueChildKey: true,
+                        request: {
+                            type: 'mysql',
+                            database: 'contents',
+                            table: 'user',
+                            attributes: ['id', 'firstname', 'lastname'],
+                            filter: [
+                                [
+                                    {attribute: 'id', operator: 'equal', valueFromParentKey: true}
+                                ]
+                            ]
+                        },
+                        attributeOptions: {
+                            'id': {type: 'int'},
+                            'firstname': {type: 'string'},
+                            'lastname': {type: 'string'}
+                        }
+                    }
+                ]
+            };
+
+            var resolvedRequest = requestResolver(req, configs);
+            expect(resolvedRequest.dataSourceTree).to.eql(dataSourceTree);
+            expect(resolvedRequest.resolvedConfig.
+                attributes['author'].selected).to.be.true;
+            expect(resolvedRequest.resolvedConfig.
+                attributes['author'].attributes['firstname'].selected).to.be.true;
+            expect(resolvedRequest.resolvedConfig.
+                attributes['author'].attributes['lastname'].selected).not.to.be.true;
         });
     });
 
