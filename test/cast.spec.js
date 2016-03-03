@@ -3,7 +3,7 @@
 var expect = require('chai').expect;
 var cast = require('../lib/cast');
 
-describe('type casting', function () {
+describe.only('type casting', function () {
     it('casts type "string"', function () {
         expect(cast(100, {type: 'string'})).to.equal('100');
     });
@@ -128,6 +128,10 @@ describe('type casting', function () {
 
         it('splits strings by delimiter', function () {
             expect(cast('1,2,3', {type: 'string', delimiter: ','})).to.eql(['1', '2', '3']);
+        });
+
+        it('returns empty array for empty input string', function () {
+            expect(cast('', {type: 'string', delimiter: ','})).to.eql([]);
         });
     });
 
