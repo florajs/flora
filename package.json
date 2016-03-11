@@ -43,7 +43,7 @@
     "async-eventemitter": "^0.2.2",
     "bunyan": "^1.5.1",
     "chokidar": "^1.0.4",
-    "flora-cluster": "^0.5.1",
+    "flora-cluster": "^0.5.5",
     "flora-errors": "^0.2.0",
     "flora-request-parser": "^0.2.0",
     "lodash": "^4.0.0",
