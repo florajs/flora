@@ -3,7 +3,7 @@
 var path = require('path');
 var flora = require('../');
 
-var plugin = {
+var myPlugin = {
     register: function (api, options) {
         api.on('request', function (ev, next) {
             var request = ev.request;
