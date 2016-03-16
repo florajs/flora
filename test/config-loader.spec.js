@@ -3,7 +3,10 @@
 var chai = require('chai'),
     expect = chai.expect,
     configLoader = require('../lib/config-loader'),
-    fsMock = require('mock-fs');
+    fsMock = require('mock-fs'),
+    sinon = require('sinon');
+
+chai.use(require('sinon-chai'));
 
 function parseXml(file, callback) { // fake parser for tests
     setTimeout(function () {
@@ -41,6 +44,28 @@ describe('config-loader', function () {
             });
             done();
         });
+    });
+
+    it('should call the callback only once', function (done) {
+        fsMock({
+            config: {
+                resource1: { 'config.xml': '' }
+            }
+        });
+
+        var cfg = {
+            parsers: { xml: parseXml }
+        };
+
+        var callback = sinon.stub();
+        callback.onFirstCall().throws('Error');
+
+        configLoader(cfg, callback);
+
+        setTimeout(function () {
+            expect(callback).to.has.been.calledOnce;
+            done();
+        }, 20);
     });
 
     it('should read configs recursively', function (done) {
