@@ -4,9 +4,15 @@ var chai = require('chai'),
     expect = chai.expect,
     configLoader = require('../lib/config-loader'),
     fsMock = require('mock-fs'),
-    sinon = require('sinon');
+    sinon = require('sinon'),
+    bunyan = require('bunyan');
 
 chai.use(require('sinon-chai'));
+
+// mock Api instance
+var api = {
+    log: bunyan.createLogger({name: 'null', streams: []})
+};
 
 function parseXml(file, callback) { // fake parser for tests
     setTimeout(function () {
@@ -14,11 +20,11 @@ function parseXml(file, callback) { // fake parser for tests
     }, 1);
 }
 
-describe('config-loader', function () {
+describe.only('config-loader', function () {
     it('should issue an error if config directory does not exist', function (done) {
         var directory = require('path').resolve('nonexistent-directory');
 
-        configLoader({ directory: directory }, function (err) {
+        configLoader(api, { directory: directory }, function (err) {
             expect(err).to.be.instanceof(Error);
             expect(err.message).to.equal('Config directory "' + directory + '" does not exist');
             done();
@@ -37,7 +43,7 @@ describe('config-loader', function () {
             parsers: { xml: parseXml }
         };
 
-        configLoader(cfg, function (err, configs) {
+        configLoader(api, cfg, function (err, configs) {
             expect(configs).to.eql({
                 resource1: 'xml config',
                 resource2: 'xml config'
@@ -60,7 +66,7 @@ describe('config-loader', function () {
         var callback = sinon.stub();
         callback.onFirstCall().throws('Error');
 
-        configLoader(cfg, callback);
+        configLoader(api, cfg, callback);
 
         setTimeout(function () {
             expect(callback).to.has.been.calledOnce;
@@ -91,7 +97,7 @@ describe('config-loader', function () {
             parsers: { xml: parseXml }
         };
 
-        configLoader(cfg, function (err, configs) {
+        configLoader(api, cfg, function (err, configs) {
             expect(configs).to.eql({
                 'groupfolder1/resource': 'xml config',
                 'groupfolder2/groupfolder3/resource': 'xml config'
@@ -125,7 +131,7 @@ describe('config-loader', function () {
             parsers: { xml: parseXml }
         };
 
-        configLoader(cfg, function (err, configs) {
+        configLoader(api, cfg, function (err, configs) {
             expect(configs).to.eql({
                 resource1: 'xml config',
                 resource2: 'xml config'
@@ -148,7 +154,7 @@ describe('config-loader', function () {
             parsers: { xml: parseXml }
         };
 
-        configLoader(cfg, function (err, configs) {
+        configLoader(api, cfg, function (err, configs) {
             expect(configs).to.eql({
                 resource1: 'xml config'
             });
@@ -168,7 +174,7 @@ describe('config-loader', function () {
             parsers: { xml: parseXml }
         };
 
-        configLoader(cfg, function (err) {
+        configLoader(api, cfg, function (err) {
             expect(err).to.be.instanceof(Error);
             expect(err.message).to.equal('No "json" config parser registered');
             done();
@@ -194,7 +200,7 @@ describe('config-loader', function () {
             }
         };
 
-        configLoader(cfg, function (err, configs) {
+        configLoader(api, cfg, function (err, configs) {
             expect(configs).to.eql({
                 'resource1': 'xml config',
                 'resource2': 'json config'
@@ -231,7 +237,7 @@ describe('config-loader', function () {
             parsers: { xml: parseXml }
         };
 
-        configLoader(cfg, function (err, configs) {
+        configLoader(api, cfg, function (err, configs) {
             expect(configs).to.eql({
                 'groupfolder1/resource': 'xml config',
                 'groupfolder2/groupfolder3/resource': 'xml config'
@@ -247,7 +253,7 @@ describe('config-loader', function () {
             },
             resourcesLoaded = require(__dirname + '/fixtures/resources-loaded.json');
 
-        configLoader(cfg, function (err, configs) {
+        configLoader(api, cfg, function (err, configs) {
             // for manually generating fixture:
             //console.log(JSON.stringify(configs, null, 4));
 

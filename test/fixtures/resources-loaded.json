@@ -1,282 +1,284 @@
 {
     "article": {
-        "primaryKey": "id",
-        "dataSources": {
-            "primary": {
-                "type": "mysql",
-                "database": "contents",
-                "table": "article"
-            },
-            "articleBody": {
-                "type": "mysql",
-                "database": "contents",
-                "table": "article_body"
-            },
-            "fulltextSearch": {
-                "type": "solr",
-                "core": "article",
-                "searchable": "true"
-            },
-            "statistics": {
-                "type": "mysql",
-                "database": "contents",
-                "query": "SELECT\n                articleId AS articleId,\n                COUNT(id) AS commentCount\n            FROM comments\n            GROUP BY articleId"
-            }
-        },
-        "subFilters": [
-            {
-                "attribute": "author.id",
-                "filter": "true",
-                "rewriteTo": "authorId"
-            },
-            {
-                "attribute": "video.youtubeId",
-                "filter": "true"
-            },
-            {
-                "attribute": "comments.user.id",
-                "filter": "true"
-            },
-            {
-                "attribute": "categories.id",
-                "filter": "true"
-            }
-        ],
-        "attributes": {
-            "id": {
-                "type": "int",
-                "map": "id;articleBody:articleId;fulltextSearch:articleId;statistics:articleId"
-            },
-            "date": {
-                "type": "datetime",
-                "map": "timestamp",
-                "filter": "greaterOrEqual,lessOrEqual",
-                "order": "true"
-            },
-            "title": {},
-            "subTitle": {
-                "deprecated": "true",
-                "value": "null"
-            },
-            "authorId": {
-                "hidden": "true",
-                "type": "int"
-            },
-            "author": {
-                "resource": "user",
-                "parentKey": "authorId",
-                "childKey": "{primary}"
-            },
-            "categories": {
-                "primaryKey": "id",
-                "parentKey": "{primary}",
-                "childKey": "{primary}",
-                "joinVia": "articleCategories",
-                "many": "true",
-                "dataSources": {
-                    "primary": {
-                        "type": "mysql",
-                        "database": "contents",
-                        "table": "category"
-                    },
-                    "articleCategories": {
-                        "type": "mysql",
-                        "database": "contents",
-                        "table": "article_category",
-                        "joinParentKey": "articleId",
-                        "joinChildKey": "categoryId"
-                    }
+        "config": {
+            "primaryKey": "id",
+            "dataSources": {
+                "primary": {
+                    "type": "mysql",
+                    "database": "contents",
+                    "table": "article"
                 },
-                "attributes": {
-                    "articleId": {
-                        "hidden": "true",
-                        "type": "int",
-                        "map": "articleCategories:articleId"
-                    },
-                    "categoryId": {
-                        "hidden": "true",
-                        "type": "int",
-                        "map": "articleCategories:categoryId"
-                    },
-                    "id": {
-                        "type": "int"
-                    },
-                    "name": {},
-                    "isImportant": {
-                        "type": "boolean"
-                    },
-                    "order": {
-                        "type": "int",
-                        "map": "articleCategories:order"
-                    }
+                "articleBody": {
+                    "type": "mysql",
+                    "database": "contents",
+                    "table": "article_body"
+                },
+                "fulltextSearch": {
+                    "type": "solr",
+                    "core": "article",
+                    "searchable": "true"
+                },
+                "statistics": {
+                    "type": "mysql",
+                    "database": "contents",
+                    "query": "SELECT\n                articleId AS articleId,\n                COUNT(id) AS commentCount\n            FROM comments\n            GROUP BY articleId"
                 }
             },
-            "countryIsoList": {
-                "hidden": "true",
-                "multiValued": "true",
-                "type": "string",
-                "map": "countries",
-                "delimiter": ","
-            },
-            "countries": {
-                "primaryKey": "id",
-                "parentKey": "countryIsoList",
-                "childKey": "iso",
-                "many": "true",
-                "dataSources": {
-                    "primary": {
-                        "type": "mysql",
-                        "database": "contents",
-                        "table": "country"
-                    }
+            "subFilters": [
+                {
+                    "attribute": "author.id",
+                    "filter": "true",
+                    "rewriteTo": "authorId"
                 },
-                "attributes": {
-                    "id": {
-                        "type": "int"
-                    },
-                    "name": {},
-                    "iso": {},
-                    "iso3": {}
-                }
-            },
-            "body": {
-                "map": "articleBody:body"
-            },
-            "video": {
-                "primaryKey": "articleId",
-                "parentKey": "{primary}",
-                "childKey": "{primary}",
-                "dataSources": {
-                    "primary": {
-                        "type": "mysql",
-                        "database": "contents",
-                        "table": "article_video"
-                    }
+                {
+                    "attribute": "video.youtubeId",
+                    "filter": "true"
                 },
-                "attributes": {
-                    "articleId": {
-                        "hidden": "true",
-                        "type": "int"
-                    },
-                    "url": {},
-                    "previewImage": {},
-                    "youtubeId": {
-                        "filter": "true"
-                    }
-                }
-            },
-            "source": {
-                "attributes": {
-                    "name": {
-                        "map": "sourceName"
-                    },
-                    "externalId": {
-                        "map": "externalId"
-                    },
-                    "externalUrl": {
-                        "map": "externalUrl"
-                    }
-                }
-            },
-            "copyright": {
-                "depends": "author[firstname,lastname],categories.name,secretInfo",
-                "value": ""
-            },
-            "secretInfo": {
-                "hidden": "true"
-            },
-            "commentCount": {
-                "type": "int",
-                "map": "statistics:commentCount"
-            },
-            "comments": {
-                "primaryKey": "id",
-                "parentKey": "{primary}",
-                "childKey": "articleId",
-                "many": "true",
-                "dataSources": {
-                    "primary": {
-                        "type": "mysql",
-                        "database": "contents",
-                        "table": "article_comment"
-                    },
-                    "likes": {
-                        "type": "mysql",
-                        "database": "contents",
-                        "table": "comment_likes"
-                    }
+                {
+                    "attribute": "comments.user.id",
+                    "filter": "true"
                 },
-                "attributes": {
-                    "articleId": {
-                        "hidden": "true",
-                        "type": "int"
-                    },
-                    "id": {
-                        "type": "int",
-                        "map": "id;likes:commentId"
-                    },
-                    "userId": {
-                        "hidden": "true",
-                        "type": "int"
-                    },
-                    "user": {
-                        "resource": "user",
-                        "parentKey": "userId",
-                        "childKey": "{primary}"
-                    },
-                    "content": {},
-                    "likes": {
-                        "type": "int",
-                        "map": "likes:count"
-                    }
+                {
+                    "attribute": "categories.id",
+                    "filter": "true"
                 }
-            },
-            "versions": {
-                "primaryKey": "articleId,versionId",
-                "parentKey": "{primary}",
-                "childKey": "articleId",
-                "many": "true",
-                "dataSources": {
-                    "primary": {
-                        "type": "mysql",
-                        "database": "contents",
-                        "table": "article_versions"
-                    }
+            ],
+            "attributes": {
+                "id": {
+                    "type": "int",
+                    "map": "id;articleBody:articleId;fulltextSearch:articleId;statistics:articleId"
                 },
-                "attributes": {
-                    "articleId": {
-                        "hidden": "true",
-                        "type": "int"
-                    },
-                    "versionId": {
-                        "type": "int"
-                    },
-                    "title": {},
-                    "body": {},
-                    "versioninfo": {
-                        "primaryKey": "articleId,versionId",
-                        "parentKey": "{primary}",
-                        "childKey": "{primary}",
-                        "dataSources": {
-                            "primary": {
-                                "type": "mysql",
-                                "database": "contents",
-                                "table": "article_versioninfo"
-                            }
+                "date": {
+                    "type": "datetime",
+                    "map": "timestamp",
+                    "filter": "greaterOrEqual,lessOrEqual",
+                    "order": "true"
+                },
+                "title": {},
+                "subTitle": {
+                    "deprecated": "true",
+                    "value": "null"
+                },
+                "authorId": {
+                    "hidden": "true",
+                    "type": "int"
+                },
+                "author": {
+                    "resource": "user",
+                    "parentKey": "authorId",
+                    "childKey": "{primary}"
+                },
+                "categories": {
+                    "primaryKey": "id",
+                    "parentKey": "{primary}",
+                    "childKey": "{primary}",
+                    "joinVia": "articleCategories",
+                    "many": "true",
+                    "dataSources": {
+                        "primary": {
+                            "type": "mysql",
+                            "database": "contents",
+                            "table": "category"
                         },
-                        "attributes": {
-                            "articleId": {
-                                "hidden": "true",
-                                "type": "int"
+                        "articleCategories": {
+                            "type": "mysql",
+                            "database": "contents",
+                            "table": "article_category",
+                            "joinParentKey": "articleId",
+                            "joinChildKey": "categoryId"
+                        }
+                    },
+                    "attributes": {
+                        "articleId": {
+                            "hidden": "true",
+                            "type": "int",
+                            "map": "articleCategories:articleId"
+                        },
+                        "categoryId": {
+                            "hidden": "true",
+                            "type": "int",
+                            "map": "articleCategories:categoryId"
+                        },
+                        "id": {
+                            "type": "int"
+                        },
+                        "name": {},
+                        "isImportant": {
+                            "type": "boolean"
+                        },
+                        "order": {
+                            "type": "int",
+                            "map": "articleCategories:order"
+                        }
+                    }
+                },
+                "countryIsoList": {
+                    "hidden": "true",
+                    "multiValued": "true",
+                    "type": "string",
+                    "map": "countries",
+                    "delimiter": ","
+                },
+                "countries": {
+                    "primaryKey": "id",
+                    "parentKey": "countryIsoList",
+                    "childKey": "iso",
+                    "many": "true",
+                    "dataSources": {
+                        "primary": {
+                            "type": "mysql",
+                            "database": "contents",
+                            "table": "country"
+                        }
+                    },
+                    "attributes": {
+                        "id": {
+                            "type": "int"
+                        },
+                        "name": {},
+                        "iso": {},
+                        "iso3": {}
+                    }
+                },
+                "body": {
+                    "map": "articleBody:body"
+                },
+                "video": {
+                    "primaryKey": "articleId",
+                    "parentKey": "{primary}",
+                    "childKey": "{primary}",
+                    "dataSources": {
+                        "primary": {
+                            "type": "mysql",
+                            "database": "contents",
+                            "table": "article_video"
+                        }
+                    },
+                    "attributes": {
+                        "articleId": {
+                            "hidden": "true",
+                            "type": "int"
+                        },
+                        "url": {},
+                        "previewImage": {},
+                        "youtubeId": {
+                            "filter": "true"
+                        }
+                    }
+                },
+                "source": {
+                    "attributes": {
+                        "name": {
+                            "map": "sourceName"
+                        },
+                        "externalId": {
+                            "map": "externalId"
+                        },
+                        "externalUrl": {
+                            "map": "externalUrl"
+                        }
+                    }
+                },
+                "copyright": {
+                    "depends": "author[firstname,lastname],categories.name,secretInfo",
+                    "value": ""
+                },
+                "secretInfo": {
+                    "hidden": "true"
+                },
+                "commentCount": {
+                    "type": "int",
+                    "map": "statistics:commentCount"
+                },
+                "comments": {
+                    "primaryKey": "id",
+                    "parentKey": "{primary}",
+                    "childKey": "articleId",
+                    "many": "true",
+                    "dataSources": {
+                        "primary": {
+                            "type": "mysql",
+                            "database": "contents",
+                            "table": "article_comment"
+                        },
+                        "likes": {
+                            "type": "mysql",
+                            "database": "contents",
+                            "table": "comment_likes"
+                        }
+                    },
+                    "attributes": {
+                        "articleId": {
+                            "hidden": "true",
+                            "type": "int"
+                        },
+                        "id": {
+                            "type": "int",
+                            "map": "id;likes:commentId"
+                        },
+                        "userId": {
+                            "hidden": "true",
+                            "type": "int"
+                        },
+                        "user": {
+                            "resource": "user",
+                            "parentKey": "userId",
+                            "childKey": "{primary}"
+                        },
+                        "content": {},
+                        "likes": {
+                            "type": "int",
+                            "map": "likes:count"
+                        }
+                    }
+                },
+                "versions": {
+                    "primaryKey": "articleId,versionId",
+                    "parentKey": "{primary}",
+                    "childKey": "articleId",
+                    "many": "true",
+                    "dataSources": {
+                        "primary": {
+                            "type": "mysql",
+                            "database": "contents",
+                            "table": "article_versions"
+                        }
+                    },
+                    "attributes": {
+                        "articleId": {
+                            "hidden": "true",
+                            "type": "int"
+                        },
+                        "versionId": {
+                            "type": "int"
+                        },
+                        "title": {},
+                        "body": {},
+                        "versioninfo": {
+                            "primaryKey": "articleId,versionId",
+                            "parentKey": "{primary}",
+                            "childKey": "{primary}",
+                            "dataSources": {
+                                "primary": {
+                                    "type": "mysql",
+                                    "database": "contents",
+                                    "table": "article_versioninfo"
+                                }
                             },
-                            "versionId": {
-                                "hidden": "true",
-                                "type": "int"
-                            },
-                            "modified": {
-                                "type": "datetime"
-                            },
-                            "username": {}
+                            "attributes": {
+                                "articleId": {
+                                    "hidden": "true",
+                                    "type": "int"
+                                },
+                                "versionId": {
+                                    "hidden": "true",
+                                    "type": "int"
+                                },
+                                "modified": {
+                                    "type": "datetime"
+                                },
+                                "username": {}
+                            }
                         }
                     }
                 }
@@ -284,20 +286,22 @@
         }
     },
     "user": {
-        "primaryKey": "id",
-        "dataSources": {
-            "primary": {
-                "type": "mysql",
-                "database": "contents",
-                "table": "user"
-            }
-        },
-        "attributes": {
-            "id": {
-                "type": "int"
+        "config": {
+            "primaryKey": "id",
+            "dataSources": {
+                "primary": {
+                    "type": "mysql",
+                    "database": "contents",
+                    "table": "user"
+                }
             },
-            "firstname": {},
-            "lastname": {}
+            "attributes": {
+                "id": {
+                    "type": "int"
+                },
+                "firstname": {},
+                "lastname": {}
+            }
         }
     }
 }
