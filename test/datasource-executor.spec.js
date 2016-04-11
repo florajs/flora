@@ -514,6 +514,101 @@ describe('datasource-executor', function () {
         });
     });
 
+    describe('subRequests with empty condition part (undefined)', function () {
+        var dst = {
+            attributePath: [],
+            dataSourceName: 'ds1',
+            request: {
+                type: 'test',
+                table: 'article'
+            },
+            subRequests: [
+                {
+                    attributePath: ['author'],
+                    dataSourceName: 'ds2',
+                    parentKey: ['authorId'],
+                    childKey: ['id'],
+                    request: {
+                        type: 'test',
+                        table: 'user',
+                        filter: [[{attribute: 'id', operator: 'equal', valueFromParentKey: true}]]
+                    }
+                }
+            ]
+        };
+
+        before(function () {
+            sinon.stub(api.dataSources['test'], 'process', function (query, callback) {
+                if (query.table === 'article') {
+                    return callback(null, {
+                        data: [
+                            {id: 1}, // no authorId
+                            {id: 2, authorId: 1000}
+                        ],
+                        totalCount: null
+                    });
+                }
+
+                if (query.table === 'user') {
+                    expect(query.filter).to.eql([[
+                        {
+                            attribute: 'id',
+                            operator: 'equal',
+                            valueFromParentKey: true,
+                            value: [1000]
+                        }
+                    ]]);
+
+                    return callback(null, {
+                        data: [
+                            {id: 1000, username: 'user2@example.com'}
+                        ],
+                        totalCount: null
+                    });
+                }
+
+                callback(null, {
+                    data: [],
+                    totalCount: null
+                });
+            });
+        });
+
+        after(function () {
+            api.dataSources['test'].process.restore();
+        });
+
+        it('does not execute the subRequest', function (done) {
+            execute(api, {}, dst, function (err) {
+                if (err) return done(err);
+                done();
+            });
+        });
+
+        it('returns the correct result', function (done) {
+            execute(api, {}, dst, function (err, result) {
+                if (err) return done(err);
+                expect(result).to.eql([
+                    {
+                        attributePath: [],
+                        dataSourceName: 'ds1',
+                        data: [{id: 1}, {id: 2, authorId: 1000}],
+                        totalCount: null
+                    },
+                    {
+                        attributePath: ['author'],
+                        dataSourceName: 'ds2',
+                        parentKey: ['authorId'],
+                        childKey: ['id'],
+                        data: [{id: 1000, username: 'user2@example.com'}],
+                        totalCount: null
+                    }
+                ]);
+                done();
+            });
+        });
+    });
+
     describe('subRequests and subFilters', function () {
         var dst = {
             attributePath: [],
