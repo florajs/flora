@@ -1,886 +1,890 @@
 {
     "article": {
-        "primaryKey": [
-            [
-                "id"
-            ]
-        ],
-        "dataSources": {
-            "primary": {
-                "type": "mysql",
-                "database": "contents",
-                "table": "article"
-            },
-            "articleBody": {
-                "type": "mysql",
-                "database": "contents",
-                "table": "article_body"
-            },
-            "fulltextSearch": {
-                "type": "solr",
-                "core": "article",
-                "searchable": "true"
-            },
-            "statistics": {
-                "type": "mysql",
-                "database": "contents",
-                "query": "SELECT\n                articleId AS articleId,\n                COUNT(id) AS commentCount\n            FROM comments\n            GROUP BY articleId"
-            }
-        },
-        "subFilters": [
-            {
-                "attribute": [
-                    "author",
+        "config": {
+            "primaryKey": [
+                [
                     "id"
-                ],
-                "filter": [
-                    "equal"
-                ],
-                "rewriteTo": [
-                    "authorId"
                 ]
-            },
-            {
-                "attribute": [
-                    "video",
-                    "youtubeId"
-                ],
-                "filter": [
-                    "equal"
-                ]
-            },
-            {
-                "attribute": [
-                    "comments",
-                    "user",
-                    "id"
-                ],
-                "filter": [
-                    "equal"
-                ]
-            },
-            {
-                "attribute": [
-                    "categories",
-                    "id"
-                ],
-                "filter": [
-                    "equal"
-                ]
-            }
-        ],
-        "attributes": {
-            "id": {
-                "type": "int",
-                "map": {
-                    "default": {
-                        "primary": "id",
-                        "articleBody": "articleId",
-                        "fulltextSearch": "articleId",
-                        "statistics": "articleId"
-                    }
+            ],
+            "dataSources": {
+                "primary": {
+                    "type": "mysql",
+                    "database": "contents",
+                    "table": "article"
                 },
-                "filter": [
-                    "equal"
-                ]
-            },
-            "date": {
-                "type": "datetime",
-                "map": {
-                    "default": {
-                        "primary": "timestamp"
-                    }
+                "articleBody": {
+                    "type": "mysql",
+                    "database": "contents",
+                    "table": "article_body"
                 },
-                "filter": [
-                    "greaterOrEqual",
-                    "lessOrEqual"
-                ],
-                "order": [
-                    "asc",
-                    "desc"
-                ]
-            },
-            "title": {
-                "map": {
-                    "default": {
-                        "primary": "title"
-                    }
+                "fulltextSearch": {
+                    "type": "solr",
+                    "core": "article",
+                    "searchable": "true"
                 },
-                "type": "string"
-            },
-            "subTitle": {
-                "deprecated": true,
-                "value": null,
-                "type": "string"
-            },
-            "authorId": {
-                "hidden": true,
-                "type": "int",
-                "map": {
-                    "default": {
-                        "primary": "authorId"
-                    }
+                "statistics": {
+                    "type": "mysql",
+                    "database": "contents",
+                    "query": "SELECT\n                articleId AS articleId,\n                COUNT(id) AS commentCount\n            FROM comments\n            GROUP BY articleId"
                 }
             },
-            "author": {
-                "resource": "user",
-                "parentKey": [
-                    [
-                        "authorId"
-                    ]
-                ],
-                "childKey": [
-                    [
+            "subFilters": [
+                {
+                    "attribute": [
+                        "author",
                         "id"
-                    ]
-                ],
-                "resolvedParentKey": {
-                    "primary": [
+                    ],
+                    "filter": [
+                        "equal"
+                    ],
+                    "rewriteTo": [
                         "authorId"
                     ]
                 },
-                "resolvedChildKey": {
-                    "primary": [
+                {
+                    "attribute": [
+                        "video",
+                        "youtubeId"
+                    ],
+                    "filter": [
+                        "equal"
+                    ]
+                },
+                {
+                    "attribute": [
+                        "comments",
+                        "user",
                         "id"
+                    ],
+                    "filter": [
+                        "equal"
+                    ]
+                },
+                {
+                    "attribute": [
+                        "categories",
+                        "id"
+                    ],
+                    "filter": [
+                        "equal"
                     ]
                 }
-            },
-            "categories": {
-                "primaryKey": [
-                    [
-                        "id"
-                    ]
-                ],
-                "parentKey": [
-                    [
-                        "id"
-                    ]
-                ],
-                "childKey": [
-                    [
-                        "id"
-                    ]
-                ],
-                "joinVia": "articleCategories",
-                "many": true,
-                "dataSources": {
-                    "primary": {
-                        "type": "mysql",
-                        "database": "contents",
-                        "table": "category"
+            ],
+            "attributes": {
+                "id": {
+                    "type": "int",
+                    "map": {
+                        "default": {
+                            "primary": "id",
+                            "articleBody": "articleId",
+                            "fulltextSearch": "articleId",
+                            "statistics": "articleId"
+                        }
                     },
-                    "articleCategories": {
-                        "type": "mysql",
-                        "database": "contents",
-                        "table": "article_category",
-                        "joinParentKey": [
-                            [
+                    "filter": [
+                        "equal"
+                    ]
+                },
+                "date": {
+                    "type": "datetime",
+                    "map": {
+                        "default": {
+                            "primary": "timestamp"
+                        }
+                    },
+                    "filter": [
+                        "greaterOrEqual",
+                        "lessOrEqual"
+                    ],
+                    "order": [
+                        "asc",
+                        "desc"
+                    ]
+                },
+                "title": {
+                    "map": {
+                        "default": {
+                            "primary": "title"
+                        }
+                    },
+                    "type": "string"
+                },
+                "subTitle": {
+                    "deprecated": true,
+                    "value": null,
+                    "type": "string"
+                },
+                "authorId": {
+                    "hidden": true,
+                    "type": "int",
+                    "map": {
+                        "default": {
+                            "primary": "authorId"
+                        }
+                    }
+                },
+                "author": {
+                    "resource": "user",
+                    "parentKey": [
+                        [
+                            "authorId"
+                        ]
+                    ],
+                    "childKey": [
+                        [
+                            "id"
+                        ]
+                    ],
+                    "resolvedParentKey": {
+                        "primary": [
+                            "authorId"
+                        ]
+                    },
+                    "resolvedChildKey": {
+                        "primary": [
+                            "id"
+                        ]
+                    }
+                },
+                "categories": {
+                    "primaryKey": [
+                        [
+                            "id"
+                        ]
+                    ],
+                    "parentKey": [
+                        [
+                            "id"
+                        ]
+                    ],
+                    "childKey": [
+                        [
+                            "id"
+                        ]
+                    ],
+                    "joinVia": "articleCategories",
+                    "many": true,
+                    "dataSources": {
+                        "primary": {
+                            "type": "mysql",
+                            "database": "contents",
+                            "table": "category"
+                        },
+                        "articleCategories": {
+                            "type": "mysql",
+                            "database": "contents",
+                            "table": "article_category",
+                            "joinParentKey": [
+                                [
+                                    "articleId"
+                                ]
+                            ],
+                            "joinChildKey": [
+                                [
+                                    "categoryId"
+                                ]
+                            ],
+                            "resolvedJoinParentKey": [
                                 "articleId"
-                            ]
-                        ],
-                        "joinChildKey": [
-                            [
+                            ],
+                            "resolvedJoinChildKey": [
                                 "categoryId"
                             ]
+                        }
+                    },
+                    "attributes": {
+                        "articleId": {
+                            "hidden": true,
+                            "type": "int",
+                            "map": {
+                                "default": {
+                                    "articleCategories": "articleId"
+                                }
+                            }
+                        },
+                        "categoryId": {
+                            "hidden": true,
+                            "type": "int",
+                            "map": {
+                                "default": {
+                                    "articleCategories": "categoryId"
+                                }
+                            }
+                        },
+                        "id": {
+                            "type": "int",
+                            "map": {
+                                "default": {
+                                    "primary": "id"
+                                }
+                            },
+                            "filter": [
+                                "equal"
+                            ]
+                        },
+                        "name": {
+                            "map": {
+                                "default": {
+                                    "primary": "name"
+                                }
+                            },
+                            "type": "string"
+                        },
+                        "isImportant": {
+                            "type": "boolean",
+                            "map": {
+                                "default": {
+                                    "primary": "isImportant"
+                                }
+                            }
+                        },
+                        "order": {
+                            "type": "int",
+                            "map": {
+                                "default": {
+                                    "articleCategories": "order"
+                                }
+                            }
+                        }
+                    },
+                    "resolvedPrimaryKey": {
+                        "primary": [
+                            "id"
+                        ]
+                    },
+                    "resolvedParentKey": {
+                        "primary": [
+                            "id"
                         ],
-                        "resolvedJoinParentKey": [
+                        "articleBody": [
                             "articleId"
                         ],
-                        "resolvedJoinChildKey": [
-                            "categoryId"
+                        "fulltextSearch": [
+                            "articleId"
+                        ],
+                        "statistics": [
+                            "articleId"
+                        ]
+                    },
+                    "resolvedChildKey": {
+                        "primary": [
+                            "id"
                         ]
                     }
                 },
-                "attributes": {
-                    "articleId": {
-                        "hidden": true,
-                        "type": "int",
-                        "map": {
-                            "default": {
-                                "articleCategories": "articleId"
-                            }
+                "countryIsoList": {
+                    "hidden": true,
+                    "multiValued": true,
+                    "type": "string",
+                    "map": {
+                        "default": {
+                            "primary": "countries"
                         }
                     },
-                    "categoryId": {
-                        "hidden": true,
-                        "type": "int",
-                        "map": {
-                            "default": {
-                                "articleCategories": "categoryId"
-                            }
-                        }
-                    },
-                    "id": {
-                        "type": "int",
-                        "map": {
-                            "default": {
-                                "primary": "id"
-                            }
-                        },
-                        "filter": [
-                            "equal"
+                    "delimiter": ","
+                },
+                "countries": {
+                    "primaryKey": [
+                        [
+                            "id"
                         ]
-                    },
-                    "name": {
-                        "map": {
-                            "default": {
-                                "primary": "name"
-                            }
-                        },
-                        "type": "string"
-                    },
-                    "isImportant": {
-                        "type": "boolean",
-                        "map": {
-                            "default": {
-                                "primary": "isImportant"
-                            }
-                        }
-                    },
-                    "order": {
-                        "type": "int",
-                        "map": {
-                            "default": {
-                                "articleCategories": "order"
-                            }
-                        }
-                    }
-                },
-                "resolvedPrimaryKey": {
-                    "primary": [
-                        "id"
-                    ]
-                },
-                "resolvedParentKey": {
-                    "primary": [
-                        "id"
                     ],
-                    "articleBody": [
-                        "articleId"
-                    ],
-                    "fulltextSearch": [
-                        "articleId"
-                    ],
-                    "statistics": [
-                        "articleId"
-                    ]
-                },
-                "resolvedChildKey": {
-                    "primary": [
-                        "id"
-                    ]
-                }
-            },
-            "countryIsoList": {
-                "hidden": true,
-                "multiValued": true,
-                "type": "string",
-                "map": {
-                    "default": {
-                        "primary": "countries"
-                    }
-                },
-                "delimiter": ","
-            },
-            "countries": {
-                "primaryKey": [
-                    [
-                        "id"
-                    ]
-                ],
-                "parentKey": [
-                    [
-                        "countryIsoList"
-                    ]
-                ],
-                "childKey": [
-                    [
-                        "iso"
-                    ]
-                ],
-                "many": true,
-                "dataSources": {
-                    "primary": {
-                        "type": "mysql",
-                        "database": "contents",
-                        "table": "country"
-                    }
-                },
-                "attributes": {
-                    "id": {
-                        "type": "int",
-                        "map": {
-                            "default": {
-                                "primary": "id"
-                            }
-                        },
-                        "filter": [
-                            "equal"
+                    "parentKey": [
+                        [
+                            "countryIsoList"
                         ]
-                    },
-                    "name": {
-                        "map": {
-                            "default": {
-                                "primary": "name"
-                            }
-                        },
-                        "type": "string"
-                    },
-                    "iso": {
-                        "map": {
-                            "default": {
-                                "primary": "iso"
-                            }
-                        },
-                        "type": "string"
-                    },
-                    "iso3": {
-                        "map": {
-                            "default": {
-                                "primary": "iso3"
-                            }
-                        },
-                        "type": "string"
-                    }
-                },
-                "resolvedPrimaryKey": {
-                    "primary": [
-                        "id"
-                    ]
-                },
-                "resolvedParentKey": {
-                    "primary": [
-                        "countries"
-                    ]
-                },
-                "resolvedChildKey": {
-                    "primary": [
-                        "iso"
-                    ]
-                }
-            },
-            "body": {
-                "map": {
-                    "default": {
-                        "articleBody": "body"
-                    }
-                },
-                "type": "string"
-            },
-            "video": {
-                "primaryKey": [
-                    [
-                        "articleId"
-                    ]
-                ],
-                "parentKey": [
-                    [
-                        "id"
-                    ]
-                ],
-                "childKey": [
-                    [
-                        "articleId"
-                    ]
-                ],
-                "dataSources": {
-                    "primary": {
-                        "type": "mysql",
-                        "database": "contents",
-                        "table": "article_video"
-                    }
-                },
-                "attributes": {
-                    "articleId": {
-                        "hidden": true,
-                        "type": "int",
-                        "map": {
-                            "default": {
-                                "primary": "articleId"
-                            }
-                        }
-                    },
-                    "url": {
-                        "map": {
-                            "default": {
-                                "primary": "url"
-                            }
-                        },
-                        "type": "string"
-                    },
-                    "previewImage": {
-                        "map": {
-                            "default": {
-                                "primary": "previewImage"
-                            }
-                        },
-                        "type": "string"
-                    },
-                    "youtubeId": {
-                        "filter": [
-                            "equal"
-                        ],
-                        "map": {
-                            "default": {
-                                "primary": "youtubeId"
-                            }
-                        },
-                        "type": "string"
-                    }
-                },
-                "resolvedPrimaryKey": {
-                    "primary": [
-                        "articleId"
-                    ]
-                },
-                "resolvedParentKey": {
-                    "primary": [
-                        "id"
                     ],
-                    "articleBody": [
-                        "articleId"
-                    ],
-                    "fulltextSearch": [
-                        "articleId"
-                    ],
-                    "statistics": [
-                        "articleId"
-                    ]
-                },
-                "resolvedChildKey": {
-                    "primary": [
-                        "articleId"
-                    ]
-                }
-            },
-            "source": {
-                "attributes": {
-                    "name": {
-                        "map": {
-                            "default": {
-                                "primary": "sourceName"
-                            }
-                        },
-                        "type": "string"
-                    },
-                    "externalId": {
-                        "map": {
-                            "default": {
-                                "primary": "externalId"
-                            }
-                        },
-                        "type": "string"
-                    },
-                    "externalUrl": {
-                        "map": {
-                            "default": {
-                                "primary": "externalUrl"
-                            }
-                        },
-                        "type": "string"
-                    }
-                }
-            },
-            "copyright": {
-                "depends": {
-                    "author": {
-                        "select": {
-                            "firstname": {},
-                            "lastname": {}
-                        }
-                    },
-                    "categories": {
-                        "select": {
-                            "name": {}
-                        }
-                    },
-                    "secretInfo": {}
-                },
-                "value": "",
-                "type": "string"
-            },
-            "secretInfo": {
-                "hidden": true,
-                "map": {
-                    "default": {
-                        "primary": "secretInfo"
-                    }
-                },
-                "type": "string"
-            },
-            "commentCount": {
-                "type": "int",
-                "map": {
-                    "default": {
-                        "statistics": "commentCount"
-                    }
-                }
-            },
-            "comments": {
-                "primaryKey": [
-                    [
-                        "id"
-                    ]
-                ],
-                "parentKey": [
-                    [
-                        "id"
-                    ]
-                ],
-                "childKey": [
-                    [
-                        "articleId"
-                    ]
-                ],
-                "many": true,
-                "dataSources": {
-                    "primary": {
-                        "type": "mysql",
-                        "database": "contents",
-                        "table": "article_comment"
-                    },
-                    "likes": {
-                        "type": "mysql",
-                        "database": "contents",
-                        "table": "comment_likes"
-                    }
-                },
-                "attributes": {
-                    "articleId": {
-                        "hidden": true,
-                        "type": "int",
-                        "map": {
-                            "default": {
-                                "primary": "articleId"
-                            }
-                        }
-                    },
-                    "id": {
-                        "type": "int",
-                        "map": {
-                            "default": {
-                                "primary": "id",
-                                "likes": "commentId"
-                            }
-                        },
-                        "filter": [
-                            "equal"
+                    "childKey": [
+                        [
+                            "iso"
                         ]
-                    },
-                    "userId": {
-                        "hidden": true,
-                        "type": "int",
-                        "map": {
-                            "default": {
-                                "primary": "userId"
-                            }
+                    ],
+                    "many": true,
+                    "dataSources": {
+                        "primary": {
+                            "type": "mysql",
+                            "database": "contents",
+                            "table": "country"
                         }
                     },
-                    "user": {
-                        "resource": "user",
-                        "parentKey": [
-                            [
-                                "userId"
-                            ]
-                        ],
-                        "childKey": [
-                            [
-                                "id"
-                            ]
-                        ],
-                        "resolvedParentKey": {
-                            "primary": [
-                                "userId"
-                            ]
-                        },
-                        "resolvedChildKey": {
-                            "primary": [
-                                "id"
-                            ]
-                        }
-                    },
-                    "content": {
-                        "map": {
-                            "default": {
-                                "primary": "content"
-                            }
-                        },
-                        "type": "string"
-                    },
-                    "likes": {
-                        "type": "int",
-                        "map": {
-                            "default": {
-                                "likes": "count"
-                            }
-                        }
-                    }
-                },
-                "resolvedPrimaryKey": {
-                    "primary": [
-                        "id"
-                    ],
-                    "likes": [
-                        "commentId"
-                    ]
-                },
-                "resolvedParentKey": {
-                    "primary": [
-                        "id"
-                    ],
-                    "articleBody": [
-                        "articleId"
-                    ],
-                    "fulltextSearch": [
-                        "articleId"
-                    ],
-                    "statistics": [
-                        "articleId"
-                    ]
-                },
-                "resolvedChildKey": {
-                    "primary": [
-                        "articleId"
-                    ]
-                }
-            },
-            "versions": {
-                "primaryKey": [
-                    [
-                        "articleId"
-                    ],
-                    [
-                        "versionId"
-                    ]
-                ],
-                "parentKey": [
-                    [
-                        "id"
-                    ]
-                ],
-                "childKey": [
-                    [
-                        "articleId"
-                    ]
-                ],
-                "many": true,
-                "dataSources": {
-                    "primary": {
-                        "type": "mysql",
-                        "database": "contents",
-                        "table": "article_versions"
-                    }
-                },
-                "attributes": {
-                    "articleId": {
-                        "hidden": true,
-                        "type": "int",
-                        "map": {
-                            "default": {
-                                "primary": "articleId"
-                            }
-                        }
-                    },
-                    "versionId": {
-                        "type": "int",
-                        "map": {
-                            "default": {
-                                "primary": "versionId"
-                            }
-                        }
-                    },
-                    "title": {
-                        "map": {
-                            "default": {
-                                "primary": "title"
-                            }
-                        },
-                        "type": "string"
-                    },
-                    "body": {
-                        "map": {
-                            "default": {
-                                "primary": "body"
-                            }
-                        },
-                        "type": "string"
-                    },
-                    "versioninfo": {
-                        "primaryKey": [
-                            [
-                                "articleId"
-                            ],
-                            [
-                                "versionId"
-                            ]
-                        ],
-                        "parentKey": [
-                            [
-                                "articleId"
-                            ],
-                            [
-                                "versionId"
-                            ]
-                        ],
-                        "childKey": [
-                            [
-                                "articleId"
-                            ],
-                            [
-                                "versionId"
-                            ]
-                        ],
-                        "dataSources": {
-                            "primary": {
-                                "type": "mysql",
-                                "database": "contents",
-                                "table": "article_versioninfo"
-                            }
-                        },
-                        "attributes": {
-                            "articleId": {
-                                "hidden": true,
-                                "type": "int",
-                                "map": {
-                                    "default": {
-                                        "primary": "articleId"
-                                    }
+                    "attributes": {
+                        "id": {
+                            "type": "int",
+                            "map": {
+                                "default": {
+                                    "primary": "id"
                                 }
                             },
-                            "versionId": {
-                                "hidden": true,
-                                "type": "int",
-                                "map": {
-                                    "default": {
-                                        "primary": "versionId"
-                                    }
+                            "filter": [
+                                "equal"
+                            ]
+                        },
+                        "name": {
+                            "map": {
+                                "default": {
+                                    "primary": "name"
                                 }
                             },
-                            "modified": {
-                                "type": "datetime",
-                                "map": {
-                                    "default": {
-                                        "primary": "modified"
-                                    }
+                            "type": "string"
+                        },
+                        "iso": {
+                            "map": {
+                                "default": {
+                                    "primary": "iso"
                                 }
                             },
-                            "username": {
-                                "map": {
-                                    "default": {
-                                        "primary": "username"
+                            "type": "string"
+                        },
+                        "iso3": {
+                            "map": {
+                                "default": {
+                                    "primary": "iso3"
+                                }
+                            },
+                            "type": "string"
+                        }
+                    },
+                    "resolvedPrimaryKey": {
+                        "primary": [
+                            "id"
+                        ]
+                    },
+                    "resolvedParentKey": {
+                        "primary": [
+                            "countries"
+                        ]
+                    },
+                    "resolvedChildKey": {
+                        "primary": [
+                            "iso"
+                        ]
+                    }
+                },
+                "body": {
+                    "map": {
+                        "default": {
+                            "articleBody": "body"
+                        }
+                    },
+                    "type": "string"
+                },
+                "video": {
+                    "primaryKey": [
+                        [
+                            "articleId"
+                        ]
+                    ],
+                    "parentKey": [
+                        [
+                            "id"
+                        ]
+                    ],
+                    "childKey": [
+                        [
+                            "articleId"
+                        ]
+                    ],
+                    "dataSources": {
+                        "primary": {
+                            "type": "mysql",
+                            "database": "contents",
+                            "table": "article_video"
+                        }
+                    },
+                    "attributes": {
+                        "articleId": {
+                            "hidden": true,
+                            "type": "int",
+                            "map": {
+                                "default": {
+                                    "primary": "articleId"
+                                }
+                            }
+                        },
+                        "url": {
+                            "map": {
+                                "default": {
+                                    "primary": "url"
+                                }
+                            },
+                            "type": "string"
+                        },
+                        "previewImage": {
+                            "map": {
+                                "default": {
+                                    "primary": "previewImage"
+                                }
+                            },
+                            "type": "string"
+                        },
+                        "youtubeId": {
+                            "filter": [
+                                "equal"
+                            ],
+                            "map": {
+                                "default": {
+                                    "primary": "youtubeId"
+                                }
+                            },
+                            "type": "string"
+                        }
+                    },
+                    "resolvedPrimaryKey": {
+                        "primary": [
+                            "articleId"
+                        ]
+                    },
+                    "resolvedParentKey": {
+                        "primary": [
+                            "id"
+                        ],
+                        "articleBody": [
+                            "articleId"
+                        ],
+                        "fulltextSearch": [
+                            "articleId"
+                        ],
+                        "statistics": [
+                            "articleId"
+                        ]
+                    },
+                    "resolvedChildKey": {
+                        "primary": [
+                            "articleId"
+                        ]
+                    }
+                },
+                "source": {
+                    "attributes": {
+                        "name": {
+                            "map": {
+                                "default": {
+                                    "primary": "sourceName"
+                                }
+                            },
+                            "type": "string"
+                        },
+                        "externalId": {
+                            "map": {
+                                "default": {
+                                    "primary": "externalId"
+                                }
+                            },
+                            "type": "string"
+                        },
+                        "externalUrl": {
+                            "map": {
+                                "default": {
+                                    "primary": "externalUrl"
+                                }
+                            },
+                            "type": "string"
+                        }
+                    }
+                },
+                "copyright": {
+                    "depends": {
+                        "author": {
+                            "select": {
+                                "firstname": {},
+                                "lastname": {}
+                            }
+                        },
+                        "categories": {
+                            "select": {
+                                "name": {}
+                            }
+                        },
+                        "secretInfo": {}
+                    },
+                    "value": "",
+                    "type": "string"
+                },
+                "secretInfo": {
+                    "hidden": true,
+                    "map": {
+                        "default": {
+                            "primary": "secretInfo"
+                        }
+                    },
+                    "type": "string"
+                },
+                "commentCount": {
+                    "type": "int",
+                    "map": {
+                        "default": {
+                            "statistics": "commentCount"
+                        }
+                    }
+                },
+                "comments": {
+                    "primaryKey": [
+                        [
+                            "id"
+                        ]
+                    ],
+                    "parentKey": [
+                        [
+                            "id"
+                        ]
+                    ],
+                    "childKey": [
+                        [
+                            "articleId"
+                        ]
+                    ],
+                    "many": true,
+                    "dataSources": {
+                        "primary": {
+                            "type": "mysql",
+                            "database": "contents",
+                            "table": "article_comment"
+                        },
+                        "likes": {
+                            "type": "mysql",
+                            "database": "contents",
+                            "table": "comment_likes"
+                        }
+                    },
+                    "attributes": {
+                        "articleId": {
+                            "hidden": true,
+                            "type": "int",
+                            "map": {
+                                "default": {
+                                    "primary": "articleId"
+                                }
+                            }
+                        },
+                        "id": {
+                            "type": "int",
+                            "map": {
+                                "default": {
+                                    "primary": "id",
+                                    "likes": "commentId"
+                                }
+                            },
+                            "filter": [
+                                "equal"
+                            ]
+                        },
+                        "userId": {
+                            "hidden": true,
+                            "type": "int",
+                            "map": {
+                                "default": {
+                                    "primary": "userId"
+                                }
+                            }
+                        },
+                        "user": {
+                            "resource": "user",
+                            "parentKey": [
+                                [
+                                    "userId"
+                                ]
+                            ],
+                            "childKey": [
+                                [
+                                    "id"
+                                ]
+                            ],
+                            "resolvedParentKey": {
+                                "primary": [
+                                    "userId"
+                                ]
+                            },
+                            "resolvedChildKey": {
+                                "primary": [
+                                    "id"
+                                ]
+                            }
+                        },
+                        "content": {
+                            "map": {
+                                "default": {
+                                    "primary": "content"
+                                }
+                            },
+                            "type": "string"
+                        },
+                        "likes": {
+                            "type": "int",
+                            "map": {
+                                "default": {
+                                    "likes": "count"
+                                }
+                            }
+                        }
+                    },
+                    "resolvedPrimaryKey": {
+                        "primary": [
+                            "id"
+                        ],
+                        "likes": [
+                            "commentId"
+                        ]
+                    },
+                    "resolvedParentKey": {
+                        "primary": [
+                            "id"
+                        ],
+                        "articleBody": [
+                            "articleId"
+                        ],
+                        "fulltextSearch": [
+                            "articleId"
+                        ],
+                        "statistics": [
+                            "articleId"
+                        ]
+                    },
+                    "resolvedChildKey": {
+                        "primary": [
+                            "articleId"
+                        ]
+                    }
+                },
+                "versions": {
+                    "primaryKey": [
+                        [
+                            "articleId"
+                        ],
+                        [
+                            "versionId"
+                        ]
+                    ],
+                    "parentKey": [
+                        [
+                            "id"
+                        ]
+                    ],
+                    "childKey": [
+                        [
+                            "articleId"
+                        ]
+                    ],
+                    "many": true,
+                    "dataSources": {
+                        "primary": {
+                            "type": "mysql",
+                            "database": "contents",
+                            "table": "article_versions"
+                        }
+                    },
+                    "attributes": {
+                        "articleId": {
+                            "hidden": true,
+                            "type": "int",
+                            "map": {
+                                "default": {
+                                    "primary": "articleId"
+                                }
+                            }
+                        },
+                        "versionId": {
+                            "type": "int",
+                            "map": {
+                                "default": {
+                                    "primary": "versionId"
+                                }
+                            }
+                        },
+                        "title": {
+                            "map": {
+                                "default": {
+                                    "primary": "title"
+                                }
+                            },
+                            "type": "string"
+                        },
+                        "body": {
+                            "map": {
+                                "default": {
+                                    "primary": "body"
+                                }
+                            },
+                            "type": "string"
+                        },
+                        "versioninfo": {
+                            "primaryKey": [
+                                [
+                                    "articleId"
+                                ],
+                                [
+                                    "versionId"
+                                ]
+                            ],
+                            "parentKey": [
+                                [
+                                    "articleId"
+                                ],
+                                [
+                                    "versionId"
+                                ]
+                            ],
+                            "childKey": [
+                                [
+                                    "articleId"
+                                ],
+                                [
+                                    "versionId"
+                                ]
+                            ],
+                            "dataSources": {
+                                "primary": {
+                                    "type": "mysql",
+                                    "database": "contents",
+                                    "table": "article_versioninfo"
+                                }
+                            },
+                            "attributes": {
+                                "articleId": {
+                                    "hidden": true,
+                                    "type": "int",
+                                    "map": {
+                                        "default": {
+                                            "primary": "articleId"
+                                        }
                                     }
                                 },
-                                "type": "string"
+                                "versionId": {
+                                    "hidden": true,
+                                    "type": "int",
+                                    "map": {
+                                        "default": {
+                                            "primary": "versionId"
+                                        }
+                                    }
+                                },
+                                "modified": {
+                                    "type": "datetime",
+                                    "map": {
+                                        "default": {
+                                            "primary": "modified"
+                                        }
+                                    }
+                                },
+                                "username": {
+                                    "map": {
+                                        "default": {
+                                            "primary": "username"
+                                        }
+                                    },
+                                    "type": "string"
+                                }
+                            },
+                            "resolvedPrimaryKey": {
+                                "primary": [
+                                    "articleId",
+                                    "versionId"
+                                ]
+                            },
+                            "resolvedParentKey": {
+                                "primary": [
+                                    "articleId",
+                                    "versionId"
+                                ]
+                            },
+                            "resolvedChildKey": {
+                                "primary": [
+                                    "articleId",
+                                    "versionId"
+                                ]
                             }
-                        },
-                        "resolvedPrimaryKey": {
-                            "primary": [
-                                "articleId",
-                                "versionId"
-                            ]
-                        },
-                        "resolvedParentKey": {
-                            "primary": [
-                                "articleId",
-                                "versionId"
-                            ]
-                        },
-                        "resolvedChildKey": {
-                            "primary": [
-                                "articleId",
-                                "versionId"
-                            ]
                         }
+                    },
+                    "resolvedPrimaryKey": {
+                        "primary": [
+                            "articleId",
+                            "versionId"
+                        ]
+                    },
+                    "resolvedParentKey": {
+                        "primary": [
+                            "id"
+                        ],
+                        "articleBody": [
+                            "articleId"
+                        ],
+                        "fulltextSearch": [
+                            "articleId"
+                        ],
+                        "statistics": [
+                            "articleId"
+                        ]
+                    },
+                    "resolvedChildKey": {
+                        "primary": [
+                            "articleId"
+                        ]
                     }
-                },
-                "resolvedPrimaryKey": {
-                    "primary": [
-                        "articleId",
-                        "versionId"
-                    ]
-                },
-                "resolvedParentKey": {
-                    "primary": [
-                        "id"
-                    ],
-                    "articleBody": [
-                        "articleId"
-                    ],
-                    "fulltextSearch": [
-                        "articleId"
-                    ],
-                    "statistics": [
-                        "articleId"
-                    ]
-                },
-                "resolvedChildKey": {
-                    "primary": [
-                        "articleId"
-                    ]
                 }
+            },
+            "resolvedPrimaryKey": {
+                "primary": [
+                    "id"
+                ],
+                "articleBody": [
+                    "articleId"
+                ],
+                "fulltextSearch": [
+                    "articleId"
+                ],
+                "statistics": [
+                    "articleId"
+                ]
             }
-        },
-        "resolvedPrimaryKey": {
-            "primary": [
-                "id"
-            ],
-            "articleBody": [
-                "articleId"
-            ],
-            "fulltextSearch": [
-                "articleId"
-            ],
-            "statistics": [
-                "articleId"
-            ]
         }
     },
     "user": {
-        "primaryKey": [
-            [
-                "id"
-            ]
-        ],
-        "dataSources": {
-            "primary": {
-                "type": "mysql",
-                "database": "contents",
-                "table": "user"
-            }
-        },
-        "attributes": {
-            "id": {
-                "type": "int",
-                "map": {
-                    "default": {
-                        "primary": "id"
-                    }
-                },
-                "filter": [
-                    "equal"
+        "config": {
+            "primaryKey": [
+                [
+                    "id"
                 ]
+            ],
+            "dataSources": {
+                "primary": {
+                    "type": "mysql",
+                    "database": "contents",
+                    "table": "user"
+                }
             },
-            "firstname": {
-                "map": {
-                    "default": {
-                        "primary": "firstname"
-                    }
+            "attributes": {
+                "id": {
+                    "type": "int",
+                    "map": {
+                        "default": {
+                            "primary": "id"
+                        }
+                    },
+                    "filter": [
+                        "equal"
+                    ]
                 },
-                "type": "string"
+                "firstname": {
+                    "map": {
+                        "default": {
+                            "primary": "firstname"
+                        }
+                    },
+                    "type": "string"
+                },
+                "lastname": {
+                    "map": {
+                        "default": {
+                            "primary": "lastname"
+                        }
+                    },
+                    "type": "string"
+                }
             },
-            "lastname": {
-                "map": {
-                    "default": {
-                        "primary": "lastname"
-                    }
-                },
-                "type": "string"
+            "resolvedPrimaryKey": {
+                "primary": [
+                    "id"
+                ]
             }
-        },
-        "resolvedPrimaryKey": {
-            "primary": [
-                "id"
-            ]
         }
     }
 }

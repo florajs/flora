@@ -7,7 +7,6 @@ var ImplementationError = require('flora-errors').ImplementationError;
 var _ = require('lodash');
 var expect = require('chai').expect;
 
-
 describe('request-resolver', function () {
     var resourceConfigs = require('./fixtures/resources-parsed.json');
 
@@ -26,10 +25,10 @@ describe('request-resolver', function () {
         it('handles resource-includes at top level (also recursive)', function () {
             var configs = {
                 "resource1": {
-                    "resource": "resource2"
+                    config: {"resource": "resource2"}
                 },
                 "resource2": {
-                    "resource": "real-resource"
+                    config: {"resource": "real-resource"}
                 },
                 "real-resource": resourceConfigs['user']
             };
@@ -59,7 +58,7 @@ describe('request-resolver', function () {
         it('fails on unknown included resource with different error', function () {
             var configs = {
                 "existing": {
-                    "resource": "non-existing"
+                    config: {"resource": "non-existing"}
                 }
             };
 
@@ -73,10 +72,12 @@ describe('request-resolver', function () {
         it('fails on unknown included sub-resource with different error', function () {
             var configs = {
                 "existing": {
-                    "dataSources": resourceConfigs['user'].dataSources,
-                    "attributes": {
-                        "existingAttribute": {
-                            "resource": "non-existing"
+                    config: {
+                        "dataSources": resourceConfigs['user'].config.dataSources,
+                        "attributes": {
+                            "existingAttribute": {
+                                "resource": "non-existing"
+                            }
                         }
                     }
                 }
@@ -97,10 +98,10 @@ describe('request-resolver', function () {
         it('fails on endless recursion in resource-includes at top level', function () {
             var configs = {
                 "resource1": {
-                    "resource": "resource2"
+                    config: {"resource": "resource2"}
                 },
                 "resource2": {
-                    "resource": "resource1"
+                    config: {"resource": "resource1"}
                 }
             };
 
@@ -113,7 +114,7 @@ describe('request-resolver', function () {
 
         it('fails if no DataSources defined at root', function () {
             var configs = _.cloneDeep(resourceConfigs);
-            delete configs['article'].dataSources;
+            delete configs['article'].config.dataSources;
 
             var req = {resource: 'article'};
 
@@ -145,41 +146,45 @@ describe('request-resolver', function () {
     describe('merging of included sub-resources', function () {
         var mergeResourceConfigs = {
             "resource1": {
-                "primaryKey": [["id"]],
-                "resolvedPrimaryKey": {"primary": ["id"]},
-                "dataSources": {
-                    "primary": {"type": "test"}
-                },
-                "attributes": {
-                    "id": {
-                        "type": "int",
-                        "map": {"default": {"primary": "id"}}
+                config: {
+                    "primaryKey": [["id"]],
+                    "resolvedPrimaryKey": {"primary": ["id"]},
+                    "dataSources": {
+                        "primary": {"type": "test"}
                     },
-                    "resource2": {
-                        "resource": "resource2",
-                        "parentKey": [["id"]],
-                        "resolvedParentKey": {"primary": ["id"]},
-                        "childKey": [["id"]],
-                        "resolvedChildKey": {"primary": ["id"]}
+                    "attributes": {
+                        "id": {
+                            "type": "int",
+                            "map": {"default": {"primary": "id"}}
+                        },
+                        "resource2": {
+                            "resource": "resource2",
+                            "parentKey": [["id"]],
+                            "resolvedParentKey": {"primary": ["id"]},
+                            "childKey": [["id"]],
+                            "resolvedChildKey": {"primary": ["id"]}
+                        }
                     }
                 }
             },
             "resource2": {
-                "primaryKey": [["id"]],
-                "resolvedPrimaryKey": {"primary": ["id"]},
-                "dataSources": {
-                    "primary": {"type": "test"}
-                },
-                "attributes": {
-                    "id": {
-                        "type": "int",
-                        "map": {"default": {"primary": "id"}}
+                config: {
+                    "primaryKey": [["id"]],
+                    "resolvedPrimaryKey": {"primary": ["id"]},
+                    "dataSources": {
+                        "primary": {"type": "test"}
                     },
-                    "attr1": {
-                        "map": {"default": {"primary": "attr1"}}
-                    },
-                    "attr2": {
-                        "map": {"default": {"primary": "attr2"}}
+                    "attributes": {
+                        "id": {
+                            "type": "int",
+                            "map": {"default": {"primary": "id"}}
+                        },
+                        "attr1": {
+                            "map": {"default": {"primary": "attr1"}}
+                        },
+                        "attr2": {
+                            "map": {"default": {"primary": "attr2"}}
+                        }
                     }
                 }
             }
@@ -194,7 +199,7 @@ describe('request-resolver', function () {
 
         it('allows additional attributes, but keeps order from sub-resource', function () {
             var configs = _.cloneDeep(mergeResourceConfigs);
-            configs['resource1'].attributes['resource2'].attributes = {'attr3': {value: 'test'}};
+            configs['resource1'].config.attributes['resource2'].attributes = {'attr3': {value: 'test'}};
 
             var expectedOrder = ['id', 'attr1', 'attr2', 'attr3'];
 
@@ -205,7 +210,7 @@ describe('request-resolver', function () {
 
         it('does not allow overwriting of attributes', function () {
             var configs = _.cloneDeep(mergeResourceConfigs);
-            configs['resource1'].attributes['resource2'].attributes = {'attr1': {value: 'test'}};
+            configs['resource1'].config.attributes['resource2'].attributes = {'attr1': {value: 'test'}};
 
             expect(function () {
                 requestResolver(mergeRequest, configs);
@@ -214,7 +219,7 @@ describe('request-resolver', function () {
 
         it('allows additional DataSources', function () {
             var configs = _.cloneDeep(mergeResourceConfigs);
-            configs['resource1'].attributes['resource2'].dataSources = {'test': {type: 'test'}};
+            configs['resource1'].config.attributes['resource2'].dataSources = {'test': {type: 'test'}};
 
             var resolvedRequest = requestResolver(mergeRequest, configs);
             expect(resolvedRequest.resolvedConfig.attributes['resource2'].dataSources)
@@ -223,7 +228,7 @@ describe('request-resolver', function () {
 
         it('does not allow overwriting of DataSources', function () {
             var configs = _.cloneDeep(mergeResourceConfigs);
-            configs['resource1'].attributes['resource2'].dataSources = {'primary': {type: 'test'}};
+            configs['resource1'].config.attributes['resource2'].dataSources = {'primary': {type: 'test'}};
 
             expect(function () {
                 requestResolver(mergeRequest, configs);
@@ -606,7 +611,7 @@ describe('request-resolver', function () {
     describe('limit, defaultLimit and maxLimit', function () {
         it('uses defaultLimit if no limit is given', function () {
             var resourceConfigs2 = _.cloneDeep(resourceConfigs);
-            resourceConfigs2['article'].defaultLimit = 42;
+            resourceConfigs2['article'].config.defaultLimit = 42;
 
             var req = {
                 resource: 'article'
@@ -621,7 +626,7 @@ describe('request-resolver', function () {
 
         it('uses limit to override defaultLimit', function () {
             var resourceConfigs2 = _.cloneDeep(resourceConfigs);
-            resourceConfigs2['article'].defaultLimit = 42;
+            resourceConfigs2['article'].config.defaultLimit = 42;
 
             var req = {
                 resource: 'article',
@@ -637,7 +642,7 @@ describe('request-resolver', function () {
 
         it('uses maxLimit if no limit is given', function () {
             var resourceConfigs2 = _.cloneDeep(resourceConfigs);
-            resourceConfigs2['article'].maxLimit = 43;
+            resourceConfigs2['article'].config.maxLimit = 43;
 
             var req = {
                 resource: 'article',
@@ -652,8 +657,8 @@ describe('request-resolver', function () {
 
         it('uses defaultLimit even if maxLimit is given', function () {
             var resourceConfigs2 = _.cloneDeep(resourceConfigs);
-            resourceConfigs2['article'].maxLimit = 43;
-            resourceConfigs2['article'].defaultLimit = 40;
+            resourceConfigs2['article'].config.maxLimit = 43;
+            resourceConfigs2['article'].config.defaultLimit = 40;
 
             var req = {
                 resource: 'article',
@@ -668,7 +673,7 @@ describe('request-resolver', function () {
 
         it('uses limit if limit <= maxLimit', function () {
             var resourceConfigs2 = _.cloneDeep(resourceConfigs);
-            resourceConfigs2['article'].maxLimit = 45;
+            resourceConfigs2['article'].config.maxLimit = 45;
 
             var req = {
                 resource: 'article',
@@ -684,7 +689,7 @@ describe('request-resolver', function () {
 
         it('fails if limit > maxLimit', function () {
             var resourceConfigs2 = _.cloneDeep(resourceConfigs);
-            resourceConfigs2['article'].maxLimit = 43;
+            resourceConfigs2['article'].config.maxLimit = 43;
 
             var req = {
                 resource: 'article',
@@ -742,7 +747,7 @@ describe('request-resolver', function () {
 
         it('uses defaultLimit if no limit is given', function () {
             var resourceConfigs2 = _.cloneDeep(resourceConfigs);
-            resourceConfigs2['article'].attributes['comments'].defaultLimit = 42;
+            resourceConfigs2['article'].config.attributes['comments'].defaultLimit = 42;
 
             var req = {
                 resource: 'article',
@@ -761,7 +766,7 @@ describe('request-resolver', function () {
 
         it('uses limit to override defaultLimit', function () {
             var resourceConfigs2 = _.cloneDeep(resourceConfigs);
-            resourceConfigs2['article'].attributes['comments'].defaultLimit = 42;
+            resourceConfigs2['article'].config.attributes['comments'].defaultLimit = 42;
 
             var req = {
                 resource: 'article',
@@ -782,7 +787,7 @@ describe('request-resolver', function () {
 
         it('uses maxLimit if no limit is given', function () {
             var resourceConfigs2 = _.cloneDeep(resourceConfigs);
-            resourceConfigs2['article'].attributes['comments'].maxLimit = 43;
+            resourceConfigs2['article'].config.attributes['comments'].maxLimit = 43;
 
             var req = {
                 resource: 'article',
@@ -801,8 +806,8 @@ describe('request-resolver', function () {
 
         it('uses defaultLimit even if maxLimit is given', function () {
             var resourceConfigs2 = _.cloneDeep(resourceConfigs);
-            resourceConfigs2['article'].attributes['comments'].maxLimit = 43;
-            resourceConfigs2['article'].attributes['comments'].defaultLimit = 40;
+            resourceConfigs2['article'].config.attributes['comments'].maxLimit = 43;
+            resourceConfigs2['article'].config.attributes['comments'].defaultLimit = 40;
 
             var req = {
                 resource: 'article',
@@ -821,7 +826,7 @@ describe('request-resolver', function () {
 
         it('uses limit if limit <= maxLimit', function () {
             var resourceConfigs2 = _.cloneDeep(resourceConfigs);
-            resourceConfigs2['article'].attributes['comments'].maxLimit = 45;
+            resourceConfigs2['article'].config.attributes['comments'].maxLimit = 45;
 
             var req = {
                 resource: 'article',
@@ -842,7 +847,7 @@ describe('request-resolver', function () {
 
         it('fails if limit > maxLimit', function () {
             var resourceConfigs2 = _.cloneDeep(resourceConfigs);
-            resourceConfigs2['article'].attributes['comments'].maxLimit = 45;
+            resourceConfigs2['article'].config.attributes['comments'].maxLimit = 45;
 
             var req = {
                 resource: 'article',
@@ -879,7 +884,7 @@ describe('request-resolver', function () {
     describe('defaultOrder', function () {
         it('uses defaultOrder if no order is given', function () {
             var resourceConfigs2 = _.cloneDeep(resourceConfigs);
-            resourceConfigs2['article']['defaultOrder'] = [{
+            resourceConfigs2['article'].config['defaultOrder'] = [{
                 attribute: ['date'],
                 direction: 'asc'
             }];
@@ -1481,7 +1486,7 @@ describe('request-resolver', function () {
     describe('handling of dependencies', function () {
         it('selects dependant attributes internally (but not externally)', function () {
             var configs = _.cloneDeep(resourceConfigs);
-            configs['article'].attributes['copyright'].depends =
+            configs['article'].config.attributes['copyright'].depends =
                 {'date': {}};
 
             // /article/?select=copyright
@@ -1517,7 +1522,7 @@ describe('request-resolver', function () {
 
         it('allows to depend on hidden attributes', function () {
             var configs = _.cloneDeep(resourceConfigs);
-            configs['article'].attributes['copyright'].depends =
+            configs['article'].config.attributes['copyright'].depends =
                 {'secretInfo': {}};
 
             // /article/?select=copyright
@@ -1553,7 +1558,7 @@ describe('request-resolver', function () {
 
         it('selects dependant sub-resources internally', function () {
             var configs = _.cloneDeep(resourceConfigs);
-            configs['article'].attributes['copyright'].depends =
+            configs['article'].config.attributes['copyright'].depends =
                 {'author': {select: {'firstname': {}, 'lastname': {}}}};
 
             // /article/?select=copyright
@@ -1616,7 +1621,7 @@ describe('request-resolver', function () {
 
         it('handles "depends" + "select" on same sub-resource', function () {
             var configs = _.cloneDeep(resourceConfigs);
-            configs['article'].attributes['copyright'].depends =
+            configs['article'].config.attributes['copyright'].depends =
                 {'author': {select: {'firstname': {}, 'lastname': {}}}};
 
             // /article/?select=copyright,author.firstname
@@ -1978,7 +1983,7 @@ describe('request-resolver', function () {
     describe('filter by sub-resources', function () {
         it('resolves filter by sub-resource primary key without "rewriteTo"', function () {
             var configs = _.cloneDeep(resourceConfigs);
-            delete configs['article'].subFilters[0].rewriteTo;
+            delete configs['article'].config.subFilters[0].rewriteTo;
 
             // /article/?filter=author.id=11,12,13
             var req = {
@@ -2276,77 +2281,79 @@ describe('request-resolver', function () {
         it('resolves two overlapping composite parentKeys in different secondary DataSources', function () {
             var testResourceConfigs = {
                 "resource1": {
-                    "primaryKey": [["id"]],
-                    "resolvedPrimaryKey": {"primary": ["id"], "secondary1": ["id"], "secondary2": ["id"]},
-                    "dataSources": {
-                        "primary": {"type": "test"},
-                        "secondary1": {"type": "test"},
-                        "secondary2": {"type": "test"}
-                    },
-                    "attributes": {
-                        "id": {
-                            "type": "int",
-                            "map": {"default": {"primary": "id", "secondary1": "id", "secondary2": "id"}}
+                    config: {
+                        "primaryKey": [["id"]],
+                        "resolvedPrimaryKey": {"primary": ["id"], "secondary1": ["id"], "secondary2": ["id"]},
+                        "dataSources": {
+                            "primary": {"type": "test"},
+                            "secondary1": {"type": "test"},
+                            "secondary2": {"type": "test"}
                         },
-                        "firstKeyPart": {
-                            "type": "int",
-                            "map": {"default": {"secondary1": "firstKeyPart", "secondary2": "firstKeyPart"}}
-                        },
-                        "keyPart1": {
-                            "type": "int",
-                            "map": {"default": {"secondary1": "keyPart1"}}
-                        },
-                        "keyPart2": {
-                            "type": "int",
-                            "map": {"default": {"secondary2": "keyPart2"}}
-                        },
-                        "subResource1": {
-                            "primaryKey": [["firstKeyPart"], ["keyPart1"]],
-                            "resolvedPrimaryKey": {"primary": ["firstKeyPart", "keyPart1"]},
-                            "parentKey": [["firstKeyPart"], ["keyPart1"]],
-                            "resolvedParentKey": {"secondary1": ["firstKeyPart", "keyPart1"]},
-                            "childKey": [["firstKeyPart"], ["keyPart1"]],
-                            "resolvedChildKey": {"primary": ["firstKeyPart", "keyPart1"]},
-                            "dataSources": {
-                                "primary": {"type": "test"}
+                        "attributes": {
+                            "id": {
+                                "type": "int",
+                                "map": {"default": {"primary": "id", "secondary1": "id", "secondary2": "id"}}
                             },
-                            "attributes": {
-                                "firstKeyPart": {
-                                    "type": "int",
-                                    "map": {"default": {"primary": "firstKeyPart"}}
+                            "firstKeyPart": {
+                                "type": "int",
+                                "map": {"default": {"secondary1": "firstKeyPart", "secondary2": "firstKeyPart"}}
+                            },
+                            "keyPart1": {
+                                "type": "int",
+                                "map": {"default": {"secondary1": "keyPart1"}}
+                            },
+                            "keyPart2": {
+                                "type": "int",
+                                "map": {"default": {"secondary2": "keyPart2"}}
+                            },
+                            "subResource1": {
+                                "primaryKey": [["firstKeyPart"], ["keyPart1"]],
+                                "resolvedPrimaryKey": {"primary": ["firstKeyPart", "keyPart1"]},
+                                "parentKey": [["firstKeyPart"], ["keyPart1"]],
+                                "resolvedParentKey": {"secondary1": ["firstKeyPart", "keyPart1"]},
+                                "childKey": [["firstKeyPart"], ["keyPart1"]],
+                                "resolvedChildKey": {"primary": ["firstKeyPart", "keyPart1"]},
+                                "dataSources": {
+                                    "primary": {"type": "test"}
                                 },
-                                "keyPart1": {
-                                    "type": "int",
-                                    "map": {"default": {"primary": "keyPart1"}}
-                                },
-                                "name": {
-                                    "type": "string",
-                                    "map": {"default": {"primary": "name"}}
+                                "attributes": {
+                                    "firstKeyPart": {
+                                        "type": "int",
+                                        "map": {"default": {"primary": "firstKeyPart"}}
+                                    },
+                                    "keyPart1": {
+                                        "type": "int",
+                                        "map": {"default": {"primary": "keyPart1"}}
+                                    },
+                                    "name": {
+                                        "type": "string",
+                                        "map": {"default": {"primary": "name"}}
+                                    }
                                 }
-                            }
-                        },
-                        "subResource2": {
-                            "primaryKey": [["firstKeyPart"], ["keyPart2"]],
-                            "resolvedPrimaryKey": {"primary": ["firstKeyPart", "keyPart2"]},
-                            "parentKey": [["firstKeyPart"], ["keyPart2"]],
-                            "resolvedParentKey": {"secondary2": ["firstKeyPart", "keyPart2"]},
-                            "childKey": [["firstKeyPart"], ["keyPart2"]],
-                            "resolvedChildKey": {"primary": ["firstKeyPart", "keyPart2"]},
-                            "dataSources": {
-                                "primary": {"type": "test"}
                             },
-                            "attributes": {
-                                "firstKeyPart": {
-                                    "type": "int",
-                                    "map": {"default": {"primary": "firstKeyPart"}}
+                            "subResource2": {
+                                "primaryKey": [["firstKeyPart"], ["keyPart2"]],
+                                "resolvedPrimaryKey": {"primary": ["firstKeyPart", "keyPart2"]},
+                                "parentKey": [["firstKeyPart"], ["keyPart2"]],
+                                "resolvedParentKey": {"secondary2": ["firstKeyPart", "keyPart2"]},
+                                "childKey": [["firstKeyPart"], ["keyPart2"]],
+                                "resolvedChildKey": {"primary": ["firstKeyPart", "keyPart2"]},
+                                "dataSources": {
+                                    "primary": {"type": "test"}
                                 },
-                                "keyPart2": {
-                                    "type": "int",
-                                    "map": {"default": {"primary": "keyPart2"}}
-                                },
-                                "name": {
-                                    "type": "string",
-                                    "map": {"default": {"primary": "name"}}
+                                "attributes": {
+                                    "firstKeyPart": {
+                                        "type": "int",
+                                        "map": {"default": {"primary": "firstKeyPart"}}
+                                    },
+                                    "keyPart2": {
+                                        "type": "int",
+                                        "map": {"default": {"primary": "keyPart2"}}
+                                    },
+                                    "name": {
+                                        "type": "string",
+                                        "map": {"default": {"primary": "name"}}
+                                    }
                                 }
                             }
                         }
