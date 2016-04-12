@@ -20,7 +20,7 @@ function parseXml(file, callback) { // fake parser for tests
     }, 1);
 }
 
-describe.only('config-loader', function () {
+describe('config-loader', function () {
     it('should issue an error if config directory does not exist', function (done) {
         var directory = require('path').resolve('nonexistent-directory');
 
@@ -45,8 +45,8 @@ describe.only('config-loader', function () {
 
         configLoader(api, cfg, function (err, configs) {
             expect(configs).to.eql({
-                resource1: 'xml config',
-                resource2: 'xml config'
+                resource1: {config: 'xml config'},
+                resource2: {config: 'xml config'}
             });
             done();
         });
@@ -99,8 +99,8 @@ describe.only('config-loader', function () {
 
         configLoader(api, cfg, function (err, configs) {
             expect(configs).to.eql({
-                'groupfolder1/resource': 'xml config',
-                'groupfolder2/groupfolder3/resource': 'xml config'
+                'groupfolder1/resource': {config: 'xml config'},
+                'groupfolder2/groupfolder3/resource': {config: 'xml config'}
             });
             done();
         });
@@ -133,8 +133,8 @@ describe.only('config-loader', function () {
 
         configLoader(api, cfg, function (err, configs) {
             expect(configs).to.eql({
-                resource1: 'xml config',
-                resource2: 'xml config'
+                resource1: {config: 'xml config'},
+                resource2: {config: 'xml config'}
             });
             done();
         });
@@ -156,7 +156,7 @@ describe.only('config-loader', function () {
 
         configLoader(api, cfg, function (err, configs) {
             expect(configs).to.eql({
-                resource1: 'xml config'
+                resource1: {config: 'xml config'}
             });
             done();
         });
@@ -202,8 +202,8 @@ describe.only('config-loader', function () {
 
         configLoader(api, cfg, function (err, configs) {
             expect(configs).to.eql({
-                'resource1': 'xml config',
-                'resource2': 'json config'
+                'resource1': {config: 'xml config'},
+                'resource2': {config: 'json config'}
             });
             done();
         });
@@ -213,18 +213,12 @@ describe.only('config-loader', function () {
         fsMock({
             config: {
                 groupfolder1: {
-                    resource: {
-                        'config.xml': '',
-                        'index.js': ''
-                    }
+                    resource: {'config.xml': ''}
                 },
                 groupfolder2: {
                     groupfolder3: {
                         'readme.txt': '',
-                        resource: {
-                            'config.xml': '',
-                            'index.js': ''
-                        }
+                        resource: {'config.xml': ''}
                     }
                 },
                 subDirectory3: { // omit in result
@@ -239,8 +233,8 @@ describe.only('config-loader', function () {
 
         configLoader(api, cfg, function (err, configs) {
             expect(configs).to.eql({
-                'groupfolder1/resource': 'xml config',
-                'groupfolder2/groupfolder3/resource': 'xml config'
+                'groupfolder1/resource': {config: 'xml config'},
+                'groupfolder2/groupfolder3/resource': {config: 'xml config'}
             });
             done();
         });
