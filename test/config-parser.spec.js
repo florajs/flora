@@ -112,7 +112,7 @@ describe('config-parser', function () {
         });
     });
 
-    describe.only('options in resource-context', function () {
+    describe('options in resource-context', function () {
         it('fails on invalid options in resource-context', function () {
             var resourceConfigs = _.cloneDeep(minimalResourceConfigs);
 
