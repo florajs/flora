@@ -4,7 +4,7 @@ module.exports = function (api) {
     return {
         extensions: {
             // "init" extension (sync or async)
-            // is called once, when the resource is invoked for the first time
+            // is called once upon startup, when all resources are initialized
             init: function (cb) {
                 console.log('Extension: init');
                 cb();
