@@ -3,20 +3,20 @@
 module.exports = function (api) {
     return {
         extensions: {
-            // "init" extension
+            // "init" extension (sync or async)
             // is called once, when the resource is invoked for the first time
             init: function (cb) {
                 console.log('Extension: init');
                 cb();
             },
 
-            // "request" extension
+            // "request" extension (sync)
             request: function (ev) {
                 var request = ev.request;
                 console.log('Extension: request (resource scope)');
             },
 
-            // "item" extension
+            // "item" extension (sync)
             // is called for every item that is handled by the resource-processor, also when the
             // resource is called as sub-resource from another resource.
             item: function (ev) {
@@ -26,7 +26,7 @@ module.exports = function (api) {
                 item.bar = 'baz';
             },
 
-            // "preExecute" extension
+            // "preExecute" extension (sync)
             // is called after the request-resolver has resolved the dataSourceTree.
             preExecute: function (ev) {
                 var request = ev.request;
@@ -34,7 +34,7 @@ module.exports = function (api) {
                 console.log('Extension: preExecute (resource scope)');
             },
 
-            // "postExecute" extension
+            // "postExecute" extension (sync)
             // is called after the request has been executed and before the response is being built
             postExecute: function (ev) {
                 var request = ev.request;
@@ -42,7 +42,7 @@ module.exports = function (api) {
                 console.log('Extension: postExecute (resource scope)');
             },
 
-            // "response" extension
+            // "response" extension (sync)
             response: function (ev) {
                 var request = ev.request;
                 var response = ev.response;
