@@ -26,40 +26,44 @@ var mockDataSources = {
 
 var minimalResourceConfigs = {
     "test": {
-        "primaryKey": "id",
-        "dataSources": {
-            "primary": {
-                "type": "testDataSource",
-                expectedAttributes: ['id']
-            }
-        },
-        "attributes": {
-            "id": {
-                "type": "int"
+        "config": {
+            "primaryKey": "id",
+            "dataSources": {
+                "primary": {
+                    "type": "testDataSource",
+                    expectedAttributes: ['id']
+                }
+            },
+            "attributes": {
+                "id": {
+                    "type": "int"
+                }
             }
         }
     }
 };
 var minimalResourceConfigsParsed = {
     "test": {
-        "primaryKey": [["id"]],
-        "resolvedPrimaryKey": {
-            "primary": ["id"]
-        },
-        "dataSources": {
-            "primary": {
-                "type": "testDataSource"
-            }
-        },
-        "attributes": {
-            "id": {
-                "type": "int",
-                "map": {
-                    "default": {
-                        "primary": "id"
-                    }
-                },
-                "filter": ["equal"]
+        config: {
+            "primaryKey": [["id"]],
+            "resolvedPrimaryKey": {
+                "primary": ["id"]
+            },
+            "dataSources": {
+                "primary": {
+                    "type": "testDataSource"
+                }
+            },
+            "attributes": {
+                "id": {
+                    "type": "int",
+                    "map": {
+                        "default": {
+                            "primary": "id"
+                        }
+                    },
+                    "filter": ["equal"]
+                }
             }
         }
     }
@@ -79,13 +83,13 @@ describe('config-parser', function () {
         it('parses minimal "symlink"-resource', function () {
             var resourceConfigs = {
                 "test": {
-                    "resource": "test2"
+                    config: {"resource": "test2"}
                 },
                 "test2": _.cloneDeep(minimalResourceConfigs['test'])
             };
             var resourceConfigsParsed = {
                 "test": {
-                    "resource": "test2"
+                    config: {"resource": "test2"}
                 },
                 "test2": _.cloneDeep(minimalResourceConfigsParsed['test'])
             };
@@ -98,7 +102,7 @@ describe('config-parser', function () {
         it('fails on unknown "symlink"-resource', function () {
             var resourceConfigs = {
                 "test": {
-                    "resource": "test2"
+                    config: {"resource": "test2"}
                 }
             };
 
@@ -108,11 +112,11 @@ describe('config-parser', function () {
         });
     });
 
-    describe('options in resource-context', function () {
+    describe.only('options in resource-context', function () {
         it('fails on invalid options in resource-context', function () {
             var resourceConfigs = _.cloneDeep(minimalResourceConfigs);
 
-            resourceConfigs['test'].type = 'int';
+            resourceConfigs['test'].config.type = 'int';
 
             expect(function () {
                 configParser(resourceConfigs, mockDataSources);
@@ -122,7 +126,7 @@ describe('config-parser', function () {
         it('fails on unknown sub-resource', function () {
             var resourceConfigs = _.cloneDeep(minimalResourceConfigs);
 
-            resourceConfigs['test'].attributes['subResource'] = {resource: 'unknown'};
+            resourceConfigs['test'].config.attributes['subResource'] = {resource: 'unknown'};
 
             expect(function () {
                 configParser(resourceConfigs, mockDataSources);
@@ -132,7 +136,7 @@ describe('config-parser', function () {
         it('fails on DataSources without "type" option', function () {
             var resourceConfigs = _.cloneDeep(minimalResourceConfigs);
 
-            resourceConfigs['test'].dataSources['articleBody'] = {};
+            resourceConfigs['test'].config.dataSources['articleBody'] = {};
 
             expect(function () {
                 configParser(resourceConfigs, mockDataSources);
@@ -142,7 +146,7 @@ describe('config-parser', function () {
         it('fails on unknown DataSource types', function () {
             var resourceConfigs = _.cloneDeep(minimalResourceConfigs);
 
-            resourceConfigs['test'].dataSources['primary'] = {type: 'unknown'};
+            resourceConfigs['test'].config.dataSources['primary'] = {type: 'unknown'};
 
             expect(function () {
                 configParser(resourceConfigs, mockDataSources);
@@ -153,13 +157,13 @@ describe('config-parser', function () {
             var resourceConfigs = _.cloneDeep(minimalResourceConfigs);
             var resourceConfigsParsed = _.cloneDeep(minimalResourceConfigsParsed);
 
-            resourceConfigs['test'].subFilters = [{
+            resourceConfigs['test'].config.subFilters = [{
                 attribute: 'author.groupId',
                 filter: 'true',
                 rewriteTo: 'authorGroupId'
             }];
 
-            resourceConfigsParsed['test'].subFilters = [{
+            resourceConfigsParsed['test'].config.subFilters = [{
                 attribute: ['author', 'groupId'],
                 filter: ['equal'],
                 rewriteTo: ['authorGroupId']
@@ -173,7 +177,7 @@ describe('config-parser', function () {
         it('fails if subFilters defined for included sub-resource', function () {
             var resourceConfigs = _.cloneDeep(minimalResourceConfigs);
 
-            resourceConfigs['test'].attributes['subResource'] = {
+            resourceConfigs['test'].config.attributes['subResource'] = {
                 resource: 'test',
                 subFilters: []
             };
@@ -187,7 +191,7 @@ describe('config-parser', function () {
         it('fails on syntactically invalid option "resource"', function () {
             var resourceConfigs = {
                 "test": {
-                    "resource": "!test"
+                    config: {"resource": "!test"}
                 }
             };
 
@@ -200,10 +204,10 @@ describe('config-parser', function () {
         it('allows sub-resources with "/"', function () {
             var resourceConfigs = {
                 "test": {
-                    "resource": "test/subresource"
+                    config: {"resource": "test/subresource"}
                 },
                 "test/subresource": {
-                    "resource": "test/subresource"
+                    config: {"resource": "test/subresource"}
                 }
             };
 
@@ -211,20 +215,20 @@ describe('config-parser', function () {
                 configParser(resourceConfigs, mockDataSources);
             }).to.not.throw(ImplementationError);
 
-            expect(resourceConfigs['test'].resource).to.equal('test/subresource');
+            expect(resourceConfigs['test'].config.resource).to.equal('test/subresource');
         });
 
         it('parses and resolves composite primaryKey', function () {
             var resourceConfigs = _.cloneDeep(minimalResourceConfigs);
             var resourceConfigsParsed = _.cloneDeep(minimalResourceConfigsParsed);
 
-            resourceConfigs['test'].primaryKey = 'id,context';
-            resourceConfigs['test'].attributes['context'] = {map: 'ctx'};
-            resourceConfigs['test'].dataSources['primary'].expectedAttributes = ['id', 'ctx'];
+            resourceConfigs['test'].config.primaryKey = 'id,context';
+            resourceConfigs['test'].config.attributes['context'] = {map: 'ctx'};
+            resourceConfigs['test'].config.dataSources['primary'].expectedAttributes = ['id', 'ctx'];
 
-            resourceConfigsParsed['test'].primaryKey = [['id'], ['context']];
-            resourceConfigsParsed['test'].resolvedPrimaryKey = {'primary': ['id', 'ctx']};
-            resourceConfigsParsed['test'].attributes['context'] = {
+            resourceConfigsParsed['test'].config.primaryKey = [['id'], ['context']];
+            resourceConfigsParsed['test'].config.resolvedPrimaryKey = {'primary': ['id', 'ctx']};
+            resourceConfigsParsed['test'].config.attributes['context'] = {
                 type: 'string',
                 map: {
                     'default': {
@@ -234,7 +238,7 @@ describe('config-parser', function () {
             };
 
             // no default filter for composite keys:
-            delete resourceConfigsParsed['test'].attributes['id'].filter;
+            delete resourceConfigsParsed['test'].config.attributes['id'].filter;
 
             configParser(resourceConfigs, mockDataSources);
 
@@ -245,9 +249,9 @@ describe('config-parser', function () {
             var resourceConfigs = _.cloneDeep(minimalResourceConfigs);
             var resourceConfigsParsed = _.cloneDeep(minimalResourceConfigsParsed);
 
-            resourceConfigs['test'].attributes['id'].hidden = 'true';
-            resourceConfigsParsed['test'].attributes['id'].hidden = true;
-            delete resourceConfigsParsed['test'].attributes['id'].filter;
+            resourceConfigs['test'].config.attributes['id'].hidden = 'true';
+            resourceConfigsParsed['test'].config.attributes['id'].hidden = true;
+            delete resourceConfigsParsed['test'].config.attributes['id'].filter;
 
             configParser(resourceConfigs, mockDataSources);
 
@@ -258,17 +262,17 @@ describe('config-parser', function () {
             var resourceConfigs = _.cloneDeep(minimalResourceConfigs);
             var resourceConfigsParsed = _.cloneDeep(minimalResourceConfigsParsed);
 
-            resourceConfigs['test'].primaryKey = 'meta.id';
-            resourceConfigs['test'].attributes['meta'] =
-                {attributes: {'id': resourceConfigs['test'].attributes['id']}};
-            resourceConfigs['test'].attributes['meta'].attributes['id'].map = 'id';
-            delete resourceConfigs['test'].attributes['id'];
+            resourceConfigs['test'].config.primaryKey = 'meta.id';
+            resourceConfigs['test'].config.attributes['meta'] =
+                {attributes: {'id': resourceConfigs['test'].config.attributes['id']}};
+            resourceConfigs['test'].config.attributes['meta'].attributes['id'].map = 'id';
+            delete resourceConfigs['test'].config.attributes['id'];
 
-            resourceConfigsParsed['test'].primaryKey = [['meta', 'id']];
-            resourceConfigsParsed['test'].resolvedPrimaryKey = {'primary': ['id']};
-            resourceConfigsParsed['test'].attributes['meta'] =
-                {attributes: {'id': resourceConfigsParsed['test'].attributes['id']}};
-            delete resourceConfigsParsed['test'].attributes['id'];
+            resourceConfigsParsed['test'].config.primaryKey = [['meta', 'id']];
+            resourceConfigsParsed['test'].config.resolvedPrimaryKey = {'primary': ['id']};
+            resourceConfigsParsed['test'].config.attributes['meta'] =
+                {attributes: {'id': resourceConfigsParsed['test'].config.attributes['id']}};
+            delete resourceConfigsParsed['test'].config.attributes['id'];
 
             configParser(resourceConfigs, mockDataSources);
 
@@ -278,7 +282,7 @@ describe('config-parser', function () {
         it('fails on missing primaryKey', function () {
             var resourceConfigs = _.cloneDeep(minimalResourceConfigs);
 
-            delete resourceConfigs['test'].primaryKey;
+            delete resourceConfigs['test'].config.primaryKey;
 
             expect(function () {
                 configParser(resourceConfigs, mockDataSources);
@@ -288,10 +292,10 @@ describe('config-parser', function () {
         it('fails on missing primaryKey in inline-sub-resource', function () {
             var resourceConfigs = _.cloneDeep(minimalResourceConfigs);
 
-            resourceConfigs['test'].attributes['subResource'] = _.cloneDeep(minimalResourceConfigs['test']);
-            delete resourceConfigs['test'].attributes['subResource'].primaryKey;
-            resourceConfigs['test'].attributes['subResource'].parentKey = '{primary}';
-            resourceConfigs['test'].attributes['subResource'].childKey = '{primary}';
+            resourceConfigs['test'].config.attributes['subResource'] = _.cloneDeep(minimalResourceConfigs['test'].config);
+            delete resourceConfigs['test'].config.attributes['subResource'].primaryKey;
+            resourceConfigs['test'].config.attributes['subResource'].parentKey = '{primary}';
+            resourceConfigs['test'].config.attributes['subResource'].childKey = '{primary}';
 
             expect(function () {
                 configParser(resourceConfigs, mockDataSources);
@@ -301,7 +305,7 @@ describe('config-parser', function () {
         it('fails if primaryKey references unknown attributes', function () {
             var resourceConfigs = _.cloneDeep(minimalResourceConfigs);
 
-            resourceConfigs['test'].primaryKey = 'unknownId';
+            resourceConfigs['test'].config.primaryKey = 'unknownId';
 
             expect(function () {
                 configParser(resourceConfigs, mockDataSources);
@@ -311,8 +315,8 @@ describe('config-parser', function () {
         it('fails if primaryKey references attribute in sub-resource', function () {
             var resourceConfigs = _.cloneDeep(minimalResourceConfigs);
 
-            resourceConfigs['test'].primaryKey = 'subResource.id';
-            resourceConfigs['test'].attributes['subResource'] = {resource: 'test'};
+            resourceConfigs['test'].config.primaryKey = 'subResource.id';
+            resourceConfigs['test'].config.attributes['subResource'] = {resource: 'test'};
 
             expect(function () {
                 configParser(resourceConfigs, mockDataSources);
@@ -323,7 +327,7 @@ describe('config-parser', function () {
         it('fails if primaryKey references multiValued attribute', function () {
             var resourceConfigs = _.cloneDeep(minimalResourceConfigs);
 
-            resourceConfigs['test'].attributes['id'].multiValued = 'true';
+            resourceConfigs['test'].config.attributes['id'].multiValued = 'true';
 
             expect(function () {
                 configParser(resourceConfigs, mockDataSources);
@@ -333,7 +337,7 @@ describe('config-parser', function () {
         it('fails if primaryKey references static ("value") attribute', function () {
             var resourceConfigs = _.cloneDeep(minimalResourceConfigs);
 
-            resourceConfigs['test'].attributes['id'] = {value: 'static'};
+            resourceConfigs['test'].config.attributes['id'] = {value: 'static'};
 
             expect(function () {
                 configParser(resourceConfigs, mockDataSources);
@@ -344,7 +348,7 @@ describe('config-parser', function () {
         it('fails if primaryKey is overwritten for included sub-resource', function () {
             var resourceConfigs = _.cloneDeep(minimalResourceConfigs);
 
-            resourceConfigs['test'].attributes['subResource'] = {
+            resourceConfigs['test'].config.attributes['subResource'] = {
                 resource: 'test',
                 primaryKey: 'id'
             };
@@ -358,10 +362,10 @@ describe('config-parser', function () {
         it('fails if primaryKey is not mapped to all DataSources', function () {
             var resourceConfigs = _.cloneDeep(minimalResourceConfigs);
 
-            resourceConfigs['test'].primaryKey = 'id,context';
-            resourceConfigs['test'].dataSources['secondary'] = {type: 'testDataSource'};
-            resourceConfigs['test'].attributes['id'] = {map: 'id;secondary:id'};
-            resourceConfigs['test'].attributes['context'] = {map: 'ctx'};
+            resourceConfigs['test'].config.primaryKey = 'id,context';
+            resourceConfigs['test'].config.dataSources['secondary'] = {type: 'testDataSource'};
+            resourceConfigs['test'].config.attributes['id'] = {map: 'id;secondary:id'};
+            resourceConfigs['test'].config.attributes['context'] = {map: 'ctx'};
 
             expect(function () {
                 configParser(resourceConfigs, mockDataSources);
@@ -374,27 +378,27 @@ describe('config-parser', function () {
             var resourceConfigs = _.cloneDeep(minimalResourceConfigs);
             var resourceConfigsParsed = _.cloneDeep(minimalResourceConfigsParsed);
 
-            resourceConfigs['test'].attributes['parentId'] = {type: 'int', map: 'parentIdDbField'};
-            resourceConfigs['test'].dataSources['primary'].
+            resourceConfigs['test'].config.attributes['parentId'] = {type: 'int', map: 'parentIdDbField'};
+            resourceConfigs['test'].config.dataSources['primary'].
                 expectedAttributes = ['id', 'parentIdDbField'];
-            resourceConfigs['test'].attributes['subResource'] = _.cloneDeep(minimalResourceConfigs['test']);
-            resourceConfigs['test'].attributes['subResource'].parentKey = 'parentId';
-            resourceConfigs['test'].attributes['subResource'].childKey = 'childId';
-            resourceConfigs['test'].attributes['subResource'].attributes['childId'] =
+            resourceConfigs['test'].config.attributes['subResource'] = _.cloneDeep(minimalResourceConfigs['test'].config);
+            resourceConfigs['test'].config.attributes['subResource'].parentKey = 'parentId';
+            resourceConfigs['test'].config.attributes['subResource'].childKey = 'childId';
+            resourceConfigs['test'].config.attributes['subResource'].attributes['childId'] =
                 {type: 'int', map: 'childIdDbField'};
-            resourceConfigs['test'].attributes['subResource'].dataSources['primary'].
+            resourceConfigs['test'].config.attributes['subResource'].dataSources['primary'].
                 expectedAttributes = ['id', 'childIdDbField'];
 
-            resourceConfigsParsed['test'].attributes['parentId'] = {
+            resourceConfigsParsed['test'].config.attributes['parentId'] = {
                 type: 'int',
                 map: {default: {'primary': 'parentIdDbField'}}
             };
-            resourceConfigsParsed['test'].attributes['subResource'] = _.cloneDeep(minimalResourceConfigsParsed['test']);
-            resourceConfigsParsed['test'].attributes['subResource'].parentKey = [['parentId']];
-            resourceConfigsParsed['test'].attributes['subResource'].resolvedParentKey = {'primary': ['parentIdDbField']};
-            resourceConfigsParsed['test'].attributes['subResource'].childKey = [['childId']];
-            resourceConfigsParsed['test'].attributes['subResource'].resolvedChildKey = {'primary': ['childIdDbField']};
-            resourceConfigsParsed['test'].attributes['subResource'].attributes['childId'] = {
+            resourceConfigsParsed['test'].config.attributes['subResource'] = _.cloneDeep(minimalResourceConfigsParsed['test'].config);
+            resourceConfigsParsed['test'].config.attributes['subResource'].parentKey = [['parentId']];
+            resourceConfigsParsed['test'].config.attributes['subResource'].resolvedParentKey = {'primary': ['parentIdDbField']};
+            resourceConfigsParsed['test'].config.attributes['subResource'].childKey = [['childId']];
+            resourceConfigsParsed['test'].config.attributes['subResource'].resolvedChildKey = {'primary': ['childIdDbField']};
+            resourceConfigsParsed['test'].config.attributes['subResource'].attributes['childId'] = {
                 type: 'int',
                 map: {default: {'primary': 'childIdDbField'}}
             };
@@ -408,41 +412,41 @@ describe('config-parser', function () {
             var resourceConfigs = _.cloneDeep(minimalResourceConfigs);
             var resourceConfigsParsed = _.cloneDeep(minimalResourceConfigsParsed);
 
-            resourceConfigs['test'].attributes['parentId'] = {type: 'int', map: 'parentIdDbField'};
-            resourceConfigs['test'].attributes['context'] = {type: 'int', map: 'contextDbField'};
-            resourceConfigs['test'].dataSources['primary'].
+            resourceConfigs['test'].config.attributes['parentId'] = {type: 'int', map: 'parentIdDbField'};
+            resourceConfigs['test'].config.attributes['context'] = {type: 'int', map: 'contextDbField'};
+            resourceConfigs['test'].config.dataSources['primary'].
                 expectedAttributes = ['id', 'parentIdDbField', 'contextDbField'];
-            resourceConfigs['test'].attributes['subResource'] = _.cloneDeep(minimalResourceConfigs['test']);
-            resourceConfigs['test'].attributes['subResource'].parentKey = 'parentId,context';
-            resourceConfigs['test'].attributes['subResource'].childKey = 'childId,context';
-            resourceConfigs['test'].attributes['subResource'].attributes['childId'] =
+            resourceConfigs['test'].config.attributes['subResource'] = _.cloneDeep(minimalResourceConfigs['test'].config);
+            resourceConfigs['test'].config.attributes['subResource'].parentKey = 'parentId,context';
+            resourceConfigs['test'].config.attributes['subResource'].childKey = 'childId,context';
+            resourceConfigs['test'].config.attributes['subResource'].attributes['childId'] =
                 {type: 'int', map: 'childIdDbField'};
-            resourceConfigs['test'].attributes['subResource'].attributes['context'] =
+            resourceConfigs['test'].config.attributes['subResource'].attributes['context'] =
                 {type: 'int', map: 'contextDbField'};
-            resourceConfigs['test'].attributes['subResource'].dataSources['primary'].
+            resourceConfigs['test'].config.attributes['subResource'].dataSources['primary'].
                 expectedAttributes = ['id', 'childIdDbField', 'contextDbField'];
 
-            resourceConfigsParsed['test'].attributes['parentId'] = {
+            resourceConfigsParsed['test'].config.attributes['parentId'] = {
                 type: 'int',
                 map: {default: {'primary': 'parentIdDbField'}}
             };
-            resourceConfigsParsed['test'].attributes['context'] = {
+            resourceConfigsParsed['test'].config.attributes['context'] = {
                 type: 'int',
                 map: {default: {'primary': 'contextDbField'}}
             };
-            resourceConfigsParsed['test'].attributes['subResource'] =
-                _.cloneDeep(minimalResourceConfigsParsed['test']);
-            resourceConfigsParsed['test'].attributes['subResource'].parentKey = [['parentId'], ['context']];
-            resourceConfigsParsed['test'].attributes['subResource'].resolvedParentKey =
+            resourceConfigsParsed['test'].config.attributes['subResource'] =
+                _.cloneDeep(minimalResourceConfigsParsed['test'].config);
+            resourceConfigsParsed['test'].config.attributes['subResource'].parentKey = [['parentId'], ['context']];
+            resourceConfigsParsed['test'].config.attributes['subResource'].resolvedParentKey =
                 {'primary': ['parentIdDbField', 'contextDbField']};
-            resourceConfigsParsed['test'].attributes['subResource'].childKey = [['childId'], ['context']];
-            resourceConfigsParsed['test'].attributes['subResource'].resolvedChildKey =
+            resourceConfigsParsed['test'].config.attributes['subResource'].childKey = [['childId'], ['context']];
+            resourceConfigsParsed['test'].config.attributes['subResource'].resolvedChildKey =
                 {'primary': ['childIdDbField', 'contextDbField']};
-            resourceConfigsParsed['test'].attributes['subResource'].attributes['childId'] = {
+            resourceConfigsParsed['test'].config.attributes['subResource'].attributes['childId'] = {
                 type: 'int',
                 map: {default: {'primary': 'childIdDbField'}}
             };
-            resourceConfigsParsed['test'].attributes['subResource'].attributes['context'] = {
+            resourceConfigsParsed['test'].config.attributes['subResource'].attributes['context'] = {
                 type: 'int',
                 map: {default: {'primary': 'contextDbField'}}
             };
@@ -456,31 +460,31 @@ describe('config-parser', function () {
             var resourceConfigs = _.cloneDeep(minimalResourceConfigs);
             var resourceConfigsParsed = _.cloneDeep(minimalResourceConfigsParsed);
 
-            resourceConfigs['test'].attributes['meta'] = {attributes: {}};
-            resourceConfigs['test'].attributes['meta'].attributes['parentId'] = {type: 'int', map: 'parentId'};
-            resourceConfigs['test'].dataSources['primary'].
+            resourceConfigs['test'].config.attributes['meta'] = {attributes: {}};
+            resourceConfigs['test'].config.attributes['meta'].attributes['parentId'] = {type: 'int', map: 'parentId'};
+            resourceConfigs['test'].config.dataSources['primary'].
                 expectedAttributes = ['id', 'parentId'];
-            resourceConfigs['test'].attributes['subResource'] = _.cloneDeep(minimalResourceConfigs['test']);
-            resourceConfigs['test'].attributes['subResource'].parentKey = 'meta.parentId';
-            resourceConfigs['test'].attributes['subResource'].childKey = 'meta.childId';
-            resourceConfigs['test'].attributes['subResource'].attributes['meta'] = {attributes: {}};
-            resourceConfigs['test'].attributes['subResource'].attributes['meta'].attributes['childId'] =
+            resourceConfigs['test'].config.attributes['subResource'] = _.cloneDeep(minimalResourceConfigs['test'].config);
+            resourceConfigs['test'].config.attributes['subResource'].parentKey = 'meta.parentId';
+            resourceConfigs['test'].config.attributes['subResource'].childKey = 'meta.childId';
+            resourceConfigs['test'].config.attributes['subResource'].attributes['meta'] = {attributes: {}};
+            resourceConfigs['test'].config.attributes['subResource'].attributes['meta'].attributes['childId'] =
                 {type: 'int', map: 'childId'};
-            resourceConfigs['test'].attributes['subResource'].dataSources['primary'].
+            resourceConfigs['test'].config.attributes['subResource'].dataSources['primary'].
                 expectedAttributes = ['id', 'childId'];
 
-            resourceConfigsParsed['test'].attributes['meta'] = {attributes: {}};
-            resourceConfigsParsed['test'].attributes['meta'].attributes['parentId'] = {
+            resourceConfigsParsed['test'].config.attributes['meta'] = {attributes: {}};
+            resourceConfigsParsed['test'].config.attributes['meta'].attributes['parentId'] = {
                 type: 'int',
                 map: {default: {'primary': 'parentId'}}
             };
-            resourceConfigsParsed['test'].attributes['subResource'] = _.cloneDeep(minimalResourceConfigsParsed['test']);
-            resourceConfigsParsed['test'].attributes['subResource'].parentKey = [['meta', 'parentId']];
-            resourceConfigsParsed['test'].attributes['subResource'].resolvedParentKey = {'primary': ['parentId']};
-            resourceConfigsParsed['test'].attributes['subResource'].childKey = [['meta', 'childId']];
-            resourceConfigsParsed['test'].attributes['subResource'].resolvedChildKey = {'primary': ['childId']};
-            resourceConfigsParsed['test'].attributes['subResource'].attributes['meta'] = {attributes: {}};
-            resourceConfigsParsed['test'].attributes['subResource'].attributes['meta'].attributes['childId'] = {
+            resourceConfigsParsed['test'].config.attributes['subResource'] = _.cloneDeep(minimalResourceConfigsParsed['test'].config);
+            resourceConfigsParsed['test'].config.attributes['subResource'].parentKey = [['meta', 'parentId']];
+            resourceConfigsParsed['test'].config.attributes['subResource'].resolvedParentKey = {'primary': ['parentId']};
+            resourceConfigsParsed['test'].config.attributes['subResource'].childKey = [['meta', 'childId']];
+            resourceConfigsParsed['test'].config.attributes['subResource'].resolvedChildKey = {'primary': ['childId']};
+            resourceConfigsParsed['test'].config.attributes['subResource'].attributes['meta'] = {attributes: {}};
+            resourceConfigsParsed['test'].config.attributes['subResource'].attributes['meta'].attributes['childId'] = {
                 type: 'int',
                 map: {default: {'primary': 'childId'}}
             };
@@ -492,9 +496,9 @@ describe('config-parser', function () {
 
         it('fails on missing parentKey/childKey', function () {
             var resourceConfigs = _.cloneDeep(minimalResourceConfigs);
-            resourceConfigs['test'].attributes['subResource'] = {};
-            resourceConfigs['test'].attributes['subResource'].resource = 'test';
-            resourceConfigs['test'].attributes['subResource'].childKey = 'childId';
+            resourceConfigs['test'].config.attributes['subResource'] = {};
+            resourceConfigs['test'].config.attributes['subResource'].resource = 'test';
+            resourceConfigs['test'].config.attributes['subResource'].childKey = 'childId';
 
             expect(function () {
                 configParser(resourceConfigs, mockDataSources);
@@ -502,9 +506,9 @@ describe('config-parser', function () {
 
             // same for childKey:
             resourceConfigs = _.cloneDeep(minimalResourceConfigs);
-            resourceConfigs['test'].attributes['subResource'] = {};
-            resourceConfigs['test'].attributes['subResource'].resource = 'test';
-            resourceConfigs['test'].attributes['subResource'].parentKey = 'parentId';
+            resourceConfigs['test'].config.attributes['subResource'] = {};
+            resourceConfigs['test'].config.attributes['subResource'].resource = 'test';
+            resourceConfigs['test'].config.attributes['subResource'].parentKey = 'parentId';
 
             expect(function () {
                 configParser(resourceConfigs, mockDataSources);
@@ -513,8 +517,8 @@ describe('config-parser', function () {
 
         it('fails on missing parentKey/childKey in inline-sub-resource', function () {
             var resourceConfigs = _.cloneDeep(minimalResourceConfigs);
-            resourceConfigs['test'].attributes['subResource'] = _.cloneDeep(minimalResourceConfigs['test']);
-            resourceConfigs['test'].attributes['subResource'].childKey = 'childId';
+            resourceConfigs['test'].config.attributes['subResource'] = _.cloneDeep(minimalResourceConfigs['test'].config);
+            resourceConfigs['test'].config.attributes['subResource'].childKey = 'childId';
 
             expect(function () {
                 configParser(resourceConfigs, mockDataSources);
@@ -522,8 +526,8 @@ describe('config-parser', function () {
 
             // same for childKey:
             resourceConfigs = _.cloneDeep(minimalResourceConfigs);
-            resourceConfigs['test'].attributes['subResource'] = _.cloneDeep(minimalResourceConfigs['test']);
-            resourceConfigs['test'].attributes['subResource'].parentKey = 'parentId';
+            resourceConfigs['test'].config.attributes['subResource'] = _.cloneDeep(minimalResourceConfigs['test'].config);
+            resourceConfigs['test'].config.attributes['subResource'].parentKey = 'parentId';
 
             expect(function () {
                 configParser(resourceConfigs, mockDataSources);
@@ -532,10 +536,10 @@ describe('config-parser', function () {
 
         it('fails if parentKey/childKey references unknown attributes', function () {
             var resourceConfigs = _.cloneDeep(minimalResourceConfigs);
-            resourceConfigs['test'].attributes['subResource'] = {};
-            resourceConfigs['test'].attributes['subResource'].resource = 'test';
-            resourceConfigs['test'].attributes['subResource'].parentKey = 'unknownId';
-            resourceConfigs['test'].attributes['subResource'].childKey = 'id';
+            resourceConfigs['test'].config.attributes['subResource'] = {};
+            resourceConfigs['test'].config.attributes['subResource'].resource = 'test';
+            resourceConfigs['test'].config.attributes['subResource'].parentKey = 'unknownId';
+            resourceConfigs['test'].config.attributes['subResource'].childKey = 'id';
 
             expect(function () {
                 configParser(resourceConfigs, mockDataSources);
@@ -544,10 +548,10 @@ describe('config-parser', function () {
 
             // same for childKey:
             resourceConfigs = _.cloneDeep(minimalResourceConfigs);
-            resourceConfigs['test'].attributes['subResource'] = {};
-            resourceConfigs['test'].attributes['subResource'].resource = 'test';
-            resourceConfigs['test'].attributes['subResource'].parentKey = 'id';
-            resourceConfigs['test'].attributes['subResource'].childKey = 'unknownId';
+            resourceConfigs['test'].config.attributes['subResource'] = {};
+            resourceConfigs['test'].config.attributes['subResource'].resource = 'test';
+            resourceConfigs['test'].config.attributes['subResource'].parentKey = 'id';
+            resourceConfigs['test'].config.attributes['subResource'].childKey = 'unknownId';
 
             expect(function () {
                 configParser(resourceConfigs, mockDataSources);
@@ -557,12 +561,12 @@ describe('config-parser', function () {
 
         it('fails if parentKey/childKey references attribute in sub-resource', function () {
             var resourceConfigs = _.cloneDeep(minimalResourceConfigs);
-            resourceConfigs['test'].attributes['otherResource'] = _.cloneDeep(minimalResourceConfigs['test']);
-            resourceConfigs['test'].attributes['otherResource'].parentKey = 'id';
-            resourceConfigs['test'].attributes['otherResource'].childKey = 'id';
-            resourceConfigs['test'].attributes['subResource'] = _.cloneDeep(minimalResourceConfigs['test']);
-            resourceConfigs['test'].attributes['subResource'].parentKey = 'otherResource.id';
-            resourceConfigs['test'].attributes['subResource'].childKey = 'id';
+            resourceConfigs['test'].config.attributes['otherResource'] = _.cloneDeep(minimalResourceConfigs['test'].config);
+            resourceConfigs['test'].config.attributes['otherResource'].parentKey = 'id';
+            resourceConfigs['test'].config.attributes['otherResource'].childKey = 'id';
+            resourceConfigs['test'].config.attributes['subResource'] = _.cloneDeep(minimalResourceConfigs['test'].config);
+            resourceConfigs['test'].config.attributes['subResource'].parentKey = 'otherResource.id';
+            resourceConfigs['test'].config.attributes['subResource'].childKey = 'id';
 
             expect(function () {
                 configParser(resourceConfigs, mockDataSources);
@@ -571,14 +575,14 @@ describe('config-parser', function () {
 
             // same for childKey:
             resourceConfigs = _.cloneDeep(minimalResourceConfigs);
-            resourceConfigs['test'].attributes['subResource'] = _.cloneDeep(minimalResourceConfigs['test']);
-            resourceConfigs['test'].attributes['subResource'].parentKey = 'id';
-            resourceConfigs['test'].attributes['subResource'].childKey = 'otherResource.id';
-            resourceConfigs['test'].attributes['subResource'].attributes['otherResource'] =
-                _.cloneDeep(minimalResourceConfigs['test']);
-            resourceConfigs['test'].attributes['subResource'].attributes['otherResource'].
+            resourceConfigs['test'].config.attributes['subResource'] = _.cloneDeep(minimalResourceConfigs['test'].config);
+            resourceConfigs['test'].config.attributes['subResource'].parentKey = 'id';
+            resourceConfigs['test'].config.attributes['subResource'].childKey = 'otherResource.id';
+            resourceConfigs['test'].config.attributes['subResource'].attributes['otherResource'] =
+                _.cloneDeep(minimalResourceConfigs['test'].config);
+            resourceConfigs['test'].config.attributes['subResource'].attributes['otherResource'].
                 parentKey = 'otherResource.id';
-            resourceConfigs['test'].attributes['subResource'].attributes['otherResource'].
+            resourceConfigs['test'].config.attributes['subResource'].attributes['otherResource'].
                 childKey = 'id';
 
             expect(function () {
@@ -589,13 +593,13 @@ describe('config-parser', function () {
 
         it('fails if composite parentKey references multiValued attribute', function () {
             var resourceConfigs = _.cloneDeep(minimalResourceConfigs);
-            resourceConfigs['test'].attributes['parentId'] = {type: 'int', multiValued: 'true'};
-            resourceConfigs['test'].dataSources['primary'].expectedAttributes = ['id', 'parentId'];
-            resourceConfigs['test'].attributes['subResource'] = _.cloneDeep(minimalResourceConfigs['test']);
-            resourceConfigs['test'].attributes['subResource'].parentKey = 'id,parentId';
-            resourceConfigs['test'].attributes['subResource'].childKey = 'id,childId';
-            resourceConfigs['test'].attributes['subResource'].attributes['childId'] = {type: 'int'};
-            resourceConfigs['test'].attributes['subResource'].dataSources['primary'].
+            resourceConfigs['test'].config.attributes['parentId'] = {type: 'int', multiValued: 'true'};
+            resourceConfigs['test'].config.dataSources['primary'].expectedAttributes = ['id', 'parentId'];
+            resourceConfigs['test'].config.attributes['subResource'] = _.cloneDeep(minimalResourceConfigs['test'].config);
+            resourceConfigs['test'].config.attributes['subResource'].parentKey = 'id,parentId';
+            resourceConfigs['test'].config.attributes['subResource'].childKey = 'id,childId';
+            resourceConfigs['test'].config.attributes['subResource'].attributes['childId'] = {type: 'int'};
+            resourceConfigs['test'].config.attributes['subResource'].dataSources['primary'].
                 expectedAttributes = ['id', 'childId'];
 
             expect(function () {
@@ -606,12 +610,12 @@ describe('config-parser', function () {
 
         it('fails if childKey references multiValued attribute', function () {
             var resourceConfigs = _.cloneDeep(minimalResourceConfigs);
-            resourceConfigs['test'].attributes['subResource'] = _.cloneDeep(minimalResourceConfigs['test']);
-            resourceConfigs['test'].attributes['subResource'].parentKey = 'id';
-            resourceConfigs['test'].attributes['subResource'].childKey = 'childId';
-            resourceConfigs['test'].attributes['subResource'].attributes['childId'] =
+            resourceConfigs['test'].config.attributes['subResource'] = _.cloneDeep(minimalResourceConfigs['test'].config);
+            resourceConfigs['test'].config.attributes['subResource'].parentKey = 'id';
+            resourceConfigs['test'].config.attributes['subResource'].childKey = 'childId';
+            resourceConfigs['test'].config.attributes['subResource'].attributes['childId'] =
                 {type: 'int', multiValued: 'true'};
-            resourceConfigs['test'].attributes['subResource'].dataSources['primary'].
+            resourceConfigs['test'].config.attributes['subResource'].dataSources['primary'].
                 expectedAttributes = ['id', 'childId'];
 
             expect(function () {
@@ -622,13 +626,13 @@ describe('config-parser', function () {
 
         it('allows parentKey mapping to secondary DataSource', function () {
             var resourceConfigs = _.cloneDeep(minimalResourceConfigs);
-            resourceConfigs['test'].dataSources['secondary'] = {type: 'testDataSource'};
-            resourceConfigs['test'].dataSources['secondary'].expectedAttributes = ['id', 'parentId'];
-            resourceConfigs['test'].attributes['id'] = {map: 'id;secondary:id'};
-            resourceConfigs['test'].attributes['parentId'] = {type: 'int', map: 'secondary:parentId'};
-            resourceConfigs['test'].attributes['subResource'] = _.cloneDeep(minimalResourceConfigs['test']);
-            resourceConfigs['test'].attributes['subResource'].parentKey = 'parentId';
-            resourceConfigs['test'].attributes['subResource'].childKey = 'id';
+            resourceConfigs['test'].config.dataSources['secondary'] = {type: 'testDataSource'};
+            resourceConfigs['test'].config.dataSources['secondary'].expectedAttributes = ['id', 'parentId'];
+            resourceConfigs['test'].config.attributes['id'] = {map: 'id;secondary:id'};
+            resourceConfigs['test'].config.attributes['parentId'] = {type: 'int', map: 'secondary:parentId'};
+            resourceConfigs['test'].config.attributes['subResource'] = _.cloneDeep(minimalResourceConfigs['test'].config);
+            resourceConfigs['test'].config.attributes['subResource'].parentKey = 'parentId';
+            resourceConfigs['test'].config.attributes['subResource'].childKey = 'id';
 
             expect(function () {
                 configParser(resourceConfigs, mockDataSources);
@@ -637,16 +641,16 @@ describe('config-parser', function () {
 
         it('fails if parentKey is not mappable to a single DataSource', function () {
             var resourceConfigs = _.cloneDeep(minimalResourceConfigs);
-            resourceConfigs['test'].dataSources['secondary'] = {type: 'testDataSource'};
-            resourceConfigs['test'].dataSources['secondary'].expectedAttributes = ['id', 'parentId1'];
-            resourceConfigs['test'].dataSources['third'] = {type: 'testDataSource'};
-            resourceConfigs['test'].dataSources['third'].expectedAttributes = ['id', 'parentId2'];
-            resourceConfigs['test'].attributes['id'] = {map: 'id;secondary:id;third:id'};
-            resourceConfigs['test'].attributes['parentId1'] = {type: 'int', map: 'secondary:parentId1'};
-            resourceConfigs['test'].attributes['parentId2'] = {type: 'int', map: 'third:parentId2'};
-            resourceConfigs['test'].attributes['subResource'] = _.cloneDeep(minimalResourceConfigs['test']);
-            resourceConfigs['test'].attributes['subResource'].parentKey = 'parentId1,parentId2';
-            resourceConfigs['test'].attributes['subResource'].childKey = 'id,id'; // lazy, but ok for this test :-)
+            resourceConfigs['test'].config.dataSources['secondary'] = {type: 'testDataSource'};
+            resourceConfigs['test'].config.dataSources['secondary'].expectedAttributes = ['id', 'parentId1'];
+            resourceConfigs['test'].config.dataSources['third'] = {type: 'testDataSource'};
+            resourceConfigs['test'].config.dataSources['third'].expectedAttributes = ['id', 'parentId2'];
+            resourceConfigs['test'].config.attributes['id'] = {map: 'id;secondary:id;third:id'};
+            resourceConfigs['test'].config.attributes['parentId1'] = {type: 'int', map: 'secondary:parentId1'};
+            resourceConfigs['test'].config.attributes['parentId2'] = {type: 'int', map: 'third:parentId2'};
+            resourceConfigs['test'].config.attributes['subResource'] = _.cloneDeep(minimalResourceConfigs['test'].config);
+            resourceConfigs['test'].config.attributes['subResource'].parentKey = 'parentId1,parentId2';
+            resourceConfigs['test'].config.attributes['subResource'].childKey = 'id,id'; // lazy, but ok for this test :-)
 
             expect(function () {
                 configParser(resourceConfigs, mockDataSources);
@@ -657,14 +661,14 @@ describe('config-parser', function () {
 
         it('fails if childKey is not mapped to primary DataSources', function () {
             var resourceConfigs = _.cloneDeep(minimalResourceConfigs);
-            resourceConfigs['test'].attributes['subResource'] = _.cloneDeep(minimalResourceConfigs['test']);
-            resourceConfigs['test'].attributes['subResource'].dataSources['secondary'] = {type: 'testDataSource'};
-            resourceConfigs['test'].attributes['subResource'].dataSources['secondary'].
+            resourceConfigs['test'].config.attributes['subResource'] = _.cloneDeep(minimalResourceConfigs['test'].config);
+            resourceConfigs['test'].config.attributes['subResource'].dataSources['secondary'] = {type: 'testDataSource'};
+            resourceConfigs['test'].config.attributes['subResource'].dataSources['secondary'].
                 expectedAttributes = ['id', 'childId'];
-            resourceConfigs['test'].attributes['subResource'].parentKey = 'id';
-            resourceConfigs['test'].attributes['subResource'].childKey = 'childId';
-            resourceConfigs['test'].attributes['subResource'].attributes['id'] = {map: 'id;secondary:id'};
-            resourceConfigs['test'].attributes['subResource'].attributes['childId'] =
+            resourceConfigs['test'].config.attributes['subResource'].parentKey = 'id';
+            resourceConfigs['test'].config.attributes['subResource'].childKey = 'childId';
+            resourceConfigs['test'].config.attributes['subResource'].attributes['id'] = {map: 'id;secondary:id'};
+            resourceConfigs['test'].config.attributes['subResource'].attributes['childId'] =
                 {type: 'int', map: 'secondary:childId'};
 
             expect(function () {
@@ -676,19 +680,19 @@ describe('config-parser', function () {
 
         it('ignores incomplete key mappings to other DataSources in resolved key', function () {
             var resourceConfigs = _.cloneDeep(minimalResourceConfigs);
-            resourceConfigs['test'].dataSources['primary'].expectedAttributes = ['id', 'keyPart2'];
-            resourceConfigs['test'].dataSources['secondary'] = {type: 'testDataSource'};
-            resourceConfigs['test'].dataSources['secondary'].expectedAttributes = ['id', 'keyPart2'];
-            resourceConfigs['test'].dataSources['third'] = {type: 'testDataSource'};
-            resourceConfigs['test'].dataSources['third'].expectedAttributes = ['id'];
-            resourceConfigs['test'].attributes['id'].map = 'id;secondary:id;third:id';
-            resourceConfigs['test'].attributes['keyPart2'] = {type: 'int', map: 'keyPart2;secondary:keyPart2'};
-            resourceConfigs['test'].attributes['subResource'] = _.cloneDeep(minimalResourceConfigs['test']);
-            resourceConfigs['test'].attributes['subResource'].dataSources['primary'].
+            resourceConfigs['test'].config.dataSources['primary'].expectedAttributes = ['id', 'keyPart2'];
+            resourceConfigs['test'].config.dataSources['secondary'] = {type: 'testDataSource'};
+            resourceConfigs['test'].config.dataSources['secondary'].expectedAttributes = ['id', 'keyPart2'];
+            resourceConfigs['test'].config.dataSources['third'] = {type: 'testDataSource'};
+            resourceConfigs['test'].config.dataSources['third'].expectedAttributes = ['id'];
+            resourceConfigs['test'].config.attributes['id'].map = 'id;secondary:id;third:id';
+            resourceConfigs['test'].config.attributes['keyPart2'] = {type: 'int', map: 'keyPart2;secondary:keyPart2'};
+            resourceConfigs['test'].config.attributes['subResource'] = _.cloneDeep(minimalResourceConfigs['test'].config);
+            resourceConfigs['test'].config.attributes['subResource'].dataSources['primary'].
                 expectedAttributes = ['id', 'keyPart2'];
-            resourceConfigs['test'].attributes['subResource'].parentKey = 'id,keyPart2';
-            resourceConfigs['test'].attributes['subResource'].childKey = 'id,keyPart2';
-            resourceConfigs['test'].attributes['subResource'].attributes['keyPart2'] = {type: 'int'};
+            resourceConfigs['test'].config.attributes['subResource'].parentKey = 'id,keyPart2';
+            resourceConfigs['test'].config.attributes['subResource'].childKey = 'id,keyPart2';
+            resourceConfigs['test'].config.attributes['subResource'].attributes['keyPart2'] = {type: 'int'};
 
             var resolvedParentKey = {
                 'primary': ['id', 'keyPart2'],
@@ -699,18 +703,18 @@ describe('config-parser', function () {
 
             configParser(resourceConfigs, mockDataSources);
 
-            expect(resourceConfigs['test'].attributes['subResource'].resolvedParentKey).
+            expect(resourceConfigs['test'].config.attributes['subResource'].resolvedParentKey).
                 to.eql(resolvedParentKey);
         });
 
         it('fails if parentKey and childKey have different length', function () {
             var resourceConfigs = _.cloneDeep(minimalResourceConfigs);
-            resourceConfigs['test'].dataSources['primary'].
+            resourceConfigs['test'].config.dataSources['primary'].
                 expectedAttributes = ['id', 'parentId'];
-            resourceConfigs['test'].attributes['parentId'] = {type: 'int'};
-            resourceConfigs['test'].attributes['subResource'] = _.cloneDeep(minimalResourceConfigs['test']);
-            resourceConfigs['test'].attributes['subResource'].parentKey = 'id,parentId';
-            resourceConfigs['test'].attributes['subResource'].childKey = 'id';
+            resourceConfigs['test'].config.attributes['parentId'] = {type: 'int'};
+            resourceConfigs['test'].config.attributes['subResource'] = _.cloneDeep(minimalResourceConfigs['test'].config);
+            resourceConfigs['test'].config.attributes['subResource'].parentKey = 'id,parentId';
+            resourceConfigs['test'].config.attributes['subResource'].childKey = 'id';
 
             expect(function () {
                 configParser(resourceConfigs, mockDataSources);
@@ -723,21 +727,21 @@ describe('config-parser', function () {
             var resourceConfigs = _.cloneDeep(minimalResourceConfigs);
             var resourceConfigsParsed = _.cloneDeep(minimalResourceConfigsParsed);
 
-            resourceConfigs['test'].attributes['subResource'] = _.cloneDeep(minimalResourceConfigs['test']);
-            resourceConfigs['test'].attributes['subResource'].many = 'true';
-            resourceConfigs['test'].attributes['subResource'].parentKey = 'id';
-            resourceConfigs['test'].attributes['subResource'].childKey = 'id';
+            resourceConfigs['test'].config.attributes['subResource'] = _.cloneDeep(minimalResourceConfigs['test'].config);
+            resourceConfigs['test'].config.attributes['subResource'].many = 'true';
+            resourceConfigs['test'].config.attributes['subResource'].parentKey = 'id';
+            resourceConfigs['test'].config.attributes['subResource'].childKey = 'id';
 
             configParser(resourceConfigs, mockDataSources);
 
-            expect(resourceConfigs['test'].attributes['subResource'].many).to.be.true;
+            expect(resourceConfigs['test'].config.attributes['subResource'].many).to.be.true;
         });
 
         it('fails on invalid DataSource reference in joinVia', function () {
             var resourceConfigs = _.cloneDeep(minimalResourceConfigs);
 
-            resourceConfigs['test'].attributes['subResource'] = _.cloneDeep(minimalResourceConfigs['test']);
-            resourceConfigs['test'].attributes['subResource'].joinVia = 'unknownRelationTable';
+            resourceConfigs['test'].config.attributes['subResource'] = _.cloneDeep(minimalResourceConfigs['test'].config);
+            resourceConfigs['test'].config.attributes['subResource'].joinVia = 'unknownRelationTable';
 
             expect(function () {
                 configParser(resourceConfigs, mockDataSources);
@@ -749,43 +753,43 @@ describe('config-parser', function () {
             var resourceConfigs = _.cloneDeep(minimalResourceConfigs);
             var resourceConfigsParsed = _.cloneDeep(minimalResourceConfigsParsed);
 
-            resourceConfigs['test'].attributes['subResource'] = _.cloneDeep(minimalResourceConfigs['test']);
-            resourceConfigs['test'].attributes['subResource'].parentKey = 'id';
-            resourceConfigs['test'].attributes['subResource'].childKey = 'id';
-            resourceConfigs['test'].attributes['subResource'].joinVia = 'joinTest';
-            resourceConfigs['test'].attributes['subResource'].dataSources['joinTest'] = {
+            resourceConfigs['test'].config.attributes['subResource'] = _.cloneDeep(minimalResourceConfigs['test'].config);
+            resourceConfigs['test'].config.attributes['subResource'].parentKey = 'id';
+            resourceConfigs['test'].config.attributes['subResource'].childKey = 'id';
+            resourceConfigs['test'].config.attributes['subResource'].joinVia = 'joinTest';
+            resourceConfigs['test'].config.attributes['subResource'].dataSources['joinTest'] = {
                 type: 'testDataSource',
                 joinParentKey: 'parentId',
                 joinChildKey: 'childId',
                 expectedAttributes: ['parentIdDbField', 'childIdDbField']
             };
-            resourceConfigs['test'].attributes['subResource'].attributes['parentId'] = {
+            resourceConfigs['test'].config.attributes['subResource'].attributes['parentId'] = {
                 type: 'int',
                 map: 'joinTest:parentIdDbField'
             };
-            resourceConfigs['test'].attributes['subResource'].attributes['childId'] = {
+            resourceConfigs['test'].config.attributes['subResource'].attributes['childId'] = {
                 type: 'int',
                 map: 'joinTest:childIdDbField'
             };
 
-            resourceConfigsParsed['test'].attributes['subResource'] = _.cloneDeep(minimalResourceConfigsParsed['test']);
-            resourceConfigsParsed['test'].attributes['subResource'].parentKey = [['id']];
-            resourceConfigsParsed['test'].attributes['subResource'].resolvedParentKey = {'primary': ['id']};
-            resourceConfigsParsed['test'].attributes['subResource'].childKey = [['id']];
-            resourceConfigsParsed['test'].attributes['subResource'].resolvedChildKey = {'primary': ['id']};
-            resourceConfigsParsed['test'].attributes['subResource'].joinVia = 'joinTest';
-            resourceConfigsParsed['test'].attributes['subResource'].dataSources['joinTest'] = {
+            resourceConfigsParsed['test'].config.attributes['subResource'] = _.cloneDeep(minimalResourceConfigsParsed['test'].config);
+            resourceConfigsParsed['test'].config.attributes['subResource'].parentKey = [['id']];
+            resourceConfigsParsed['test'].config.attributes['subResource'].resolvedParentKey = {'primary': ['id']};
+            resourceConfigsParsed['test'].config.attributes['subResource'].childKey = [['id']];
+            resourceConfigsParsed['test'].config.attributes['subResource'].resolvedChildKey = {'primary': ['id']};
+            resourceConfigsParsed['test'].config.attributes['subResource'].joinVia = 'joinTest';
+            resourceConfigsParsed['test'].config.attributes['subResource'].dataSources['joinTest'] = {
                 type: 'testDataSource',
                 joinParentKey: [['parentId']],
                 resolvedJoinParentKey: ['parentIdDbField'],
                 joinChildKey: [['childId']],
                 resolvedJoinChildKey: ['childIdDbField']
             };
-            resourceConfigsParsed['test'].attributes['subResource'].attributes['parentId'] = {
+            resourceConfigsParsed['test'].config.attributes['subResource'].attributes['parentId'] = {
                 type: 'int',
                 map: {'default': {'joinTest': 'parentIdDbField'}}
             };
-            resourceConfigsParsed['test'].attributes['subResource'].attributes['childId'] = {
+            resourceConfigsParsed['test'].config.attributes['subResource'].attributes['childId'] = {
                 type: 'int',
                 map: {'default': {'joinTest': 'childIdDbField'}}
             };
@@ -799,9 +803,9 @@ describe('config-parser', function () {
             // missing joinChildKey:
             var resourceConfigs = _.cloneDeep(minimalResourceConfigs);
 
-            resourceConfigs['test'].attributes['subResource'] = _.cloneDeep(minimalResourceConfigs['test']);
-            resourceConfigs['test'].attributes['subResource'].joinVia = 'joinTest';
-            resourceConfigs['test'].attributes['subResource'].dataSources['joinTest'] = {
+            resourceConfigs['test'].config.attributes['subResource'] = _.cloneDeep(minimalResourceConfigs['test'].config);
+            resourceConfigs['test'].config.attributes['subResource'].joinVia = 'joinTest';
+            resourceConfigs['test'].config.attributes['subResource'].dataSources['joinTest'] = {
                 type: 'testDataSource',
                 joinParentKey: 'parentId'
             };
@@ -814,9 +818,9 @@ describe('config-parser', function () {
             // missing joinParentKey:
             resourceConfigs = _.cloneDeep(minimalResourceConfigs);
 
-            resourceConfigs['test'].attributes['subResource'] = _.cloneDeep(minimalResourceConfigs['test']);
-            resourceConfigs['test'].attributes['subResource'].joinVia = 'joinTest';
-            resourceConfigs['test'].attributes['subResource'].dataSources['joinTest'] = {
+            resourceConfigs['test'].config.attributes['subResource'] = _.cloneDeep(minimalResourceConfigs['test'].config);
+            resourceConfigs['test'].config.attributes['subResource'].joinVia = 'joinTest';
+            resourceConfigs['test'].config.attributes['subResource'].dataSources['joinTest'] = {
                 type: 'testDataSource',
                 joinChildKey: 'parentId'
             };
@@ -829,9 +833,9 @@ describe('config-parser', function () {
             // missing both:
             resourceConfigs = _.cloneDeep(minimalResourceConfigs);
 
-            resourceConfigs['test'].attributes['subResource'] = _.cloneDeep(minimalResourceConfigs['test']);
-            resourceConfigs['test'].attributes['subResource'].joinVia = 'joinTest';
-            resourceConfigs['test'].attributes['subResource'].dataSources['joinTest'] = {type: 'testDataSource'};
+            resourceConfigs['test'].config.attributes['subResource'] = _.cloneDeep(minimalResourceConfigs['test'].config);
+            resourceConfigs['test'].config.attributes['subResource'].joinVia = 'joinTest';
+            resourceConfigs['test'].config.attributes['subResource'].dataSources['joinTest'] = {type: 'testDataSource'};
 
             expect(function () {
                 configParser(resourceConfigs, mockDataSources);
@@ -843,14 +847,14 @@ describe('config-parser', function () {
             // unknown joinParentKey:
             var resourceConfigs = _.cloneDeep(minimalResourceConfigs);
 
-            resourceConfigs['test'].attributes['subResource'] = _.cloneDeep(minimalResourceConfigs['test']);
-            resourceConfigs['test'].attributes['subResource'].joinVia = 'joinTest';
-            resourceConfigs['test'].attributes['subResource'].dataSources['joinTest'] = {
+            resourceConfigs['test'].config.attributes['subResource'] = _.cloneDeep(minimalResourceConfigs['test'].config);
+            resourceConfigs['test'].config.attributes['subResource'].joinVia = 'joinTest';
+            resourceConfigs['test'].config.attributes['subResource'].dataSources['joinTest'] = {
                 type: 'testDataSource',
                 joinParentKey: 'unknownParentId',
                 joinChildKey: 'childId'
             };
-            resourceConfigs['test'].attributes['subResource'].attributes['childId'] = {
+            resourceConfigs['test'].config.attributes['subResource'].attributes['childId'] = {
                 type: 'int',
                 map: 'joinTest:childIdDbField'
             };
@@ -863,14 +867,14 @@ describe('config-parser', function () {
             // unknown joinChildKey:
             var resourceConfigs = _.cloneDeep(minimalResourceConfigs);
 
-            resourceConfigs['test'].attributes['subResource'] = _.cloneDeep(minimalResourceConfigs['test']);
-            resourceConfigs['test'].attributes['subResource'].joinVia = 'joinTest';
-            resourceConfigs['test'].attributes['subResource'].dataSources['joinTest'] = {
+            resourceConfigs['test'].config.attributes['subResource'] = _.cloneDeep(minimalResourceConfigs['test'].config);
+            resourceConfigs['test'].config.attributes['subResource'].joinVia = 'joinTest';
+            resourceConfigs['test'].config.attributes['subResource'].dataSources['joinTest'] = {
                 type: 'testDataSource',
                 joinParentKey: 'parentId',
                 joinChildKey: 'unknownChildId'
             };
-            resourceConfigs['test'].attributes['subResource'].attributes['parentId'] = {
+            resourceConfigs['test'].config.attributes['subResource'].attributes['parentId'] = {
                 type: 'int',
                 map: 'joinTest:parentIdDbField'
             };
@@ -885,21 +889,21 @@ describe('config-parser', function () {
             // parent key length does not match:
             var resourceConfigs = _.cloneDeep(minimalResourceConfigs);
 
-            resourceConfigs['test'].attributes['subResource'] = _.cloneDeep(minimalResourceConfigs['test']);
-            resourceConfigs['test'].attributes['subResource'].parentKey = 'id,id'; // key length does not fit!
-            resourceConfigs['test'].attributes['subResource'].childKey = 'id';
-            resourceConfigs['test'].attributes['subResource'].joinVia = 'joinTest';
-            resourceConfigs['test'].attributes['subResource'].dataSources['joinTest'] = {
+            resourceConfigs['test'].config.attributes['subResource'] = _.cloneDeep(minimalResourceConfigs['test'].config);
+            resourceConfigs['test'].config.attributes['subResource'].parentKey = 'id,id'; // key length does not fit!
+            resourceConfigs['test'].config.attributes['subResource'].childKey = 'id';
+            resourceConfigs['test'].config.attributes['subResource'].joinVia = 'joinTest';
+            resourceConfigs['test'].config.attributes['subResource'].dataSources['joinTest'] = {
                 type: 'testDataSource',
                 joinParentKey: 'parentId',
                 joinChildKey: 'childId',
                 expectedAttributes: ['parentIdDbField', 'childIdDbField']
             };
-            resourceConfigs['test'].attributes['subResource'].attributes['parentId'] = {
+            resourceConfigs['test'].config.attributes['subResource'].attributes['parentId'] = {
                 type: 'int',
                 map: 'joinTest:parentIdDbField'
             };
-            resourceConfigs['test'].attributes['subResource'].attributes['childId'] = {
+            resourceConfigs['test'].config.attributes['subResource'].attributes['childId'] = {
                 type: 'int',
                 map: 'joinTest:childIdDbField'
             };
@@ -912,21 +916,21 @@ describe('config-parser', function () {
             // child key length does not match:
             var resourceConfigs = _.cloneDeep(minimalResourceConfigs);
 
-            resourceConfigs['test'].attributes['subResource'] = _.cloneDeep(minimalResourceConfigs['test']);
-            resourceConfigs['test'].attributes['subResource'].parentKey = 'id';
-            resourceConfigs['test'].attributes['subResource'].childKey = 'id,id'; // key length does not fit!
-            resourceConfigs['test'].attributes['subResource'].joinVia = 'joinTest';
-            resourceConfigs['test'].attributes['subResource'].dataSources['joinTest'] = {
+            resourceConfigs['test'].config.attributes['subResource'] = _.cloneDeep(minimalResourceConfigs['test'].config);
+            resourceConfigs['test'].config.attributes['subResource'].parentKey = 'id';
+            resourceConfigs['test'].config.attributes['subResource'].childKey = 'id,id'; // key length does not fit!
+            resourceConfigs['test'].config.attributes['subResource'].joinVia = 'joinTest';
+            resourceConfigs['test'].config.attributes['subResource'].dataSources['joinTest'] = {
                 type: 'testDataSource',
                 joinParentKey: 'parentId',
                 joinChildKey: 'childId',
                 expectedAttributes: ['parentIdDbField', 'childIdDbField']
             };
-            resourceConfigs['test'].attributes['subResource'].attributes['parentId'] = {
+            resourceConfigs['test'].config.attributes['subResource'].attributes['parentId'] = {
                 type: 'int',
                 map: 'joinTest:parentIdDbField'
             };
-            resourceConfigs['test'].attributes['subResource'].attributes['childId'] = {
+            resourceConfigs['test'].config.attributes['subResource'].attributes['childId'] = {
                 type: 'int',
                 map: 'joinTest:childIdDbField'
             };
@@ -941,19 +945,19 @@ describe('config-parser', function () {
             // Missing mapping in joinParentKey:
             var resourceConfigs = _.cloneDeep(minimalResourceConfigs);
 
-            resourceConfigs['test'].attributes['subResource'] = _.cloneDeep(minimalResourceConfigs['test']);
-            resourceConfigs['test'].attributes['subResource'].joinVia = 'joinTest';
-            resourceConfigs['test'].attributes['subResource'].dataSources['primary'].expectedAttributes.push('otherMapping');
-            resourceConfigs['test'].attributes['subResource'].dataSources['joinTest'] = {
+            resourceConfigs['test'].config.attributes['subResource'] = _.cloneDeep(minimalResourceConfigs['test'].config);
+            resourceConfigs['test'].config.attributes['subResource'].joinVia = 'joinTest';
+            resourceConfigs['test'].config.attributes['subResource'].dataSources['primary'].expectedAttributes.push('otherMapping');
+            resourceConfigs['test'].config.attributes['subResource'].dataSources['joinTest'] = {
                 type: 'testDataSource',
                 joinParentKey: 'parentId',
                 joinChildKey: 'childId'
             };
-            resourceConfigs['test'].attributes['subResource'].attributes['parentId'] = {
+            resourceConfigs['test'].config.attributes['subResource'].attributes['parentId'] = {
                 type: 'int',
                 map: 'otherMapping'
             };
-            resourceConfigs['test'].attributes['subResource'].attributes['childId'] = {
+            resourceConfigs['test'].config.attributes['subResource'].attributes['childId'] = {
                 type: 'int',
                 map: 'joinTest:childIdDbField'
             };
@@ -966,19 +970,19 @@ describe('config-parser', function () {
             // Missing mapping in joinChildKey:
             var resourceConfigs = _.cloneDeep(minimalResourceConfigs);
 
-            resourceConfigs['test'].attributes['subResource'] = _.cloneDeep(minimalResourceConfigs['test']);
-            resourceConfigs['test'].attributes['subResource'].joinVia = 'joinTest';
-            resourceConfigs['test'].attributes['subResource'].dataSources['primary'].expectedAttributes.push('otherMapping');
-            resourceConfigs['test'].attributes['subResource'].dataSources['joinTest'] = {
+            resourceConfigs['test'].config.attributes['subResource'] = _.cloneDeep(minimalResourceConfigs['test'].config);
+            resourceConfigs['test'].config.attributes['subResource'].joinVia = 'joinTest';
+            resourceConfigs['test'].config.attributes['subResource'].dataSources['primary'].expectedAttributes.push('otherMapping');
+            resourceConfigs['test'].config.attributes['subResource'].dataSources['joinTest'] = {
                 type: 'testDataSource',
                 joinParentKey: 'parentId',
                 joinChildKey: 'childId'
             };
-            resourceConfigs['test'].attributes['subResource'].attributes['parentId'] = {
+            resourceConfigs['test'].config.attributes['subResource'].attributes['parentId'] = {
                 type: 'int',
                 map: 'joinTest:parentIdDbField'
             };
-            resourceConfigs['test'].attributes['subResource'].attributes['childId'] = {
+            resourceConfigs['test'].config.attributes['subResource'].attributes['childId'] = {
                 type: 'int',
                 map: 'otherMapping'
             };
@@ -994,7 +998,7 @@ describe('config-parser', function () {
         it('fails on invalid options in attribute-context', function () {
             var resourceConfigs = _.cloneDeep(minimalResourceConfigs);
 
-            resourceConfigs['test'].attributes['id'].parentKey = 'testId';
+            resourceConfigs['test'].config.attributes['id'].parentKey = 'testId';
 
             expect(function () {
                 configParser(resourceConfigs, mockDataSources);
@@ -1004,7 +1008,7 @@ describe('config-parser', function () {
         it('fails on invalid "type" option', function () {
             var resourceConfigs = _.cloneDeep(minimalResourceConfigs);
 
-            resourceConfigs['test'].attributes['id'].type = 'no-int';
+            resourceConfigs['test'].config.attributes['id'].type = 'no-int';
 
             expect(function () {
                 configParser(resourceConfigs, mockDataSources);
@@ -1017,22 +1021,22 @@ describe('config-parser', function () {
             var resourceConfigs = _.cloneDeep(minimalResourceConfigs);
             var resourceConfigsParsed = _.cloneDeep(minimalResourceConfigsParsed);
 
-            resourceConfigs['test'].dataSources['articleBody'] = {
+            resourceConfigs['test'].config.dataSources['articleBody'] = {
                 type: 'testDataSource',
                 expectedAttributes: ['articleId']
             };
-            resourceConfigs['test'].attributes['id'].map = 'id;articleBody:articleId';
+            resourceConfigs['test'].config.attributes['id'].map = 'id;articleBody:articleId';
 
-            resourceConfigsParsed['test'].dataSources['articleBody'] = {
+            resourceConfigsParsed['test'].config.dataSources['articleBody'] = {
                 type: 'testDataSource'
             };
-            resourceConfigsParsed['test'].attributes['id'].map = {
+            resourceConfigsParsed['test'].config.attributes['id'].map = {
                 'default': {
                     'primary': 'id',
                     'articleBody': 'articleId'
                 }
             };
-            resourceConfigsParsed['test'].resolvedPrimaryKey['articleBody'] = ['articleId'];
+            resourceConfigsParsed['test'].config.resolvedPrimaryKey['articleBody'] = ['articleId'];
 
             configParser(resourceConfigs, mockDataSources);
 
@@ -1043,9 +1047,9 @@ describe('config-parser', function () {
             var resourceConfigs = _.cloneDeep(minimalResourceConfigs);
             var resourceConfigsParsed = _.cloneDeep(minimalResourceConfigsParsed);
 
-            resourceConfigs['test'].attributes['meta'] = {attributes: {'title': {}}};
-            resourceConfigs['test'].dataSources['primary'].expectedAttributes.push('meta.title');
-            resourceConfigsParsed['test'].attributes['meta'] = {attributes: {
+            resourceConfigs['test'].config.attributes['meta'] = {attributes: {'title': {}}};
+            resourceConfigs['test'].config.dataSources['primary'].expectedAttributes.push('meta.title');
+            resourceConfigsParsed['test'].config.attributes['meta'] = {attributes: {
                 'title': {
                     type: 'string',
                     map: {
@@ -1064,7 +1068,7 @@ describe('config-parser', function () {
         it('fails on invalid DataSource references in map', function () {
             var resourceConfigs = _.cloneDeep(minimalResourceConfigs);
 
-            resourceConfigs['test'].attributes['id'].map = 'id;nonExisting:articleId';
+            resourceConfigs['test'].config.attributes['id'].map = 'id;nonExisting:articleId';
 
             expect(function () {
                 configParser(resourceConfigs, mockDataSources);
@@ -1075,8 +1079,8 @@ describe('config-parser', function () {
             var resourceConfigs = _.cloneDeep(minimalResourceConfigs);
             var resourceConfigsParsed = _.cloneDeep(minimalResourceConfigsParsed);
 
-            resourceConfigs['test'].attributes['id'].filter = 'equal,notEqual';
-            resourceConfigsParsed['test'].attributes['id'].filter = ['equal', 'notEqual'];
+            resourceConfigs['test'].config.attributes['id'].filter = 'equal,notEqual';
+            resourceConfigsParsed['test'].config.attributes['id'].filter = ['equal', 'notEqual'];
 
             configParser(resourceConfigs, mockDataSources);
 
@@ -1086,7 +1090,7 @@ describe('config-parser', function () {
         it('fails on invalid filter options', function () {
             var resourceConfigs = _.cloneDeep(minimalResourceConfigs);
 
-            resourceConfigs['test'].attributes['id'].filter = 'roundAbout';
+            resourceConfigs['test'].config.attributes['id'].filter = 'roundAbout';
 
             expect(function () {
                 configParser(resourceConfigs, mockDataSources);
@@ -1099,8 +1103,8 @@ describe('config-parser', function () {
             var resourceConfigs = _.cloneDeep(minimalResourceConfigs);
             var resourceConfigsParsed = _.cloneDeep(minimalResourceConfigsParsed);
 
-            resourceConfigs['test'].attributes['id'].order = 'asc,random';
-            resourceConfigsParsed['test'].attributes['id'].order = ['asc', 'random'];
+            resourceConfigs['test'].config.attributes['id'].order = 'asc,random';
+            resourceConfigsParsed['test'].config.attributes['id'].order = ['asc', 'random'];
 
             configParser(resourceConfigs, mockDataSources);
 
@@ -1110,8 +1114,8 @@ describe('config-parser', function () {
             resourceConfigs = _.cloneDeep(minimalResourceConfigs);
             resourceConfigsParsed = _.cloneDeep(minimalResourceConfigsParsed);
 
-            resourceConfigs['test'].attributes['id'].order = 'true';
-            resourceConfigsParsed['test'].attributes['id'].order = ['asc', 'desc'];
+            resourceConfigs['test'].config.attributes['id'].order = 'true';
+            resourceConfigsParsed['test'].config.attributes['id'].order = ['asc', 'desc'];
 
             configParser(resourceConfigs, mockDataSources);
 
@@ -1121,7 +1125,7 @@ describe('config-parser', function () {
         it('fails on invalid order options', function () {
             var resourceConfigs = _.cloneDeep(minimalResourceConfigs);
 
-            resourceConfigs['test'].attributes['id'].order = 'phaseOfTheMoon';
+            resourceConfigs['test'].config.attributes['id'].order = 'phaseOfTheMoon';
 
             expect(function () {
                 configParser(resourceConfigs, mockDataSources);
@@ -1134,8 +1138,8 @@ describe('config-parser', function () {
             var resourceConfigs = _.cloneDeep(minimalResourceConfigs);
             var resourceConfigsParsed = _.cloneDeep(minimalResourceConfigsParsed);
 
-            resourceConfigs['test'].attributes['dummy'] = {value: 'null'};
-            resourceConfigsParsed['test'].attributes['dummy'] = {value: null, type: 'string'};
+            resourceConfigs['test'].config.attributes['dummy'] = {value: 'null'};
+            resourceConfigsParsed['test'].config.attributes['dummy'] = {value: null, type: 'string'};
             // ... no "map" for "dummy" attribute and no "dummy" in expectedAttributes!
 
             configParser(resourceConfigs, mockDataSources);
@@ -1147,7 +1151,7 @@ describe('config-parser', function () {
             var resourceConfigs = _.cloneDeep(minimalResourceConfigs);
             var resourceConfigsParsed = _.cloneDeep(minimalResourceConfigsParsed);
 
-            resourceConfigs['test'].attributes['dummy'] = {value: 'null', map: 'dummy'};
+            resourceConfigs['test'].config.attributes['dummy'] = {value: 'null', map: 'dummy'};
 
             expect(function () {
                 configParser(resourceConfigs, mockDataSources);
@@ -1159,8 +1163,8 @@ describe('config-parser', function () {
             var resourceConfigs = _.cloneDeep(minimalResourceConfigs);
             var resourceConfigsParsed = _.cloneDeep(minimalResourceConfigsParsed);
 
-            resourceConfigs['test'].attributes['copyright'] = {depends: 'author[firstname,lastname]', value: ''};
-            resourceConfigsParsed['test'].attributes['copyright'] =
+            resourceConfigs['test'].config.attributes['copyright'] = {depends: 'author[firstname,lastname]', value: ''};
+            resourceConfigsParsed['test'].config.attributes['copyright'] =
                 {depends: {'author': {select: {'firstname': {}, 'lastname': {}}}}, value: '', type: 'string'};
 
             configParser(resourceConfigs, mockDataSources);
@@ -1172,8 +1176,8 @@ describe('config-parser', function () {
             var resourceConfigs = _.cloneDeep(minimalResourceConfigs);
             var resourceConfigsParsed = _.cloneDeep(minimalResourceConfigsParsed);
 
-            resourceConfigs['test'].attributes['dummy'] = {hidden: 'true', value: ''};
-            resourceConfigsParsed['test'].attributes['dummy'] = {hidden: true, value: '', type: 'string'};
+            resourceConfigs['test'].config.attributes['dummy'] = {hidden: 'true', value: ''};
+            resourceConfigsParsed['test'].config.attributes['dummy'] = {hidden: true, value: '', type: 'string'};
 
             configParser(resourceConfigs, mockDataSources);
 
@@ -1184,8 +1188,8 @@ describe('config-parser', function () {
             var resourceConfigs = _.cloneDeep(minimalResourceConfigs);
             var resourceConfigsParsed = _.cloneDeep(minimalResourceConfigsParsed);
 
-            resourceConfigs['test'].attributes['dummy'] = {deprecated: 'true', value: ''};
-            resourceConfigsParsed['test'].attributes['dummy'] = {deprecated: true, value: '', type: 'string'};
+            resourceConfigs['test'].config.attributes['dummy'] = {deprecated: 'true', value: ''};
+            resourceConfigsParsed['test'].config.attributes['dummy'] = {deprecated: true, value: '', type: 'string'};
 
             configParser(resourceConfigs, mockDataSources);
 
@@ -1195,8 +1199,8 @@ describe('config-parser', function () {
             resourceConfigs = _.cloneDeep(minimalResourceConfigs);
             resourceConfigsParsed = _.cloneDeep(minimalResourceConfigsParsed);
 
-            resourceConfigs['test'].attributes['dummy'] = {deprecated: 'false', value: ''};
-            resourceConfigsParsed['test'].attributes['dummy'] = {deprecated: false, value: '', type: 'string'};
+            resourceConfigs['test'].config.attributes['dummy'] = {deprecated: 'false', value: ''};
+            resourceConfigsParsed['test'].config.attributes['dummy'] = {deprecated: false, value: '', type: 'string'};
 
             configParser(resourceConfigs, mockDataSources);
 
@@ -1206,7 +1210,7 @@ describe('config-parser', function () {
         it('fails on invalid boolean values', function () {
             var resourceConfigs = _.cloneDeep(minimalResourceConfigs);
 
-            resourceConfigs['test'].attributes['dummy'] = {deprecated: 'maybe'};
+            resourceConfigs['test'].config.attributes['dummy'] = {deprecated: 'maybe'};
 
             expect(function () {
                 configParser(resourceConfigs, mockDataSources);
@@ -1219,7 +1223,7 @@ describe('config-parser', function () {
         it('fails on invalid options in nested-attribute-context (no valid options here)', function () {
             var resourceConfigs = _.cloneDeep(minimalResourceConfigs);
 
-            resourceConfigs['test'].attributes['nested'] = {
+            resourceConfigs['test'].config.attributes['nested'] = {
                 'attributes': {},
                 'type': 'int'
             };
@@ -1238,32 +1242,32 @@ describe('config-parser', function () {
             resourceConfigs = _.cloneDeep(resourceConfigs);
 
             // test attributes in prepare()-call of all DataSources:
-            resourceConfigs['article'].dataSources['primary'].expectedAttributes =
+            resourceConfigs['article'].config.dataSources['primary'].expectedAttributes =
                 ['id', 'timestamp', 'title', 'authorId', 'countries',
                 'sourceName', 'externalId', 'externalUrl', 'secretInfo'];
-            resourceConfigs['article'].dataSources['articleBody'].expectedAttributes =
+            resourceConfigs['article'].config.dataSources['articleBody'].expectedAttributes =
                 ['articleId', 'body'];
-            resourceConfigs['article'].dataSources['fulltextSearch'].expectedAttributes =
+            resourceConfigs['article'].config.dataSources['fulltextSearch'].expectedAttributes =
                 ['articleId'];
-            resourceConfigs['article'].dataSources['statistics'].expectedAttributes =
+            resourceConfigs['article'].config.dataSources['statistics'].expectedAttributes =
                 ['articleId', 'commentCount'];
-            resourceConfigs['article'].attributes['categories'].dataSources['primary'].expectedAttributes =
+            resourceConfigs['article'].config.attributes['categories'].dataSources['primary'].expectedAttributes =
                 ['id', 'name', 'isImportant'];
-            resourceConfigs['article'].attributes['categories'].dataSources['articleCategories'].expectedAttributes =
+            resourceConfigs['article'].config.attributes['categories'].dataSources['articleCategories'].expectedAttributes =
                 ['articleId', 'categoryId', 'order'];
-            resourceConfigs['article'].attributes['countries'].dataSources['primary'].expectedAttributes =
+            resourceConfigs['article'].config.attributes['countries'].dataSources['primary'].expectedAttributes =
                 ['id', 'name', 'iso', 'iso3'];
-            resourceConfigs['article'].attributes['video'].dataSources['primary'].expectedAttributes =
+            resourceConfigs['article'].config.attributes['video'].dataSources['primary'].expectedAttributes =
                 ['articleId', 'url', 'previewImage', 'youtubeId'];
-            resourceConfigs['article'].attributes['comments'].dataSources['primary'].expectedAttributes =
+            resourceConfigs['article'].config.attributes['comments'].dataSources['primary'].expectedAttributes =
                 ['articleId', 'id', 'userId', 'content'];
-            resourceConfigs['article'].attributes['comments'].dataSources['likes'].expectedAttributes =
+            resourceConfigs['article'].config.attributes['comments'].dataSources['likes'].expectedAttributes =
                 ['commentId', 'count'];
-            resourceConfigs['article'].attributes['versions'].dataSources['primary'].expectedAttributes =
+            resourceConfigs['article'].config.attributes['versions'].dataSources['primary'].expectedAttributes =
                 ['articleId', 'versionId', 'title', 'body'];
-            resourceConfigs['article'].attributes['versions'].attributes['versioninfo'].dataSources['primary'].expectedAttributes =
+            resourceConfigs['article'].config.attributes['versions'].attributes['versioninfo'].dataSources['primary'].expectedAttributes =
                 ['articleId', 'versionId', 'modified', 'username'];
-            resourceConfigs['user'].dataSources['primary'].expectedAttributes =
+            resourceConfigs['user'].config.dataSources['primary'].expectedAttributes =
                 ['id', 'firstname', 'lastname'];
 
             configParser(resourceConfigs, mockDataSources);

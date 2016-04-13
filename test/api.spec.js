@@ -195,7 +195,10 @@ describe('Api', function () {
                 if (err) return done(err);
 
                 // mock empty resource:
-                api._resources['no-actions'] = {};
+                api.resourceProcessor.resourceConfigs['no-actions'] = {
+                    config: {},
+                    instance: {}
+                };
 
                 var request = new Request({
                     resource: 'no-actions'
