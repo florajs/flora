@@ -197,7 +197,7 @@ describe('extensions', function () {
 
     describe('resource', function () {
         describe('init (sync)', function () {
-            it('is emitted once when the resource is called for the first time', function (done) {
+            xit('is emitted once when the resource is called for the first time', function (done) {
                 var api = new Api();
                 var spy;
 
@@ -216,7 +216,7 @@ describe('extensions', function () {
                 });
             });
 
-            it('is emitted only once', function (done) {
+            xit('is emitted only once', function (done) {
                 var api = new Api();
                 var spy;
 
@@ -241,7 +241,7 @@ describe('extensions', function () {
         });
 
         describe('init (async)', function () {
-            it('is emitted once when the resource is called for the first time', function (done) {
+            xit('is emitted once when the resource is called for the first time', function (done) {
                 var api = new Api();
                 var spy;
 
