@@ -39,16 +39,6 @@
                     }
                 ]
             ]
-        },
-        "fulltextSearch": {
-            "type": "solr",
-            "core": "article",
-            "searchable": "true"
-        },
-        "statistics": {
-            "type": "mysql",
-            "database": "contents",
-            "query": "SELECT\n                articleId AS articleId,\n                COUNT(id) AS commentCount\n            FROM comments\n            GROUP BY articleId"
         }
     },
     "subFilters": [
@@ -143,16 +133,6 @@
             "value": null,
             "type": "string",
             "selected": false
-        },
-        "authorId": {
-            "hidden": true,
-            "type": "int",
-            "map": {
-                "default": {
-                    "primary": "authorId"
-                }
-            },
-            "selectedDataSource": "primary"
         },
         "author": {
             "parentKey": [
@@ -303,6 +283,19 @@
                 }
             },
             "attributes": {
+                "id": {
+                    "type": "int",
+                    "map": {
+                        "default": {
+                            "primary": "id"
+                        }
+                    },
+                    "filter": [
+                        "equal"
+                    ],
+                    "selected": false,
+                    "selectedDataSource": "primary"
+                },
                 "articleId": {
                     "hidden": true,
                     "type": "int",
@@ -323,19 +316,6 @@
                     },
                     "selectedDataSource": "articleCategories"
                 },
-                "id": {
-                    "type": "int",
-                    "map": {
-                        "default": {
-                            "primary": "id"
-                        }
-                    },
-                    "filter": [
-                        "equal"
-                    ],
-                    "selected": false,
-                    "selectedDataSource": "primary"
-                },
                 "name": {
                     "map": {
                         "default": {
@@ -345,14 +325,6 @@
                     "type": "string",
                     "selected": false,
                     "selectedDataSource": "primary"
-                },
-                "isImportant": {
-                    "type": "boolean",
-                    "map": {
-                        "default": {
-                            "primary": "isImportant"
-                        }
-                    }
                 },
                 "order": {
                     "type": "int",
@@ -391,18 +363,6 @@
             },
             "selected": false,
             "primaryDataSource": "primary"
-        },
-        "countryIsoList": {
-            "hidden": true,
-            "multiValued": true,
-            "type": "string",
-            "map": {
-                "default": {
-                    "primary": "countries"
-                }
-            },
-            "delimiter": ",",
-            "selectedDataSource": "primary"
         },
         "countries": {
             "primaryKey": [
@@ -456,16 +416,6 @@
                     "selected": false,
                     "selectedDataSource": "primary"
                 },
-                "name": {
-                    "map": {
-                        "default": {
-                            "primary": "name"
-                        }
-                    },
-                    "type": "string",
-                    "selected": false,
-                    "selectedDataSource": "primary"
-                },
                 "iso": {
                     "map": {
                         "default": {
@@ -475,13 +425,15 @@
                     "type": "string",
                     "selectedDataSource": "primary"
                 },
-                "iso3": {
+                "name": {
                     "map": {
                         "default": {
-                            "primary": "iso3"
+                            "primary": "name"
                         }
                     },
-                    "type": "string"
+                    "type": "string",
+                    "selected": false,
+                    "selectedDataSource": "primary"
                 }
             },
             "resolvedPrimaryKey": {
@@ -568,25 +520,6 @@
                     "type": "string",
                     "selected": false,
                     "selectedDataSource": "primary"
-                },
-                "previewImage": {
-                    "map": {
-                        "default": {
-                            "primary": "previewImage"
-                        }
-                    },
-                    "type": "string"
-                },
-                "youtubeId": {
-                    "filter": [
-                        "equal"
-                    ],
-                    "map": {
-                        "default": {
-                            "primary": "youtubeId"
-                        }
-                    },
-                    "type": "string"
                 }
             },
             "resolvedPrimaryKey": {
@@ -637,52 +570,9 @@
                     "type": "string",
                     "selected": false,
                     "selectedDataSource": "primary"
-                },
-                "externalUrl": {
-                    "map": {
-                        "default": {
-                            "primary": "externalUrl"
-                        }
-                    },
-                    "type": "string"
                 }
             },
             "selected": false
-        },
-        "copyright": {
-            "depends": {
-                "author": {
-                    "select": {
-                        "firstname": {},
-                        "lastname": {}
-                    }
-                },
-                "categories": {
-                    "select": {
-                        "name": {}
-                    }
-                },
-                "secretInfo": {}
-            },
-            "value": "",
-            "type": "string"
-        },
-        "secretInfo": {
-            "hidden": true,
-            "map": {
-                "default": {
-                    "primary": "secretInfo"
-                }
-            },
-            "type": "string"
-        },
-        "commentCount": {
-            "type": "int",
-            "map": {
-                "default": {
-                    "statistics": "commentCount"
-                }
-            }
         },
         "comments": {
             "primaryKey": [
@@ -721,24 +611,9 @@
                             }
                         ]
                     ]
-                },
-                "likes": {
-                    "type": "mysql",
-                    "database": "contents",
-                    "table": "comment_likes"
                 }
             },
             "attributes": {
-                "articleId": {
-                    "hidden": true,
-                    "type": "int",
-                    "map": {
-                        "default": {
-                            "primary": "articleId"
-                        }
-                    },
-                    "selectedDataSource": "primary"
-                },
                 "id": {
                     "type": "int",
                     "map": {
@@ -753,14 +628,24 @@
                     "selected": false,
                     "selectedDataSource": "primary"
                 },
-                "userId": {
+                "articleId": {
                     "hidden": true,
                     "type": "int",
                     "map": {
                         "default": {
-                            "primary": "userId"
+                            "primary": "articleId"
                         }
                     },
+                    "selectedDataSource": "primary"
+                },
+                "content": {
+                    "map": {
+                        "default": {
+                            "primary": "content"
+                        }
+                    },
+                    "type": "string",
+                    "selected": false,
                     "selectedDataSource": "primary"
                 },
                 "user": {
@@ -854,23 +739,15 @@
                     "selected": false,
                     "primaryDataSource": "primary"
                 },
-                "content": {
-                    "map": {
-                        "default": {
-                            "primary": "content"
-                        }
-                    },
-                    "type": "string",
-                    "selected": false,
-                    "selectedDataSource": "primary"
-                },
-                "likes": {
+                "userId": {
+                    "hidden": true,
                     "type": "int",
                     "map": {
                         "default": {
-                            "likes": "count"
+                            "primary": "userId"
                         }
-                    }
+                    },
+                    "selectedDataSource": "primary"
                 }
             },
             "resolvedPrimaryKey": {
@@ -975,14 +852,6 @@
                     "selected": false,
                     "selectedDataSource": "primary"
                 },
-                "body": {
-                    "map": {
-                        "default": {
-                            "primary": "body"
-                        }
-                    },
-                    "type": "string"
-                },
                 "versioninfo": {
                     "primaryKey": [
                         [
@@ -1062,14 +931,6 @@
                             },
                             "selected": false,
                             "selectedDataSource": "primary"
-                        },
-                        "username": {
-                            "map": {
-                                "default": {
-                                    "primary": "username"
-                                }
-                            },
-                            "type": "string"
                         }
                     },
                     "resolvedPrimaryKey": {
@@ -1121,6 +982,28 @@
             },
             "selected": false,
             "primaryDataSource": "primary"
+        },
+        "authorId": {
+            "hidden": true,
+            "type": "int",
+            "map": {
+                "default": {
+                    "primary": "authorId"
+                }
+            },
+            "selectedDataSource": "primary"
+        },
+        "countryIsoList": {
+            "hidden": true,
+            "multiValued": true,
+            "type": "string",
+            "map": {
+                "default": {
+                    "primary": "countries"
+                }
+            },
+            "delimiter": ",",
+            "selectedDataSource": "primary"
         }
     },
     "resolvedPrimaryKey": {

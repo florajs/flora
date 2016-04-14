@@ -22,6 +22,51 @@ describe('request-resolver', function () {
             expect(resourceConfigsAfter).to.equal(resourceConfigsBefore);
         });
 
+        it('returns a completely cloned resourceConfigs tree (except DataSources)', function () {
+            var resourceConfigsBefore, resourceConfigsAfter;
+            var req = {
+                resource: 'article',
+                select: {
+                    'title': {},
+                    'author': {
+                        select: {
+                            'firstname': {},
+                        }
+                    },
+                    'categories': {},
+                    'comments': {
+                        select: {
+                            'content': {},
+                            'user': {
+                                select: {
+                                    'firstname': {}
+                                }
+                            }
+                        }
+                    }
+                }
+            };
+
+            function polluteObject(object, depth) {
+                for (var key in object) {
+                    if (key === '_attrsRefs') continue;
+
+                    if (typeof object[key] === 'object' && object[key] !== null && depth > 0) {
+                        polluteObject(object[key], key === 'dataSources' ? 1 : depth - 1);
+                    }
+                }
+
+                object.__garbage__ = true;
+            }
+
+            resourceConfigsBefore = JSON.stringify(resourceConfigs);
+            var resolvedRequest = requestResolver(req, resourceConfigs);
+            polluteObject(resolvedRequest.resolvedConfig, 100);
+            resourceConfigsAfter = JSON.stringify(resourceConfigs);
+
+            expect(resourceConfigsAfter).to.equal(resourceConfigsBefore);
+        });
+
         it('handles resource-includes at top level (also recursive)', function () {
             var configs = {
                 "resource1": {
@@ -74,12 +119,12 @@ describe('request-resolver', function () {
                 "existing": {
                     config: {
                         "dataSources": resourceConfigs['user'].config.dataSources,
-                        "attributes": {
-                            "existingAttribute": {
-                                "resource": "non-existing"
-                            }
+                    "attributes": {
+                        "existingAttribute": {
+                            "resource": "non-existing"
                         }
                     }
+                }
                 }
             };
 
@@ -147,63 +192,65 @@ describe('request-resolver', function () {
         var mergeResourceConfigs = {
             "resource1": {
                 config: {
-                    "primaryKey": [["id"]],
-                    "resolvedPrimaryKey": {"primary": ["id"]},
-                    "dataSources": {
-                        "primary": {"type": "test"}
+                "primaryKey": [["id"]],
+                "resolvedPrimaryKey": {"primary": ["id"]},
+                "dataSources": {
+                    "primary": {"type": "test"}
+                },
+                "attributes": {
+                    "id": {
+                        "type": "int",
+                        "map": {"default": {"primary": "id"}}
                     },
-                    "attributes": {
-                        "id": {
-                            "type": "int",
-                            "map": {"default": {"primary": "id"}}
-                        },
-                        "resource2": {
-                            "resource": "resource2",
-                            "parentKey": [["id"]],
-                            "resolvedParentKey": {"primary": ["id"]},
-                            "childKey": [["id"]],
-                            "resolvedChildKey": {"primary": ["id"]}
-                        }
+                    "resource2": {
+                        "resource": "resource2",
+                        "parentKey": [["id"]],
+                        "resolvedParentKey": {"primary": ["id"]},
+                        "childKey": [["id"]],
+                        "resolvedChildKey": {"primary": ["id"]}
                     }
+                }
                 }
             },
             "resource2": {
                 config: {
-                    "primaryKey": [["id"]],
-                    "resolvedPrimaryKey": {"primary": ["id"]},
-                    "dataSources": {
-                        "primary": {"type": "test"}
+                "primaryKey": [["id"]],
+                "resolvedPrimaryKey": {"primary": ["id"]},
+                "dataSources": {
+                    "primary": {"type": "test"}
+                },
+                "attributes": {
+                    "id": {
+                        "type": "int",
+                        "map": {"default": {"primary": "id"}}
                     },
-                    "attributes": {
-                        "id": {
-                            "type": "int",
-                            "map": {"default": {"primary": "id"}}
-                        },
-                        "attr1": {
-                            "map": {"default": {"primary": "attr1"}}
-                        },
-                        "attr2": {
-                            "map": {"default": {"primary": "attr2"}}
-                        }
+                    "attr1": {
+                        "map": {"default": {"primary": "attr1"}}
+                    },
+                    "attr2": {
+                        "map": {"default": {"primary": "attr2"}}
                     }
                 }
             }
-        };
-
-        var mergeRequest = {
-            resource: 'resource1',
-            select: {
-                'resource2': {}
             }
         };
 
-        it('allows additional attributes, but keeps order from sub-resource', function () {
+        it('allows additional attributes and keeps order from request', function () {
             var configs = _.cloneDeep(mergeResourceConfigs);
             configs['resource1'].config.attributes['resource2'].attributes = {'attr3': {value: 'test'}};
 
-            var expectedOrder = ['id', 'attr1', 'attr2', 'attr3'];
+            var req = {
+                resource: 'resource1',
+                select: {
+                    'resource2': {
+                        select: {'attr3': {}, 'attr2': {}, 'attr1': {}}
+                    }
+                }
+            };
 
-            var resolvedRequest = requestResolver(mergeRequest, configs);
+            var expectedOrder = ['id', 'attr3', 'attr2', 'attr1'];
+
+            var resolvedRequest = requestResolver(req, configs);
             var currentOrder = Object.keys(resolvedRequest.resolvedConfig.attributes['resource2'].attributes);
             expect(currentOrder).to.eql(expectedOrder);
         });
@@ -212,16 +259,38 @@ describe('request-resolver', function () {
             var configs = _.cloneDeep(mergeResourceConfigs);
             configs['resource1'].config.attributes['resource2'].attributes = {'attr1': {value: 'test'}};
 
+            var req = {
+                resource: 'resource1',
+                select: {
+                    'resource2': {
+                        select: {'attr1': {}}
+                    }
+                }
+            };
+
             expect(function () {
-                requestResolver(mergeRequest, configs);
+                requestResolver(req, configs);
             }).to.throw(ImplementationError, 'Cannot overwrite attribute "attr1" in "resource2"');
         });
 
         it('allows additional DataSources', function () {
             var configs = _.cloneDeep(mergeResourceConfigs);
             configs['resource1'].config.attributes['resource2'].dataSources = {'test': {type: 'test'}};
+            // TODO: Currently "map" is not mergeable - maybe future feature - hack for now for this test:
+            configs['resource2'].config.resolvedPrimaryKey['test'] = ['id'];
+            configs['resource2'].config.attributes['id'].map['default']['test'] = 'id';
+            configs['resource2'].config.attributes['attr1'].map['default'] = {'test': 'attr1'};
 
-            var resolvedRequest = requestResolver(mergeRequest, configs);
+            var req = {
+                resource: 'resource1',
+                select: {
+                    'resource2': {
+                        select: {'attr1': {}}
+                    }
+                }
+            };
+
+            var resolvedRequest = requestResolver(req, configs);
             expect(resolvedRequest.resolvedConfig.attributes['resource2'].dataSources)
                 .to.have.all.keys('primary', 'test');
         });
@@ -230,8 +299,15 @@ describe('request-resolver', function () {
             var configs = _.cloneDeep(mergeResourceConfigs);
             configs['resource1'].config.attributes['resource2'].dataSources = {'primary': {type: 'test'}};
 
+            var req = {
+                resource: 'resource1',
+                select: {
+                    'resource2': {}
+                }
+            };
+
             expect(function () {
-                requestResolver(mergeRequest, configs);
+                requestResolver(req, configs);
             }).to.throw(ImplementationError, 'Cannot overwrite DataSource "primary" in "resource2"');
         });
     });
@@ -2282,82 +2358,82 @@ describe('request-resolver', function () {
             var testResourceConfigs = {
                 "resource1": {
                     config: {
-                        "primaryKey": [["id"]],
-                        "resolvedPrimaryKey": {"primary": ["id"], "secondary1": ["id"], "secondary2": ["id"]},
-                        "dataSources": {
-                            "primary": {"type": "test"},
-                            "secondary1": {"type": "test"},
-                            "secondary2": {"type": "test"}
+                    "primaryKey": [["id"]],
+                    "resolvedPrimaryKey": {"primary": ["id"], "secondary1": ["id"], "secondary2": ["id"]},
+                    "dataSources": {
+                        "primary": {"type": "test"},
+                        "secondary1": {"type": "test"},
+                        "secondary2": {"type": "test"}
+                    },
+                    "attributes": {
+                        "id": {
+                            "type": "int",
+                            "map": {"default": {"primary": "id", "secondary1": "id", "secondary2": "id"}}
                         },
-                        "attributes": {
-                            "id": {
-                                "type": "int",
-                                "map": {"default": {"primary": "id", "secondary1": "id", "secondary2": "id"}}
+                        "firstKeyPart": {
+                            "type": "int",
+                            "map": {"default": {"secondary1": "firstKeyPart", "secondary2": "firstKeyPart"}}
+                        },
+                        "keyPart1": {
+                            "type": "int",
+                            "map": {"default": {"secondary1": "keyPart1"}}
+                        },
+                        "keyPart2": {
+                            "type": "int",
+                            "map": {"default": {"secondary2": "keyPart2"}}
+                        },
+                        "subResource1": {
+                            "primaryKey": [["firstKeyPart"], ["keyPart1"]],
+                            "resolvedPrimaryKey": {"primary": ["firstKeyPart", "keyPart1"]},
+                            "parentKey": [["firstKeyPart"], ["keyPart1"]],
+                            "resolvedParentKey": {"secondary1": ["firstKeyPart", "keyPart1"]},
+                            "childKey": [["firstKeyPart"], ["keyPart1"]],
+                            "resolvedChildKey": {"primary": ["firstKeyPart", "keyPart1"]},
+                            "dataSources": {
+                                "primary": {"type": "test"}
                             },
-                            "firstKeyPart": {
-                                "type": "int",
-                                "map": {"default": {"secondary1": "firstKeyPart", "secondary2": "firstKeyPart"}}
-                            },
-                            "keyPart1": {
-                                "type": "int",
-                                "map": {"default": {"secondary1": "keyPart1"}}
-                            },
-                            "keyPart2": {
-                                "type": "int",
-                                "map": {"default": {"secondary2": "keyPart2"}}
-                            },
-                            "subResource1": {
-                                "primaryKey": [["firstKeyPart"], ["keyPart1"]],
-                                "resolvedPrimaryKey": {"primary": ["firstKeyPart", "keyPart1"]},
-                                "parentKey": [["firstKeyPart"], ["keyPart1"]],
-                                "resolvedParentKey": {"secondary1": ["firstKeyPart", "keyPart1"]},
-                                "childKey": [["firstKeyPart"], ["keyPart1"]],
-                                "resolvedChildKey": {"primary": ["firstKeyPart", "keyPart1"]},
-                                "dataSources": {
-                                    "primary": {"type": "test"}
+                            "attributes": {
+                                "firstKeyPart": {
+                                    "type": "int",
+                                    "map": {"default": {"primary": "firstKeyPart"}}
                                 },
-                                "attributes": {
-                                    "firstKeyPart": {
-                                        "type": "int",
-                                        "map": {"default": {"primary": "firstKeyPart"}}
-                                    },
-                                    "keyPart1": {
-                                        "type": "int",
-                                        "map": {"default": {"primary": "keyPart1"}}
-                                    },
-                                    "name": {
-                                        "type": "string",
-                                        "map": {"default": {"primary": "name"}}
-                                    }
+                                "keyPart1": {
+                                    "type": "int",
+                                    "map": {"default": {"primary": "keyPart1"}}
+                                },
+                                "name": {
+                                    "type": "string",
+                                    "map": {"default": {"primary": "name"}}
                                 }
+                            }
+                        },
+                        "subResource2": {
+                            "primaryKey": [["firstKeyPart"], ["keyPart2"]],
+                            "resolvedPrimaryKey": {"primary": ["firstKeyPart", "keyPart2"]},
+                            "parentKey": [["firstKeyPart"], ["keyPart2"]],
+                            "resolvedParentKey": {"secondary2": ["firstKeyPart", "keyPart2"]},
+                            "childKey": [["firstKeyPart"], ["keyPart2"]],
+                            "resolvedChildKey": {"primary": ["firstKeyPart", "keyPart2"]},
+                            "dataSources": {
+                                "primary": {"type": "test"}
                             },
-                            "subResource2": {
-                                "primaryKey": [["firstKeyPart"], ["keyPart2"]],
-                                "resolvedPrimaryKey": {"primary": ["firstKeyPart", "keyPart2"]},
-                                "parentKey": [["firstKeyPart"], ["keyPart2"]],
-                                "resolvedParentKey": {"secondary2": ["firstKeyPart", "keyPart2"]},
-                                "childKey": [["firstKeyPart"], ["keyPart2"]],
-                                "resolvedChildKey": {"primary": ["firstKeyPart", "keyPart2"]},
-                                "dataSources": {
-                                    "primary": {"type": "test"}
+                            "attributes": {
+                                "firstKeyPart": {
+                                    "type": "int",
+                                    "map": {"default": {"primary": "firstKeyPart"}}
                                 },
-                                "attributes": {
-                                    "firstKeyPart": {
-                                        "type": "int",
-                                        "map": {"default": {"primary": "firstKeyPart"}}
-                                    },
-                                    "keyPart2": {
-                                        "type": "int",
-                                        "map": {"default": {"primary": "keyPart2"}}
-                                    },
-                                    "name": {
-                                        "type": "string",
-                                        "map": {"default": {"primary": "name"}}
-                                    }
+                                "keyPart2": {
+                                    "type": "int",
+                                    "map": {"default": {"primary": "keyPart2"}}
+                                },
+                                "name": {
+                                    "type": "string",
+                                    "map": {"default": {"primary": "name"}}
                                 }
                             }
                         }
                     }
+                }
                 }
             };
 
@@ -2724,14 +2800,18 @@ describe('request-resolver', function () {
 
             var resolvedRequest = requestResolver(req, resourceConfigs);
 
-            function deselectAttributes(parentAttrNode) {
+            function cleanupAttributes(parentAttrNode) {
                 var attrName, attrNode;
+
+                if (parentAttrNode._attrsRefs) {
+                    delete parentAttrNode._attrsRefs;
+                }
 
                 for (attrName in parentAttrNode.attributes) {
                     attrNode = parentAttrNode.attributes[attrName];
 
                     if (attrNode.attributes) {
-                        deselectAttributes(attrNode);
+                        cleanupAttributes(attrNode);
                     }
 
                     if (attrNode.selected) {
@@ -2740,7 +2820,7 @@ describe('request-resolver', function () {
                 }
             }
 
-            deselectAttributes(resolvedRequest.resolvedConfig);
+            cleanupAttributes(resolvedRequest.resolvedConfig);
 
             // for manually generating fixture:
             //console.log(JSON.stringify(resolvedRequest.resolvedConfig, null, 4));
