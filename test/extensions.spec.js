@@ -197,69 +197,30 @@ describe('extensions', function () {
 
     describe('resource', function () {
         describe('init (sync)', function () {
-            xit('is emitted once when the resource is called for the first time', function (done) {
+            it('is emitted once when the resource is called for the first time', function (done) {
                 var api = new Api();
-                var spy;
 
                 api.init(testConfig, function (err) {
                     if (err) return done(err);
-
                     var resource = api.getResource('test');
-                    spy = sinon.spy(resource.extensions, 'init');
-
-                    var request = new Request({resource: 'test'});
-                    api.execute(request, function (err2) {
-                        if (err2) return done(err2);
-                        expect(spy).to.be.calledOnce;
-                        api.close(done);
-                    });
+                    expect(resource._initCalled()).to.equal(1);
+                    api.close(done);
                 });
             });
 
-            xit('is emitted only once', function (done) {
+            it('is emitted only once', function (done) {
                 var api = new Api();
-                var spy;
-
-                api.init(testConfig, function (err) {
-                    if (err) return done(err);
-
-                    var resource = api.getResource('test');
-                    spy = sinon.spy(resource.extensions, 'init');
-
-                    var request = new Request({resource: 'test'});
-                    api.execute(request, function (err2) {
-                        if (err2) return done(err2);
-
-                        api.execute(request, function (err3) {
-                            if (err2) return done(err2);
-                            expect(spy).to.be.calledOnce;
-                            api.close(done);
-                        });
-                    });
-                });
-            });
-        });
-
-        describe('init (async)', function () {
-            xit('is emitted once when the resource is called for the first time', function (done) {
-                var api = new Api();
-                var spy;
 
                 api.init(testConfig, function (err) {
                     if (err) return done(err);
 
                     var resource = api.getResource('test');
 
-                    resource.extensions.init = function (cb) {
-                        cb();
-                    };
-
-                    spy = sinon.spy(resource.extensions, 'init');
-
                     var request = new Request({resource: 'test'});
                     api.execute(request, function (err2) {
                         if (err2) return done(err2);
-                        expect(spy).to.be.calledOnce;
+
+                        expect(resource._initCalled()).to.equal(1);
                         api.close(done);
                     });
                 });
