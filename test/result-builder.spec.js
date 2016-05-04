@@ -655,7 +655,7 @@ describe('result-builder', function () {
             expect(result).to.eql(expectedResult);
         });
 
-        it('does not depend on primary result when joinVia result is empty', function () {
+        it('does not depend on primary sub-result when joinVia result is empty', function () {
             // /article/?select=categories.name
             var rawResults = [{
                 attributePath: [],
@@ -686,6 +686,45 @@ describe('result-builder', function () {
                 data: [{
                     id: 1,
                     categories: []
+                }]
+            };
+
+            var result = resultBuilder(api, {}, rawResults, resolvedConfig);
+            expect(result).to.eql(expectedResult);
+        });
+
+        it('does not depend on primary sub-result when secondary result is empty', function () {
+            // /article/?select=author
+            var rawResults = [{
+                attributePath: [],
+                dataSourceName: 'articleBody', // hack as primary
+                data: [
+                    {articleId: 1}
+                ],
+                totalCount: 1
+            },{
+                attributePath: [],
+                dataSourceName: 'primary', // hack as secondary
+                parentKey: ['articleId'],
+                childKey: ['id'],
+                multiValuedParentKey: false,
+                uniqueChildKey: true,
+                data: [], // no matching row, so sub-resource is not executed - no error about missing results!
+                totalCount: 0
+            }];
+
+            var resolvedConfig = _.cloneDeep(defaultResolvedConfig);
+            resolvedConfig.primaryDataSource = 'articleBody';
+            resolvedConfig.attributes['id'].selected = true;
+            resolvedConfig.attributes['id'].selectedDataSource = 'articleBody';
+            resolvedConfig.attributes['author'].selected = true;
+            resolvedConfig.attributes['author'].parentDataSource = 'primary';
+
+            var expectedResult = {
+                cursor: {totalCount: 1},
+                data: [{
+                    id: 1,
+                    author: null
                 }]
             };
 
