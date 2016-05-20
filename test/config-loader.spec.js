@@ -64,7 +64,7 @@ describe('config-loader', function () {
         };
 
         var callback = sinon.stub();
-        callback.onFirstCall().throws('Error');
+        callback.onFirstCall().returns(new Error());
 
         configLoader(api, cfg, callback);
 
