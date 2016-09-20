@@ -49,6 +49,35 @@ describe('type casting', function () {
         });
     });
 
+    describe('casts type "date" types from "unixtime"', function () {
+        it('casts unixtime integer to datetime', function () {
+            expect(cast(1474371990, {
+                type: 'datetime',
+                storedType: {type: 'unixtime'}
+            })).to.equal('2016-09-20T11:46:30.000Z');
+        });
+        it('casts unixtime string to datetime', function () {
+            expect(cast('1474371990', {
+                type: 'datetime',
+                storedType: {type: 'unixtime'}
+            })).to.equal('2016-09-20T11:46:30.000Z');
+        });
+
+        it('casts unixtime integer to date', function () {
+            expect(cast(1474371990, {
+                type: 'date',
+                storedType: {type: 'unixtime'}
+            })).to.equal('2016-09-20');
+        });
+
+        it('casts unixtime integer to time', function () {
+            expect(cast(1474371990, {
+                type: 'time',
+                storedType: {type: 'unixtime'}
+            })).to.equal('11:46:30.000Z');
+        });
+    });
+
     describe('casts type "date" with timezone', function () {
         it('casts invalid datetime values to null', function () {
             expect(cast('0000-00-00 00:00:00', {type: 'date'})).to.equal(null);
@@ -102,6 +131,17 @@ describe('type casting', function () {
                 type: 'time',
                 storedType: {type: "datetime", options: {tz: "America/New_York"}}
             })).to.equal('08:00:00.000Z');
+        });
+    });
+
+    describe('casts type "unixtime"', function () {
+        it('casts invalid date values to null', function () {
+            expect(cast('0000-00-00 00:00:00', {type: 'unixtime'})).to.equal(null);
+            expect(cast('foo', {type: 'unixtime'})).to.equal(null);
+        });
+
+        it('"2016-09-20T11:46:30.000Z" to unixtime', function () {
+            expect(cast('2016-09-20T11:46:30.000Z', {type: 'unixtime'})).to.equal(1474371990);
         });
     });
 
