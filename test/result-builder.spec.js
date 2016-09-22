@@ -55,8 +55,8 @@ describe('result-builder', function () {
             resolvedConfig.many = false;
 
             expect(function () {
-                resultBuilder(api, {}, rawResults, resolvedConfig);
-            }).to.throw(NotFoundError, 'Requested item not found');
+                resultBuilder(api, {resource: 'test', id: 123}, rawResults, resolvedConfig);
+            }).to.throw(NotFoundError, 'Item "123" (in resource "test") not found');
         });
 
         it('builds simple result (many = true)', function () {
