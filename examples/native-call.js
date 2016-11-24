@@ -1,11 +1,11 @@
 'use strict';
 
-var path = require('path');
-var flora = require('../');
+const path = require('path');
+const flora = require('../');
 
-var api = new flora.Api();
+const api = new flora.Api();
 
-var config = {
+const config = {
     resourcesPath: path.join(__dirname, 'resources'),
     dataSources: {
         mysql: {
@@ -21,14 +21,14 @@ var config = {
     }
 };
 
-var request = new flora.Request({
+const request = new flora.Request({
     resource: 'test',
     select: 'select=iso2,iso3,currency(order=iso:desc).iso'
 });
 
-api.init(config, function (err) {
+api.init(config, (err) => {
     if (err) return;
-    api.execute(request, function onFloraResponse(e, response) {
+    api.execute(request, (e, response) => {
         if (e) return;
         console.log(response);
     });

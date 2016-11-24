@@ -4,7 +4,8 @@
   "description": "FLexible Open Rest API",
   "main": "index.js",
   "scripts": {
-    "test": "grunt test"
+    "test": "grunt test",
+    "lint": "eslint lib"
   },
   "keywords": [
     "api",
@@ -46,16 +47,18 @@
     "flora-cluster": "^0.6.0",
     "flora-errors": "^0.6.0",
     "flora-request-parser": "^0.6.0",
+    "has": "^1.0.1",
     "lodash": "^4.0.0",
     "moment-timezone": "^0.5.0",
     "serve-static": "^1.10.0",
-    "when": "^3.7.3",
     "xmldom": "^0.1.19"
   },
   "devDependencies": {
     "chai": "^3.3.0",
     "chai-as-promised": "^5.1.0",
-    "eslint": "^3.2.2",
+    "eslint": "^3.10.2",
+    "eslint-config-airbnb-base": "^10.0.1",
+    "eslint-plugin-import": "^2.2.0",
     "grunt": "^1.0.1",
     "grunt-cli": "^1.2.0",
     "grunt-contrib-clean": "^1.0.0",

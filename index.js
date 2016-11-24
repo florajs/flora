@@ -1,8 +1,8 @@
 'use strict';
 
-module.exports = {
-    Api: require('./lib/api'),
-    Master: require('./lib/master'),
-    Request: require('./lib/request'),
-    Server: require('./lib/server')
-};
+const Api = require('./lib/api');
+const Master = require('./lib/master');
+const Request = require('./lib/request');
+const Server = require('./lib/server');
+
+module.exports = { Api, Master, Request, Server };

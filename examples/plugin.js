@@ -1,19 +1,19 @@
 'use strict';
 
-var path = require('path');
-var flora = require('../');
+const path = require('path');
+const flora = require('../');
 
-var myPlugin = {
+const myPlugin = {
     name: 'myPlugin',
-    register: function (api, options) {
-        api.on('request', function (ev, next) {
-            var request = ev.request;
+    register: (api, options) => {
+        api.on('request', (ev, next) => {
+            const { request } = ev;
             // ... do something with the request
             next();
         });
     }
 };
 
-var server = new flora.Server(path.join(__dirname, 'config.example.js'));
-server.register(myPlugin, {foo: 'bar'});
+const server = new flora.Server(path.join(__dirname, 'config.example.js'));
+server.register(myPlugin, { foo: 'bar' });
 server.run();

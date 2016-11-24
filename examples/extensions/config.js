@@ -1,8 +1,8 @@
-var path = require('path');
+const path = require('path');
 
-var emptyDataSource = function () {
+const emptyDataSource = () => {
     return {
-        process: function (request, callback) {
+        process: (request, callback) => {
             callback(null, {
                 data: [{
                     id: 1,
@@ -11,7 +11,7 @@ var emptyDataSource = function () {
                 totalCount: null
             });
         },
-        prepare: function () {}
+        prepare: () => {}
     };
 };
 

@@ -1,9 +1,9 @@
 'use strict';
 
-module.exports = function (api) {
+module.exports = (api) => {
     return {
         actions: {
-            hello: function (request, response) {
+            hello: (request, response) => {
                 response.send('Hello World');
             }
         }

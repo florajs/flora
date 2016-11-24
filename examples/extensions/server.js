@@ -1,9 +1,10 @@
 'use strict';
 
-var path = require('path');
-var flora = require('../../');
+const path = require('path');
 
-var server = new flora.Server(path.join(__dirname, 'config.js'));
+const flora = require('../../');
+
+const server = new flora.Server(path.join(__dirname, 'config.js'));
 server.run();
 
 // http://localhost:8000/test/
@@ -14,7 +15,7 @@ server.run();
 // All extensions can be used synchronously when the "next" parameter is omitted, i.e. the function
 // has < 2 parameters (so a "dummy" parameter is needed if "next" is used)
 
-server.api.on('init', function (ev, next) {
+server.api.on('init', (ev, next) => {
     console.log('Extension: init');
     next();
 });
@@ -23,7 +24,7 @@ server.api.on('init', function (ev, next) {
 // Extension: "close"
 // is called when Api is closing.
 
-server.api.on('close', function (ev, next) {
+server.api.on('close', (ev, next) => {
     console.log('Extension: close');
     next();
 });
@@ -32,9 +33,8 @@ server.api.on('close', function (ev, next) {
 // Extension: "request"
 // is called on each request, before the request is handled.
 
-server.api.on('request', function (ev, next) {
-    var request = ev.request;
-    var response = ev.response;
+server.api.on('request', (ev, next) => {
+    const { request, response } = ev;
     console.log('Extension: request');
     request.limit = 1; // modify the "limit" parameter
     request.select = 'foo'; // modify the "select" parameter to always select (only) the "foo" attribute
@@ -48,8 +48,8 @@ server.api.on('request', function (ev, next) {
 // The resources' "preExecute" extensions are called after the global one (because they
 // are called for every (sub-) resource involved.
 
-server.api.on('preExecute', function (ev, next) {
-    var dataSourceTree = ev.dataSourceTree;
+server.api.on('preExecute', (ev, next) => {
+    const { dataSourceTree } = ev;
     console.log('Extension: preExecute');
     // ...
     next();
@@ -60,8 +60,8 @@ server.api.on('preExecute', function (ev, next) {
 // is called after the request has been executed and before the response is being built.
 // The resources' "postExecute" extensions are called _before_ the global one.
 
-server.api.on('postExecute', function (ev, next) {
-    var rawResults = ev.rawResults;
+server.api.on('postExecute', (ev, next) => {
+    const { rawResults } = ev;
     console.log('Extension: postExecute');
     // ...
     next();
@@ -71,8 +71,8 @@ server.api.on('postExecute', function (ev, next) {
 // Extension: "response"
 // is called after the request is handled and before the response is sent.
 
-server.api.on('response', function (ev, next) {
-    var response = ev.response;
+server.api.on('response', (ev, next) => {
+    const { response } = ev;
     console.log('Extension: response');
 
     // modify response: add "baz: 'foo'" property to the complete response
