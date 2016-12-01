@@ -1,19 +1,21 @@
 'use strict';
 
-var chai = require('chai');
-var path = require('path');
-var bunyan = require('bunyan');
-var sinon = require('sinon');
-var Api = require('../').Api;
-var Request = require('../lib/request');
+const path = require('path');
 
-var expect = chai.expect;
+const chai = require('chai');
+const bunyan = require('bunyan');
+const sinon = require('sinon');
+
+const { Api } = require('../');
+const Request = require('../lib/request');
+
+const expect = chai.expect;
 chai.use(require('sinon-chai'));
 
-var log = bunyan.createLogger({name: 'null', streams: []});
-var resourcesPath = path.join(__dirname, 'fixtures', 'extensions', 'resources');
+const log = bunyan.createLogger({ name: 'null', streams: [] });
+const resourcesPath = path.join(__dirname, 'fixtures', 'extensions', 'resources');
 
-var testDataSource = function testDataSource() {
+const testDataSource = function testDataSource() {
     return {
         process: function (request, callback) {
             callback(null, {
@@ -31,7 +33,7 @@ var testDataSource = function testDataSource() {
     };
 };
 
-var testConfig = {
+const testConfig = {
     log: log,
     resourcesPath: resourcesPath,
     dataSources: {

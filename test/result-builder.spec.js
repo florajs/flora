@@ -1,20 +1,16 @@
 'use strict';
 
-var bunyan = require('bunyan');
-var resultBuilder = require('../lib/result-builder');
-var ImplementationError = require('flora-errors').ImplementationError;
-var DataError = require('flora-errors').DataError;
-var NotFoundError = require('flora-errors').NotFoundError;
+const _ = require('lodash');
+const bunyan = require('bunyan');
+const { expect } = require('chai');
+const { ImplementationError, DataError, NotFoundError } = require('flora-errors');
 
-var _ = require('lodash');
-var expect = require('chai').expect;
+const resultBuilder = require('../lib/result-builder');
 
 // mock Api instance
-var api = {
-    log: bunyan.createLogger({name: 'null', streams: []}),
-    getResource: function () {
-        return null;
-    }
+const api = {
+    log: bunyan.createLogger({ name: 'null', streams: [] }),
+    getResource: () => null
 };
 
 describe('result-builder', function () {

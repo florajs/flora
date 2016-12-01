@@ -1,12 +1,11 @@
 'use strict';
 
-var resourceProcessor = require('../lib/resource-processor'),
-    expect = require('chai').expect;
+const { expect } = require('chai');
 
-describe('resource-processor', function () {
+const resourceProcessor = require('../lib/resource-processor');
 
-    it('should be an object', function () {
+describe('resource-processor', () => {
+    it('should be an object', () => {
         expect(resourceProcessor).to.be.a('function');
     });
-
 });

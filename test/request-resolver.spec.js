@@ -1,11 +1,10 @@
 'use strict';
 
-var requestResolver = require('../lib/request-resolver');
-var RequestError = require('flora-errors').RequestError;
-var ImplementationError = require('flora-errors').ImplementationError;
+const _ = require('lodash');
+const { expect } = require('chai');
+const { RequestError, ImplementationError } = require('flora-errors');
 
-var _ = require('lodash');
-var expect = require('chai').expect;
+const requestResolver = require('../lib/request-resolver');
 
 describe('request-resolver', function () {
     var resourceConfigs = require('./fixtures/resources-parsed.json');

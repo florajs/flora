@@ -1,12 +1,12 @@
 'use strict';
 
-var configParser = require('../lib/config-parser');
-var ImplementationError = require('flora-errors').ImplementationError;
+const _ = require('lodash');
+const { expect } = require('chai');
+const { ImplementationError } = require('flora-errors');
 
-var _ = require('lodash');
-var expect = require('chai').expect;
+const configParser = require('../lib/config-parser');
 
-var mockDataSource = {
+const mockDataSource = {
     prepare: function (rawRequest, attributes) {
         if (!rawRequest.expectedAttributes) {
             throw new Error('Mocked DataSource: Please set expectedAttributes for all DataSources in your test');
@@ -18,13 +18,14 @@ var mockDataSource = {
     },
     process: function (/*request, callback*/) {}
 };
-var mockDataSources = {
+
+const mockDataSources = {
     'testDataSource': mockDataSource,
     'mysql': mockDataSource,
     'solr': mockDataSource
 };
 
-var minimalResourceConfigs = {
+const minimalResourceConfigs = {
     "test": {
         "config": {
             "primaryKey": "id",
@@ -42,7 +43,8 @@ var minimalResourceConfigs = {
         }
     }
 };
-var minimalResourceConfigsParsed = {
+
+const minimalResourceConfigsParsed = {
     "test": {
         config: {
             "primaryKey": [["id"]],

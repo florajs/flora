@@ -1,8 +1,8 @@
 'use strict';
 
-var chai = require('chai'),
-    expect = chai.expect,
-    xmlReader = require('../lib/xml-reader');
+const { expect } = require('chai');
+
+const xmlReader = require('../lib/xml-reader');
 
 describe('xml-reader', function () {
     describe('DataSources', function () {

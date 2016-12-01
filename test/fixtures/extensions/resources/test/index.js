@@ -1,35 +1,35 @@
 'use strict';
 
-var initCalled = 0;
+let initCalled = 0;
 
-module.exports = function (api) {
+module.exports = (api) => {
     initCalled = 0;
 
     return {
-        _initCalled: function () {
+        _initCalled: () => {
             return initCalled;
         },
 
         extensions: {
-            init: function () {
+            init: () => {
                 initCalled++;
             },
 
-            item: function (ev) {
+            item: (ev) => {
                 ev.item.bar = 'baz';
             },
 
-            preExecute: function (ev) {
+            preExecute: (ev) => {
                 ev.floraRequest._preExecuteArgs = ev;
             },
 
-            postExecute: function (ev) {
+            postExecute: (ev) => {
                 ev.floraRequest._postExecuteArgs = ev;
             }
         },
 
         actions: {
-            retrieve: function (request, response) {
+            retrieve: (request, response) => {
                 return api.resourceProcessor.handle(request, response);
             }
         }

@@ -1,47 +1,48 @@
 'use strict';
 
-var expect = require('chai').expect;
-var Response = require('../lib/response');
-var Request = require('../lib/request');
+const { expect } = require('chai');
 
-describe('Response', function () {
-    it('should be instantiable', function () {
+const Response = require('../lib/response');
+const Request = require('../lib/request');
+
+describe('Response', () => {
+    it('should be instantiable', () => {
         expect(new Response()).to.be.an('object');
     });
 
-    it('should pass through a Request parameter', function () {
+    it('should pass through a Request parameter', () => {
         var request = new Request();
         var response = new Response(request);
         expect(response.request).to.eql(request);
     });
 
-    it('should have basic properties', function () {
+    it('should have basic properties', () => {
         var response = new Response(new Request());
         expect(response.meta).to.be.an('object');
         expect(response.meta.headers).to.be.an('object');
     });
 
-    it('should have writeable meta.headers property', function () {
+    it('should have writeable meta.headers property', () => {
         var response = new Response(new Request());
 
-        expect(function () {
+        expect(() => {
             response.meta.headers = {'Content-Type': 'application/pdf'};
         }).to.not.throw(Error);
         expect(response.meta.headers).to.have.property('Content-Type');
     });
 
-    it('should not expose headers in response.meta', function () {
+    it('should not expose headers in response.meta', () => {
         var response = new Response(new Request());
         expect(response.meta.propertyIsEnumerable('headers')).to.be.false;
     });
 
-    it('should have default status code', function () {
+    it('should have default status code', () => {
         var response = new Response(new Request());
         expect(response.meta.statusCode).to.eql(200);
     });
 
-    describe('send', function () {
-        it('should call the callback', function (done) {
+    describe('send', () => {
+        it('should call the callback', (done) => {
             var response = new Response(new Request(), function (err) {
                 expect(err).to.eql(null);
                 done();
@@ -49,8 +50,8 @@ describe('Response', function () {
             response.send();
         });
 
-        it('should pass through the payload', function (done) {
-            var response = new Response(new Request(), function (err, res) {
+        it('should pass through the payload', (done) => {
+            var response = new Response(new Request(), (err, res) => {
                 expect(res).to.eql(response);
                 expect(res.data).to.eql('foo');
                 done();
@@ -58,8 +59,8 @@ describe('Response', function () {
             response.send('foo');
         });
 
-        it('should pass through Errors', function (done) {
-            var response = new Response(new Request(), function (err, res) {
+        it('should pass through Errors', (done) => {
+            var response = new Response(new Request(), (err, res) => {
                 expect(err).to.be.an.instanceof(Error);
                 expect(res).to.be.undefined;
                 done();
@@ -67,9 +68,9 @@ describe('Response', function () {
             response.send(new Error('bar'));
         });
 
-        it('cannot be called twice', function (done) {
+        it('cannot be called twice', (done) => {
             var count = 0;
-            var response = new Response(new Request(), function (err, res) {
+            var response = new Response(new Request(), (err, res) => {
                 count++;
                 if (count === 1) {
                     res.send('baz');

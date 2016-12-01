@@ -1,11 +1,11 @@
 'use strict';
 
-var expect = require('chai').expect;
-var sinon = require('sinon');
+const { expect } = require('chai');
+const sinon = require('sinon');
 
-var execute = require('../lib/datasource-executor');
+const execute = require('../lib/datasource-executor');
 
-var testDataSource = function testDataSource() {
+const testDataSource = function testDataSource() {
     return {
         process: function (request, callback) {
             callback(null, {
@@ -17,7 +17,7 @@ var testDataSource = function testDataSource() {
     };
 };
 
-var api = {
+const api = {
     dataSources: {
         test: testDataSource()
     },
