@@ -9,6 +9,8 @@ Flora is a FLexible Open Rest API framework for [Node.js](http://nodejs.org/).
 
 **It is still under heavy develoment, but slowly approaching beta status**
 
+Flora requires __node v6__ or higher.
+
 
 Features
 --------
