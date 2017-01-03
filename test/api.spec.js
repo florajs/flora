@@ -176,7 +176,7 @@ describe('Api', () => {
                     resource: 'foo'
                 });
                 api.execute(request, (err2, response) => {
-                    expect(err2).to.be.an('object');
+                    expect(err2).to.be.an('error');
                     expect(err2.message).to.equal('Unknown resource "foo" in request');
                     api.close(done);
                 });
@@ -206,7 +206,7 @@ describe('Api', () => {
                     resource: 'no-actions'
                 });
                 api.execute(request, (err2, response) => {
-                    expect(err2).to.be.an('object');
+                    expect(err2).to.be.an('error');
                     expect(err2.message).to.equal('Action "retrieve" is not implemented');
                     api.close(done);
                 });
