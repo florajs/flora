@@ -18,10 +18,7 @@
   },
   "homepage": "https://github.com/godmodelabs/flora",
   "license": "MIT",
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/godmodelabs/flora.git"
-  },
+  "repository": "godmodelabs/",
   "contributors": [
     {
       "name": "Mark Plomer",
