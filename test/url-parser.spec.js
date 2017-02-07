@@ -8,82 +8,125 @@ const { Request } = require('../');
 describe('HTTP request parsing', () => {
     let httpRequest;
     let request;
+    let promise;
 
     beforeEach(() => {
         httpRequest = {
-            flora: { status: {} }
+            flora: { status: {} },
+            headers: { 'content-type': 'application/json' },
+            setEncoding() {},
+            on(e, fn) { e==='end' && setTimeout(fn, 0); }
         };
     });
 
-    it('should return flora request', () => {
+    it('should return promise', () => {
         httpRequest.url = 'http://api.example.com/user/';
-        expect(parseRequest(httpRequest)).to.be.instanceOf(Request);
+        expect(parseRequest(httpRequest)).to.be.instanceOf(Promise);
     });
 
-    it('should return null if parsing fails', () => {
+    it('should resolve with null if parsing fails', done => {
         httpRequest.url = 'http://api.example.com/';
-        expect(parseRequest(httpRequest)).to.be.null;
+        parseRequest(httpRequest).then(request => {
+            expect(request).to.be.null;
+            done();
+        }).catch(done);
     });
 
     describe('flat resources', () => {
-        it('should parse resource', () => {
+        it('should parse resource', done => {
             httpRequest.url = 'http://api.example.com/user/';
-            request = parseRequest(httpRequest);
-            expect(request).to.have.property('resource', 'user');
+            promise = parseRequest(httpRequest);
+            
+            promise.then(request => {
+                expect(request).to.have.property('resource', 'user');
+                done();
+            }).catch(done);
         });
 
-        it('should parse id', () => {
+        it('should parse id', done => {
             httpRequest.url = 'http://api.example.com/user/1337';
-            request = parseRequest(httpRequest);
-            expect(request).to.have.property('id', '1337');
+            promise = parseRequest(httpRequest);
+    
+            promise.then(request => {
+                expect(request).to.have.property('id', '1337');
+                done();
+            }).catch(done);
         });
 
-        it('should parse format', () => {
+        it('should parse format', done => {
             httpRequest.url = 'http://api.example.com/user/1337.jpg';
-            request = parseRequest(httpRequest);
-            expect(request).to.have.property('format', 'jpg');
+            promise = parseRequest(httpRequest);
+    
+            promise.then(request => {
+                expect(request).to.have.property('format', 'jpg');
+                done();
+            }).catch(done);
         });
     });
 
     describe('nested resources', () => {
-        it('should parse resource', () => {
+        it('should parse resource', done => {
             httpRequest.url = 'http://api.example.com/user/image/';
-            request = parseRequest(httpRequest);
-            expect(request).to.have.property('resource', 'user/image');
+            promise = parseRequest(httpRequest);
+    
+            promise.then(request => {
+                expect(request).to.have.property('resource', 'user/image');
+                done();
+            }).catch(done);
         });
 
-        it('should parse id', () => {
+        it('should parse id', done => {
             httpRequest.url = 'http://api.example.com/user/image/1337.image';
-            request = parseRequest(httpRequest);
-            expect(request).to.have.property('id', '1337');
+            promise = parseRequest(httpRequest);
+    
+            promise.then(request => {
+                expect(request).to.have.property('id', '1337');
+                done();
+            }).catch(done);
         });
 
-        it('should parse format', () => {
+        it('should parse format', done => {
             httpRequest.url = 'http://api.example.com/user/image/1337.image';
-            request = parseRequest(httpRequest);
-            expect(request).to.have.property('format', 'image');
+            promise = parseRequest(httpRequest);
+    
+            promise.then(request => {
+                expect(request).to.have.property('format', 'image');
+                done();
+            }).catch(done);
         });
 
-        it('should parse deeply nested resources', () => {
+        it('should parse deeply nested resources', done => {
             httpRequest.url = 'http://api.example.com/store/admin/customer/address/1337';
-            request = parseRequest(httpRequest);
-            expect(request).to.have.property('resource', 'store/admin/customer/address');
+            promise = parseRequest(httpRequest);
+    
+            promise.then(request => {
+                expect(request).to.have.property('resource', 'store/admin/customer/address');
+                done();
+            }).catch(done);
         });
     });
 
     describe('query parameters', () => {
-        it('should be copied', () => {
+        it('should be copied', done => {
             httpRequest.url = 'http://api.example.com/user/1337.jpg?width=60&rotate=90';
-            request = parseRequest(httpRequest);
-            expect(request).to.have.property('width', '60');
-            expect(request).to.have.property('rotate', '90');
+            promise = parseRequest(httpRequest);
+    
+            promise.then(request => {
+                expect(request).to.have.property('width', '60');
+                expect(request).to.have.property('rotate', '90');
+                done();
+            }).catch(done);
         });
 
-        it('should not overwrite existing request properties', () => {
+        it('should not overwrite existing request properties', done => {
             httpRequest.url = 'http://api.example.com/user/1337.jpg?format=tiff&resource=abc';
-            request = parseRequest(httpRequest);
-            expect(request.resource).to.equal('user');
-            expect(request.format).to.equal('jpg');
+            promise = parseRequest(httpRequest);
+    
+            promise.then(request => {
+                expect(request.resource).to.equal('user');
+                expect(request.format).to.equal('jpg');
+                done();
+            }).catch(done);
         });
     });
 });
