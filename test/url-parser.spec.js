@@ -8,14 +8,27 @@ const { Request } = require('../');
 describe('HTTP request parsing', () => {
     let httpRequest;
     let request;
-    let promise;
 
     beforeEach(() => {
+        let dataFn;
+        
         httpRequest = {
             flora: { status: {} },
+            method: 'GET',
             headers: { 'content-type': 'application/json' },
+            payload: null,
             setEncoding() {},
-            on(e, fn) { e==='end' && setTimeout(fn, 0); }
+            on(e, fn) {
+                if (e === 'data') dataFn = fn;
+                if (e==='end') {
+                    if (httpRequest.payload) {
+                        for (let char of httpRequest.payload) {
+                            setTimeout(() => dataFn(char), 0);
+                        }
+                    }
+                    setTimeout(() => fn(), 0);
+                }
+            }
         };
     });
 
@@ -35,9 +48,8 @@ describe('HTTP request parsing', () => {
     describe('flat resources', () => {
         it('should parse resource', done => {
             httpRequest.url = 'http://api.example.com/user/';
-            promise = parseRequest(httpRequest);
-            
-            promise.then(request => {
+    
+            parseRequest(httpRequest).then(request => {
                 expect(request).to.have.property('resource', 'user');
                 done();
             }).catch(done);
@@ -45,9 +57,8 @@ describe('HTTP request parsing', () => {
 
         it('should parse id', done => {
             httpRequest.url = 'http://api.example.com/user/1337';
-            promise = parseRequest(httpRequest);
     
-            promise.then(request => {
+            parseRequest(httpRequest).then(request => {
                 expect(request).to.have.property('id', '1337');
                 done();
             }).catch(done);
@@ -55,9 +66,8 @@ describe('HTTP request parsing', () => {
 
         it('should parse format', done => {
             httpRequest.url = 'http://api.example.com/user/1337.jpg';
-            promise = parseRequest(httpRequest);
     
-            promise.then(request => {
+            parseRequest(httpRequest).then(request => {
                 expect(request).to.have.property('format', 'jpg');
                 done();
             }).catch(done);
@@ -67,9 +77,8 @@ describe('HTTP request parsing', () => {
     describe('nested resources', () => {
         it('should parse resource', done => {
             httpRequest.url = 'http://api.example.com/user/image/';
-            promise = parseRequest(httpRequest);
     
-            promise.then(request => {
+            parseRequest(httpRequest).then(request => {
                 expect(request).to.have.property('resource', 'user/image');
                 done();
             }).catch(done);
@@ -77,9 +86,8 @@ describe('HTTP request parsing', () => {
 
         it('should parse id', done => {
             httpRequest.url = 'http://api.example.com/user/image/1337.image';
-            promise = parseRequest(httpRequest);
     
-            promise.then(request => {
+            parseRequest(httpRequest).then(request => {
                 expect(request).to.have.property('id', '1337');
                 done();
             }).catch(done);
@@ -87,9 +95,8 @@ describe('HTTP request parsing', () => {
 
         it('should parse format', done => {
             httpRequest.url = 'http://api.example.com/user/image/1337.image';
-            promise = parseRequest(httpRequest);
     
-            promise.then(request => {
+            parseRequest(httpRequest).then(request => {
                 expect(request).to.have.property('format', 'image');
                 done();
             }).catch(done);
@@ -97,9 +104,8 @@ describe('HTTP request parsing', () => {
 
         it('should parse deeply nested resources', done => {
             httpRequest.url = 'http://api.example.com/store/admin/customer/address/1337';
-            promise = parseRequest(httpRequest);
     
-            promise.then(request => {
+            parseRequest(httpRequest).then(request => {
                 expect(request).to.have.property('resource', 'store/admin/customer/address');
                 done();
             }).catch(done);
@@ -109,9 +115,8 @@ describe('HTTP request parsing', () => {
     describe('query parameters', () => {
         it('should be copied', done => {
             httpRequest.url = 'http://api.example.com/user/1337.jpg?width=60&rotate=90';
-            promise = parseRequest(httpRequest);
     
-            promise.then(request => {
+            parseRequest(httpRequest).then(request => {
                 expect(request).to.have.property('width', '60');
                 expect(request).to.have.property('rotate', '90');
                 done();
@@ -120,11 +125,40 @@ describe('HTTP request parsing', () => {
 
         it('should not overwrite existing request properties', done => {
             httpRequest.url = 'http://api.example.com/user/1337.jpg?format=tiff&resource=abc';
-            promise = parseRequest(httpRequest);
     
-            promise.then(request => {
+            parseRequest(httpRequest).then(request => {
                 expect(request.resource).to.equal('user');
                 expect(request.format).to.equal('jpg');
+                done();
+            }).catch(done);
+        });
+    });
+
+    describe('POST payload', () => {
+        it('should parse JSON payload', done => {
+            httpRequest.url = 'http://api.example.com/user/';
+            httpRequest.payload = '{"a": true}';
+            httpRequest.method = 'POST';
+    
+            parseRequest(httpRequest).then(request => {
+                expect(request.data).to.exist;
+                expect(request.data.a).to.exist;
+                expect(request.data.a).to.be.true;
+                done();
+            }).catch(done);
+        });
+        
+        it('should parse form-urlencoded payload', done => {
+            httpRequest.url = 'http://api.example.com/user/';
+            httpRequest.headers['content-type'] = 'application/x-www-form-urlencoded';
+            httpRequest.payload = 'a=true&b=false';
+            httpRequest.method = 'POST';
+    
+            parseRequest(httpRequest).then(request => {
+                expect(request.a).to.exist;
+                expect(request.a).to.equal('true');
+                expect(request.b).to.exist;
+                expect(request.b).to.equal('false');
                 done();
             }).catch(done);
         });
