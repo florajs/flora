@@ -42,6 +42,14 @@ server.api.on('request', (ev, next) => {
     // we could call `next(new Error(...))` if something goes wrong here
 });
 
+// Extension: "httpRequest"
+// is called before any flora.Request instanciation and allows modifying HTTP headers
+
+api.on('httpRequest', (ev) => {
+    { httpRequest, httpResponse } = ev;
+    httpResponse.setHeader('X-Hello', 'World');
+});
+
 
 // Extension: "preExecute" (global)
 // is called after the request-resolver has resolved the dataSourceTree.
