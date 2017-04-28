@@ -15,13 +15,8 @@
 
     <!-- Aggregate statistics for article comments -->
     <flora:dataSource name="statistics" type="mysql" database="contents">
-        <flora:option name="query"><![CDATA[
-            SELECT
-                articleId AS articleId,
-                COUNT(id) AS commentCount
-            FROM comments
-            GROUP BY articleId
-        ]]></flora:option>
+        <flora:option name="query">
+            <![CDATA[SELECT articleId AS articleId, COUNT(id) AS commentCount FROM comments GROUP BY articleId]]></flora:option>
     </flora:dataSource>
 
 
