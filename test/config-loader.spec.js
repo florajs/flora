@@ -24,9 +24,9 @@ describe('config-loader', () => {
     it('should issue an error if config directory does not exist', (done) => {
         var directory = require('path').resolve('nonexistent-directory');
 
-        configLoader(api, { directory: directory }, (err) => {
+        configLoader(api, { directory }, (err) => {
             expect(err).to.be.instanceof(Error);
-            expect(err.message).to.equal('Config directory "' + directory + '" does not exist');
+            expect(err.message).to.equal(`Config directory "${directory}" does not exist`);
             done();
         });
     });
