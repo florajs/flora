@@ -53,7 +53,7 @@ Examples
 
 ```
 /path/to/resource/<id>
-    ?do=<action>
+    ?action=<action>
     &select=xxx
     &filter=xxx
     &limit=10
