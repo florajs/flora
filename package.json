@@ -52,7 +52,7 @@
     "xmldom": "^0.1.19"
   },
   "devDependencies": {
-    "chai": "^3.3.0",
+    "chai": "^3.5.0",
     "chai-as-promised": "^7.1.1",
     "eslint": "^3.10.2",
     "eslint-config-airbnb-base": "^11.0.0",
