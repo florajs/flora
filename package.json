@@ -37,13 +37,13 @@
     "node": ">=6"
   },
   "dependencies": {
-    "async": "^2.0.1",
+    "async": "^2.5.0",
     "async-eventemitter": "^0.2.2",
     "bunyan": "^1.5.1",
     "chokidar": "^1.0.4",
     "content-type": "^1.0.2",
     "flora-cluster": "^0.7.1",
-    "flora-errors": "^0.7.0",
+    "flora-errors": "^0.7.1",
     "flora-request-parser": "^0.7.0",
     "has": "^1.0.1",
     "lodash": "^4.0.0",
@@ -56,7 +56,7 @@
     "chai-as-promised": "^7.1.1",
     "eslint": "^3.10.2",
     "eslint-config-airbnb-base": "^11.0.0",
-    "eslint-plugin-import": "^2.2.0",
+    "eslint-plugin-import": "^2.7.0",
     "grunt": "^1.0.1",
     "grunt-cli": "^1.2.0",
     "grunt-contrib-clean": "^1.0.0",
@@ -65,12 +65,12 @@
     "grunt-mocha-istanbul": "^5.0.1",
     "grunt-mocha-test": "^0.13.2",
     "istanbul": "^0.4.0",
-    "jsdoc": "^3.3.0-beta2",
+    "jsdoc": "^3.5.3",
     "load-grunt-tasks": "^3.1.0",
     "mocha": "^3.0.0",
     "mocha-bamboo-reporter": "^1.1.0",
-    "mock-fs": "^4.2.0",
+    "mock-fs": "^4.4.1",
     "sinon": "^1.17.1",
-    "sinon-chai": "^2.8.0"
+    "sinon-chai": "^2.12.0"
   }
 }
