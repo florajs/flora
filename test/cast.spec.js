@@ -146,6 +146,38 @@ describe('type casting', () => {
         });
     });
 
+    describe('casts to type "object"', () => {
+        it('casts objects from storedType="json"', () => {
+            expect(cast('{"foo":"bar"}', { storedType: { type: 'json' }, type: 'object' })).to.eql({ foo: 'bar' });
+        });
+
+        it('fails silently when JSON is invalid', () => {
+            expect(cast('{"foo":"bar"broken', { storedType: { type: 'json' }, type: 'object' })).to.eql(null);
+        })
+
+        it('passes through objects from storedType="object"', () => {
+            expect(cast({ foo: 'bar' }, { storedType: { type: 'object' }, type: 'object' })).to.eql({ foo: 'bar' });
+        });
+
+        it('returns null when storedType is something else', () => {
+            expect(cast({ foo: 'bar' }, { storedType: { type: 'string' }, type: 'object' })).to.eql(null);
+        });
+    });
+
+    describe('casts to type "json"', () => {
+        it('passes through values from storedType="json"', () => {
+            expect(cast('{"foo":"bar"}', { storedType: { type: 'json' }, type: 'json' })).to.eql('{"foo":"bar"}');
+        });
+
+        it('casts objects from storedType="object"', () => {
+            expect(cast({ foo: 'bar' }, { storedType: { type: 'object' }, type: 'json' })).to.eql('{"foo":"bar"}');
+        });
+
+        it('casts anything to JSON', () => {
+            expect(cast('bar', { storedType: { type: 'string' }, type: 'json' })).to.eql('"bar"');
+        });
+    });
+
     it('passes through objects type "raw" (preserves objects)', () => {
         expect(cast({foo: 'bar'}, {type: 'raw'})).to.eql({foo: 'bar'});
     });
