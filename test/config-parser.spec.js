@@ -1015,7 +1015,7 @@ describe('config-parser', function () {
             expect(function () {
                 configParser(resourceConfigs, mockDataSources);
             }).to.throw(ImplementationError,
-                'Invalid "no-int" (allowed: string, int, float, boolean, date, datetime, time, raw) ' +
+                'Invalid "no-int" (allowed: string, int, float, boolean, date, datetime, time, raw, object, json) ' +
                 '(option "type" in attribute "test:id")');
         });
 
