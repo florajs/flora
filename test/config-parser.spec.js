@@ -145,6 +145,48 @@ describe('config-parser', function () {
             }).to.throw(ImplementationError, 'DataSource "articleBody" misses "type" option in resource "test:{root}"');
         });
 
+        it('parses DataSources with "inherit" option', function () {
+            var resourceConfigs = {
+                "test": {
+                    "config": {
+                        "resource": "test",
+                        "dataSources": {
+                            "primary": {
+                                "inherit": "true"
+                            }
+                        }
+                    }
+                }
+            };
+
+            var resourceConfigsParsed = {
+                "test": {
+                    config: {
+                        "resource": "test",
+                        "dataSources": {
+                            "primary": {
+                                "inherit": true
+                            }
+                        }
+                    }
+                }
+            };
+
+            configParser(resourceConfigs, mockDataSources);
+
+            expect(resourceConfigs).to.eql(resourceConfigsParsed);
+        });
+
+        it('fails on DataSources with "inherit" option but without included resource', function () {
+            var resourceConfigs = _.cloneDeep(minimalResourceConfigs);
+
+            resourceConfigs['test'].config.dataSources['primary'] = {inherit: 'true'};
+
+            expect(function () {
+                configParser(resourceConfigs, mockDataSources);
+            }).to.throw(ImplementationError, 'DataSource "primary" is defined as "inherit" but has no included resource');
+        });
+
         it('fails on unknown DataSource types', function () {
             var resourceConfigs = _.cloneDeep(minimalResourceConfigs);
 

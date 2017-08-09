@@ -309,6 +309,23 @@ describe('request-resolver', function () {
                 requestResolver(req, configs);
             }).to.throw(ImplementationError, 'Cannot overwrite DataSource "primary" in "resource2"');
         });
+
+        it('does allow overwriting of DataSources with "inherit" flag', function () {
+            var configs = _.cloneDeep(mergeResourceConfigs);
+            configs['resource1'].config.dataSources = {'primary': {customFlag: 'default'}};
+            configs['resource1'].config.attributes['resource2'].dataSources = {'primary': {inherit: true, customFlag: 'overwritten'}};
+
+            var req = {
+                resource: 'resource1',
+                select: {
+                    'resource2': {}
+                }
+            };
+
+            var resolvedRequest = requestResolver(req, configs);
+            expect(resolvedRequest.resolvedConfig.attributes['resource2'].dataSources.primary.type).to.equal('test');
+            expect(resolvedRequest.resolvedConfig.attributes['resource2'].dataSources.primary.customFlag).to.equal('overwritten');
+        });
     });
 
     describe('basic request resolving', function () {
