@@ -220,14 +220,14 @@ describe('datasource-executor', function () {
                 api.dataSources['test'].process.restore();
             });
 
-            xit('does not throw errors', function (done) {
+            it('does not throw errors', function (done) {
                 execute(api, {}, dst, function (err) {
                     if (err) return done(err);
                     done();
                 });
             });
 
-            xit('returns an empty main result', function (done) {
+            it('returns an empty main result', function (done) {
                 execute(api, {}, dst, function (err, result) {
                     if (err) return done(err);
                     expect(result).to.eql([
