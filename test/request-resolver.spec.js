@@ -2220,7 +2220,7 @@ describe('request-resolver', function () {
             expect(resolvedRequest.dataSourceTree).to.eql(dataSourceTree);
         });
 
-        xit('resolves filter by sub-sub-resource', function () {
+        it('resolves filter by sub-sub-resource', function () {
             // /article/?filter=comments.user.id=123
             var req = {
                 resource: 'article',
@@ -2336,7 +2336,7 @@ describe('request-resolver', function () {
                         attributes: ['articleId'],
                         filter: [
                             [
-                                {attribute: 'categoryId', operator: 'equal', valueFromSubFilter: true}
+                                {attribute: 'categoryId', operator: 'equal', valueFromSubFilter: 0}
                             ]
                         ]
                     },
@@ -2666,7 +2666,7 @@ describe('request-resolver', function () {
                         attributes: ['articleId'],
                         filter: [
                             [
-                                {attribute: 'categoryId', operator: 'equal', valueFromSubFilter: true}
+                                {attribute: 'categoryId', operator: 'equal', valueFromSubFilter: 0}
                             ]
                         ]
                     },
