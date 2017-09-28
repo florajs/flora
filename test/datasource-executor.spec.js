@@ -114,7 +114,7 @@ describe('datasource-executor', function () {
                 table: 'user',
                 filter: [
                     [
-                        { attribute: 'id', operator: 'equal', valueFromSubFilter: true }
+                        { attribute: 'id', operator: 'equal', valueFromSubFilter: 0 }
                     ]
                 ]
             },
@@ -149,7 +149,7 @@ describe('datasource-executor', function () {
                             {
                                 attribute: 'id',
                                 operator: 'equal',
-                                valueFromSubFilter: true,
+                                valueFromSubFilter: 0,
                                 value: [1, 3]
                             }
                         ]]);
@@ -615,7 +615,7 @@ describe('datasource-executor', function () {
             request: {
                 type: 'test',
                 table: 'user',
-                filter: [[{attribute: 'id', operator: 'equal', valueFromSubFilter: true}]]
+                filter: [[{attribute: 'id', operator: 'equal', valueFromSubFilter: 0}]]
             },
             subFilters: [
                 {
@@ -734,7 +734,7 @@ describe('datasource-executor', function () {
             request: {
                 type: 'test',
                 table: 'user',
-                filter: [[{ attribute: 'id', operator: 'equal', valueFromSubFilter: true }]]
+                filter: [[{ attribute: 'id', operator: 'equal', valueFromSubFilter: 0 }]]
             },
             subFilters: [
                 {
@@ -743,7 +743,7 @@ describe('datasource-executor', function () {
                     request: {
                         type: 'test',
                         table: 'email',
-                        filter: [[{ attribute: 'userId', operator: 'equal', valueFromSubFilter: true}]]
+                        filter: [[{ attribute: 'userId', operator: 'equal', valueFromSubFilter: 0}]]
                     },
                     subFilters: [
                         {
@@ -786,7 +786,7 @@ describe('datasource-executor', function () {
                         {
                             attribute: 'userId',
                             operator: 'equal',
-                            valueFromSubFilter: true,
+                            valueFromSubFilter: 0,
                             value: [1]
                         }
                     ]]);
@@ -805,7 +805,7 @@ describe('datasource-executor', function () {
                         {
                             attribute: 'id',
                             operator: 'equal',
-                            valueFromSubFilter: true,
+                            valueFromSubFilter: 0,
                             value: [1]
                         }
                     ]]);
@@ -1149,7 +1149,7 @@ describe('datasource-executor', function () {
                         {
                             attribute: ['id', 'exchangeId'],
                             operator: 'equal',
-                            valueFromSubFilter: true,
+                            valueFromSubFilter: 0,
                             value: [[1], ['2']]
                         }
                     ]]);
@@ -1178,7 +1178,7 @@ describe('datasource-executor', function () {
                 table: 'instruments',
                 filter: [
                     [
-                        {attribute: ['id', 'exchangeId'], operator: 'equal', valueFromSubFilter: true}
+                        {attribute: ['id', 'exchangeId'], operator: 'equal', valueFromSubFilter: 0}
                     ]
                 ]
             },
@@ -1218,7 +1218,7 @@ describe('datasource-executor', function () {
                 request: {
                     type: 'test',
                     table: 'article',
-                    filter: [[{ attribute: 'authorId', operator: 'equal', valueFromSubFilter: true }]],
+                    filter: [[{ attribute: 'authorId', operator: 'equal', valueFromSubFilter: 0 }]],
                     _expect: '__EXPECT__'
                 },
                 subFilters: [{

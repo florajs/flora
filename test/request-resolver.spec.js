@@ -2098,7 +2098,7 @@ describe('request-resolver', function () {
                     attributes: ['id'],
                     filter: [
                         [
-                            {attribute: 'authorId', operator: 'equal', valueFromSubFilter: true}
+                            {attribute: 'authorId', operator: 'equal', valueFromSubFilter: 0}
                         ]
                     ],
                     limit: 10
@@ -2188,7 +2188,7 @@ describe('request-resolver', function () {
                     attributes: ['id'],
                     filter: [
                         [
-                            {attribute: 'id', operator: 'equal', valueFromSubFilter: true}
+                            {attribute: 'id', operator: 'equal', valueFromSubFilter: 0}
                         ]
                     ],
                     limit: 10
@@ -2242,7 +2242,7 @@ describe('request-resolver', function () {
                     attributes: ['id'],
                     filter: [
                         [
-                            {attribute: 'id', operator: 'equal', valueFromSubFilter: true}
+                            {attribute: 'id', operator: 'equal', valueFromSubFilter: 0}
                         ]
                     ],
                     limit: 10
@@ -2260,7 +2260,7 @@ describe('request-resolver', function () {
                         attributes: ['articleId'],
                         filter: [
                             [
-                                {attribute: 'userId', operator: 'equal', valueFromSubFilter: true}
+                                {attribute: 'userId', operator: 'equal', valueFromSubFilter: 0}
                             ]
                         ]
                     },
@@ -2314,7 +2314,7 @@ describe('request-resolver', function () {
                     attributes: ['id'],
                     filter: [
                         [
-                            {attribute: 'id', operator: 'equal', valueFromSubFilter: true}
+                            {attribute: 'id', operator: 'equal', valueFromSubFilter: 0}
                         ]
                     ],
                     limit: 10
@@ -2336,7 +2336,7 @@ describe('request-resolver', function () {
                         attributes: ['articleId'],
                         filter: [
                             [
-                                {attribute: 'categoryId', operator: 'equal', valueFromSubFilter: true}
+                                {attribute: 'categoryId', operator: 'equal', valueFromSubFilter: 0}
                             ]
                         ]
                     },
@@ -2634,7 +2634,7 @@ describe('request-resolver', function () {
                     filter: [
                         [
                             {attribute: 'timestamp', operator: 'lessOrEqual', value: '2014-12-01T00:00:00+01:00'},
-                            {attribute: 'id', operator: 'equal', valueFromSubFilter: true}
+                            {attribute: 'id', operator: 'equal', valueFromSubFilter: 0}
                         ]
                     ],
                     order: [{
@@ -2666,7 +2666,7 @@ describe('request-resolver', function () {
                         attributes: ['articleId'],
                         filter: [
                             [
-                                {attribute: 'categoryId', operator: 'equal', valueFromSubFilter: true}
+                                {attribute: 'categoryId', operator: 'equal', valueFromSubFilter: 0}
                             ]
                         ]
                     },
