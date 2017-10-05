@@ -1648,6 +1648,81 @@ describe('request-resolver', function () {
                 attributes['secretInfo'].selected).not.to.be.true;
         });
 
+        it('selects recursive dependencies', function () {
+            var configs = _.cloneDeep(resourceConfigs);
+            configs['article'].config.attributes['title'].depends = {'copyright': {}};
+            configs['article'].config.attributes['copyright'].depends = {'date': {}};
+
+            // /article/?select=title
+            var req = {
+                resource: 'article',
+                select: {
+                    'title': {}
+                }
+            };
+
+            var dataSourceTree = {
+                resourceName: 'article',
+                attributePath: [],
+                dataSourceName: 'primary',
+                request: {
+                    type: 'mysql',
+                    database: 'contents',
+                    table: 'article',
+                    attributes: ['id', 'title', 'timestamp'],
+                    limit: 10
+                },
+                attributeOptions: {
+                    'id': {type: 'int'},
+                    'title': {type: 'string'},
+                    'timestamp': {type: 'datetime'}
+                }
+            };
+
+            var resolvedRequest = requestResolver(req, configs);
+            expect(resolvedRequest.dataSourceTree).to.eql(dataSourceTree);
+            expect(resolvedRequest.resolvedConfig.
+                attributes['date'].selected).not.to.be.true;
+        });
+
+        it('selects cyclic dependencies properly', function () {
+            var configs = _.cloneDeep(resourceConfigs);
+            configs['article'].config.attributes['title'].depends = {'date': {}};
+            configs['article'].config.attributes['date'].depends = {'copyright': {}};
+            configs['article'].config.attributes['copyright'].depends = {'title': {}};
+
+            // /article/?select=title
+            var req = {
+                resource: 'article',
+                select: {
+                    'title': {}
+                }
+            };
+
+            var dataSourceTree = {
+                resourceName: 'article',
+                attributePath: [],
+                dataSourceName: 'primary',
+                request: {
+                    type: 'mysql',
+                    database: 'contents',
+                    table: 'article',
+                    attributes: ['id', 'title', 'timestamp'],
+                    limit: 10
+                },
+                attributeOptions: {
+                    'id': {type: 'int'},
+                    'title': {type: 'string'},
+                    'timestamp': {type: 'datetime'}
+                }
+            };
+
+            var resolvedRequest = requestResolver(req, configs);
+            expect(resolvedRequest.dataSourceTree).to.eql(dataSourceTree);
+            expect(resolvedRequest.resolvedConfig.
+                attributes['date'].selected).not.to.be.true;
+        });
+
         it('selects dependant sub-resources internally', function () {
             var configs = _.cloneDeep(resourceConfigs);
             configs['article'].config.attributes['copyright'].depends =
