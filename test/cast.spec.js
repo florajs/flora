@@ -48,6 +48,20 @@ describe('type casting', () => {
                 storedType: {type: "datetime", options: {tz: "America/New_York"}}
             })).to.equal('2015-03-03T08:00:00.000Z');
         });
+
+        it('"2009-06-30T21:00:00+02:00" to datetime', () => {
+            expect(cast('2009-06-30T21:00:00+02:00', {
+                type: 'datetime',
+                storedType: {type: "datetime"}
+            })).to.equal('2009-06-30T19:00:00.000Z');
+        });
+
+        it('ignores invalid "datetime" values', () => {
+            expect(cast('03.03.2015 12:13:14', {
+                type: 'datetime',
+                storedType: { type: "datetime" }
+            })).to.equal(null);
+        })
     });
 
     describe('casts type "date" types from "unixtime"', () => {
