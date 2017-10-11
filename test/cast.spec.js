@@ -85,6 +85,13 @@ describe('type casting', () => {
             expect(cast('foo', {type: 'date'})).to.equal(null);
         });
 
+        it('passes through when parsing from date to date', () => {
+            expect(cast('2009-08-18', {
+                type: 'date',
+                storedType: {type: "date", options: {tz: "Europe/Berlin"}}
+            })).to.equal('2009-08-18');
+        });
+
         it('"2015-03-03 15:00:00" to date (Europe/Berlin)', () => {
             expect(cast('2015-03-03 15:00:00', {
                 type: 'date',
