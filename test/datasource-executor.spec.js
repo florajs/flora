@@ -869,9 +869,9 @@ describe('datasource-executor', function () {
                 string2boolean0: {type: 'boolean'},
                 int2boolean1: {type: 'boolean'},
                 int2boolean0: {type: 'boolean'},
-                string2datetime: {type: 'datetime', storedType: {type: 'datetime', options: {tz: 'Europe/Berlin'}}},
-                string2time: {type: 'time', storedType: {type: 'datetime', options: {tz: 'Europe/Berlin'}}},
-                string2date: {type: 'date', storedType: {type: 'datetime', options: {tz: 'Europe/Berlin'}}},
+                string2datetime: {type: 'datetime', storedType: {type: 'datetime', options: {timezone: 'Europe/Berlin'}}},
+                string2time: {type: 'time', storedType: {type: 'datetime', options: {timezone: 'Europe/Berlin'}}},
+                string2date: {type: 'date', storedType: {type: 'datetime', options: {timezone: 'Europe/Berlin'}}},
                 raw: {type: 'raw'},
                 null2int: {type: 'int'},
                 unknownType: {type: 'unknown'}
@@ -1319,7 +1319,7 @@ describe('datasource-executor', function () {
             dst.request._expect = '2015-06-17T10:13:14.000Z';
             dst.subFilters[0].request._value = '2015-06-17 12:13:14';
             dst.subFilters[0].attributeOptions.id.type = 'datetime';
-            dst.subFilters[0].attributeOptions.id.storedType = {type: 'datetime', options: {tz: 'Europe/Berlin'}};
+            dst.subFilters[0].attributeOptions.id.storedType = {type: 'datetime', options: {timezone: 'Europe/Berlin'}};
             execute(api, {}, dst, done);
         });
 
@@ -1327,7 +1327,7 @@ describe('datasource-executor', function () {
             dst.request._expect = '2015-06-17T16:13:14.000Z';
             dst.subFilters[0].request._value = '2015-06-17 12:13:14';
             dst.subFilters[0].attributeOptions.id.type = 'datetime';
-            dst.subFilters[0].attributeOptions.id.storedType = {type: 'datetime', options: {tz: 'America/New_York'}};
+            dst.subFilters[0].attributeOptions.id.storedType = {type: 'datetime', options: {timezone: 'America/New_York'}};
             execute(api, {}, dst, done);
         });
 
@@ -1335,7 +1335,7 @@ describe('datasource-executor', function () {
             dst.request._expect = '10:13:14.000Z';
             dst.subFilters[0].request._value = '2015-06-17 12:13:14';
             dst.subFilters[0].attributeOptions.id.type = 'time';
-            dst.subFilters[0].attributeOptions.id.storedType = {type: 'datetime', options: {tz: 'Europe/Berlin'}};
+            dst.subFilters[0].attributeOptions.id.storedType = {type: 'datetime', options: {timezone: 'Europe/Berlin'}};
             execute(api, {}, dst, done);
         });
 
@@ -1343,7 +1343,7 @@ describe('datasource-executor', function () {
             dst.request._expect = '2015-06-17';
             dst.subFilters[0].request._value = '2015-06-17 12:13:14';
             dst.subFilters[0].attributeOptions.id.type = 'date';
-            dst.subFilters[0].attributeOptions.id.storedType = {type: 'datetime', options: {tz: 'Europe/Berlin'}};
+            dst.subFilters[0].attributeOptions.id.storedType = {type: 'datetime', options: {timezone: 'Europe/Berlin'}};
             execute(api, {}, dst, done);
         });
 

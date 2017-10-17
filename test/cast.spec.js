@@ -8,7 +8,7 @@ const Cast = require('../lib/cast');
 const log = bunyan.createLogger({ name: 'null', streams: [] });
 const api = {
     log,
-    config: { tz: 'UTC' }
+    config: { timezone: 'UTC' }
 };
 
 const cast = new Cast(api);
@@ -40,21 +40,21 @@ describe('type casting', () => {
         it('"2015-03-03 15:00:00" to datetime (Europe/Berlin)', () => {
             expect(cast.cast('2015-03-03 15:00:00', {
                 type: 'datetime',
-                storedType: {type: "datetime", options: {tz: "Europe/Berlin"}}
+                storedType: {type: "datetime", options: {timezone: "Europe/Berlin"}}
             })).to.equal('2015-03-03T14:00:00.000Z');
         });
 
         it('"2015-03-03 00:00:00" to datetime (Europe/Berlin)', () => {
             expect(cast.cast('2015-03-03 00:00:00', {
                 type: 'datetime',
-                storedType: {type: "datetime", options: {tz: "Europe/Berlin"}}
+                storedType: {type: "datetime", options: {timezone: "Europe/Berlin"}}
             })).to.equal('2015-03-02T23:00:00.000Z');
         });
 
         it('"2015-03-03 03:00:00" to datetime (America/New_York)', () => {
             expect(cast.cast('2015-03-03 03:00:00', {
                 type: 'datetime',
-                storedType: {type: "datetime", options: {tz: "America/New_York"}}
+                storedType: {type: "datetime", options: {timezone: "America/New_York"}}
             })).to.equal('2015-03-03T08:00:00.000Z');
         });
 
@@ -111,28 +111,28 @@ describe('type casting', () => {
         it('passes through when parsing from date to date', () => {
             expect(cast.cast('2009-08-18', {
                 type: 'date',
-                storedType: {type: "date", options: {tz: "Europe/Berlin"}}
+                storedType: {type: "date", options: {timezone: "Europe/Berlin"}}
             })).to.equal('2009-08-18');
         });
 
         it('"2015-03-03 15:00:00" to date (Europe/Berlin)', () => {
             expect(cast.cast('2015-03-03 15:00:00', {
                 type: 'date',
-                storedType: {type: "datetime", options: {tz: "Europe/Berlin"}}
+                storedType: {type: "datetime", options: {timezone: "Europe/Berlin"}}
             })).to.equal('2015-03-03');
         });
 
         it('"2015-03-03 00:00:00" to date (Europe/Berlin)', () => {
             expect(cast.cast('2015-03-03 00:00:00', {
                 type: 'date',
-                storedType: {type: "datetime", options: {tz: "Europe/Berlin"}}
+                storedType: {type: "datetime", options: {timezone: "Europe/Berlin"}}
             })).to.equal('2015-03-02');
         });
 
         it('"2015-03-03 03:00:00" to date (America/New_York)', () => {
             expect(cast.cast('2015-03-03 03:00:00', {
                 type: 'date',
-                storedType: {type: "datetime", options: {tz: "America/New_York"}}
+                storedType: {type: "datetime", options: {timezone: "America/New_York"}}
             })).to.equal('2015-03-03');
         });
     });
@@ -146,21 +146,21 @@ describe('type casting', () => {
         it('"2015-03-03 15:00:00" to time (Europe/Berlin)', () => {
             expect(cast.cast('2015-03-03 15:00:00', {
                 type: 'time',
-                storedType: {type: "datetime", options: {tz: "Europe/Berlin"}}
+                storedType: {type: "datetime", options: {timezone: "Europe/Berlin"}}
             })).to.equal('14:00:00.000Z');
         });
 
         it('"2015-03-03 00:00:00" to time (Europe/Berlin)', () => {
             expect(cast.cast('2015-03-03 00:00:00', {
                 type: 'time',
-                storedType: {type: "datetime", options: {tz: "Europe/Berlin"}}
+                storedType: {type: "datetime", options: {timezone: "Europe/Berlin"}}
             })).to.equal('23:00:00.000Z');
         });
 
         it('"2015-03-03 03:00:00" to time (America/New_York)', () => {
             expect(cast.cast('2015-03-03 03:00:00', {
                 type: 'time',
-                storedType: {type: "datetime", options: {tz: "America/New_York"}}
+                storedType: {type: "datetime", options: {timezone: "America/New_York"}}
             })).to.equal('08:00:00.000Z');
         });
     });
