@@ -310,10 +310,10 @@ describe('request-resolver', function () {
             }).to.throw(ImplementationError, 'Cannot overwrite DataSource "primary" in "resource2"');
         });
 
-        it('does allow overwriting of DataSources with "inherit" flag', function () {
+        it('does allow overwriting of DataSources with "inherit=inherit" flag', function () {
             var configs = _.cloneDeep(mergeResourceConfigs);
             configs['resource1'].config.dataSources = {'primary': {customFlag: 'default'}};
-            configs['resource1'].config.attributes['resource2'].dataSources = {'primary': {inherit: true, customFlag: 'overwritten'}};
+            configs['resource1'].config.attributes['resource2'].dataSources = {'primary': {inherit: 'inherit', customFlag: 'overwritten'}};
 
             var req = {
                 resource: 'resource1',
@@ -325,6 +325,24 @@ describe('request-resolver', function () {
             var resolvedRequest = requestResolver(req, configs);
             expect(resolvedRequest.resolvedConfig.attributes['resource2'].dataSources.primary.type).to.equal('test');
             expect(resolvedRequest.resolvedConfig.attributes['resource2'].dataSources.primary.customFlag).to.equal('overwritten');
+        });
+
+        it('does allow overwriting of DataSources with "inherit=replace" flag', function () {
+            var configs = _.cloneDeep(mergeResourceConfigs);
+            configs['resource1'].config.dataSources = {'primary': {customFlag: 'default', otherFlag: 'hello'}};
+            configs['resource1'].config.attributes['resource2'].dataSources = {'primary': {type: 'test2', inherit: 'replace', customFlag: 'overwritten'}};
+
+            var req = {
+                resource: 'resource1',
+                select: {
+                    'resource2': {}
+                }
+            };
+
+            var resolvedRequest = requestResolver(req, configs);
+            expect(resolvedRequest.resolvedConfig.attributes['resource2'].dataSources.primary.type).to.equal('test2');
+            expect(resolvedRequest.resolvedConfig.attributes['resource2'].dataSources.primary.customFlag).to.equal('overwritten');
+            expect(resolvedRequest.resolvedConfig.attributes['resource2'].dataSources.primary.otherFlag).to.be.undefined;
         });
     });
 

@@ -165,7 +165,7 @@ describe('config-parser', function () {
                         "resource": "test",
                         "dataSources": {
                             "primary": {
-                                "inherit": true
+                                "inherit": 'inherit'
                             }
                         }
                     }
@@ -181,6 +181,66 @@ describe('config-parser', function () {
             var resourceConfigs = _.cloneDeep(minimalResourceConfigs);
 
             resourceConfigs['test'].config.dataSources['primary'] = {inherit: 'true'};
+
+            expect(function () {
+                configParser(resourceConfigs, mockDataSources);
+            }).to.throw(ImplementationError, 'DataSource "primary" is defined as "inherit" but has no included resource');
+        });
+
+        it('parses DataSources with "replace" option', function () {
+            var resourceConfigs = {
+                "test": {
+                    "config": {
+                        'resource': 'test',
+                        "dataSources": {
+                            "primary": {
+                                "type": "testDataSource",
+                                expectedAttributes: ['id'],
+                                'inherit': 'replace'
+                            }
+                        },
+                        "attributes": {
+                            "id": {
+                                "type": "int"
+                            }
+                        }
+                    }
+                }
+            };
+
+            var resourceConfigsParsed = {
+                "test": {
+                    config: {
+                        "attributes": {
+                            "id": {
+                                "map": {
+                                    "default": {
+                                        "primary": "id"
+                                    }
+                                },
+                                "type": "int"
+                            }
+                        },
+                        "resource": "test",
+                        "dataSources": {
+                            "primary": {
+                                "type": "testDataSource",
+                                "inherit": 'replace'
+                            }
+                        }
+                    }
+                }
+            };
+
+            configParser(resourceConfigs, mockDataSources);
+
+            expect(resourceConfigs).to.eql(resourceConfigsParsed);
+        });
+
+        it('fails on DataSources with "replace" option but without included resource', function () {
+            var resourceConfigs = _.cloneDeep(minimalResourceConfigs);
+
+            resourceConfigs['test'].config.dataSources['primary'] = {inherit: 'replace'};
 
             expect(function () {
                 configParser(resourceConfigs, mockDataSources);
