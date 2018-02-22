@@ -4,10 +4,10 @@ const { expect } = require('chai');
 
 const xmlReader = require('../lib/xml-reader');
 
-describe('xml-reader', function () {
-    describe('DataSources', function () {
-        it('should parse simple database data source without query', function (done) {
-            xmlReader(__dirname + '/fixtures/xml-reader/datasource-simple.xml', function (err, config) {
+describe('xml-reader', () => {
+    describe('DataSources', () => {
+        it('should parse simple database data source without query', (done) => {
+            xmlReader(__dirname + '/fixtures/xml-reader/datasource-simple.xml', (err, config) => {
                 expect(config.dataSources).to.deep.equal({
                     primary: {
                         type: 'mysql',
@@ -19,8 +19,8 @@ describe('xml-reader', function () {
             });
         });
 
-        it('should parse database data source with SQL query', function (done) {
-            xmlReader(__dirname + '/fixtures/xml-reader/datasource-custom-query.xml', function (err, config) {
+        it('should parse database data source with SQL query', (done) => {
+            xmlReader(__dirname + '/fixtures/xml-reader/datasource-custom-query.xml', (err, config) => {
                 expect(config.dataSources).to.eql({
                     primary: {
                         type: 'mysql',
@@ -32,8 +32,8 @@ describe('xml-reader', function () {
             });
         });
 
-        it('should parse join attributes', function (done) {
-            xmlReader(__dirname + '/fixtures/xml-reader/datasource-join-attributes.xml', function (err, config) {
+        it('should parse join attributes', (done) => {
+            xmlReader(__dirname + '/fixtures/xml-reader/datasource-join-attributes.xml', (err, config) => {
                 expect(config.attributes['sub-resource'].dataSources).to.eql({
                     primary: {
                         type: 'mysql',
@@ -49,40 +49,40 @@ describe('xml-reader', function () {
             });
         });
 
-        it('should throw an error on option w/o name attribute', function (done) {
-            xmlReader(__dirname + '/fixtures/xml-reader/datasource-option-without-name-attr.xml', function (err) {
+        it('should throw an error on option w/o name attribute', (done) => {
+            xmlReader(__dirname + '/fixtures/xml-reader/datasource-option-without-name-attr.xml', (err) => {
                 expect(err).to.be.instanceof(Error);
                 expect(err.message).to.have.string('flora:option element requires a name attribute');
                 done();
             });
         });
 
-        it('should throw an error on duplicate option names', function (done) {
-            xmlReader(__dirname + '/fixtures/xml-reader/datasource-duplicate-option.xml', function (err) {
+        it('should throw an error on duplicate option names', (done) => {
+            xmlReader(__dirname + '/fixtures/xml-reader/datasource-duplicate-option.xml', (err) => {
                 expect(err).to.be.instanceof(Error);
                 expect(err.message).to.have.string('Data source option "query" already defined');
                 done();
             });
         });
 
-        it('should throw an error on duplicate data source names', function (done) {
-            xmlReader(__dirname + '/fixtures/xml-reader/datasource-duplicates.xml', function (err) {
+        it('should throw an error on duplicate data source names', (done) => {
+            xmlReader(__dirname + '/fixtures/xml-reader/datasource-duplicates.xml', (err) => {
                 expect(err).to.be.instanceof(Error);
                 expect(err.message).to.have.string('Data source "primary" already defined');
                 done();
             });
         });
 
-        it('should throw an error if datasource node contains text nodes', function (done) {
-            xmlReader(__dirname + '/fixtures/xml-reader/invalid-datasource-text-node.xml', function (err) {
+        it('should throw an error if datasource node contains text nodes', (done) => {
+            xmlReader(__dirname + '/fixtures/xml-reader/invalid-datasource-text-node.xml', (err) => {
                 expect(err).to.be.instanceof(Error);
                 expect(err.message).to.contains('dataSource contains useless text');
                 done();
             });
         });
 
-        it('should throw an if xml contains invalid text nodes', function (done) {
-            xmlReader(__dirname + '/fixtures/xml-reader/invalid-text-node.xml', function (err) {
+        it('should throw an if xml contains invalid text nodes', (done) => {
+            xmlReader(__dirname + '/fixtures/xml-reader/invalid-text-node.xml', (err) => {
                 try {
                     expect(err).to.be.instanceof(Error);
                     expect(err.message).to.contains('Config contains unnecessary text');
@@ -94,8 +94,8 @@ describe('xml-reader', function () {
         });
     });
 
-    it('should parse primary keys', function (done) {
-        xmlReader(__dirname + '/fixtures/xml-reader/primary-keys.xml', function (err, config) {
+    it('should parse primary keys', (done) => {
+        xmlReader(__dirname + '/fixtures/xml-reader/primary-keys.xml', (err, config) => {
             expect(config).to.eql({
                 primaryKey: 'pk_id',
                 attributes: {
@@ -112,8 +112,8 @@ describe('xml-reader', function () {
         });
     });
 
-    it('should parse attributes', function (done) {
-        xmlReader(__dirname + '/fixtures/xml-reader/attributes.xml', function (err, config) {
+    it('should parse attributes', (done) => {
+        xmlReader(__dirname + '/fixtures/xml-reader/attributes.xml', (err, config) => {
             expect(config).to.eql({
                 attributes: {
                     someAttribute: { type: 'integer' },
@@ -131,8 +131,8 @@ describe('xml-reader', function () {
         });
     });
 
-    it('should not parse namespaced nodes (i.e. flora:xxx) as attributes', function (done) {
-        xmlReader(__dirname + '/fixtures/xml-reader/subfilter.xml', function (err, config) {
+    it('should not parse namespaced nodes (i.e. flora:xxx) as attributes', (done) => {
+        xmlReader(__dirname + '/fixtures/xml-reader/subfilter.xml', (err, config) => {
             expect(config).to.eql({
                 attributes: {
                     'sub-resource': {
@@ -151,8 +151,8 @@ describe('xml-reader', function () {
         });
     });
 
-    it('should parse sub-resources (with all options)', function (done) {
-        xmlReader(__dirname + '/fixtures/xml-reader/subresource.xml', function (err, config) {
+    it('should parse sub-resources (with all options)', (done) => {
+        xmlReader(__dirname + '/fixtures/xml-reader/subresource.xml', (err, config) => {
             expect(config).to.eql({
                 attributes: {
                     subresource1: { type: 'resource', resource: 'otherresource' },
@@ -179,9 +179,9 @@ describe('xml-reader', function () {
         });
     });
 
-    it('should preserve order for attributes and sub-resources', function (done) {
-        xmlReader(__dirname + '/fixtures/xml-reader/subresource.xml', function (err, config) {
-            var keys = Object.keys(config.attributes);
+    it('should preserve order for attributes and sub-resources', (done) => {
+        xmlReader(__dirname + '/fixtures/xml-reader/subresource.xml', (err, config) => {
+            const keys = Object.keys(config.attributes);
             expect(keys[0]).to.equal('subresource1');
             expect(keys[1]).to.equal('attr');
             expect(keys[2]).to.equal('subresource2');
@@ -189,15 +189,15 @@ describe('xml-reader', function () {
         });
     });
 
-    it('should generate an error if XML cannot be parsed', function (done) {
-        xmlReader(__dirname + '/fixtures/xml-reader/broken.xml', function (err) {
+    it('should generate an error if XML cannot be parsed', (done) => {
+        xmlReader(__dirname + '/fixtures/xml-reader/broken.xml', (err) => {
             expect(err).to.be.instanceof(Error);
             done();
         });
     });
 
-    it('should parse flora specific elements by uri namespace (instead of prefix)', function (done) {
-        xmlReader(__dirname + '/fixtures/xml-reader/namespace-uri.xml', function (err, config) {
+    it('should parse flora specific elements by uri namespace (instead of prefix)', (done) => {
+        xmlReader(__dirname + '/fixtures/xml-reader/namespace-uri.xml', (err, config) => {
             expect(config).to.eql({
                 dataSources: {
                     primary: {

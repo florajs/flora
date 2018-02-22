@@ -7,13 +7,13 @@ const execute = require('../lib/datasource-executor');
 
 const testDataSource = function testDataSource() {
     return {
-        process: function (request, callback) {
+        process: (request, callback) => {
             callback(null, {
                 data: [],
                 totalCount: null
             });
         },
-        prepare: function () {}
+        prepare: () => {}
     };
 };
 
@@ -22,34 +22,34 @@ const api = {
         test: testDataSource()
     },
 
-    getResource: function () {
+    getResource: () => {
         return null;
     }
 };
 
-describe('datasource-executor', function () {
-    describe('generic tests', function () {
-        it('should be a function', function () {
+describe('datasource-executor', () => {
+    describe('generic tests', () => {
+        it('should be a function', () => {
             expect(execute).to.be.a('function');
         });
     });
 
-    describe('error handling', function () {
-        it('returns error on invalid request type', function (done) {
-            execute(api, {}, {request: {type: 'test-invalid'}}, function (err) {
+    describe('error handling', () => {
+        it('returns error on invalid request type', (done) => {
+            execute(api, {}, {request: {type: 'test-invalid'}}, (err) => {
                 expect(err).to.be.an.instanceof(Error);
                 done();
             });
         });
 
-        it('passes through errors from process call', function (done) {
-            sinon.stub(api.dataSources['test'], 'process', function (query, callback) {
+        it('passes through errors from process call', (done) => {
+            sinon.stub(api.dataSources['test'], 'process', (query, callback) => {
                 callback(new Error('foo'));
             });
 
-            var dst = {request: {type: 'test'}};
+            const dst = {request: {type: 'test'}};
 
-            execute(api, {}, dst, function (err) {
+            execute(api, {}, dst, (err) => {
                 api.dataSources['test'].process.restore();
                 expect(err).to.be.an.instanceof(Error);
                 expect(err.message).to.equal('foo');
@@ -57,15 +57,15 @@ describe('datasource-executor', function () {
             });
         });
 
-        it('detects missing subFilters', function (done) {
-            var dst = {
+        it('detects missing subFilters', (done) => {
+            const dst = {
                 request: {
                     type: 'test',
                     filter: [[{attribute: 'bar', operator: 'equal', valueFromSubFilter: true}]]
                 }
             };
 
-            execute(api, {}, dst, function (err) {
+            execute(api, {}, dst, (err) => {
                 expect(err).to.be.an.instanceof(Error);
                 expect(err.message).to.equal('Missing subFilter for attribute "bar"');
                 done();
@@ -73,8 +73,8 @@ describe('datasource-executor', function () {
         });
     });
 
-    describe('simple requests', function () {
-        var dst = {
+    describe('simple requests', () => {
+        const dst = {
             attributePath: [],
             dataSourceName: 'ds',
             request: {
@@ -82,15 +82,15 @@ describe('datasource-executor', function () {
             }
         };
 
-        it('does not throw errors', function (done) {
-            execute(api, {}, dst, function (err) {
+        it('does not throw errors', (done) => {
+            execute(api, {}, dst, (err) => {
                 if (err) return done(err);
                 done();
             });
         });
 
-        it('returns the correct result', function (done) {
-            execute(api, {}, dst, function (err, result) {
+        it('returns the correct result', (done) => {
+            execute(api, {}, dst, (err, result) => {
                 if (err) return done(err);
                 expect(result).to.eql([
                     {
@@ -105,8 +105,8 @@ describe('datasource-executor', function () {
         });
     });
 
-    describe('subFilters', function () {
-        var dst = {
+    describe('subFilters', () => {
+        const dst = {
             attributePath: [],
             dataSourceName: 'ds1',
             request: {
@@ -130,9 +130,9 @@ describe('datasource-executor', function () {
             ]
         };
 
-        describe('with non-empty result', function () {
-            before(function () {
-                sinon.stub(api.dataSources['test'], 'process', function (query, callback) {
+        describe('with non-empty result', () => {
+            before(() => {
+                sinon.stub(api.dataSources['test'], 'process', (query, callback) => {
                     if (query.table === 'email') {
                         return callback(null, {
                             data: [
@@ -170,20 +170,20 @@ describe('datasource-executor', function () {
                 });
             });
 
-            after(function () {
+            after(() => {
                 api.dataSources['test'].process.restore();
             });
 
-            it('does not throw errors', function (done) {
-                execute(api, {}, dst, function (err) {
+            it('does not throw errors', (done) => {
+                execute(api, {}, dst, (err) => {
                     if (err) return done(err);
                     expect(err).to.eql(null);
                     done();
                 });
             });
 
-            it('returns the correct result', function (done) {
-                execute(api, {}, dst, function (err, result) {
+            it('returns the correct result', (done) => {
+                execute(api, {}, dst, (err, result) => {
                     if (err) return done(err);
                     expect(result).to.eql([
                         {
@@ -201,9 +201,9 @@ describe('datasource-executor', function () {
             });
         });
 
-        describe('with empty result', function () {
-            before(function () {
-                sinon.stub(api.dataSources['test'], 'process', function (query, callback) {
+        describe('with empty result', () => {
+            before(() => {
+                sinon.stub(api.dataSources['test'], 'process', (query, callback) => {
                     if (query.table === 'email') {
                         return callback(null, {
                             data: [],
@@ -216,19 +216,19 @@ describe('datasource-executor', function () {
                 });
             });
 
-            after(function () {
+            after(() => {
                 api.dataSources['test'].process.restore();
             });
 
-            it('does not throw errors', function (done) {
-                execute(api, {}, dst, function (err) {
+            it('does not throw errors', (done) => {
+                execute(api, {}, dst, (err) => {
                     if (err) return done(err);
                     done();
                 });
             });
 
-            it('returns an empty main result', function (done) {
-                execute(api, {}, dst, function (err, result) {
+            it('returns an empty main result', (done) => {
+                execute(api, {}, dst, (err, result) => {
                     if (err) return done(err);
                     expect(result).to.eql([
                         {
@@ -244,8 +244,8 @@ describe('datasource-executor', function () {
         });
     });
 
-    describe('subRequests', function () {
-        var dst = {
+    describe('subRequests', () => {
+        const dst = {
             attributePath: [],
             dataSourceName: 'ds1',
             request: {
@@ -267,8 +267,8 @@ describe('datasource-executor', function () {
             ]
         };
 
-        before(function() {
-            sinon.stub(api.dataSources['test'], 'process', function (query, callback) {
+        before(() => {
+            sinon.stub(api.dataSources['test'], 'process', (query, callback) => {
                 if (query.table === 'user') {
                     return callback(null, {
                         data: [
@@ -307,19 +307,19 @@ describe('datasource-executor', function () {
             });
         });
 
-        after(function () {
+        after(() => {
             api.dataSources['test'].process.restore();
         });
 
-        it('does not throw errors', function (done) {
-            execute(api, {}, dst, function (err) {
+        it('does not throw errors', (done) => {
+            execute(api, {}, dst, (err) => {
                 if (err) return done(err);
                 done();
             });
         });
 
-        it('integration test', function (done) {
-            execute(api, {}, dst, function (err, result) {
+        it('integration test', (done) => {
+            execute(api, {}, dst, (err, result) => {
                 if (err) return done(err);
                 expect(result).to.eql([
                     {
@@ -349,8 +349,8 @@ describe('datasource-executor', function () {
         });
     });
 
-    describe('subRequests with empty condition (null)', function () {
-        var dst = {
+    describe('subRequests with empty condition (null)', () => {
+        const dst = {
             attributePath: [],
             dataSourceName: 'ds1',
             request: {
@@ -372,8 +372,8 @@ describe('datasource-executor', function () {
             ]
         };
 
-        before(function() {
-            sinon.stub(api.dataSources['test'], 'process', function (query, callback) {
+        before(() => {
+            sinon.stub(api.dataSources['test'], 'process', (query, callback) => {
                 if (query.table === 'article') {
                     return callback(null, {
                         data: [
@@ -396,19 +396,19 @@ describe('datasource-executor', function () {
             });
         });
 
-        after(function () {
+        after(() => {
             api.dataSources['test'].process.restore();
         });
 
-        it('does not execute the subRequest', function (done) {
-            execute(api, {}, dst, function (err) {
+        it('does not execute the subRequest', (done) => {
+            execute(api, {}, dst, (err) => {
                 if (err) return done(err);
                 done();
             });
         });
 
-        it('returns the correct result', function (done) {
-            execute(api, {}, dst, function (err, result) {
+        it('returns the correct result', (done) => {
+            execute(api, {}, dst, (err, result) => {
                 if (err) return done(err);
                 expect(result).to.eql([
                     {
@@ -431,9 +431,9 @@ describe('datasource-executor', function () {
         });
     });
 
-    describe('subRequests with empty condition (undefined)', function () {
+    describe('subRequests with empty condition (undefined)', () => {
         // In some cases, dataSources (e.g. Solr) may not return fields if they do not exist
-        var dst = {
+        const dst = {
             attributePath: [],
             dataSourceName: 'ds1',
             request: {
@@ -456,7 +456,7 @@ describe('datasource-executor', function () {
         };
 
         before(function() {
-            sinon.stub(api.dataSources['test'], 'process', function (query, callback) {
+            sinon.stub(api.dataSources['test'], 'process', (query, callback) => {
                 if (query.table === 'article') {
                     return callback(null, {
                         data: [
@@ -479,19 +479,19 @@ describe('datasource-executor', function () {
             });
         });
 
-        after(function () {
+        after(() => {
             api.dataSources['test'].process.restore();
         });
 
-        it('does not execute the subRequest', function (done) {
-            execute(api, {}, dst, function (err) {
+        it('does not execute the subRequest', (done) => {
+            execute(api, {}, dst, (err) => {
                 if (err) return done(err);
                 done();
             });
         });
 
-        it('returns the correct result', function (done) {
-            execute(api, {}, dst, function (err, result) {
+        it('returns the correct result', (done) => {
+            execute(api, {}, dst, (err, result) => {
                 if (err) return done(err);
                 expect(result).to.eql([
                     {
@@ -514,8 +514,8 @@ describe('datasource-executor', function () {
         });
     });
 
-    describe('subRequests with empty condition part (undefined)', function () {
-        var dst = {
+    describe('subRequests with empty condition part (undefined)', () => {
+        const dst = {
             attributePath: [],
             dataSourceName: 'ds1',
             request: {
@@ -537,8 +537,8 @@ describe('datasource-executor', function () {
             ]
         };
 
-        before(function () {
-            sinon.stub(api.dataSources['test'], 'process', function (query, callback) {
+        before(() => {
+            sinon.stub(api.dataSources['test'], 'process', (query, callback) => {
                 if (query.table === 'article') {
                     return callback(null, {
                         data: [
@@ -574,19 +574,19 @@ describe('datasource-executor', function () {
             });
         });
 
-        after(function () {
+        after(() => {
             api.dataSources['test'].process.restore();
         });
 
-        it('does not execute the subRequest', function (done) {
-            execute(api, {}, dst, function (err) {
+        it('does not execute the subRequest', (done) => {
+            execute(api, {}, dst, (err) => {
                 if (err) return done(err);
                 done();
             });
         });
 
-        it('returns the correct result', function (done) {
-            execute(api, {}, dst, function (err, result) {
+        it('returns the correct result', (done) => {
+            execute(api, {}, dst, (err, result) => {
                 if (err) return done(err);
                 expect(result).to.eql([
                     {
@@ -609,8 +609,8 @@ describe('datasource-executor', function () {
         });
     });
 
-    describe('subRequests and subFilters', function () {
-        var dst = {
+    describe('subRequests and subFilters', () => {
+        const dst = {
             attributePath: [],
             request: {
                 type: 'test',
@@ -641,8 +641,8 @@ describe('datasource-executor', function () {
             ]
         };
 
-        before(function () {
-            sinon.stub(api.dataSources['test'], 'process', function (query, callback) {
+        before(() => {
+            sinon.stub(api.dataSources['test'], 'process', (query, callback) => {
                 if (query.table === 'article') {
                     return callback(null, {
                         data: [
@@ -689,19 +689,19 @@ describe('datasource-executor', function () {
             });
         });
 
-        after(function () {
+        after(() => {
             api.dataSources['test'].process.restore();
         });
 
-        it('does not throw errors', function (done) {
-            execute(api, {}, dst, function (err) {
+        it('does not throw errors', (done) => {
+            execute(api, {}, dst, (err) => {
                 if (err) return done(err);
                 done();
             });
         });
 
-        it('returns the correct result', function (done) {
-            execute(api, {}, dst, function (err, result) {
+        it('returns the correct result', (done) => {
+            execute(api, {}, dst, (err, result) => {
                 if (err) return done(err);
                 expect(result).to.eql([
                     {
@@ -727,8 +727,8 @@ describe('datasource-executor', function () {
         });
     });
 
-    describe('recursive subFilters', function () {
-        var dst = {
+    describe('recursive subFilters', () => {
+        const dst = {
             attributePath: [],
             dataSourceName: 'ds1',
             request: {
@@ -760,8 +760,8 @@ describe('datasource-executor', function () {
             ]
         };
 
-        before(function () {
-            sinon.stub(api.dataSources['test'], 'process', function (query, callback) {
+        before(() => {
+            sinon.stub(api.dataSources['test'], 'process', (query, callback) => {
                 if (query.table === 'validemail') {
                     // filter parameter is transformed correctly
                     expect(query.filter).to.eql([[
@@ -825,19 +825,19 @@ describe('datasource-executor', function () {
             });
         });
 
-        after(function () {
+        after(() => {
             api.dataSources['test'].process.restore();
         });
 
-        it('does not throw errors', function (done) {
-            execute(api, {}, dst, function (err) {
+        it('does not throw errors', (done) => {
+            execute(api, {}, dst, (err) => {
                 if (err) return done(err);
                 done();
             });
         });
 
-        it('returns the correct result', function (done) {
-            execute(api, {}, dst, function (err, result) {
+        it('returns the correct result', (done) => {
+            execute(api, {}, dst, (err, result) => {
                 if (err) return done(err);
                 expect(result).to.eql([
                     {
@@ -854,8 +854,8 @@ describe('datasource-executor', function () {
         });
     });
 
-    describe('type casting in requests', function () {
-        var dst = {
+    describe('type casting in requests', () => {
+        const dst = {
             attributePath: [],
             request: {
                 type: 'test',
@@ -878,8 +878,8 @@ describe('datasource-executor', function () {
             }
         };
 
-        before(function () {
-            sinon.stub(api.dataSources['test'], 'process', function (query, callback) {
+        before(() => {
+            sinon.stub(api.dataSources['test'], 'process', (query, callback) => {
                 return callback(null, {
                     data: [
                         {
@@ -904,12 +904,12 @@ describe('datasource-executor', function () {
             });
         });
 
-        after(function () {
+        after(() => {
             api.dataSources['test'].process.restore();
         });
 
-        it('supports type casting', function () {
-            execute(api, {}, dst, function (err, result) {
+        it('supports type casting', () => {
+            execute(api, {}, dst, (err, result) => {
                 if (err) return done(err);
                 expect(result).to.be.an('array');
                 expect(result[0]).to.be.an('object');
@@ -918,100 +918,100 @@ describe('datasource-executor', function () {
             });
         });
 
-        it('casts string to int', function () {
+        it('casts string to int', () => {
             execute(api, {}, dst, function (err, result) {
                 expect(result[0].data[0].string2int).to.be.a('number');
                 expect(result[0].data[0].string2int).to.equal(42);
             });
         });
 
-        it('casts string to float', function () {
-            execute(api, {}, dst, function (err, result) {
+        it('casts string to float', () => {
+            execute(api, {}, dst, (err, result) => {
                 expect(result[0].data[0].string2float).to.be.a('number');
                 expect(result[0].data[0].string2float).to.equal(3.1415);
             });
         });
 
-        it('casts int to string', function () {
-            execute(api, {}, dst, function (err, result) {
+        it('casts int to string', () => {
+            execute(api, {}, dst, (err, result) => {
                 expect(result[0].data[0].int2string).to.be.a('string');
                 expect(result[0].data[0].int2string).to.equal('42');
             });
         });
 
-        it('casts string to boolean ("1")', function () {
-            execute(api, {}, dst, function (err, result) {
+        it('casts string to boolean ("1")', () => {
+            execute(api, {}, dst, (err, result) => {
                 expect(result[0].data[0].string2boolean1).to.be.a('boolean');
                 expect(result[0].data[0].string2boolean1).to.equal(true);
             });
         });
 
-        it('casts string to boolean ("0")', function () {
-            execute(api, {}, dst, function (err, result) {
+        it('casts string to boolean ("0")', () => {
+            execute(api, {}, dst, (err, result) => {
                 expect(result[0].data[0].string2boolean0).to.be.a('boolean');
                 expect(result[0].data[0].string2boolean0).to.equal(false);
             });
         });
 
-        it('casts int to boolean (1)', function () {
-            execute(api, {}, dst, function (err, result) {
+        it('casts int to boolean (1)', () => {
+            execute(api, {}, dst, (err, result) => {
                 expect(result[0].data[0].int2boolean1).to.be.a('boolean');
                 expect(result[0].data[0].int2boolean1).to.equal(true);
             });
         });
 
-        it('casts int to boolean (0)', function () {
-            execute(api, {}, dst, function (err, result) {
+        it('casts int to boolean (0)', () => {
+            execute(api, {}, dst, (err, result) => {
                 expect(result[0].data[0].int2boolean0).to.be.a('boolean');
                 expect(result[0].data[0].int2boolean0).to.equal(false);
             });
         });
 
-        it('casts string to datetime', function () {
-            execute(api, {}, dst, function (err, result) {
+        it('casts string to datetime', () => {
+            execute(api, {}, dst, (err, result) => {
                 expect(result[0].data[0].string2datetime).to.be.a('string');
                 expect(result[0].data[0].string2datetime).to.equal('2015-06-17T10:13:14.000Z');
             });
         });
 
-        it('casts string to time', function () {
-            execute(api, {}, dst, function (err, result) {
+        it('casts string to time', () => {
+            execute(api, {}, dst, (err, result) => {
                 expect(result[0].data[0].string2time).to.be.a('string');
                 expect(result[0].data[0].string2time).to.equal('10:13:14.000Z');
             });
         });
 
-        it('casts string to date', function () {
-            execute(api, {}, dst, function (err, result) {
+        it('casts string to date', () => {
+            execute(api, {}, dst, (err, result) => {
                 expect(result[0].data[0].string2date).to.be.a('string');
                 expect(result[0].data[0].string2date).to.equal('2015-06-17');
             });
         });
 
-        it('passes through raw data', function () {
-            execute(api, {}, dst, function (err, result) {
+        it('passes through raw data', () => {
+            execute(api, {}, dst, (err, result) => {
                 expect(result[0].data[0].raw).to.be.an('object');
                 expect(result[0].data[0].raw).to.eql({foo: 'bar'});
             });
         });
 
-        it('passes through null', function () {
-            execute(api, {}, dst, function (err, result) {
+        it('passes through null', () => {
+            execute(api, {}, dst, (err, result) => {
                 expect(err).to.eql(null);
                 expect(result[0].data[0].null2int).to.equal(null);
             });
         });
 
-        it('passes through empty type', function () {
-            execute(api, {}, dst, function (err, result) {
+        it('passes through empty type', () => {
+            execute(api, {}, dst, (err, result) => {
                 expect(err).to.eql(null);
                 expect(result[0].data[0].emptyType).to.be.an('object');
                 expect(result[0].data[0].emptyType).to.eql({foo: 'bar'});
             });
         });
 
-        it('passes through unknown type', function () {
-            execute(api, {}, dst, function (err, result) {
+        it('passes through unknown type', () => {
+            execute(api, {}, dst, (err, result) => {
                 expect(err).to.eql(null);
                 expect(result[0].data[0].unknownType).to.be.an('object');
                 expect(result[0].data[0].unknownType).to.eql({foo: 'bar'});
@@ -1019,9 +1019,9 @@ describe('datasource-executor', function () {
         });
     });
 
-    describe('delimiter in subFilters', function () {
-        before(function () {
-            sinon.stub(api.dataSources['test'], 'process', function (query, callback) {
+    describe('delimiter in subFilters', () => {
+        before(() => {
+            sinon.stub(api.dataSources['test'], 'process', (query, callback) => {
                 if (query.table === 'email') {
                     // valueFromSubFilter (validemail) is transformed correctly
                     expect(query.filter).to.eql([[
@@ -1061,11 +1061,11 @@ describe('datasource-executor', function () {
             });
         });
 
-        after(function () {
+        after(() => {
             api.dataSources['test'].process.restore();
         });
 
-        var dst = {
+        const dst = {
             attributePath: [],
             dataSourceName: 'user',
             request: {
@@ -1100,15 +1100,15 @@ describe('datasource-executor', function () {
             ]
         };
 
-        it('does not throw errors', function (done) {
-            execute(api, {}, dst, function (err) {
+        it('does not throw errors', (done) => {
+            execute(api, {}, dst, (err) => {
                 if (err) return done(err);
                 done();
             });
         });
 
-        it('resolves emailIds', function (done) {
-            execute(api, {}, dst, function (err, results) {
+        it('resolves emailIds', (done) => {
+            execute(api, {}, dst, (err, results) => {
                 expect(results[0].data).to.eql([
                     { id: 1, emailIds: [ 10, 11, 12 ] },
                     { id: 2, emailIds: [ 20, 21 ] }
@@ -1130,9 +1130,9 @@ describe('datasource-executor', function () {
         });
     });
 
-    describe('casting to storedType in subFilters', function () {
-        before(function () {
-            sinon.stub(api.dataSources['test'], 'process', function (query, callback) {
+    describe('casting to storedType in subFilters', () => {
+        before(() => {
+            sinon.stub(api.dataSources['test'], 'process', (query, callback) => {
                 if (query.table === 'quotes') {
                     return callback(null, {
                         data: [
@@ -1166,11 +1166,11 @@ describe('datasource-executor', function () {
             });
         });
 
-        after(function () {
+        after(() => {
             api.dataSources['test'].process.restore();
         });
 
-        var dst = {
+        const dst = {
             attributePath: [],
             dataSourceName: 'ds1',
             request: {
@@ -1200,8 +1200,8 @@ describe('datasource-executor', function () {
             ]
         };
 
-        it('does not throw errors', function (done) {
-            execute(api, {}, dst, function (err) {
+        it('does not throw errors', (done) => {
+            execute(api, {}, dst, (err) => {
                 if (err) return done(err);
                 done();
             });
@@ -1209,10 +1209,10 @@ describe('datasource-executor', function () {
 
     });
 
-    describe('type casting in subFilters', function () {
-        var dst;
+    describe('type casting in subFilters', () => {
+        let dst;
 
-        beforeEach(function () {
+        beforeEach(() => {
             dst = {
                 attributePath: [],
                 request: {
@@ -1236,8 +1236,8 @@ describe('datasource-executor', function () {
             };
         });
 
-        before(function () {
-            sinon.stub(api.dataSources['test'], 'process', function (query, callback) {
+        before(() => {
+            sinon.stub(api.dataSources['test'], 'process', (query, callback) => {
                 if (query.table === 'article') {
                     try {
                         expect(query).to.be.an('object');
@@ -1261,18 +1261,18 @@ describe('datasource-executor', function () {
             });
         });
 
-        after(function () {
+        after(() => {
             api.dataSources['test'].process.restore();
         });
 
-        it('casts string to int', function (done) {
+        it('casts string to int', (done) => {
             dst.request._expect = 42;
             dst.subFilters[0].request._value = '42';
             dst.subFilters[0].attributeOptions.id.type = 'int';
             execute(api, {}, dst, done);
         });
 
-        it('casts string to float', function (done) {
+        it('casts string to float', (done) => {
             // this does not really make sense, but works
             dst.request._expect = 3.1415;
             dst.subFilters[0].request._value = '3.1415';
@@ -1280,42 +1280,42 @@ describe('datasource-executor', function () {
             execute(api, {}, dst, done);
         });
 
-        it('casts int to string', function (done) {
+        it('casts int to string', (done) => {
             dst.request._expect = '42'
             dst.subFilters[0].request._value = 42;
             dst.subFilters[0].attributeOptions.id.type = 'string';
             execute(api, {}, dst, done);
         });
 
-        it('casts string to boolean ("1")', function (done) {
+        it('casts string to boolean ("1")', (done) => {
             dst.request._expect = true;
             dst.subFilters[0].request._value = '1';
             dst.subFilters[0].attributeOptions.id.type = 'boolean';
             execute(api, {}, dst, done);
         });
 
-        it('casts string to boolean ("0")', function (done) {
+        it('casts string to boolean ("0")', (done) => {
             dst.request._expect = false;
             dst.subFilters[0].request._value = '0';
             dst.subFilters[0].attributeOptions.id.type = 'boolean';
             execute(api, {}, dst, done);
         });
 
-        it('casts int to boolean (1)', function (done) {
+        it('casts int to boolean (1)', (done) => {
             dst.request._expect = true;
             dst.subFilters[0].request._value = 1;
             dst.subFilters[0].attributeOptions.id.type = 'boolean';
             execute(api, {}, dst, done);
         });
 
-        it('casts int to boolean (0)', function (done) {
+        it('casts int to boolean (0)', (done) => {
             dst.request._expect = false;
             dst.subFilters[0].request._value = 0;
             dst.subFilters[0].attributeOptions.id.type = 'boolean';
             execute(api, {}, dst, done);
         });
 
-        it('casts string to datetime (with timezone)', function (done) {
+        it('casts string to datetime (with timezone)', (done) => {
             dst.request._expect = '2015-06-17T10:13:14.000Z';
             dst.subFilters[0].request._value = '2015-06-17 12:13:14';
             dst.subFilters[0].attributeOptions.id.type = 'datetime';
@@ -1323,7 +1323,7 @@ describe('datasource-executor', function () {
             execute(api, {}, dst, done);
         });
 
-        it('casts string to datetime (with timezone)', function (done) {
+        it('casts string to datetime (with timezone)', (done) => {
             dst.request._expect = '2015-06-17T16:13:14.000Z';
             dst.subFilters[0].request._value = '2015-06-17 12:13:14';
             dst.subFilters[0].attributeOptions.id.type = 'datetime';
@@ -1331,7 +1331,7 @@ describe('datasource-executor', function () {
             execute(api, {}, dst, done);
         });
 
-        it('casts string to time (with different timezone)', function (done) {
+        it('casts string to time (with different timezone)', (done) => {
             dst.request._expect = '10:13:14.000Z';
             dst.subFilters[0].request._value = '2015-06-17 12:13:14';
             dst.subFilters[0].attributeOptions.id.type = 'time';
@@ -1339,7 +1339,7 @@ describe('datasource-executor', function () {
             execute(api, {}, dst, done);
         });
 
-        it('casts string to date (with timezone)', function (done) {
+        it('casts string to date (with timezone)', (done) => {
             dst.request._expect = '2015-06-17';
             dst.subFilters[0].request._value = '2015-06-17 12:13:14';
             dst.subFilters[0].attributeOptions.id.type = 'date';
@@ -1347,7 +1347,7 @@ describe('datasource-executor', function () {
             execute(api, {}, dst, done);
         });
 
-        it('passes through null', function (done) {
+        it('passes through null', (done) => {
             // this may or may not make sense
             dst.request._expect = null;
             dst.subFilters[0].request._value = null;

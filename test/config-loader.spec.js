@@ -22,7 +22,7 @@ function parseXml(file, callback) { // fake parser for tests
 
 describe('config-loader', () => {
     it('should issue an error if config directory does not exist', (done) => {
-        var directory = require('path').resolve('nonexistent-directory');
+        const directory = require('path').resolve('nonexistent-directory');
 
         configLoader(api, { directory }, (err) => {
             expect(err).to.be.instanceof(Error);
@@ -39,7 +39,7 @@ describe('config-loader', () => {
             }
         });
 
-        var cfg = {
+        const cfg = {
             parsers: { xml: parseXml }
         };
 
@@ -59,11 +59,11 @@ describe('config-loader', () => {
             }
         });
 
-        var cfg = {
+        const cfg = {
             parsers: { xml: parseXml }
         };
 
-        var callback = sinon.stub();
+        const callback = sinon.stub();
         callback.onFirstCall().returns(new Error());
 
         configLoader(api, cfg, callback);
@@ -93,7 +93,7 @@ describe('config-loader', () => {
             }
         });
 
-        var cfg = {
+        const cfg = {
             parsers: { xml: parseXml }
         };
 
@@ -126,7 +126,7 @@ describe('config-loader', () => {
             }
         });
 
-        var cfg = {
+        const cfg = {
             directory: 'configs/are/stored/in/deep/directory/structure',
             parsers: { xml: parseXml }
         };
@@ -149,7 +149,7 @@ describe('config-loader', () => {
             }
         });
 
-        var cfg = {
+        const cfg = {
             directory: 'configs/relative-path/../relative-path',
             parsers: { xml: parseXml }
         };
@@ -170,7 +170,7 @@ describe('config-loader', () => {
             }
         });
 
-        var cfg = {
+        const cfg = {
             parsers: { xml: parseXml }
         };
 
@@ -189,7 +189,7 @@ describe('config-loader', () => {
             }
         });
 
-        var cfg = {
+        const cfg = {
             parsers: {
                 xml: parseXml,
                 json: (file, callback) => {
@@ -227,7 +227,7 @@ describe('config-loader', () => {
             }
         });
 
-        var cfg = {
+        const cfg = {
             parsers: { xml: parseXml }
         };
 
@@ -241,7 +241,7 @@ describe('config-loader', () => {
     });
 
     it('should load our example resources (integration)', (done) => {
-        var cfg = {
+        const cfg = {
                 directory: __dirname + '/fixtures/resources',
                 parsers: { xml: require('../lib/xml-reader') }
             },

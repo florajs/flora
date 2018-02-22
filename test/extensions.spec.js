@@ -4,7 +4,6 @@ const path = require('path');
 
 const chai = require('chai');
 const bunyan = require('bunyan');
-const sinon = require('sinon');
 
 const { Api } = require('../');
 const Request = require('../lib/request');
@@ -17,7 +16,7 @@ const resourcesPath = path.join(__dirname, 'fixtures', 'extensions', 'resources'
 
 const testDataSource = function testDataSource() {
     return {
-        process: function (request, callback) {
+        process: (request, callback) => {
             callback(null, {
                 data: [{
                     id: 1,
@@ -29,7 +28,7 @@ const testDataSource = function testDataSource() {
                 totalCount: null
             });
         },
-        prepare: function () {}
+        prepare: () => {}
     };
 };
 
@@ -43,69 +42,69 @@ const testConfig = {
     }
 };
 
-describe('extensions', function () {
-    describe('Api', function () {
-        describe('init', function() {
-            it('is emitted when the instance is initialized', function (done) {
-                var api = new Api();
+describe('extensions', () => {
+    describe('Api', () => {
+        describe('init', () => {
+            it('is emitted when the instance is initialized', (done) => {
+                const api = new Api();
 
-                api.on('init', function () {
+                api.on('init', () => {
                     api.close(done);
                 });
 
                 api.init({log: log});
             });
 
-            it('can be called asynchronously', function (done) {
-                var api = new Api();
+            it('can be called asynchronously', (done) => {
+                const api = new Api();
 
-                var initEmitted = false;
-                api.on('init', function (ev, next) {
+                let initEmitted = false;
+                api.on('init', (ev, next) => {
                     expect(next).to.be.a('function');
                     initEmitted = true;
                     next();
                 });
 
-                api.init({log: log}, function () {
+                api.init({log: log}, () => {
                     expect(initEmitted).to.eql(true);
                     api.close(done);
                 });
             });
         });
 
-        describe('request', function () {
-            it('is emitted when a request is made', function (done) {
-                var api = new Api();
+        describe('request', () => {
+            it('is emitted when a request is made', (done) => {
+                const api = new Api();
 
-                api.init({log: log}, function (err) {
+                api.init({log: log}, (err) => {
                     if (err) return done(err);
 
-                    var request = new Request({resource: 'test'});
-                    api.execute(request, function () {
+                    const request = new Request({resource: 'test'});
+                    api.execute(request, () => {
                         api.close(done);
                     });
                 });
 
-                api.on('request', function (ev) {
+                api.on('request', (ev) => {
                     expect(ev).to.be.an('object');
                     expect(ev.request).to.be.an('object');
                     expect(ev.request.resource).to.eql('test');
                 });
             });
 
-            it('can be called asynchronously', function (done) {
-                var api = new Api();
+            it('can be called asynchronously', (done) => {
+                const api = new Api();
 
-                api.init({log: log}, function (err) {
+                api.init({log: log}, (err) => {
                     if (err) return done(err);
 
-                    var request = new Request({resource: 'test'});
-                    api.execute(request, function () {
+                    const request = new Request({resource: 'test'});
+                    api.execute(request, () => {
                         api.close(done);
                     });
                 });
 
-                api.on('request', function (ev, next) {
+                api.on('request', (ev, next) => {
                     expect(ev).to.be.an('object');
                     expect(ev.request).to.be.an('object');
                     expect(ev.request.resource).to.eql('test');
@@ -115,44 +114,44 @@ describe('extensions', function () {
             });
         });
 
-        describe('response', function () {
-            it('is emitted before a response is sent', function (done) {
-                var api = new Api();
+        describe('response', () => {
+            it('is emitted before a response is sent', (done) => {
+                const api = new Api();
 
-                api.init(testConfig, function (err) {
+                api.init(testConfig, (err) => {
                     if (err) return done(err);
 
-                    var request = new Request({resource: 'test'});
-                    api.execute(request, function (err2) {
+                    const request = new Request({resource: 'test'});
+                    api.execute(request, (err2) => {
                         if (err2) return done(err2);
                         api.close(done);
                     });
 
                 });
 
-                api.on('response', function (ev) {
+                api.on('response', (ev) => {
                     expect(ev).to.be.an('object');
                     expect(ev.response).to.be.an('object');
                     expect(ev.response.data).to.be.an('array');
                 });
             });
 
-            it('can be called asynchronously', function (done) {
-                var api = new Api();
-                api.init(testConfig, function (err) {
+            it('can be called asynchronously', (done) => {
+                const api = new Api();
+                api.init(testConfig, (err) => {
                     if (err) return done(err);
 
-                    var request = new Request({resource: 'test'});
-                    api.execute(request, function (err2, response) {
+                    const request = new Request({resource: 'test'});
+                    api.execute(request, (err2, response) => {
                         if (err2) return done(err2);
                         expect(responseEmitted).to.eql(true);
                         api.close(done);
                     });
                 });
 
-                var responseEmitted = false;
+                let responseEmitted = false;
 
-                api.on('response', function (ev, next) {
+                api.on('response', (ev, next) => {
                     responseEmitted = true;
                     expect(ev).to.be.an('object');
                     expect(ev.response).to.be.an('object');
@@ -163,10 +162,10 @@ describe('extensions', function () {
             });
         });
 
-        describe('close', function () {
-            it('is emitted when the instance is closed', function (done) {
-                var api = new Api();
-                api.on('init', function () {
+        describe('close', () => {
+            it('is emitted when the instance is closed', (done) => {
+                const api = new Api();
+                api.on('init', () => {
                     api.close();
                 });
 
@@ -175,18 +174,18 @@ describe('extensions', function () {
                 api.init({log: log});
             });
 
-            it('can be called asynchronously', function (done) {
-                var closeCalled = false;
+            it('can be called asynchronously', (done) => {
+                let closeCalled = false;
 
-                var api = new Api();
-                api.on('init', function () {
-                    api.close(function () {
+                const api = new Api();
+                api.on('init', () => {
+                    api.close(() => {
                         expect(closeCalled).to.eql(true);
                         done();
                     });
                 });
 
-                api.on('close', function (ev, next) {
+                api.on('close', (ev, next) => {
                     expect(next).to.be.a('function');
                     closeCalled = true;
                     next();
@@ -197,29 +196,29 @@ describe('extensions', function () {
         });
     });
 
-    describe('resource', function () {
-        describe('init (sync)', function () {
-            it('is emitted once when the resource is called for the first time', function (done) {
-                var api = new Api();
+    describe('resource', () => {
+        describe('init (sync)', () => {
+            it('is emitted once when the resource is called for the first time', (done) => {
+                const api = new Api();
 
-                api.init(testConfig, function (err) {
+                api.init(testConfig, (err) => {
                     if (err) return done(err);
-                    var resource = api.getResource('test');
+                    const resource = api.getResource('test');
                     expect(resource._initCalled()).to.equal(1);
                     api.close(done);
                 });
             });
 
-            it('is emitted only once', function (done) {
-                var api = new Api();
+            it('is emitted only once', (done) => {
+                const api = new Api();
 
-                api.init(testConfig, function (err) {
+                api.init(testConfig, (err) => {
                     if (err) return done(err);
 
-                    var resource = api.getResource('test');
+                    const resource = api.getResource('test');
 
-                    var request = new Request({resource: 'test'});
-                    api.execute(request, function (err2) {
+                    const request = new Request({resource: 'test'});
+                    api.execute(request, (err2) => {
                         if (err2) return done(err2);
 
                         expect(resource._initCalled()).to.equal(1);
@@ -229,21 +228,21 @@ describe('extensions', function () {
             });
         });
 
-        describe('item', function () {
-            it('is emitted when an item is handled', function (done) {
-                var api = new Api();
+        describe('item', () => {
+            it('is emitted when an item is handled', (done) => {
+                const api = new Api();
 
-                api.init(testConfig, function (err) {
+                api.init(testConfig, (err) => {
                     if (err) return done(err);
 
-                    var request = new Request({resource: 'test'});
-                    api.execute(request, function (err2) {
+                    const request = new Request({resource: 'test'});
+                    api.execute(request, (err2) => {
                         if (err2) return done(err2);
                         api.close(done);
                     });
                 });
 
-                api.on('response', function (ev) {
+                api.on('response', (ev) => {
                     expect(ev).to.be.an('object');
                     expect(ev.response).to.be.an('object');
                     expect(ev.response.data).to.be.an('array');
@@ -256,21 +255,21 @@ describe('extensions', function () {
             });
         });
 
-        describe('preExecute', function() {
-            it('is emitted with a dataSourceTree', function (done) {
-                var api = new Api();
+        describe('preExecute', () => {
+            it('is emitted with a dataSourceTree', (done) => {
+                const api = new Api();
 
-                api.init(testConfig, function (err) {
+                api.init(testConfig, (err) => {
                     if (err) return done(err);
 
-                    var request = new Request({resource: 'test'});
-                    api.execute(request, function (err2) {
+                    const request = new Request({resource: 'test'});
+                    api.execute(request, (err2) => {
                         if (err2) return done(err2);
                         api.close(done);
                     });
                 });
 
-                api.on('response', function (ev) {
+                api.on('response', (ev) => {
                     expect(ev).to.be.an('object');
                     expect(ev.response).to.be.an('object');
 
@@ -281,21 +280,21 @@ describe('extensions', function () {
             });
         });
 
-        describe('postExecute', function() {
-            it('is emitted with rawResults', function (done) {
-                var api = new Api();
+        describe('postExecute', () => {
+            it('is emitted with rawResults', (done) => {
+                const api = new Api();
 
-                api.init(testConfig, function (err) {
+                api.init(testConfig, (err) => {
                     if (err) return done(err);
 
-                    var request = new Request({resource: 'test'});
-                    api.execute(request, function (err2) {
+                    const request = new Request({resource: 'test'});
+                    api.execute(request, (err2) => {
                         if (err2) return done(err2);
                         api.close(done);
                     });
                 });
 
-                api.on('response', function (ev) {
+                api.on('response', (ev) => {
                     expect(ev).to.be.an('object');
                     expect(ev.response).to.be.an('object');
 

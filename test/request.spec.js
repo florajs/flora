@@ -10,7 +10,7 @@ describe('Request', () => {
     });
 
     it('should accept an options object', () => {
-        var request = new Request({
+        const request = new Request({
             resource: '_RESOURCE_',
             action: '_ACTION_',
             format: '_FORMAT_'

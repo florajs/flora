@@ -6,24 +6,22 @@ const { RequestError, ImplementationError } = require('flora-errors');
 
 const requestResolver = require('../lib/request-resolver');
 
-describe('request-resolver', function () {
-    var resourceConfigs = require('./fixtures/resources-parsed.json');
+describe('request-resolver', () => {
+    let resourceConfigs = require('./fixtures/resources-parsed.json');
 
-    describe('creation of resolved config (attribute tree)', function () {
-        it('does not modify the original resourceConfigs tree', function () {
-            var resourceConfigsBefore, resourceConfigsAfter;
-            var req = {resource: 'article'};
+    describe('creation of resolved config (attribute tree)', () => {
+        it('does not modify the original resourceConfigs tree', () => {
+            const req = {resource: 'article'};
 
-            resourceConfigsBefore = JSON.stringify(resourceConfigs);
+            const resourceConfigsBefore = JSON.stringify(resourceConfigs);
             requestResolver(req, resourceConfigs);
-            resourceConfigsAfter = JSON.stringify(resourceConfigs);
+            const resourceConfigsAfter = JSON.stringify(resourceConfigs);
 
             expect(resourceConfigsAfter).to.equal(resourceConfigsBefore);
         });
 
-        it('returns a completely cloned resourceConfigs tree (except DataSources)', function () {
-            var resourceConfigsBefore, resourceConfigsAfter;
-            var req = {
+        it('returns a completely cloned resourceConfigs tree (except DataSources)', () => {
+            const req = {
                 resource: 'article',
                 select: {
                     'title': {},
@@ -47,7 +45,7 @@ describe('request-resolver', function () {
             };
 
             function polluteObject(object, depth) {
-                for (var key in object) {
+                for (const key in object) {
                     if (key === '_attrsRefs') continue;
 
                     if (typeof object[key] === 'object' && object[key] !== null && depth > 0) {
@@ -58,16 +56,16 @@ describe('request-resolver', function () {
                 object.__garbage__ = true;
             }
 
-            resourceConfigsBefore = JSON.stringify(resourceConfigs);
-            var resolvedRequest = requestResolver(req, resourceConfigs);
+            const resourceConfigsBefore = JSON.stringify(resourceConfigs);
+            const resolvedRequest = requestResolver(req, resourceConfigs);
             polluteObject(resolvedRequest.resolvedConfig, 100);
-            resourceConfigsAfter = JSON.stringify(resourceConfigs);
+            const resourceConfigsAfter = JSON.stringify(resourceConfigs);
 
             expect(resourceConfigsAfter).to.equal(resourceConfigsBefore);
         });
 
-        it('handles resource-includes at top level (also recursive)', function () {
-            var configs = {
+        it('handles resource-includes at top level (also recursive)', () => {
+            const configs = {
                 "resource1": {
                     config: {"resource": "resource2"}
                 },
@@ -77,44 +75,44 @@ describe('request-resolver', function () {
                 "real-resource": resourceConfigs['user']
             };
 
-            var req = {resource: 'resource1'};
-            var resolvedRequest = requestResolver(req, configs);
+            const req = {resource: 'resource1'};
+            const resolvedRequest = requestResolver(req, configs);
 
             expect(resolvedRequest.resolvedConfig).to.have.deep.property('attributes.id');
         });
 
-        it('fails on missing resource in request', function () {
-            var req = {};
+        it('fails on missing resource in request', () => {
+            const req = {};
 
-            expect(function () {
+            expect(() => {
                 requestResolver(req, resourceConfigs);
             }).to.throw(RequestError, 'Resource not specified in request');
         });
 
-        it('fails on unknown resource in request', function () {
-            var req = {resource: 'non-existing'};
+        it('fails on unknown resource in request', () => {
+            const req = {resource: 'non-existing'};
 
-            expect(function () {
+            expect(() => {
                 requestResolver(req, resourceConfigs);
             }).to.throw(RequestError, 'Unknown resource "non-existing" in request');
         });
 
-        it('fails on unknown included resource with different error', function () {
-            var configs = {
+        it('fails on unknown included resource with different error', () => {
+            const configs = {
                 "existing": {
                     config: {"resource": "non-existing"}
                 }
             };
 
-            var req = {resource: 'existing'};
+            const req = {resource: 'existing'};
 
-            expect(function () {
+            expect(() => {
                 requestResolver(req, configs);
             }).to.throw(ImplementationError, 'Unknown resource "non-existing" (included from: existing -> non-existing)');
         });
 
-        it('fails on unknown included sub-resource with different error', function () {
-            var configs = {
+        it('fails on unknown included sub-resource with different error', () => {
+            const configs = {
                 "existing": {
                     config: {
                         "dataSources": resourceConfigs['user'].config.dataSources,
@@ -127,20 +125,20 @@ describe('request-resolver', function () {
                 }
             };
 
-            var req = {
+            const req = {
                 resource: 'existing',
                 select: {
                     'existingAttribute': {}
                 }
             };
 
-            expect(function () {
+            expect(() => {
                 requestResolver(req, configs);
             }).to.throw(ImplementationError, 'Unknown resource "non-existing" at "existingAttribute"');
         });
 
-        it('fails on endless recursion in resource-includes at top level', function () {
-            var configs = {
+        it('fails on endless recursion in resource-includes at top level', () => {
+            const configs = {
                 "resource1": {
                     config: {"resource": "resource2"}
                 },
@@ -149,46 +147,46 @@ describe('request-resolver', function () {
                 }
             };
 
-            var req = {resource: 'resource1'};
+            const req = {resource: 'resource1'};
 
-            expect(function () {
+            expect(() => {
                 requestResolver(req, configs);
             }).to.throw(ImplementationError, 'Resource inclusion depth too big (included from: resource1 -> resource2' /* ...) */);
         });
 
-        it('fails if no DataSources defined at root', function () {
-            var configs = _.cloneDeep(resourceConfigs);
+        it('fails if no DataSources defined at root', () => {
+            const configs = _.cloneDeep(resourceConfigs);
             delete configs['article'].config.dataSources;
 
-            var req = {resource: 'article'};
+            const req = {resource: 'article'};
 
-            expect(function () {
+            expect(() => {
                 requestResolver(req, configs);
             }).to.throw(ImplementationError, 'No DataSources defined in resource');
         });
 
-        it('selects primary key in attribute tree automatically', function () {
-            var req = {resource: 'article'};
+        it('selects primary key in attribute tree automatically', () => {
+            const req = {resource: 'article'};
 
-            var resolvedRequest = requestResolver(req, resourceConfigs);
+            const resolvedRequest = requestResolver(req, resourceConfigs);
             expect(resolvedRequest.resolvedConfig.attributes['id'].selected).to.be.true;
         });
 
-        it('selects specified attribute in attribute tree', function () {
-            var req = {
+        it('selects specified attribute in attribute tree', () => {
+            const req = {
                 resource: 'article',
                 select: {
                     'title': {}
                 }
             };
 
-            var resolvedRequest = requestResolver(req, resourceConfigs);
+            const resolvedRequest = requestResolver(req, resourceConfigs);
             expect(resolvedRequest.resolvedConfig.attributes['title'].selected).to.be.true;
         });
     });
 
-    describe('merging of included sub-resources', function () {
-        var mergeResourceConfigs = {
+    describe('merging of included sub-resources', () => {
+        const mergeResourceConfigs = {
             "resource1": {
                 config: {
                 "primaryKey": [["id"]],
@@ -234,11 +232,11 @@ describe('request-resolver', function () {
             }
         };
 
-        it('allows additional attributes and keeps order from request', function () {
-            var configs = _.cloneDeep(mergeResourceConfigs);
+        it('allows additional attributes and keeps order from request', () => {
+            const configs = _.cloneDeep(mergeResourceConfigs);
             configs['resource1'].config.attributes['resource2'].attributes = {'attr3': {value: 'test'}};
 
-            var req = {
+            const req = {
                 resource: 'resource1',
                 select: {
                     'resource2': {
@@ -247,18 +245,18 @@ describe('request-resolver', function () {
                 }
             };
 
-            var expectedOrder = ['id', 'attr3', 'attr2', 'attr1'];
+            const expectedOrder = ['id', 'attr3', 'attr2', 'attr1'];
 
-            var resolvedRequest = requestResolver(req, configs);
-            var currentOrder = Object.keys(resolvedRequest.resolvedConfig.attributes['resource2'].attributes);
+            const resolvedRequest = requestResolver(req, configs);
+            const currentOrder = Object.keys(resolvedRequest.resolvedConfig.attributes['resource2'].attributes);
             expect(currentOrder).to.eql(expectedOrder);
         });
 
-        it('does not allow overwriting of attributes', function () {
-            var configs = _.cloneDeep(mergeResourceConfigs);
+        it('does not allow overwriting of attributes', () => {
+            const configs = _.cloneDeep(mergeResourceConfigs);
             configs['resource1'].config.attributes['resource2'].attributes = {'attr1': {value: 'test'}};
 
-            var req = {
+            const req = {
                 resource: 'resource1',
                 select: {
                     'resource2': {
@@ -267,20 +265,20 @@ describe('request-resolver', function () {
                 }
             };
 
-            expect(function () {
+            expect(() => {
                 requestResolver(req, configs);
             }).to.throw(ImplementationError, 'Cannot overwrite attribute "attr1" in "resource2"');
         });
 
-        it('allows additional DataSources', function () {
-            var configs = _.cloneDeep(mergeResourceConfigs);
+        it('allows additional DataSources', () => {
+            const configs = _.cloneDeep(mergeResourceConfigs);
             configs['resource1'].config.attributes['resource2'].dataSources = {'test': {type: 'test'}};
             // TODO: Currently "map" is not mergeable - maybe future feature - hack for now for this test:
             configs['resource2'].config.resolvedPrimaryKey['test'] = ['id'];
             configs['resource2'].config.attributes['id'].map['default']['test'] = 'id';
             configs['resource2'].config.attributes['attr1'].map['default'] = {'test': 'attr1'};
 
-            var req = {
+            const req = {
                 resource: 'resource1',
                 select: {
                     'resource2': {
@@ -289,71 +287,71 @@ describe('request-resolver', function () {
                 }
             };
 
-            var resolvedRequest = requestResolver(req, configs);
+            const resolvedRequest = requestResolver(req, configs);
             expect(resolvedRequest.resolvedConfig.attributes['resource2'].dataSources)
                 .to.have.all.keys('primary', 'test');
         });
 
-        it('does not allow overwriting of DataSources', function () {
-            var configs = _.cloneDeep(mergeResourceConfigs);
+        it('does not allow overwriting of DataSources', () => {
+            const configs = _.cloneDeep(mergeResourceConfigs);
             configs['resource1'].config.attributes['resource2'].dataSources = {'primary': {type: 'test'}};
 
-            var req = {
+            const req = {
                 resource: 'resource1',
                 select: {
                     'resource2': {}
                 }
             };
 
-            expect(function () {
+            expect(() => {
                 requestResolver(req, configs);
             }).to.throw(ImplementationError, 'Cannot overwrite DataSource "primary" in "resource2"');
         });
 
-        it('does allow overwriting of DataSources with "inherit=inherit" flag', function () {
-            var configs = _.cloneDeep(mergeResourceConfigs);
+        it('does allow overwriting of DataSources with "inherit=inherit" flag', () => {
+            const configs = _.cloneDeep(mergeResourceConfigs);
             configs['resource1'].config.dataSources = {'primary': {customFlag: 'default'}};
             configs['resource1'].config.attributes['resource2'].dataSources = {'primary': {inherit: 'inherit', customFlag: 'overwritten'}};
 
-            var req = {
+            const req = {
                 resource: 'resource1',
                 select: {
                     'resource2': {}
                 }
             };
 
-            var resolvedRequest = requestResolver(req, configs);
+            const resolvedRequest = requestResolver(req, configs);
             expect(resolvedRequest.resolvedConfig.attributes['resource2'].dataSources.primary.type).to.equal('test');
             expect(resolvedRequest.resolvedConfig.attributes['resource2'].dataSources.primary.customFlag).to.equal('overwritten');
         });
 
-        it('does allow overwriting of DataSources with "inherit=replace" flag', function () {
-            var configs = _.cloneDeep(mergeResourceConfigs);
+        it('does allow overwriting of DataSources with "inherit=replace" flag', () => {
+            const configs = _.cloneDeep(mergeResourceConfigs);
             configs['resource1'].config.dataSources = {'primary': {customFlag: 'default', otherFlag: 'hello'}};
             configs['resource1'].config.attributes['resource2'].dataSources = {'primary': {type: 'test2', inherit: 'replace', customFlag: 'overwritten'}};
 
-            var req = {
+            const req = {
                 resource: 'resource1',
                 select: {
                     'resource2': {}
                 }
             };
 
-            var resolvedRequest = requestResolver(req, configs);
+            const resolvedRequest = requestResolver(req, configs);
             expect(resolvedRequest.resolvedConfig.attributes['resource2'].dataSources.primary.type).to.equal('test2');
             expect(resolvedRequest.resolvedConfig.attributes['resource2'].dataSources.primary.customFlag).to.equal('overwritten');
             expect(resolvedRequest.resolvedConfig.attributes['resource2'].dataSources.primary.otherFlag).to.be.undefined;
         });
     });
 
-    describe('basic request resolving', function () {
-        it('resolves minimal request', function () {
+    describe('basic request resolving', () => {
+        it('resolves minimal request', () => {
             // /article/
-            var req = {
+            const req = {
                 resource: 'article',
             };
 
-            var dataSourceTree = {
+            const dataSourceTree = {
                 resourceName: 'article',
                 attributePath: [],
                 dataSourceName: 'primary',
@@ -369,18 +367,18 @@ describe('request-resolver', function () {
                 }
             };
 
-            var resolvedRequest = requestResolver(req, resourceConfigs);
+            const resolvedRequest = requestResolver(req, resourceConfigs);
             expect(resolvedRequest.dataSourceTree).to.eql(dataSourceTree);
         });
 
-        it('resolves request with id', function () {
+        it('resolves request with id', () => {
             // /article/1
-            var req = {
+            const req = {
                 resource: 'article',
                 id: '1'
             };
 
-            var dataSourceTree = {
+            const dataSourceTree = {
                 resourceName: 'article',
                 attributePath: [],
                 dataSourceName: 'primary',
@@ -401,20 +399,20 @@ describe('request-resolver', function () {
                 }
             };
 
-            var resolvedRequest = requestResolver(req, resourceConfigs);
+            const resolvedRequest = requestResolver(req, resourceConfigs);
             expect(resolvedRequest.dataSourceTree).to.eql(dataSourceTree);
         });
 
-        it('resolves request with select', function () {
+        it('resolves request with select', () => {
             // /article/?select=title
-            var req = {
+            const req = {
                 resource: 'article',
                 select: {
                     'title': {}
                 }
             };
 
-            var dataSourceTree = {
+            const dataSourceTree = {
                 resourceName: 'article',
                 attributePath: [],
                 dataSourceName: 'primary',
@@ -431,27 +429,27 @@ describe('request-resolver', function () {
                 }
             };
 
-            var resolvedRequest = requestResolver(req, resourceConfigs);
+            const resolvedRequest = requestResolver(req, resourceConfigs);
             expect(resolvedRequest.dataSourceTree).to.eql(dataSourceTree);
         });
 
-        it('fails when selecting unknown attributes', function () {
+        it('fails when selecting unknown attributes', () => {
             // /article/?select=invalid
-            var req = {
+            const req = {
                 resource: 'article',
                 select: {
                     'invalid': {}
                 }
             };
 
-            expect(function () {
+            expect(() => {
                 requestResolver(req, resourceConfigs);
             }).to.throw(RequestError, 'Unknown attribute "invalid" in request');
         });
 
-        it('fails when selecting unknown sub-attributes', function () {
+        it('fails when selecting unknown sub-attributes', () => {
             // /article/?select=title.invalid
-            var req = {
+            const req = {
                 resource: 'article',
                 select: {
                     'title': {
@@ -462,28 +460,28 @@ describe('request-resolver', function () {
                 }
             };
 
-            expect(function () {
+            expect(() => {
                 requestResolver(req, resourceConfigs);
             }).to.throw(RequestError, 'Unknown attribute "title.invalid" in request');
         });
 
-        it('fails when selecting hidden attributes', function () {
+        it('fails when selecting hidden attributes', () => {
             // /article/?select=secretInfo
-            var req = {
+            const req = {
                 resource: 'article',
                 select: {
                     'secretInfo': {}
                 }
             };
 
-            expect(function () {
+            expect(() => {
                 requestResolver(req, resourceConfigs);
             }).to.throw(RequestError, 'Unknown attribute "secretInfo" in request - it is a hidden attribute');
         });
 
-        it('resolves request with filter', function () {
+        it('resolves request with filter', () => {
             // /article/?filter=id=2
-            var req = {
+            const req = {
                 resource: 'article',
                 filter: [
                     [
@@ -492,7 +490,7 @@ describe('request-resolver', function () {
                 ]
             };
 
-            var dataSourceTree = {
+            const dataSourceTree = {
                 resourceName: 'article',
                 attributePath: [],
                 dataSourceName: 'primary',
@@ -513,13 +511,13 @@ describe('request-resolver', function () {
                 }
             };
 
-            var resolvedRequest = requestResolver(req, resourceConfigs);
+            const resolvedRequest = requestResolver(req, resourceConfigs);
             expect(resolvedRequest.dataSourceTree).to.eql(dataSourceTree);
         });
 
-        it('fails when filtering non-filterable attributes', function () {
+        it('fails when filtering non-filterable attributes', () => {
             // /article/?filter=title=Test
-            var req = {
+            const req = {
                 resource: 'article',
                 filter: [
                     [
@@ -528,14 +526,14 @@ describe('request-resolver', function () {
                 ]
             };
 
-            expect(function () {
+            expect(() => {
                 requestResolver(req, resourceConfigs);
             }).to.throw(RequestError, 'Can not filter by attribute "title"');
         });
 
-        it('fails when filtering attributes with unallowed operators', function () {
+        it('fails when filtering attributes with unallowed operators', () => {
             // /article/?filter=date!=Test
-            var req = {
+            const req = {
                 resource: 'article',
                 filter: [
                     [
@@ -544,19 +542,19 @@ describe('request-resolver', function () {
                 ]
             };
 
-            expect(function () {
+            expect(() => {
                 requestResolver(req, resourceConfigs);
             }).to.throw(RequestError, 'Can not filter by attribute "date" with "notEqual" (allowed operators: greaterOrEqual, lessOrEqual)');
         });
 
-        it('resolves request with search', function () {
+        it('resolves request with search', () => {
             // /article/?search=test
-            var req = {
+            const req = {
                 resource: 'article',
                 search: 'test'
             };
 
-            var dataSourceTree = {
+            const dataSourceTree = {
                 resourceName: 'article',
                 attributePath: [],
                 dataSourceName: 'fulltextSearch',
@@ -573,32 +571,32 @@ describe('request-resolver', function () {
                 }
             };
 
-            var resolvedRequest = requestResolver(req, resourceConfigs);
+            const resolvedRequest = requestResolver(req, resourceConfigs);
             expect(resolvedRequest.dataSourceTree).to.eql(dataSourceTree);
         });
 
-        it('fails on search when resource does not support it', function () {
+        it('fails on search when resource does not support it', () => {
             // /user/?search=test
-            var req = {
+            const req = {
                 resource: 'user',
                 search: 'test'
             };
 
-            expect(function () {
+            expect(() => {
                 requestResolver(req, resourceConfigs);
             }).to.throw(RequestError, 'Resource does not support fulltext-search');
         });
 
-        it('resolves request with order', function () {
+        it('resolves request with order', () => {
             // /article/?order=date:desc
-            var req = {
+            const req = {
                 resource: 'article',
                 order: [
                     {attribute: ['date'], direction: 'asc'}
                 ]
             };
 
-            var dataSourceTree = {
+            const dataSourceTree = {
                 resourceName: 'article',
                 attributePath: [],
                 dataSourceName: 'primary',
@@ -617,46 +615,46 @@ describe('request-resolver', function () {
                 }
             };
 
-            var resolvedRequest = requestResolver(req, resourceConfigs);
+            const resolvedRequest = requestResolver(req, resourceConfigs);
             expect(resolvedRequest.dataSourceTree).to.eql(dataSourceTree);
         });
 
-        it('fails when ordering by non-sortable attributes', function () {
+        it('fails when ordering by non-sortable attributes', () => {
             // /article/?order=title:desc
-            var req = {
+            const req = {
                 resource: 'article',
                 order: [
                     {attribute: ['title'], direction: 'asc'}
                 ]
             };
 
-            expect(function () {
+            expect(() => {
                 requestResolver(req, resourceConfigs);
             }).to.throw(RequestError, 'Attribute "title" can not be ordered');
         });
 
-        it('fails when ordering attributes in unallowed directions', function () {
+        it('fails when ordering attributes in unallowed directions', () => {
             // /article/?order=date:topflop
-            var req = {
+            const req = {
                 resource: 'article',
                 order: [
                     {attribute: ['date'], direction: 'topflop'}
                 ]
             };
 
-            expect(function () {
+            expect(() => {
                 requestResolver(req, resourceConfigs);
             }).to.throw(RequestError, 'Attribute "date" can not be ordered "topflop" (allowed: asc, desc)');
         });
 
-        it('resolves request with limit', function () {
+        it('resolves request with limit', () => {
             // /article/?limit=100
-            var req = {
+            const req = {
                 resource: 'article',
                 limit: 100
             };
 
-            var dataSourceTree = {
+            const dataSourceTree = {
                 resourceName: 'article',
                 attributePath: [],
                 dataSourceName: 'primary',
@@ -672,19 +670,19 @@ describe('request-resolver', function () {
                 }
             };
 
-            var resolvedRequest = requestResolver(req, resourceConfigs);
+            const resolvedRequest = requestResolver(req, resourceConfigs);
             expect(resolvedRequest.dataSourceTree).to.eql(dataSourceTree);
         });
 
-        it('resolves request with limit/page', function () {
+        it('resolves request with limit/page', () => {
             // /article/?limit=50&page=2
-            var req = {
+            const req = {
                 resource: 'article',
                 limit: 50,
                 page: 2
             };
 
-            var dataSourceTree = {
+            const dataSourceTree = {
                 resourceName: 'article',
                 attributePath: [],
                 dataSourceName: 'primary',
@@ -701,145 +699,139 @@ describe('request-resolver', function () {
                 }
             };
 
-            var resolvedRequest = requestResolver(req, resourceConfigs);
+            const resolvedRequest = requestResolver(req, resourceConfigs);
             expect(resolvedRequest.dataSourceTree).to.eql(dataSourceTree);
         });
 
-        it('fails on request with page without limit', function () {
+        it('fails on request with page without limit', () => {
             // /article/?page=2
-            var req = {
+            const req = {
                 resource: 'article',
                 page: 2
             };
 
-            expect(function () {
+            expect(() => {
                 requestResolver(req, resourceConfigs);
             }).to.throw(RequestError, 'Always specify a fixed limit when requesting page');
         });
     });
 
-    describe('limit, defaultLimit and maxLimit', function () {
-        it('uses defaultLimit if no limit is given', function () {
-            var resourceConfigs2 = _.cloneDeep(resourceConfigs);
+    describe('limit, defaultLimit and maxLimit', () => {
+        it('uses defaultLimit if no limit is given', () => {
+            const resourceConfigs2 = _.cloneDeep(resourceConfigs);
             resourceConfigs2['article'].config.defaultLimit = 42;
 
-            var req = {
+            const req = {
                 resource: 'article'
             };
 
-            var resolvedRequest = requestResolver(req, resourceConfigs2);
-            resolvedRequest = resolvedRequest.dataSourceTree.request;
+            const resolvedRequest = requestResolver(req, resourceConfigs2).dataSourceTree.request;
 
             expect(resolvedRequest).to.have.property('limit', 42);
             expect(resolvedRequest).to.not.have.property('limitPer');
         });
 
-        it('uses limit to override defaultLimit', function () {
-            var resourceConfigs2 = _.cloneDeep(resourceConfigs);
+        it('uses limit to override defaultLimit', () => {
+            const resourceConfigs2 = _.cloneDeep(resourceConfigs);
             resourceConfigs2['article'].config.defaultLimit = 42;
 
-            var req = {
+            const req = {
                 resource: 'article',
                 limit: 44
             };
 
-            var resolvedRequest = requestResolver(req, resourceConfigs2);
-            resolvedRequest = resolvedRequest.dataSourceTree.request;
+            const resolvedRequest = requestResolver(req, resourceConfigs2).dataSourceTree.request;
 
             expect(resolvedRequest).to.have.property('limit', 44);
             expect(resolvedRequest).to.not.have.property('limitPer');
         });
 
-        it('uses maxLimit if no limit is given', function () {
-            var resourceConfigs2 = _.cloneDeep(resourceConfigs);
+        it('uses maxLimit if no limit is given', () => {
+            const resourceConfigs2 = _.cloneDeep(resourceConfigs);
             resourceConfigs2['article'].config.maxLimit = 43;
 
-            var req = {
+            const req = {
                 resource: 'article',
             };
 
-            var resolvedRequest = requestResolver(req, resourceConfigs2);
-            resolvedRequest = resolvedRequest.dataSourceTree.request;
+            const resolvedRequest = requestResolver(req, resourceConfigs2).dataSourceTree.request;
 
             expect(resolvedRequest).to.have.property('limit', 43);
             expect(resolvedRequest).to.not.have.property('limitPer');
         });
 
-        it('uses defaultLimit even if maxLimit is given', function () {
-            var resourceConfigs2 = _.cloneDeep(resourceConfigs);
+        it('uses defaultLimit even if maxLimit is given', () => {
+            const resourceConfigs2 = _.cloneDeep(resourceConfigs);
             resourceConfigs2['article'].config.maxLimit = 43;
             resourceConfigs2['article'].config.defaultLimit = 40;
 
-            var req = {
+            const req = {
                 resource: 'article',
             };
 
-            var resolvedRequest = requestResolver(req, resourceConfigs2);
-            resolvedRequest = resolvedRequest.dataSourceTree.request;
+            const resolvedRequest = requestResolver(req, resourceConfigs2).dataSourceTree.request;
 
             expect(resolvedRequest).to.have.property('limit', 40);
             expect(resolvedRequest).to.not.have.property('limitPer');
         });
 
-        it('uses limit if limit <= maxLimit', function () {
-            var resourceConfigs2 = _.cloneDeep(resourceConfigs);
+        it('uses limit if limit <= maxLimit', () => {
+            const resourceConfigs2 = _.cloneDeep(resourceConfigs);
             resourceConfigs2['article'].config.maxLimit = 45;
 
-            var req = {
+            const req = {
                 resource: 'article',
                 limit: 45
             };
 
-            var resolvedRequest = requestResolver(req, resourceConfigs2);
-            resolvedRequest = resolvedRequest.dataSourceTree.request;
+            const resolvedRequest = requestResolver(req, resourceConfigs2).dataSourceTree.request;
 
             expect(resolvedRequest).to.have.property('limit', 45);
             expect(resolvedRequest).to.not.have.property('limitPer');
         });
 
-        it('fails if limit > maxLimit', function () {
-            var resourceConfigs2 = _.cloneDeep(resourceConfigs);
+        it('fails if limit > maxLimit', () => {
+            const resourceConfigs2 = _.cloneDeep(resourceConfigs);
             resourceConfigs2['article'].config.maxLimit = 43;
 
-            var req = {
+            const req = {
                 resource: 'article',
                 limit: 44
             };
 
-            expect(function () {
+            expect(() => {
                 requestResolver(req, resourceConfigs2);
             }).to.throw(RequestError, 'Invalid limit 44, maxLimit is 43');
         });
 
-        it('allows limit = 0', function () {
-            var req = {
+        it('allows limit = 0', () => {
+            const req = {
                 resource: 'article',
                 limit: 0
             };
 
-            var resolvedRequest = requestResolver(req, resourceConfigs);
-            resolvedRequest = resolvedRequest.dataSourceTree.request;
+            const resolvedRequest = requestResolver(req, resourceConfigs).dataSourceTree.request;
 
             expect(resolvedRequest).to.have.property('limit', 0);
             expect(resolvedRequest).to.not.have.property('limitPer');
         });
 
-        it('fails on limit on single resources', function () {
-            var req = {
+        it('fails on limit on single resources', () => {
+            const req = {
                 resource: 'article',
                 id: 1,
                 limit: 2
             };
 
-            expect(function () {
+            expect(() => {
                 requestResolver(req, resourceConfigs);
             }).to.throw(RequestError, 'Invalid limit on a single resource');
         });
     });
 
-    describe('limit, defaultLimit and maxLimit in sub-resources', function () {
-        it('resolves "limitPer" inside a "many" relation', function () {
-            var req = {
+    describe('limit, defaultLimit and maxLimit in sub-resources', () => {
+        it('resolves "limitPer" inside a "many" relation', () => {
+            const req = {
                 resource: 'article',
                 select: {
                     'comments': {
@@ -848,18 +840,18 @@ describe('request-resolver', function () {
                 }
             };
 
-            var resolvedRequest = requestResolver(req, resourceConfigs);
-            var resolvedSubRequest = resolvedRequest.dataSourceTree.subRequests[0].request;
+            const resolvedRequest = requestResolver(req, resourceConfigs);
+            const resolvedSubRequest = resolvedRequest.dataSourceTree.subRequests[0].request;
 
             expect(resolvedSubRequest).to.have.property('limit', 5);
             expect(resolvedSubRequest).to.have.property('limitPer', 'articleId');
         });
 
-        it('uses defaultLimit if no limit is given', function () {
-            var resourceConfigs2 = _.cloneDeep(resourceConfigs);
+        it('uses defaultLimit if no limit is given', () => {
+            const resourceConfigs2 = _.cloneDeep(resourceConfigs);
             resourceConfigs2['article'].config.attributes['comments'].defaultLimit = 42;
 
-            var req = {
+            const req = {
                 resource: 'article',
                 id: 1,
                 select: {
@@ -867,18 +859,18 @@ describe('request-resolver', function () {
                 }
             };
 
-            var resolvedRequest = requestResolver(req, resourceConfigs2);
-            var resolvedSubRequest = resolvedRequest.dataSourceTree.subRequests[0].request;
+            const resolvedRequest = requestResolver(req, resourceConfigs2);
+            const resolvedSubRequest = resolvedRequest.dataSourceTree.subRequests[0].request;
 
             expect(resolvedSubRequest).to.have.property('limit', 42);
             expect(resolvedSubRequest).to.not.have.property('limitPer');
         });
 
-        it('uses limit to override defaultLimit', function () {
-            var resourceConfigs2 = _.cloneDeep(resourceConfigs);
+        it('uses limit to override defaultLimit', () => {
+            const resourceConfigs2 = _.cloneDeep(resourceConfigs);
             resourceConfigs2['article'].config.attributes['comments'].defaultLimit = 42;
 
-            var req = {
+            const req = {
                 resource: 'article',
                 id: 1,
                 select: {
@@ -888,18 +880,18 @@ describe('request-resolver', function () {
                 }
             };
 
-            var resolvedRequest = requestResolver(req, resourceConfigs2);
-            var resolvedSubRequest = resolvedRequest.dataSourceTree.subRequests[0].request;
+            const resolvedRequest = requestResolver(req, resourceConfigs2);
+            const resolvedSubRequest = resolvedRequest.dataSourceTree.subRequests[0].request;
 
             expect(resolvedSubRequest).to.have.property('limit', 44);
             expect(resolvedSubRequest).to.not.have.property('limitPer');
         });
 
-        it('uses maxLimit if no limit is given', function () {
-            var resourceConfigs2 = _.cloneDeep(resourceConfigs);
+        it('uses maxLimit if no limit is given', () => {
+            const resourceConfigs2 = _.cloneDeep(resourceConfigs);
             resourceConfigs2['article'].config.attributes['comments'].maxLimit = 43;
 
-            var req = {
+            const req = {
                 resource: 'article',
                 id: 1,
                 select: {
@@ -907,19 +899,19 @@ describe('request-resolver', function () {
                 }
             };
 
-            var resolvedRequest = requestResolver(req, resourceConfigs2);
-            var resolvedSubRequest = resolvedRequest.dataSourceTree.subRequests[0].request;
+            const resolvedRequest = requestResolver(req, resourceConfigs2);
+            const resolvedSubRequest = resolvedRequest.dataSourceTree.subRequests[0].request;
 
             expect(resolvedSubRequest).to.have.property('limit', 43);
             expect(resolvedSubRequest).to.not.have.property('limitPer');
         });
 
-        it('uses defaultLimit even if maxLimit is given', function () {
-            var resourceConfigs2 = _.cloneDeep(resourceConfigs);
+        it('uses defaultLimit even if maxLimit is given', () => {
+            const resourceConfigs2 = _.cloneDeep(resourceConfigs);
             resourceConfigs2['article'].config.attributes['comments'].maxLimit = 43;
             resourceConfigs2['article'].config.attributes['comments'].defaultLimit = 40;
 
-            var req = {
+            const req = {
                 resource: 'article',
                 id: 1,
                 select: {
@@ -927,18 +919,18 @@ describe('request-resolver', function () {
                 }
             };
 
-            var resolvedRequest = requestResolver(req, resourceConfigs2);
-            var resolvedSubRequest = resolvedRequest.dataSourceTree.subRequests[0].request;
+            const resolvedRequest = requestResolver(req, resourceConfigs2);
+            const resolvedSubRequest = resolvedRequest.dataSourceTree.subRequests[0].request;
 
             expect(resolvedSubRequest).to.have.property('limit', 40);
             expect(resolvedSubRequest).to.not.have.property('limitPer');
         });
 
-        it('uses limit if limit <= maxLimit', function () {
-            var resourceConfigs2 = _.cloneDeep(resourceConfigs);
+        it('uses limit if limit <= maxLimit', () => {
+            const resourceConfigs2 = _.cloneDeep(resourceConfigs);
             resourceConfigs2['article'].config.attributes['comments'].maxLimit = 45;
 
-            var req = {
+            const req = {
                 resource: 'article',
                 id: 1,
                 select: {
@@ -948,18 +940,18 @@ describe('request-resolver', function () {
                 }
             };
 
-            var resolvedRequest = requestResolver(req, resourceConfigs2);
-            var resolvedSubRequest = resolvedRequest.dataSourceTree.subRequests[0].request;
+            const resolvedRequest = requestResolver(req, resourceConfigs2);
+            const resolvedSubRequest = resolvedRequest.dataSourceTree.subRequests[0].request;
 
             expect(resolvedSubRequest).to.have.property('limit', 45);
             expect(resolvedSubRequest).to.not.have.property('limitPer');
         });
 
-        it('fails if limit > maxLimit', function () {
-            var resourceConfigs2 = _.cloneDeep(resourceConfigs);
+        it('fails if limit > maxLimit', () => {
+            const resourceConfigs2 = _.cloneDeep(resourceConfigs);
             resourceConfigs2['article'].config.attributes['comments'].maxLimit = 45;
 
-            var req = {
+            const req = {
                 resource: 'article',
                 id: 1,
                 select: {
@@ -969,13 +961,13 @@ describe('request-resolver', function () {
                 }
             };
 
-            expect(function () {
+            expect(() => {
                 requestResolver(req, resourceConfigs2);
             }).to.throw(RequestError, 'Invalid limit 46, maxLimit is 45 (in "comments")');
         });
 
-        it('fails on limit on single sub-resources', function () {
-            var req = {
+        it('fails on limit on single sub-resources', () => {
+            const req = {
                 resource: 'article',
                 id: 1,
                 select: {
@@ -985,26 +977,26 @@ describe('request-resolver', function () {
                 }
             };
 
-            expect(function () {
+            expect(() => {
                 requestResolver(req, resourceConfigs);
             }).to.throw(RequestError, 'Invalid limit on a single resource (in "author")');
         });
     });
 
-    describe('defaultOrder', function () {
-        it('uses defaultOrder if no order is given', function () {
-            var resourceConfigs2 = _.cloneDeep(resourceConfigs);
+    describe('defaultOrder', () => {
+        it('uses defaultOrder if no order is given', () => {
+            const resourceConfigs2 = _.cloneDeep(resourceConfigs);
             resourceConfigs2['article'].config['defaultOrder'] = [{
                 attribute: ['date'],
                 direction: 'asc'
             }];
 
             // /article/
-            var req = {
+            const req = {
                 resource: 'article'
             };
 
-            var dataSourceTree = {
+            const dataSourceTree = {
                 resourceName: 'article',
                 attributePath: [],
                 dataSourceName: 'primary',
@@ -1021,19 +1013,19 @@ describe('request-resolver', function () {
                 }
             };
 
-            var resolvedRequest = requestResolver(req, resourceConfigs2);
+            const resolvedRequest = requestResolver(req, resourceConfigs2);
             expect(resolvedRequest.dataSourceTree).to.eql(dataSourceTree);
         });
 
-        it('uses order to override defaultOrder', function () {
-            var resourceConfigs2 = _.cloneDeep(resourceConfigs);
+        it('uses order to override defaultOrder', () => {
+            const resourceConfigs2 = _.cloneDeep(resourceConfigs);
             resourceConfigs2['article']['defaultOrder'] = [{
                 attribute: ['date'],
                 direction: 'asc'
             }];
 
             // /article/
-            var req = {
+            const req = {
                 resource: 'article',
                 order: [{
                     attribute: ['date'],
@@ -1041,7 +1033,7 @@ describe('request-resolver', function () {
                 }]
             };
 
-            var dataSourceTree = {
+            const dataSourceTree = {
                 resourceName: 'article',
                 attributePath: [],
                 dataSourceName: 'primary',
@@ -1058,15 +1050,15 @@ describe('request-resolver', function () {
                 }
             };
 
-            var resolvedRequest = requestResolver(req, resourceConfigs2);
+            const resolvedRequest = requestResolver(req, resourceConfigs2);
             expect(resolvedRequest.dataSourceTree).to.eql(dataSourceTree);
         });
     });
 
-    describe('high level error handling', function () {
-        it('fails on "id"-option on sub-resource-nodes', function () {
+    describe('high level error handling', () => {
+        it('fails on "id"-option on sub-resource-nodes', () => {
             // /article/?select=comments(id=1)
-            var req = {
+            const req = {
                 resource: 'article',
                 select: {
                     'comments': {
@@ -1075,14 +1067,14 @@ describe('request-resolver', function () {
                 }
             };
 
-            expect(function () {
+            expect(() => {
                 requestResolver(req, resourceConfigs);
             }).to.throw(RequestError, 'ID option only allowed at root (in "comments")');
         });
 
-        it('fails on sub-resource-options on non-resource-nodes', function () {
+        it('fails on sub-resource-options on non-resource-nodes', () => {
             // /article/?select=source(limit=20)
-            var req = {
+            let req = {
                 resource: 'article',
                 select: {
                     'source': {
@@ -1091,7 +1083,7 @@ describe('request-resolver', function () {
                 }
             };
 
-            expect(function () {
+            expect(() => {
                 requestResolver(req, resourceConfigs);
             }).to.throw(RequestError, 'Sub-Resource options not possible on "source"');
 
@@ -1108,16 +1100,16 @@ describe('request-resolver', function () {
                 }
             };
 
-            expect(function () {
+            expect(() => {
                 requestResolver(req, resourceConfigs);
             }).to.not.throw(Error);
         });
     });
 
-    describe('request resolving with relations', function () {
-        it('resolves selected sub-resource (1:1 relation - invisible primaryKey)', function () {
+    describe('request resolving with relations', () => {
+        it('resolves selected sub-resource (1:1 relation - invisible primaryKey)', () => {
             // /article/?select=video.url
-            var req = {
+            const req = {
                 resource: 'article',
                 select: {
                     'video': {
@@ -1128,7 +1120,7 @@ describe('request-resolver', function () {
                 }
             };
 
-            var dataSourceTree = {
+            const dataSourceTree = {
                 resourceName: 'article',
                 attributePath: [],
                 dataSourceName: 'primary',
@@ -1169,13 +1161,13 @@ describe('request-resolver', function () {
                 ]
             };
 
-            var resolvedRequest = requestResolver(req, resourceConfigs);
+            const resolvedRequest = requestResolver(req, resourceConfigs);
             expect(resolvedRequest.dataSourceTree).to.eql(dataSourceTree);
         });
 
-        it('resolves selected sub-resource (1:n relation)', function () {
+        it('resolves selected sub-resource (1:n relation)', () => {
             // /article/?select=comments.content
-            var req = {
+            const req = {
                 resource: 'article',
                 select: {
                     'comments': {
@@ -1186,7 +1178,7 @@ describe('request-resolver', function () {
                 }
             };
 
-            var dataSourceTree = {
+            const dataSourceTree = {
                 resourceName: 'article',
                 attributePath: [],
                 dataSourceName: 'primary',
@@ -1228,13 +1220,13 @@ describe('request-resolver', function () {
                 ]
             };
 
-            var resolvedRequest = requestResolver(req, resourceConfigs);
+            const resolvedRequest = requestResolver(req, resourceConfigs);
             expect(resolvedRequest.dataSourceTree).to.eql(dataSourceTree);
         });
 
-        it('resolves selected sub-resource (1:n relation) with secondary DataSource', function () {
+        it('resolves selected sub-resource (1:n relation) with secondary DataSource', () => {
             // /article/?select=comments[content,likes]
-            var req = {
+            const req = {
                 resource: 'article',
                 select: {
                     'comments': {
@@ -1246,7 +1238,7 @@ describe('request-resolver', function () {
                 }
             };
 
-            var dataSourceTree = {
+            const dataSourceTree = {
                 resourceName: 'article',
                 attributePath: [],
                 dataSourceName: 'primary',
@@ -1313,13 +1305,13 @@ describe('request-resolver', function () {
                 ]
             };
 
-            var resolvedRequest = requestResolver(req, resourceConfigs);
+            const resolvedRequest = requestResolver(req, resourceConfigs);
             expect(resolvedRequest.dataSourceTree).to.eql(dataSourceTree);
         });
 
-        it('resolves selected sub-resource (n:1 relation)', function () {
+        it('resolves selected sub-resource (n:1 relation)', () => {
             // /article/?select=author[firstname,lastname]
-            var req = {
+            const req = {
                 resource: 'article',
                 select: {
                     'author': {
@@ -1331,7 +1323,7 @@ describe('request-resolver', function () {
                 }
             };
 
-            var dataSourceTree = {
+            const dataSourceTree = {
                 resourceName: 'article',
                 attributePath: [],
                 dataSourceName: 'primary',
@@ -1375,13 +1367,13 @@ describe('request-resolver', function () {
                 ]
             };
 
-            var resolvedRequest = requestResolver(req, resourceConfigs);
+            const resolvedRequest = requestResolver(req, resourceConfigs);
             expect(resolvedRequest.dataSourceTree).to.eql(dataSourceTree);
         });
 
-        it('resolves selected sub-resource (m:n - with multi-values and delimiter)', function () {
+        it('resolves selected sub-resource (m:n - with multi-values and delimiter)', () => {
             // /article/?select=countries.name
-            var req = {
+            const req = {
                 resource: 'article',
                 select: {
                     'countries': {
@@ -1392,7 +1384,7 @@ describe('request-resolver', function () {
                 }
             };
 
-            var dataSourceTree = {
+            const dataSourceTree = {
                 resourceName: 'article',
                 attributePath: [],
                 dataSourceName: 'primary',
@@ -1435,13 +1427,13 @@ describe('request-resolver', function () {
                 ]
             };
 
-            var resolvedRequest = requestResolver(req, resourceConfigs);
+            const resolvedRequest = requestResolver(req, resourceConfigs);
             expect(resolvedRequest.dataSourceTree).to.eql(dataSourceTree);
         });
 
-        it('resolves selected sub-resource (m:n - with join-table + additional fields)', function () {
+        it('resolves selected sub-resource (m:n - with join-table + additional fields)', () => {
             // /article/?select=categories[name,order]
-            var req = {
+            const req = {
                 resource: 'article',
                 select: {
                     'categories': {
@@ -1453,7 +1445,7 @@ describe('request-resolver', function () {
                 }
             };
 
-            var dataSourceTree = {
+            const dataSourceTree = {
                 resourceName: 'article',
                 attributePath: [],
                 dataSourceName: 'primary',
@@ -1520,13 +1512,13 @@ describe('request-resolver', function () {
                 ]
             };
 
-            var resolvedRequest = requestResolver(req, resourceConfigs);
+            const resolvedRequest = requestResolver(req, resourceConfigs);
             expect(resolvedRequest.dataSourceTree).to.eql(dataSourceTree);
         });
 
-        it('combines filter for selected sub-resource', function () {
+        it('combines filter for selected sub-resource', () => {
             // /article/?select=comments(filter=id=3 OR id=4)
-            var req = {
+            const req = {
                 resource: 'article',
                 select: {
                     'comments': {
@@ -1542,7 +1534,7 @@ describe('request-resolver', function () {
                 }
             };
 
-            var dataSourceTree = {
+            const dataSourceTree = {
                 resourceName: 'article',
                 attributePath: [],
                 dataSourceName: 'primary',
@@ -1588,26 +1580,26 @@ describe('request-resolver', function () {
                 ]
             };
 
-            var resolvedRequest = requestResolver(req, resourceConfigs);
+            const resolvedRequest = requestResolver(req, resourceConfigs);
             expect(resolvedRequest.dataSourceTree).to.eql(dataSourceTree);
         });
     });
 
-    describe('handling of dependencies', function () {
-        it('selects dependant attributes internally (but not externally)', function () {
-            var configs = _.cloneDeep(resourceConfigs);
+    describe('handling of dependencies', () => {
+        it('selects dependant attributes internally (but not externally)', () => {
+            const configs = _.cloneDeep(resourceConfigs);
             configs['article'].config.attributes['copyright'].depends =
                 {'date': {}};
 
             // /article/?select=copyright
-            var req = {
+            const req = {
                 resource: 'article',
                 select: {
                     'copyright': {}
                 }
             };
 
-            var dataSourceTree = {
+            const dataSourceTree = {
                 resourceName: 'article',
                 attributePath: [],
                 dataSourceName: 'primary',
@@ -1624,26 +1616,26 @@ describe('request-resolver', function () {
                 }
             };
 
-            var resolvedRequest = requestResolver(req, configs);
+            const resolvedRequest = requestResolver(req, configs);
             expect(resolvedRequest.dataSourceTree).to.eql(dataSourceTree);
             expect(resolvedRequest.resolvedConfig.
                 attributes['date'].selected).not.to.be.true;
         });
 
-        it('allows to depend on hidden attributes', function () {
-            var configs = _.cloneDeep(resourceConfigs);
+        it('allows to depend on hidden attributes', () => {
+            const configs = _.cloneDeep(resourceConfigs);
             configs['article'].config.attributes['copyright'].depends =
                 {'secretInfo': {}};
 
             // /article/?select=copyright
-            var req = {
+            const req = {
                 resource: 'article',
                 select: {
                     'copyright': {}
                 }
             };
 
-            var dataSourceTree = {
+            const dataSourceTree = {
                 resourceName: 'article',
                 attributePath: [],
                 dataSourceName: 'primary',
@@ -1660,26 +1652,26 @@ describe('request-resolver', function () {
                 }
             };
 
-            var resolvedRequest = requestResolver(req, configs);
+            const resolvedRequest = requestResolver(req, configs);
             expect(resolvedRequest.dataSourceTree).to.eql(dataSourceTree);
             expect(resolvedRequest.resolvedConfig.
                 attributes['secretInfo'].selected).not.to.be.true;
         });
 
-        it('selects recursive dependencies', function () {
-            var configs = _.cloneDeep(resourceConfigs);
+        it('selects recursive dependencies', () => {
+            const configs = _.cloneDeep(resourceConfigs);
             configs['article'].config.attributes['title'].depends = {'copyright': {}};
             configs['article'].config.attributes['copyright'].depends = {'date': {}};
 
             // /article/?select=title
-            var req = {
+            const req = {
                 resource: 'article',
                 select: {
                     'title': {}
                 }
             };
 
-            var dataSourceTree = {
+            const dataSourceTree = {
                 resourceName: 'article',
                 attributePath: [],
                 dataSourceName: 'primary',
@@ -1697,27 +1689,27 @@ describe('request-resolver', function () {
                 }
             };
 
-            var resolvedRequest = requestResolver(req, configs);
+            const resolvedRequest = requestResolver(req, configs);
             expect(resolvedRequest.dataSourceTree).to.eql(dataSourceTree);
             expect(resolvedRequest.resolvedConfig.
                 attributes['date'].selected).not.to.be.true;
         });
 
-        it('selects cyclic dependencies properly', function () {
-            var configs = _.cloneDeep(resourceConfigs);
+        it('selects cyclic dependencies properly', () => {
+            const configs = _.cloneDeep(resourceConfigs);
             configs['article'].config.attributes['title'].depends = {'date': {}};
             configs['article'].config.attributes['date'].depends = {'copyright': {}};
             configs['article'].config.attributes['copyright'].depends = {'title': {}};
 
             // /article/?select=title
-            var req = {
+            const req = {
                 resource: 'article',
                 select: {
                     'title': {}
                 }
             };
 
-            var dataSourceTree = {
+            const dataSourceTree = {
                 resourceName: 'article',
                 attributePath: [],
                 dataSourceName: 'primary',
@@ -1735,26 +1727,26 @@ describe('request-resolver', function () {
                 }
             };
 
-            var resolvedRequest = requestResolver(req, configs);
+            const resolvedRequest = requestResolver(req, configs);
             expect(resolvedRequest.dataSourceTree).to.eql(dataSourceTree);
             expect(resolvedRequest.resolvedConfig.
                 attributes['date'].selected).not.to.be.true;
         });
 
-        it('selects dependant sub-resources internally', function () {
-            var configs = _.cloneDeep(resourceConfigs);
+        it('selects dependant sub-resources internally', () => {
+            const configs = _.cloneDeep(resourceConfigs);
             configs['article'].config.attributes['copyright'].depends =
                 {'author': {select: {'firstname': {}, 'lastname': {}}}};
 
             // /article/?select=copyright
-            var req = {
+            const req = {
                 resource: 'article',
                 select: {
                     'copyright': {}
                 }
             };
 
-            var dataSourceTree = {
+            const dataSourceTree = {
                 resourceName: 'article',
                 attributePath: [],
                 dataSourceName: 'primary',
@@ -1798,19 +1790,19 @@ describe('request-resolver', function () {
                 ]
             };
 
-            var resolvedRequest = requestResolver(req, configs);
+            const resolvedRequest = requestResolver(req, configs);
             expect(resolvedRequest.dataSourceTree).to.eql(dataSourceTree);
             expect(resolvedRequest.resolvedConfig.
                 attributes['author'].selected).not.to.be.true;
         });
 
-        it('handles "depends" + "select" on same sub-resource', function () {
-            var configs = _.cloneDeep(resourceConfigs);
+        it('handles "depends" + "select" on same sub-resource', () => {
+            const configs = _.cloneDeep(resourceConfigs);
             configs['article'].config.attributes['copyright'].depends =
                 {'author': {select: {'firstname': {}, 'lastname': {}}}};
 
             // /article/?select=copyright,author.firstname
-            var req = {
+            const req = {
                 resource: 'article',
                 select: {
                     'copyright': {},
@@ -1818,7 +1810,7 @@ describe('request-resolver', function () {
                 }
             };
 
-            var dataSourceTree = {
+            const dataSourceTree = {
                 resourceName: 'article',
                 attributePath: [],
                 dataSourceName: 'primary',
@@ -1862,7 +1854,7 @@ describe('request-resolver', function () {
                 ]
             };
 
-            var resolvedRequest = requestResolver(req, configs);
+            const resolvedRequest = requestResolver(req, configs);
             expect(resolvedRequest.dataSourceTree).to.eql(dataSourceTree);
             expect(resolvedRequest.resolvedConfig.
                 attributes['author'].selected).to.be.true;
@@ -1873,17 +1865,17 @@ describe('request-resolver', function () {
         });
     });
 
-    describe('handling of multiple DataSources per resource', function () {
-        it('resolves selected field from Sub-DataSource', function () {
+    describe('handling of multiple DataSources per resource', () => {
+        it('resolves selected field from Sub-DataSource', () => {
             // /article/?select=body
-            var req = {
+            const req = {
                 resource: 'article',
                 select: {
                     'body': {}
                 }
             };
 
-            var dataSourceTree = {
+            const dataSourceTree = {
                 resourceName: 'article',
                 attributePath: [],
                 dataSourceName: 'primary',
@@ -1924,13 +1916,13 @@ describe('request-resolver', function () {
                 ]
             };
 
-            var resolvedRequest = requestResolver(req, resourceConfigs);
+            const resolvedRequest = requestResolver(req, resourceConfigs);
             expect(resolvedRequest.dataSourceTree).to.eql(dataSourceTree);
         });
 
-        it('resolves parentKey in secondary DataSources', function () {
+        it('resolves parentKey in secondary DataSources', () => {
             // /article/?select=author&search=test
-            var req = {
+            const req = {
                 resource: 'article',
                 select: {
                     'author': {
@@ -1943,7 +1935,7 @@ describe('request-resolver', function () {
                 search: 'test'
             };
 
-            var dataSourceTree = {
+            const dataSourceTree = {
                 resourceName: 'article',
                 attributePath: [],
                 dataSourceName: 'fulltextSearch',
@@ -2010,16 +2002,16 @@ describe('request-resolver', function () {
                 }]
             };
 
-            var resolvedRequest = requestResolver(req, resourceConfigs);
+            const resolvedRequest = requestResolver(req, resourceConfigs);
             expect(resolvedRequest.dataSourceTree).to.eql(dataSourceTree);
             expect(resolvedRequest.resolvedConfig.attributes['author'].parentDataSource).to.equal('primary');
         });
     });
 
-    describe('handling of composite primary keys', function () {
-        it('resolves composite primaryKey linked by non-composite key', function () {
+    describe('handling of composite primary keys', () => {
+        it('resolves composite primaryKey linked by non-composite key', () => {
             // /article/?select=versions.title
-            var req = {
+            const req = {
                 resource: 'article',
                 select: {
                     'versions': {
@@ -2030,7 +2022,7 @@ describe('request-resolver', function () {
                 }
             };
 
-            var dataSourceTree = {
+            const dataSourceTree = {
                 resourceName: 'article',
                 attributePath: [],
                 dataSourceName: 'primary',
@@ -2072,13 +2064,13 @@ describe('request-resolver', function () {
                 ]
             };
 
-            var resolvedRequest = requestResolver(req, resourceConfigs);
+            const resolvedRequest = requestResolver(req, resourceConfigs);
             expect(resolvedRequest.dataSourceTree).to.eql(dataSourceTree);
         });
 
-        it('resolves composite parentKey/childKey', function () {
+        it('resolves composite parentKey/childKey', () => {
             // /article/?select=versions.versioninfo.modified
-            var req = {
+            const req = {
                 resource: 'article',
                 select: {
                     'versions': {
@@ -2093,7 +2085,7 @@ describe('request-resolver', function () {
                 }
             };
 
-            var dataSourceTree = {
+            const dataSourceTree = {
                 resourceName: 'article',
                 attributePath: [],
                 dataSourceName: 'primary',
@@ -2160,18 +2152,18 @@ describe('request-resolver', function () {
                 ]
             };
 
-            var resolvedRequest = requestResolver(req, resourceConfigs);
+            const resolvedRequest = requestResolver(req, resourceConfigs);
             expect(resolvedRequest.dataSourceTree).to.eql(dataSourceTree);
         });
     });
 
-    describe('filter by sub-resources', function () {
-        it('resolves filter by sub-resource primary key without "rewriteTo"', function () {
-            var configs = _.cloneDeep(resourceConfigs);
+    describe('filter by sub-resources', () => {
+        it('resolves filter by sub-resource primary key without "rewriteTo"', () => {
+            const configs = _.cloneDeep(resourceConfigs);
             delete configs['article'].config.subFilters[0].rewriteTo;
 
             // /article/?filter=author.id=11,12,13
-            var req = {
+            const req = {
                 resource: 'article',
                 filter: [
                     [
@@ -2180,7 +2172,7 @@ describe('request-resolver', function () {
                 ]
             };
 
-            var dataSourceTree = {
+            const dataSourceTree = {
                 resourceName: 'article',
                 attributePath: [],
                 dataSourceName: 'primary',
@@ -2219,13 +2211,13 @@ describe('request-resolver', function () {
                 }]
             };
 
-            var resolvedRequest = requestResolver(req, configs);
+            const resolvedRequest = requestResolver(req, configs);
             expect(resolvedRequest.dataSourceTree).to.eql(dataSourceTree);
         });
 
-        it('resolves filter by sub-resource primary key with "rewriteTo"', function () {
+        it('resolves filter by sub-resource primary key with "rewriteTo"', () => {
             // /article/?filter=author.id=11,12,13
-            var req = {
+            const req = {
                 resource: 'article',
                 filter: [
                     [
@@ -2234,7 +2226,7 @@ describe('request-resolver', function () {
                 ]
             };
 
-            var dataSourceTree = {
+            const dataSourceTree = {
                 resourceName: 'article',
                 attributePath: [],
                 dataSourceName: 'primary',
@@ -2255,13 +2247,13 @@ describe('request-resolver', function () {
                 }
             };
 
-            var resolvedRequest = requestResolver(req, resourceConfigs);
+            const resolvedRequest = requestResolver(req, resourceConfigs);
             expect(resolvedRequest.dataSourceTree).to.eql(dataSourceTree);
         });
 
-        it('resolves filter by sub-resource-attribute', function () {
+        it('resolves filter by sub-resource-attribute', () => {
             // /article/?filter=video.youtubeId="xyz123"
-            var req = {
+            const req = {
                 resource: 'article',
                 filter: [
                     [
@@ -2270,7 +2262,7 @@ describe('request-resolver', function () {
                 ]
             };
 
-            var dataSourceTree = {
+            const dataSourceTree = {
                 resourceName: 'article',
                 attributePath: [],
                 dataSourceName: 'primary',
@@ -2309,13 +2301,13 @@ describe('request-resolver', function () {
                 }]
             };
 
-            var resolvedRequest = requestResolver(req, resourceConfigs);
+            const resolvedRequest = requestResolver(req, resourceConfigs);
             expect(resolvedRequest.dataSourceTree).to.eql(dataSourceTree);
         });
 
-        it('resolves filter by sub-sub-resource', function () {
+        it('resolves filter by sub-sub-resource', () => {
             // /article/?filter=comments.user.id=123
-            var req = {
+            const req = {
                 resource: 'article',
                 filter: [
                     [
@@ -2324,7 +2316,7 @@ describe('request-resolver', function () {
                 ]
             };
 
-            var dataSourceTree = {
+            const dataSourceTree = {
                 resourceName: 'article',
                 attributePath: [],
                 dataSourceName: 'primary',
@@ -2381,13 +2373,13 @@ describe('request-resolver', function () {
                 }]
             };
 
-            var resolvedRequest = requestResolver(req, resourceConfigs);
+            const resolvedRequest = requestResolver(req, resourceConfigs);
             expect(resolvedRequest.dataSourceTree).to.eql(dataSourceTree);
         });
 
-        it('resolves filter by sub-resource with joinVia', function () {
+        it('resolves filter by sub-resource with joinVia', () => {
             // /article/?filter=categories.id=1234
-            var req = {
+            const req = {
                 resource: 'article',
                 filter: [
                     [
@@ -2396,7 +2388,7 @@ describe('request-resolver', function () {
                 ]
             };
 
-            var dataSourceTree = {
+            const dataSourceTree = {
                 resourceName: 'article',
                 attributePath: [],
                 dataSourceName: 'primary',
@@ -2457,14 +2449,14 @@ describe('request-resolver', function () {
                 }]
             };
 
-            var resolvedRequest = requestResolver(req, resourceConfigs);
+            const resolvedRequest = requestResolver(req, resourceConfigs);
             expect(resolvedRequest.dataSourceTree).to.eql(dataSourceTree);
         });
     });
 
-    describe('complex request resolving', function () {
-        it('resolves two overlapping composite parentKeys in different secondary DataSources', function () {
-            var testResourceConfigs = {
+    describe('complex request resolving', () => {
+        it('resolves two overlapping composite parentKeys in different secondary DataSources', () => {
+            const testResourceConfigs = {
                 "resource1": {
                     config: {
                     "primaryKey": [["id"]],
@@ -2547,7 +2539,7 @@ describe('request-resolver', function () {
             };
 
             // /resource1/?select=subResource1.name,subResource2.name
-            var req = {
+            const req = {
                 resource: 'resource1',
                 select: {
                     'subResource1': {
@@ -2563,7 +2555,7 @@ describe('request-resolver', function () {
                 }
             };
 
-            var dataSourceTree = {
+            const dataSourceTree = {
                 resourceName: 'resource1',
                 attributePath: [],
                 dataSourceName: 'primary',
@@ -2668,20 +2660,20 @@ describe('request-resolver', function () {
                 }]
             };
 
-            var resolvedRequest = requestResolver(req, testResourceConfigs);
+            const resolvedRequest = requestResolver(req, testResourceConfigs);
             expect(resolvedRequest.dataSourceTree).to.eql(dataSourceTree);
             expect(resolvedRequest.resolvedConfig.attributes['subResource1'].parentDataSource).to.equal('secondary1');
             expect(resolvedRequest.resolvedConfig.attributes['subResource2'].parentDataSource).to.equal('secondary2');
         });
 
-        it('resolves full-featured request', function () {
+        it('resolves full-featured request', () => {
             // /article/?
             // select=date,title,subTitle,source[name,externalId],body,author[firstname,lastname]&
             // filter=date<=2014-12-01T00:00:00%2B01:00 AND categories.id=12,13&
             // order=date:desc&
             // limit=10&
             // page=1
-            var req = {
+            const req = {
                 resource: 'article',
                 select: {
                     'date': {},
@@ -2715,7 +2707,7 @@ describe('request-resolver', function () {
                 page: 1
             };
 
-            var dataSourceTree = {
+            const dataSourceTree = {
                 resourceName: 'article',
                 attributePath: [],
                 dataSourceName: 'primary',
@@ -2837,16 +2829,16 @@ describe('request-resolver', function () {
                 ]
             };
 
-            var resolvedRequest = requestResolver(req, resourceConfigs);
+            const resolvedRequest = requestResolver(req, resourceConfigs);
             expect(resolvedRequest.dataSourceTree).to.eql(dataSourceTree);
         });
 
-        it('resolves resolved-config.json fixture correctly', function () {
+        it('resolves resolved-config.json fixture correctly', () => {
             // /article/?select=date,title,subTitle,author[firstname,lastname],
             //     categories[name,order],countries.name,body,video.url,
             //     source[name,externalId],comments[content,user[firstname,lastname]],
             //     versions[title,versioninfo.modified]
-            var req = {
+            const req = {
                 resource: 'article',
                 select: {
                     'date': {},
@@ -2905,19 +2897,17 @@ describe('request-resolver', function () {
                 }
             };
 
-            var resolvedConfig = require('./fixtures/resolved-config.json');
+            const resolvedConfig = require('./fixtures/resolved-config.json');
 
-            var resolvedRequest = requestResolver(req, resourceConfigs);
+            const resolvedRequest = requestResolver(req, resourceConfigs);
 
             function cleanupAttributes(parentAttrNode) {
-                var attrName, attrNode;
-
                 if (parentAttrNode._attrsRefs) {
                     delete parentAttrNode._attrsRefs;
                 }
 
-                for (attrName in parentAttrNode.attributes) {
-                    attrNode = parentAttrNode.attributes[attrName];
+                for (let attrName in parentAttrNode.attributes) {
+                    let attrNode = parentAttrNode.attributes[attrName];
 
                     if (attrNode.attributes) {
                         cleanupAttributes(attrNode);

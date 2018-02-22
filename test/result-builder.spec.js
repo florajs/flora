@@ -13,50 +13,50 @@ const api = {
     getResource: () => null
 };
 
-describe('result-builder', function () {
-    var defaultResolvedConfig = require('./fixtures/resolved-config.json');
+describe('result-builder', () => {
+    const defaultResolvedConfig = require('./fixtures/resolved-config.json');
 
-    describe('simple results', function () {
-        it('builds empty result (many = true)', function () {
-            var rawResults = [{
+    describe('simple results', () => {
+        it('builds empty result (many = true)', () => {
+            const rawResults = [{
                 attributePath: [],
                 dataSourceName: 'primary',
                 data: [],
                 totalCount: 0
             }];
 
-            var resolvedConfig = _.cloneDeep(defaultResolvedConfig);
+            const resolvedConfig = _.cloneDeep(defaultResolvedConfig);
             resolvedConfig.attributes['id'].selected = true;
 
-            var expectedResult = {
+            const expectedResult = {
                 cursor: {
                     totalCount: 0
                 },
                 data: []
             };
 
-            var result = resultBuilder(api, {}, rawResults, resolvedConfig);
+            const result = resultBuilder(api, {}, rawResults, resolvedConfig);
             expect(result).to.eql(expectedResult);
         });
 
-        it('throws NotFoundError on empty result (many = false)', function () {
-            var rawResults = [{
+        it('throws NotFoundError on empty result (many = false)', () => {
+            const rawResults = [{
                 attributePath: [],
                 dataSourceName: 'primary',
                 data: [],
                 totalCount: 0
             }];
 
-            var resolvedConfig = _.cloneDeep(defaultResolvedConfig);
+            const resolvedConfig = _.cloneDeep(defaultResolvedConfig);
             resolvedConfig.many = false;
 
-            expect(function () {
+            expect(() => {
                 resultBuilder(api, {resource: 'test', id: 123}, rawResults, resolvedConfig);
             }).to.throw(NotFoundError, 'Item "123" (in resource "test") not found');
         });
 
-        it('builds simple result (many = true)', function () {
-            var rawResults = [{
+        it('builds simple result (many = true)', () => {
+            const rawResults = [{
                 attributePath: [],
                 dataSourceName: 'primary',
                 data: [{
@@ -66,11 +66,11 @@ describe('result-builder', function () {
                 totalCount: 1
             }];
 
-            var resolvedConfig = _.cloneDeep(defaultResolvedConfig);
+            const resolvedConfig = _.cloneDeep(defaultResolvedConfig);
             resolvedConfig.attributes['id'].selected = true;
             resolvedConfig.attributes['title'].selected = true;
 
-            var expectedResult = {
+            const expectedResult = {
                 cursor: {
                     totalCount: 1
                 },
@@ -80,12 +80,12 @@ describe('result-builder', function () {
                 }]
             };
 
-            var result = resultBuilder(api, {}, rawResults, resolvedConfig);
+            const result = resultBuilder(api, {}, rawResults, resolvedConfig);
             expect(result).to.eql(expectedResult);
         });
 
-        it('builds simple result (many = false)', function () {
-            var rawResults = [{
+        it('builds simple result (many = false)', () => {
+            const rawResults = [{
                 attributePath: [],
                 dataSourceName: 'primary',
                 data: [{
@@ -95,27 +95,27 @@ describe('result-builder', function () {
                 totalCount: 1
             }];
 
-            var resolvedConfig = _.cloneDeep(defaultResolvedConfig);
+            const resolvedConfig = _.cloneDeep(defaultResolvedConfig);
             resolvedConfig.many = false;
             resolvedConfig.attributes['id'].selected = true;
             resolvedConfig.attributes['title'].selected = true;
 
-            var expectedResult = {
+            const expectedResult = {
                 data: {
                     id: 1,
                     title: 'Test-Article'
                 }
             };
 
-            var result = resultBuilder(api, {}, rawResults, resolvedConfig);
+            const result = resultBuilder(api, {}, rawResults, resolvedConfig);
             expect(result).to.eql(expectedResult);
         });
     });
 
-    describe('attribute features', function () {
-        it('builds result with nested attributes', function () {
+    describe('attribute features', () => {
+        it('builds result with nested attributes', () => {
             // /article/?select=source.name
-            var rawResults = [{
+            const rawResults = [{
                 attributePath: [],
                 dataSourceName: 'primary',
                 data: [{
@@ -125,13 +125,13 @@ describe('result-builder', function () {
                 totalCount: 1
             }];
 
-            var resolvedConfig = _.cloneDeep(defaultResolvedConfig);
+            const resolvedConfig = _.cloneDeep(defaultResolvedConfig);
             resolvedConfig.many = false;
             resolvedConfig.attributes['id'].selected = true;
             resolvedConfig.attributes['source'].selected = true;
             resolvedConfig.attributes['source'].attributes['name'].selected = true;
 
-            var expectedResult = {
+            const expectedResult = {
                 data: {
                     id: 1,
                     source: {
@@ -140,13 +140,13 @@ describe('result-builder', function () {
                 }
             };
 
-            var result = resultBuilder(api, {}, rawResults, resolvedConfig);
+            const result = resultBuilder(api, {}, rawResults, resolvedConfig);
             expect(result).to.eql(expectedResult);
         });
 
-        it('maps attribute names', function () {
+        it('maps attribute names', () => {
             // /article/?select=title ("mappedTitle" in DataSource)
-            var rawResults = [{
+            const rawResults = [{
                 attributePath: [],
                 dataSourceName: 'primary',
                 data: [{
@@ -156,26 +156,26 @@ describe('result-builder', function () {
                 totalCount: 1
             }];
 
-            var resolvedConfig = _.cloneDeep(defaultResolvedConfig);
+            const resolvedConfig = _.cloneDeep(defaultResolvedConfig);
             resolvedConfig.many = false;
             resolvedConfig.attributes['id'].selected = true;
             resolvedConfig.attributes['title'].selected = true;
             resolvedConfig.attributes['title'].map['default']['primary'] = 'mappedTitle';
 
-            var expectedResult = {
+            const expectedResult = {
                 data: {
                     id: 1,
                     title: 'Title'
                 }
             };
 
-            var result = resultBuilder(api, {}, rawResults, resolvedConfig);
+            const result = resultBuilder(api, {}, rawResults, resolvedConfig);
             expect(result).to.eql(expectedResult);
         });
 
-        it('sets static values', function () {
+        it('sets static values', () => {
             // /article/?select=subTitle
-            var rawResults = [{
+            const rawResults = [{
                 attributePath: [],
                 dataSourceName: 'primary',
                 data: [{
@@ -184,28 +184,28 @@ describe('result-builder', function () {
                 totalCount: 1
             }];
 
-            var resolvedConfig = _.cloneDeep(defaultResolvedConfig);
+            const resolvedConfig = _.cloneDeep(defaultResolvedConfig);
             resolvedConfig.many = false;
             resolvedConfig.attributes['id'].selected = true;
             resolvedConfig.attributes['subTitle'].selected = true;
             resolvedConfig.attributes['subTitle'].value = 'Deprecated Sub-Title';
 
-            var expectedResult = {
+            const expectedResult = {
                 data: {
                     id: 1,
                     subTitle: 'Deprecated Sub-Title'
                 }
             };
 
-            var result = resultBuilder(api, {}, rawResults, resolvedConfig);
+            const result = resultBuilder(api, {}, rawResults, resolvedConfig);
             expect(result).to.eql(expectedResult);
         });
     });
 
-    describe('results with relations', function () {
-        it('builds result with 1:1 relation - invisible primaryKey', function () {
+    describe('results with relations', () => {
+        it('builds result with 1:1 relation - invisible primaryKey', () => {
             // /article/?select=video.url
-            var rawResults = [{
+            const rawResults = [{
                 attributePath: [],
                 dataSourceName: 'primary',
                 data: [{
@@ -226,13 +226,13 @@ describe('result-builder', function () {
                 totalCount: 1
             }];
 
-            var resolvedConfig = _.cloneDeep(defaultResolvedConfig);
+            const resolvedConfig = _.cloneDeep(defaultResolvedConfig);
             resolvedConfig.many = false;
             resolvedConfig.attributes['id'].selected = true;
             resolvedConfig.attributes['video'].selected = true;
             resolvedConfig.attributes['video'].attributes['url'].selected = true;
 
-            var expectedResult = {
+            const expectedResult = {
                 data: {
                     id: 1,
                     video: {
@@ -241,13 +241,13 @@ describe('result-builder', function () {
                 }
             };
 
-            var result = resultBuilder(api, {}, rawResults, resolvedConfig);
+            const result = resultBuilder(api, {}, rawResults, resolvedConfig);
             expect(result).to.eql(expectedResult);
         });
 
-        it('builds result with 1:n relation', function () {
+        it('builds result with 1:n relation', () => {
             // /article/?select=comments.content
-            var rawResults = [{
+            const rawResults = [{
                 attributePath: [],
                 dataSourceName: 'primary',
                 data: [{
@@ -281,13 +281,13 @@ describe('result-builder', function () {
                 totalCount: 3
             }];
 
-            var resolvedConfig = _.cloneDeep(defaultResolvedConfig);
+            const resolvedConfig = _.cloneDeep(defaultResolvedConfig);
             resolvedConfig.attributes['id'].selected = true;
             resolvedConfig.attributes['comments'].selected = true;
             resolvedConfig.attributes['comments'].attributes['id'].selected = true;
             resolvedConfig.attributes['comments'].attributes['content'].selected = true;
 
-            var expectedResult = {
+            const expectedResult = {
                 cursor: {
                     totalCount: 3
                 },
@@ -312,13 +312,13 @@ describe('result-builder', function () {
                 }]
             };
 
-            var result = resultBuilder(api, {}, rawResults, resolvedConfig);
+            const result = resultBuilder(api, {}, rawResults, resolvedConfig);
             expect(result).to.eql(expectedResult);
         });
 
-        it('builds result with 1:n relation (with composite primary keys)', function () {
+        it('builds result with 1:n relation (with composite primary keys)', () => {
             // /article/?select=versions.versioninfo.modified
-            var rawResults = [{
+            const rawResults = [{
                 attributePath: [],
                 dataSourceName: 'primary',
                 data: [{
@@ -368,14 +368,14 @@ describe('result-builder', function () {
                 totalCount: 3
             }];
 
-            var resolvedConfig = _.cloneDeep(defaultResolvedConfig);
+            const resolvedConfig = _.cloneDeep(defaultResolvedConfig);
             resolvedConfig.attributes['id'].selected = true;
             resolvedConfig.attributes['versions'].selected = true;
             resolvedConfig.attributes['versions'].attributes['versionId'].selected = true;
             resolvedConfig.attributes['versions'].attributes['versioninfo'].selected = true;
             resolvedConfig.attributes['versions'].attributes['versioninfo'].attributes['modified'].selected = true;
 
-            var expectedResult = {
+            const expectedResult = {
                 cursor: {
                     totalCount: 2
                 },
@@ -397,13 +397,13 @@ describe('result-builder', function () {
                 }]
             };
 
-            var result = resultBuilder(api, {}, rawResults, resolvedConfig);
+            const result = resultBuilder(api, {}, rawResults, resolvedConfig);
             expect(result).to.eql(expectedResult);
         });
 
-        it('builds result with n:1 relation', function () {
+        it('builds result with n:1 relation', () => {
             // /article/?select=author[firstname,lastname]
-            var rawResults = [{
+            const rawResults = [{
                 attributePath: [],
                 dataSourceName: 'primary',
                 data: [{
@@ -426,7 +426,7 @@ describe('result-builder', function () {
                 totalCount: 1
             }];
 
-            var resolvedConfig = _.cloneDeep(defaultResolvedConfig);
+            const resolvedConfig = _.cloneDeep(defaultResolvedConfig);
             resolvedConfig.many = false;
             resolvedConfig.attributes['id'].selected = true;
             resolvedConfig.attributes['author'].selected = true;
@@ -434,7 +434,7 @@ describe('result-builder', function () {
             resolvedConfig.attributes['author'].attributes['firstname'].selected = true;
             resolvedConfig.attributes['author'].attributes['lastname'].selected = true;
 
-            var expectedResult = {
+            const expectedResult = {
                 data: {
                     id: 1,
                     author: {
@@ -445,13 +445,13 @@ describe('result-builder', function () {
                 }
             };
 
-            var result = resultBuilder(api, {}, rawResults, resolvedConfig);
+            const result = resultBuilder(api, {}, rawResults, resolvedConfig);
             expect(result).to.eql(expectedResult);
         });
 
-        it('builds result with n:1 relation ("null" keys mapped to "null"-objects)', function () {
+        it('builds result with n:1 relation ("null" keys mapped to "null"-objects)', () => {
             // /article/?select=author
-            var rawResults = [{
+            const rawResults = [{
                 attributePath: [],
                 dataSourceName: 'primary',
                 data: [{
@@ -470,26 +470,26 @@ describe('result-builder', function () {
                 totalCount: 0
             }];
 
-            var resolvedConfig = _.cloneDeep(defaultResolvedConfig);
+            const resolvedConfig = _.cloneDeep(defaultResolvedConfig);
             resolvedConfig.many = false;
             resolvedConfig.attributes['id'].selected = true;
             resolvedConfig.attributes['author'].selected = true;
             resolvedConfig.attributes['author'].attributes['id'].selected = true;
 
-            var expectedResult = {
+            const expectedResult = {
                 data: {
                     id: 1,
                     author: null
                 }
             };
 
-            var result = resultBuilder(api, {}, rawResults, resolvedConfig);
+            const result = resultBuilder(api, {}, rawResults, resolvedConfig);
             expect(result).to.eql(expectedResult);
         });
 
-        it('builds result with m:n relation - with multi-values', function () {
+        it('builds result with m:n relation - with multi-values', () => {
             // /article/?select=countries.name
-            var rawResults = [{
+            const rawResults = [{
                 attributePath: [],
                 dataSourceName: 'primary',
                 data: [
@@ -514,13 +514,13 @@ describe('result-builder', function () {
                 totalCount: 3
             }];
 
-            var resolvedConfig = _.cloneDeep(defaultResolvedConfig);
+            const resolvedConfig = _.cloneDeep(defaultResolvedConfig);
             resolvedConfig.attributes['id'].selected = true;
             resolvedConfig.attributes['countries'].selected = true;
             resolvedConfig.attributes['countries'].attributes['id'].selected = true;
             resolvedConfig.attributes['countries'].attributes['name'].selected = true;
 
-            var expectedResult = {
+            const expectedResult = {
                 cursor: {totalCount: 4},
                 data: [{
                     id: 1,
@@ -541,13 +541,13 @@ describe('result-builder', function () {
                 }]
             };
 
-            var result = resultBuilder(api, {}, rawResults, resolvedConfig);
+            const result = resultBuilder(api, {}, rawResults, resolvedConfig);
             expect(result).to.eql(expectedResult);
         });
 
-        it('fails on invalid multiValued attributes in m:n relation', function () {
+        it('fails on invalid multiValued attributes in m:n relation', () => {
             // /article/?select=countries.name
-            var rawResults = [{
+            const rawResults = [{
                 attributePath: [],
                 dataSourceName: 'primary',
                 data: [
@@ -570,21 +570,21 @@ describe('result-builder', function () {
                 totalCount: 3
             }];
 
-            var resolvedConfig = _.cloneDeep(defaultResolvedConfig);
+            const resolvedConfig = _.cloneDeep(defaultResolvedConfig);
             resolvedConfig.attributes['id'].selected = true;
             resolvedConfig.attributes['countries'].selected = true;
             resolvedConfig.attributes['countries'].attributes['id'].selected = true;
             resolvedConfig.attributes['countries'].attributes['name'].selected = true;
 
-            expect(function () {
+            expect(() => {
                 resultBuilder(api, {}, rawResults, resolvedConfig);
             }).to.throw(DataError, 'Sub-resource "countries" multiValued key attribute "countries" ' +
                 'in parent result is not an array (DataSource "primary")');
         });
 
-        it('builds result with m:n relation - with join-table + additional fields', function () {
+        it('builds result with m:n relation - with join-table + additional fields', () => {
             // /article/?select=categories[name,order]
-            var rawResults = [{
+            const rawResults = [{
                 attributePath: [],
                 dataSourceName: 'primary',
                 data: [
@@ -622,14 +622,14 @@ describe('result-builder', function () {
                 totalCount: 3
             }];
 
-            var resolvedConfig = _.cloneDeep(defaultResolvedConfig);
+            const resolvedConfig = _.cloneDeep(defaultResolvedConfig);
             resolvedConfig.attributes['id'].selected = true;
             resolvedConfig.attributes['categories'].selected = true;
             resolvedConfig.attributes['categories'].attributes['id'].selected = true;
             resolvedConfig.attributes['categories'].attributes['name'].selected = true;
             resolvedConfig.attributes['categories'].attributes['order'].selected = true;
 
-            var expectedResult = {
+            const expectedResult = {
                 cursor: {totalCount: 3},
                 data: [{
                     id: 1,
@@ -647,13 +647,13 @@ describe('result-builder', function () {
                 }]
             };
 
-            var result = resultBuilder(api, {}, rawResults, resolvedConfig);
+            const result = resultBuilder(api, {}, rawResults, resolvedConfig);
             expect(result).to.eql(expectedResult);
         });
 
-        it('does not depend on primary sub-result when joinVia result is empty', function () {
+        it('does not depend on primary sub-result when joinVia result is empty', () => {
             // /article/?select=categories.name
-            var rawResults = [{
+            const rawResults = [{
                 attributePath: [],
                 dataSourceName: 'primary',
                 data: [
@@ -671,13 +671,13 @@ describe('result-builder', function () {
                 totalCount: 0
             }];
 
-            var resolvedConfig = _.cloneDeep(defaultResolvedConfig);
+            const resolvedConfig = _.cloneDeep(defaultResolvedConfig);
             resolvedConfig.attributes['id'].selected = true;
             resolvedConfig.attributes['categories'].selected = true;
             resolvedConfig.attributes['categories'].attributes['id'].selected = true;
             resolvedConfig.attributes['categories'].attributes['name'].selected = true;
 
-            var expectedResult = {
+            const expectedResult = {
                 cursor: {totalCount: 1},
                 data: [{
                     id: 1,
@@ -685,13 +685,13 @@ describe('result-builder', function () {
                 }]
             };
 
-            var result = resultBuilder(api, {}, rawResults, resolvedConfig);
+            const result = resultBuilder(api, {}, rawResults, resolvedConfig);
             expect(result).to.eql(expectedResult);
         });
 
-        it('does not depend on primary sub-result when secondary result is empty', function () {
+        it('does not depend on primary sub-result when secondary result is empty', () => {
             // /article/?select=author
-            var rawResults = [{
+            const rawResults = [{
                 attributePath: [],
                 dataSourceName: 'articleBody', // hack as primary
                 data: [
@@ -709,14 +709,14 @@ describe('result-builder', function () {
                 totalCount: 0
             }];
 
-            var resolvedConfig = _.cloneDeep(defaultResolvedConfig);
+            const resolvedConfig = _.cloneDeep(defaultResolvedConfig);
             resolvedConfig.primaryDataSource = 'articleBody';
             resolvedConfig.attributes['id'].selected = true;
             resolvedConfig.attributes['id'].selectedDataSource = 'articleBody';
             resolvedConfig.attributes['author'].selected = true;
             resolvedConfig.attributes['author'].parentDataSource = 'primary';
 
-            var expectedResult = {
+            const expectedResult = {
                 cursor: {totalCount: 1},
                 data: [{
                     id: 1,
@@ -724,13 +724,13 @@ describe('result-builder', function () {
                 }]
             };
 
-            var result = resultBuilder(api, {}, rawResults, resolvedConfig);
+            const result = resultBuilder(api, {}, rawResults, resolvedConfig);
             expect(result).to.eql(expectedResult);
         });
 
-        it('fails on missing key attributes in join-table for m:n relation', function () {
+        it('fails on missing key attributes in join-table for m:n relation', () => {
             // /article/?select=categories.name
-            var rawResults = [{
+            const rawResults = [{
                 attributePath: [],
                 dataSourceName: 'primary',
                 data: [
@@ -762,23 +762,23 @@ describe('result-builder', function () {
                 totalCount: 1
             }];
 
-            var resolvedConfig = _.cloneDeep(defaultResolvedConfig);
+            const resolvedConfig = _.cloneDeep(defaultResolvedConfig);
             resolvedConfig.attributes['id'].selected = true;
             resolvedConfig.attributes['categories'].selected = true;
             resolvedConfig.attributes['categories'].attributes['id'].selected = true;
             resolvedConfig.attributes['categories'].attributes['name'].selected = true;
 
-            expect(function () {
+            expect(() => {
                 resultBuilder(api, {}, rawResults, resolvedConfig);
             }).to.throw(DataError, 'Sub-resource "categories" misses key attribute "categoryId" ' +
                 'in joinVia result (DataSource "articleCategories")');
         });
     });
 
-    describe('results with multiple DataSources per resource', function () {
-        it('builds result with selected field from secondary DataSource', function () {
+    describe('results with multiple DataSources per resource', () => {
+        it('builds result with selected field from secondary DataSource', () => {
             // /article/?select=body
-            var rawResults = [{
+            const rawResults = [{
                 attributePath: [],
                 dataSourceName: 'primary',
                 data: [{
@@ -804,12 +804,12 @@ describe('result-builder', function () {
                 totalCount: 1
             }];
 
-            var resolvedConfig = _.cloneDeep(defaultResolvedConfig);
+            const resolvedConfig = _.cloneDeep(defaultResolvedConfig);
             resolvedConfig.attributes['id'].selected = true;
             resolvedConfig.attributes['body'].selected = true;
             resolvedConfig.attributes['body'].selectedDataSource = 'articleBody';
 
-            var expectedResult = {
+            const expectedResult = {
                 cursor: {
                     totalCount: 1
                 },
@@ -822,13 +822,13 @@ describe('result-builder', function () {
                 }]
             };
 
-            var result = resultBuilder(api, {}, rawResults, resolvedConfig);
+            const result = resultBuilder(api, {}, rawResults, resolvedConfig);
             expect(result).to.eql(expectedResult);
         });
 
-        it('builds result with parentKey from secondary DataSource', function () {
+        it('builds result with parentKey from secondary DataSource', () => {
             // /article/?select=author[firstname,lastname]
-            var rawResults = [{
+            const rawResults = [{
                 attributePath: [],
                 dataSourceName: 'primary',
                 data: [{
@@ -869,7 +869,7 @@ describe('result-builder', function () {
                 totalCount: 1
             }];
 
-            var resolvedConfig = _.cloneDeep(defaultResolvedConfig);
+            const resolvedConfig = _.cloneDeep(defaultResolvedConfig);
             resolvedConfig.attributes['id'].selected = true;
             // move authorId to articleBody DataSource for this test:
             resolvedConfig.attributes['author'].parentDataSource = 'articleBody';
@@ -880,7 +880,7 @@ describe('result-builder', function () {
             resolvedConfig.attributes['body'].selected = true;
             resolvedConfig.attributes['body'].selectedDataSource = 'articleBody';
 
-            var expectedResult = {
+            const expectedResult = {
                 cursor: {
                     totalCount: 1
                 },
@@ -903,13 +903,13 @@ describe('result-builder', function () {
                 }]
             };
 
-            var result = resultBuilder(api, {}, rawResults, resolvedConfig);
+            const result = resultBuilder(api, {}, rawResults, resolvedConfig);
             expect(result).to.eql(expectedResult);
         });
 
-        it('handle missing row in secondary DataSource from parentKey', function () {
+        it('handle missing row in secondary DataSource from parentKey', () => {
             // /article/?select=author[firstname,lastname]
-            var rawResults = [{
+            const rawResults = [{
                 attributePath: [],
                 dataSourceName: 'primary',
                 data: [{
@@ -950,7 +950,7 @@ describe('result-builder', function () {
                 totalCount: 1
             }];
 
-            var resolvedConfig = _.cloneDeep(defaultResolvedConfig);
+            const resolvedConfig = _.cloneDeep(defaultResolvedConfig);
             resolvedConfig.attributes['id'].selected = true;
             // move authorId to articleBody DataSource for this test:
             resolvedConfig.attributes['author'].parentDataSource = 'articleBody';
@@ -961,7 +961,7 @@ describe('result-builder', function () {
             resolvedConfig.attributes['body'].selected = true;
             resolvedConfig.attributes['body'].selectedDataSource = 'articleBody';
 
-            var expectedResult = {
+            const expectedResult = {
                 cursor: {
                     totalCount: 1
                 },
@@ -980,14 +980,14 @@ describe('result-builder', function () {
                 }]
             };
 
-            var result = resultBuilder(api, {}, rawResults, resolvedConfig);
+            const result = resultBuilder(api, {}, rawResults, resolvedConfig);
             expect(result).to.eql(expectedResult);
         });
     });
 
-    describe('error handling on data level', function () {
-        it('fails if a primary key attribute is missing', function () {
-            var rawResults = [{
+    describe('error handling on data level', () => {
+        it('fails if a primary key attribute is missing', () => {
+            const rawResults = [{
                 attributePath: [],
                 dataSourceName: 'primary',
                 data: [{
@@ -996,16 +996,16 @@ describe('result-builder', function () {
                 totalCount: 1
             }];
 
-            var resolvedConfig = _.cloneDeep(defaultResolvedConfig);
+            const resolvedConfig = _.cloneDeep(defaultResolvedConfig);
 
-            expect(function () {
+            expect(() => {
                 resultBuilder(api, {}, rawResults, resolvedConfig);
             }).to.throw(DataError, 'Result-row of "{root}" (DataSource "primary") ' +
                 'misses primary key attribute "id"');
         });
 
-        it('fails if a child key attribute is missing', function () {
-            var rawResults = [{
+        it('fails if a child key attribute is missing', () => {
+            const rawResults = [{
                 attributePath: [],
                 dataSourceName: 'primary',
                 data: [{
@@ -1029,16 +1029,16 @@ describe('result-builder', function () {
                 totalCount: 1
             }];
 
-            var resolvedConfig = _.cloneDeep(defaultResolvedConfig);
+            const resolvedConfig = _.cloneDeep(defaultResolvedConfig);
 
-            expect(function () {
+            expect(() => {
                 resultBuilder(api, {}, rawResults, resolvedConfig);
             }).to.throw(DataError, 'Result-row 1 of "{root}" (DataSource "articleBody") ' +
                 'misses child key attribute "articleId"');
         });
 
-        it('handles missing parent key attribute as "null"', function () {
-            var rawResults = [{
+        it('handles missing parent key attribute as "null"', () => {
+            const rawResults = [{
                 attributePath: [],
                 dataSourceName: 'primary',
                 data: [{
@@ -1061,11 +1061,11 @@ describe('result-builder', function () {
                 totalCount: 1
             }];
 
-            var resolvedConfig = _.cloneDeep(defaultResolvedConfig);
+            const resolvedConfig = _.cloneDeep(defaultResolvedConfig);
             resolvedConfig.attributes['id'].selected = true;
             resolvedConfig.attributes['author'].selected = true;
 
-            var expectedResult = {
+            const expectedResult = {
                 cursor: {
                     totalCount: 1
                 },
@@ -1075,20 +1075,20 @@ describe('result-builder', function () {
                 }]
             };
 
-            var result = resultBuilder(api, {}, rawResults, resolvedConfig);
+            const result = resultBuilder(api, {}, rawResults, resolvedConfig);
             expect(result).to.eql(expectedResult);
 
             /*
             // TODO: Strict mode?
-            expect(function () {
+            expect(() => {
                 resultBuilder(api, {}, rawResults, resolvedConfig);
             }).to.throw(DataError, 'Sub-resource "author" ' +
                 'misses key attribute "authorId" in parent result (DataSource "primary")');
             */
         });
 
-        it('fails if uniqueChildKey is not unique', function () {
-            var rawResults = [{
+        it('fails if uniqueChildKey is not unique', () => {
+            const rawResults = [{
                 attributePath: [],
                 dataSourceName: 'primary',
                 data: [
@@ -1109,16 +1109,16 @@ describe('result-builder', function () {
                 totalCount: 2
             }];
 
-            var resolvedConfig = _.cloneDeep(defaultResolvedConfig);
+            const resolvedConfig = _.cloneDeep(defaultResolvedConfig);
             resolvedConfig.attributes['author'].selected = true;
 
-            expect(function () {
+            expect(() => {
                 resultBuilder(api, {}, rawResults, resolvedConfig);
             }).to.throw(DataError, 'Result-row 1 of "author" (DataSource "primary") has duplicate child key "10"');
         });
 
-        it('handles missing row in secondary DataSource (by primary key) as "null"', function () {
-            var rawResults = [{
+        it('handles missing row in secondary DataSource (by primary key) as "null"', () => {
+            const rawResults = [{
                 attributePath: [],
                 dataSourceName: 'primary',
                 data: [{
@@ -1139,25 +1139,25 @@ describe('result-builder', function () {
                 totalCount: 1
             }];
 
-            var resolvedConfig = _.cloneDeep(defaultResolvedConfig);
+            const resolvedConfig = _.cloneDeep(defaultResolvedConfig);
             resolvedConfig.many = false;
             resolvedConfig.attributes['id'].selected = true;
             resolvedConfig.attributes['body'].selected = true;
             resolvedConfig.attributes['body'].selectedDataSource = 'articleBody';
 
-            var expectedResult = {
+            const expectedResult = {
                 data: {
                     id: 1,
                     body: null
                 }
             };
 
-            var result = resultBuilder(api, {}, rawResults, resolvedConfig);
+            const result = resultBuilder(api, {}, rawResults, resolvedConfig);
             expect(result).to.eql(expectedResult);
         });
 
-        it('handles missing row in child resource as "null"', function () {
-            var rawResults = [{
+        it('handles missing row in child resource as "null"', () => {
+            const rawResults = [{
                 attributePath: [],
                 dataSourceName: 'primary',
                 data: [{
@@ -1178,24 +1178,24 @@ describe('result-builder', function () {
                 totalCount: 1
             }];
 
-            var resolvedConfig = _.cloneDeep(defaultResolvedConfig);
+            const resolvedConfig = _.cloneDeep(defaultResolvedConfig);
             resolvedConfig.many = false;
             resolvedConfig.attributes['id'].selected = true;
             resolvedConfig.attributes['video'].selected = true;
 
-            var expectedResult = {
+            const expectedResult = {
                 data: {
                     id: 1,
                     video: null
                 }
             };
 
-            var result = resultBuilder(api, {}, rawResults, resolvedConfig);
+            const result = resultBuilder(api, {}, rawResults, resolvedConfig);
             expect(result).to.eql(expectedResult);
         });
 
-        it('handles missing attribute as null', function () {
-            var rawResults = [{
+        it('handles missing attribute as null', () => {
+            const rawResults = [{
                 attributePath: [],
                 dataSourceName: 'primary',
                 data: [{
@@ -1205,24 +1205,24 @@ describe('result-builder', function () {
                 totalCount: 1
             }];
 
-            var resolvedConfig = _.cloneDeep(defaultResolvedConfig);
+            const resolvedConfig = _.cloneDeep(defaultResolvedConfig);
             resolvedConfig.many = false;
             resolvedConfig.attributes['title'].selected = true;
 
-            var expectedResult = {
+            const expectedResult = {
                 data: {
                     title: null
                 }
             };
 
-            var result = resultBuilder(api, {}, rawResults, resolvedConfig);
+            const result = resultBuilder(api, {}, rawResults, resolvedConfig);
             expect(result).to.eql(expectedResult);
         });
     });
 
-    describe('implementation error handling ("should never happen"-errors)', function () {
-        it('fails on invalid attributePath in result', function () {
-            var rawResults = [{
+    describe('implementation error handling ("should never happen"-errors)', () => {
+        it('fails on invalid attributePath in result', () => {
+            const rawResults = [{
                 attributePath: ['any', 'subresource'], // invalid path
                 dataSourceName: 'primary',
                 data: [{
@@ -1231,25 +1231,25 @@ describe('result-builder', function () {
                 totalCount: 1
             }];
 
-            var resolvedConfig = _.cloneDeep(defaultResolvedConfig);
+            const resolvedConfig = _.cloneDeep(defaultResolvedConfig);
 
-            expect(function () {
+            expect(() => {
                 resultBuilder(api, {}, rawResults, resolvedConfig);
             }).to.throw(ImplementationError, 'Result-Builder: Unknown attribute "any.subresource"');
         });
 
-        it('fails if complete result of primary DataSource is missing', function () {
-            var rawResults = []; // complete result is missing here
+        it('fails if complete result of primary DataSource is missing', () => {
+            const rawResults = []; // complete result is missing here
 
-            var resolvedConfig = _.cloneDeep(defaultResolvedConfig);
+            const resolvedConfig = _.cloneDeep(defaultResolvedConfig);
 
-            expect(function () {
+            expect(() => {
                 resultBuilder(api, {}, rawResults, resolvedConfig);
             }).to.throw(ImplementationError, 'Result for "{root}" (DataSource "primary") missing');
         });
 
-        it('fails if complete result of secondary DataSource is missing', function () {
-            var rawResults = [{
+        it('fails if complete result of secondary DataSource is missing', () => {
+            const rawResults = [{
                 attributePath: [],
                 dataSourceName: 'primary',
                 data: [{
@@ -1258,16 +1258,16 @@ describe('result-builder', function () {
                 totalCount: 1
             }]; // "articleBody" result is missing here
 
-            var resolvedConfig = _.cloneDeep(defaultResolvedConfig);
+            const resolvedConfig = _.cloneDeep(defaultResolvedConfig);
             resolvedConfig.attributes['body'].selected = true;
 
-            expect(function () {
+            expect(() => {
                 resultBuilder(api, {}, rawResults, resolvedConfig);
             }).to.throw(ImplementationError, 'Secondary-Result for "{root}" (DataSource "articleBody") missing');
         });
 
-        it('fails if complete result of primary DataSource of sub-resource is missing', function () {
-            var rawResults = [{
+        it('fails if complete result of primary DataSource of sub-resource is missing', () => {
+            const rawResults = [{
                 attributePath: [],
                 dataSourceName: 'primary',
                 data: [{
@@ -1276,19 +1276,19 @@ describe('result-builder', function () {
                 totalCount: 1
             }]; // "author"/"primary" result is missing here
 
-            var resolvedConfig = _.cloneDeep(defaultResolvedConfig);
+            const resolvedConfig = _.cloneDeep(defaultResolvedConfig);
             resolvedConfig.attributes['author'].selected = true;
 
-            expect(function () {
+            expect(() => {
                 resultBuilder(api, {}, rawResults, resolvedConfig);
             }).to.throw(ImplementationError, 'Result for "author" (DataSource "primary") missing');
         });
     });
 
-    describe('complex results', function () {
-        it('builds full featured result', function () {
+    describe('complex results', () => {
+        it('builds full featured result', () => {
             // /article/?select=date,title,subTitle,author[firstname],body,video.url,source.name,comments[content,user[lastname]]
-            var rawResults = [{
+            const rawResults = [{
                 attributePath: [],
                 dataSourceName: 'primary',
                 data: [{
@@ -1368,7 +1368,7 @@ describe('result-builder', function () {
                 totalCount: 1
             }];
 
-            var resolvedConfig = _.cloneDeep(defaultResolvedConfig);
+            const resolvedConfig = _.cloneDeep(defaultResolvedConfig);
             resolvedConfig.many = false;
             resolvedConfig.attributes['id'].selected = true;
             resolvedConfig.attributes['date'].selected = true;
@@ -1390,7 +1390,7 @@ describe('result-builder', function () {
             resolvedConfig.attributes['comments'].attributes['user'].attributes['id'].selected = true;
             resolvedConfig.attributes['comments'].attributes['user'].attributes['lastname'].selected = true;
 
-            var expectedResult = {
+            const expectedResult = {
                 data: {
                     'id': 1,
                     'date': '2015-03-03T14:00:00.000Z',
@@ -1428,7 +1428,7 @@ describe('result-builder', function () {
                 }
             };
 
-            var result = resultBuilder(api, {}, rawResults, resolvedConfig);
+            const result = resultBuilder(api, {}, rawResults, resolvedConfig);
             expect(result).to.eql(expectedResult);
         });
     });
