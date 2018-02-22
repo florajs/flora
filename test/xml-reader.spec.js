@@ -72,6 +72,26 @@ describe('xml-reader', function () {
                 done();
             });
         });
+
+        it('should throw an error if datasource node contains text nodes', function (done) {
+            xmlReader(__dirname + '/fixtures/xml-reader/invalid-datasource-text-node.xml', function (err) {
+                expect(err).to.be.instanceof(Error);
+                expect(err.message).to.contains('dataSource contains useless text');
+                done();
+            });
+        });
+
+        it('should throw an if xml contains invalid text nodes', function (done) {
+            xmlReader(__dirname + '/fixtures/xml-reader/invalid-text-node.xml', function (err) {
+                try {
+                    expect(err).to.be.instanceof(Error);
+                    expect(err.message).to.contains('Config contains unnecessary text');
+                    done();
+                } catch (e) {
+                    done(e);
+                }
+            });
+        });
     });
 
     it('should parse primary keys', function (done) {
