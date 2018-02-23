@@ -43,7 +43,7 @@ describe('datasource-executor', () => {
         });
 
         it('passes through errors from process call', (done) => {
-            sinon.stub(api.dataSources['test'], 'process', (query, callback) => {
+            sinon.stub(api.dataSources['test'], 'process').callsFake((query, callback) => {
                 callback(new Error('foo'));
             });
 
@@ -132,7 +132,7 @@ describe('datasource-executor', () => {
 
         describe('with non-empty result', () => {
             before(() => {
-                sinon.stub(api.dataSources['test'], 'process', (query, callback) => {
+                sinon.stub(api.dataSources['test'], 'process').callsFake((query, callback) => {
                     if (query.table === 'email') {
                         return callback(null, {
                             data: [
@@ -203,7 +203,7 @@ describe('datasource-executor', () => {
 
         describe('with empty result', () => {
             before(() => {
-                sinon.stub(api.dataSources['test'], 'process', (query, callback) => {
+                sinon.stub(api.dataSources['test'], 'process').callsFake((query, callback) => {
                     if (query.table === 'email') {
                         return callback(null, {
                             data: [],
@@ -268,7 +268,7 @@ describe('datasource-executor', () => {
         };
 
         before(() => {
-            sinon.stub(api.dataSources['test'], 'process', (query, callback) => {
+            sinon.stub(api.dataSources['test'], 'process').callsFake((query, callback) => {
                 if (query.table === 'user') {
                     return callback(null, {
                         data: [
@@ -373,7 +373,7 @@ describe('datasource-executor', () => {
         };
 
         before(() => {
-            sinon.stub(api.dataSources['test'], 'process', (query, callback) => {
+            sinon.stub(api.dataSources['test'], 'process').callsFake((query, callback) => {
                 if (query.table === 'article') {
                     return callback(null, {
                         data: [
@@ -456,7 +456,7 @@ describe('datasource-executor', () => {
         };
 
         before(function() {
-            sinon.stub(api.dataSources['test'], 'process', (query, callback) => {
+            sinon.stub(api.dataSources['test'], 'process').callsFake((query, callback) => {
                 if (query.table === 'article') {
                     return callback(null, {
                         data: [
@@ -538,7 +538,7 @@ describe('datasource-executor', () => {
         };
 
         before(() => {
-            sinon.stub(api.dataSources['test'], 'process', (query, callback) => {
+            sinon.stub(api.dataSources['test'], 'process').callsFake((query, callback) => {
                 if (query.table === 'article') {
                     return callback(null, {
                         data: [
@@ -642,7 +642,7 @@ describe('datasource-executor', () => {
         };
 
         before(() => {
-            sinon.stub(api.dataSources['test'], 'process', (query, callback) => {
+            sinon.stub(api.dataSources['test'], 'process').callsFake((query, callback) => {
                 if (query.table === 'article') {
                     return callback(null, {
                         data: [
@@ -761,7 +761,7 @@ describe('datasource-executor', () => {
         };
 
         before(() => {
-            sinon.stub(api.dataSources['test'], 'process', (query, callback) => {
+            sinon.stub(api.dataSources['test'], 'process').callsFake((query, callback) => {
                 if (query.table === 'validemail') {
                     // filter parameter is transformed correctly
                     expect(query.filter).to.eql([[
@@ -879,7 +879,7 @@ describe('datasource-executor', () => {
         };
 
         before(() => {
-            sinon.stub(api.dataSources['test'], 'process', (query, callback) => {
+            sinon.stub(api.dataSources['test'], 'process').callsFake((query, callback) => {
                 return callback(null, {
                     data: [
                         {
@@ -1021,7 +1021,7 @@ describe('datasource-executor', () => {
 
     describe('delimiter in subFilters', () => {
         before(() => {
-            sinon.stub(api.dataSources['test'], 'process', (query, callback) => {
+            sinon.stub(api.dataSources['test'], 'process').callsFake((query, callback) => {
                 if (query.table === 'email') {
                     // valueFromSubFilter (validemail) is transformed correctly
                     expect(query.filter).to.eql([[
@@ -1132,7 +1132,7 @@ describe('datasource-executor', () => {
 
     describe('casting to storedType in subFilters', () => {
         before(() => {
-            sinon.stub(api.dataSources['test'], 'process', (query, callback) => {
+            sinon.stub(api.dataSources['test'], 'process').callsFake((query, callback) => {
                 if (query.table === 'quotes') {
                     return callback(null, {
                         data: [
@@ -1237,7 +1237,7 @@ describe('datasource-executor', () => {
         });
 
         before(() => {
-            sinon.stub(api.dataSources['test'], 'process', (query, callback) => {
+            sinon.stub(api.dataSources['test'], 'process').callsFake((query, callback) => {
                 if (query.table === 'article') {
                     try {
                         expect(query).to.be.an('object');

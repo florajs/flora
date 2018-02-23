@@ -78,7 +78,7 @@ describe('request-resolver', () => {
             const req = {resource: 'resource1'};
             const resolvedRequest = requestResolver(req, configs);
 
-            expect(resolvedRequest.resolvedConfig).to.have.deep.property('attributes.id');
+            expect(resolvedRequest.resolvedConfig).to.have.nested.property('attributes.id');
         });
 
         it('fails on missing resource in request', () => {
