@@ -8,7 +8,8 @@
     "no-param-reassign": 0,
     "prefer-template": 0,
     "no-plusplus": 0,
-    "no-unused-vars": ["error", { "argsIgnorePattern": "next" }]
+    "no-unused-vars": ["error", { "argsIgnorePattern": "next" }],
+    "prefer-destructuring": 0
   },
   "parserOptions": {
     "ecmaVersion": 2015
