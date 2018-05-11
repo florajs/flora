@@ -37,6 +37,7 @@
     "node": ">=6"
   },
   "dependencies": {
+    "@godmodelabs/busboy": "^0.3.0",
     "async": "^2.5.0",
     "async-eventemitter": "^0.2.2",
     "bunyan": "^1.5.1",
