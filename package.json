@@ -1,6 +1,6 @@
 {
   "name": "flora",
-  "version": "0.8.8",
+  "version": "0.8.9",
   "description": "FLexible Open Rest API",
   "main": "index.js",
   "scripts": {
