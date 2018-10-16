@@ -3,7 +3,6 @@
 const { expect } = require('chai');
 
 const parseRequest = require('../lib/url-parser');
-const { Request } = require('../');
 
 describe('HTTP request parsing', () => {
     let httpRequest;

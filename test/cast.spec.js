@@ -183,7 +183,7 @@ describe('type casting', () => {
 
         it('fails silently when JSON is invalid', () => {
             expect(cast.cast('{"foo":"bar"broken', { storedType: { type: 'json' }, type: 'object' })).to.eql(null);
-        })
+        });
 
         it('passes through objects from storedType="object"', () => {
             expect(cast.cast({ foo: 'bar' }, { storedType: { type: 'object' }, type: 'object' })).to.eql({ foo: 'bar' });

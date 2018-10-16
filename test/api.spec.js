@@ -132,7 +132,7 @@ describe('Api', () => {
 
     describe('plugins', () => {
         it('should allow to register plugins', () => {
-            var plugin = {
+            const plugin = {
                 register: (master, options) => {
                     //done();
                 }
@@ -143,10 +143,8 @@ describe('Api', () => {
         });
 
         it('should plugins registered before init', (done) => {
-            var plugin = {
-                register: (master, options) => {
-                    done();
-                }
+            const plugin = {
+                register: (/*master, options*/) => done()
             };
 
             const api = new Api();
@@ -172,9 +170,7 @@ describe('Api', () => {
             }, (err) => {
                 if (err) return done(err);
 
-                var request = new Request({
-                    resource: 'foo'
-                });
+                const request = new Request({ resource: 'foo' });
                 api.execute(request, (err2, response) => {
                     expect(err2).to.be.an('error');
                     expect(err2.message).to.equal('Unknown resource "foo" in request');
