@@ -1198,7 +1198,7 @@ describe('config-parser', () => {
             expect(() => {
                 configParser(resourceConfigs, mockDataSources);
             }).to.throw(ImplementationError,
-                'Invalid "roundAbout" (allowed: equal, notEqual, greater, greaterOrEqual, less, lessOrEqual) ' +
+                'Invalid "roundAbout" (allowed: like, equal, notEqual, greater, greaterOrEqual, less, lessOrEqual) ' +
                 '(option "filter" in attribute "test:id")');
         });
 
