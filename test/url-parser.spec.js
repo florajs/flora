@@ -18,7 +18,7 @@ describe('HTTP request parsing', () => {
             setEncoding() {},
             on(e, fn) {
                 if (e === 'data') dataFn = fn;
-                if (e==='end') {
+                if (e === 'end') {
                     if (httpRequest.payload) {
                         for (let char of httpRequest.payload) {
                             setTimeout(() => dataFn(char), 0);
@@ -137,11 +137,10 @@ describe('HTTP request parsing', () => {
             httpRequest.url = 'http://api.example.com/user/';
             httpRequest.payload = '{"a": true}';
             httpRequest.method = 'POST';
+            httpRequest.headers['content-length'] = httpRequest.payload.length;
 
             parseRequest(httpRequest).then(request => {
-                expect(request.data).to.exist;
-                expect(request.data.a).to.exist;
-                expect(request.data.a).to.be.true;
+                expect(request.data).to.have.property('a', true);
                 done();
             }).catch(done);
         });
@@ -151,12 +150,11 @@ describe('HTTP request parsing', () => {
             httpRequest.headers['content-type'] = 'application/x-www-form-urlencoded';
             httpRequest.payload = 'a=true&b=false';
             httpRequest.method = 'POST';
+            httpRequest.headers['content-length'] = httpRequest.payload.length;
 
             parseRequest(httpRequest).then(request => {
-                expect(request.a).to.exist;
-                expect(request.a).to.equal('true');
-                expect(request.b).to.exist;
-                expect(request.b).to.equal('false');
+                expect(request).to.have.property('a', 'true');
+                expect(request).to.have.property('b', 'false');
                 done();
             }).catch(done);
         });
