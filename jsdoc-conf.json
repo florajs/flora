@@ -6,7 +6,6 @@
     "include": ["./lib/"]
   },
   "opts": {
-    "readme": "./README.md",
-    "tutorials": "./tutorials/"
+    "readme": "./README.md"
   }
 }

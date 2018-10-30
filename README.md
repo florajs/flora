@@ -1,5 +1,4 @@
-Flora
-=====
+# Flora
 
 [![Build Status](https://travis-ci.org/godmodelabs/flora.svg?branch=master)](https://travis-ci.org/godmodelabs/flora)
 [![NPM version](https://badge.fury.io/js/flora.svg)](https://www.npmjs.com/package/flora)
@@ -9,11 +8,9 @@ Flora is a FLexible Open Rest API framework for [Node.js](http://nodejs.org/).
 
 **It is still under heavy develoment, but slowly approaching beta status**
 
-Flora requires __node v6__ or higher.
+Flora requires __Node.js v8__ or higher.
 
-
-Features
---------
+## Features
 
 - Resources in resources (recursive) - *fetch as much as possible in one request, without duplicating code*
 - Lightweight (but powerful) field/sub-resource selection syntax - *fetch exactly what you need in one request*
@@ -24,9 +21,7 @@ Features
 - Locale: Parameterize JOINs i.e. with a localeId - *no need for database views which can't be parameterized*
 - Handle all your special cases as good as possible - *callbacks for "everything"*
 
-
-Server-Features
----------------
+## Server-Features
 
 - Node.js HTTP-Server and Cluster based implementation with self-monitoring process-management
 - Extremely verbose server-status - *see everytime what the server is doing and what is hanging around in production*
@@ -34,22 +29,18 @@ Server-Features
 - Updates in production with zero downtime - *almost every part of code and config is replaceable without shutdown*
 - Comfortable development-features - *usual "code-change - F5 - see result"-workflow*
 
-
-Design Goals
-------------
+## Design Goals
 
 - Generic implementation just for reading - *offer helper for writing*
 - Easy abstraction of complex and distributed database structures
 - Easy standard cases with minimal boilerplate code - *special cases possible - "everywhere"*
 - Flexibility, stability, performance, simplicity, transparency
 
-
-Examples
---------
+## Examples
 
 ### URL structure
 
-#### Format:
+#### Format
 
 ```
 /path/to/resource/<id>
@@ -62,11 +53,10 @@ Examples
     &height=100
 ```
 
-#### Examples:
+#### Example URLs
 
 - `GET /article/123` (retrieve article 123 as JSON)
 - `GET /article/` (list of all articles)
-
 
 ### Resource-Implementation
 
@@ -98,7 +88,6 @@ module.exports = (api) => {
 </resource>
 ```
 
-License
--------
+## License
 
 [MIT](LICENSE)

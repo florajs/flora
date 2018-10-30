@@ -34,7 +34,7 @@ server.api.on('close', (ev, next) => {
 // is called on each request, before the request is handled.
 
 server.api.on('request', (ev, next) => {
-    const { request, response } = ev;
+    const { request /* , response */ } = ev;
     console.log('Extension: request');
     request.limit = 1; // modify the "limit" parameter
     request.select = 'foo'; // modify the "select" parameter to always select (only) the "foo" attribute
@@ -45,8 +45,8 @@ server.api.on('request', (ev, next) => {
 // Extension: "httpRequest"
 // is called before any flora.Request instanciation and allows modifying HTTP headers
 
-api.on('httpRequest', (ev) => {
-    { httpRequest, httpResponse } = ev;
+server.api.on('httpRequest', (ev) => {
+    const { httpRequest, httpResponse } = ev;
     httpResponse.setHeader('X-Hello', 'World');
 });
 

@@ -4,9 +4,11 @@
   "description": "FLexible Open Rest API",
   "main": "index.js",
   "scripts": {
-    "test": "grunt test",
-    "lint": "eslint lib"
+    "doc": "jsdoc -R README.md -d build/docs lib",
+    "test": "eslint . && mocha",
+    "lint": "eslint ."
   },
+  "pre-commit": "test",
   "keywords": [
     "api",
     "framework",
@@ -34,21 +36,21 @@
     }
   ],
   "engines": {
-    "node": ">=6"
+    "node": ">=8"
   },
   "dependencies": {
     "@godmodelabs/busboy": "^0.3.1",
-    "async": "^2.5.0",
+    "async": "^2.6.1",
     "async-eventemitter": "^0.2.2",
     "bunyan": "^1.5.1",
-    "chokidar": "^2.0.2",
+    "chokidar": "^2.0.4",
     "content-type": "^1.0.2",
-    "flora-cluster": "^0.7.1",
-    "flora-errors": "^0.7.1",
-    "flora-request-parser": "^0.7.3",
-    "has": "^1.0.1",
+    "flora-cluster": "^0.8.0",
+    "flora-errors": "^0.9.0",
+    "flora-request-parser": "^0.8.0",
+    "has": "^1.0.3",
     "lodash": "^4.17.11",
-    "moment-timezone": "^0.5.0",
+    "moment-timezone": "^0.5.23",
     "serve-static": "^1.10.0",
     "xmldom": "^0.1.19"
   },
@@ -56,22 +58,13 @@
     "@types/chai": "^4.1.6",
     "chai": "^4.2.0",
     "chai-as-promised": "^7.1.1",
-    "eslint": "^4.18.1",
-    "eslint-config-airbnb-base": "^12.1.0",
-    "eslint-plugin-import": "^2.9.0",
-    "grunt": "^1.0.1",
-    "grunt-cli": "^1.2.0",
-    "grunt-contrib-clean": "^1.0.0",
-    "grunt-eslint": "^20.1.0",
-    "grunt-jsdoc": "^2.0.0",
-    "grunt-mocha-istanbul": "^5.0.1",
-    "grunt-mocha-test": "^0.13.2",
-    "istanbul": "^0.4.0",
+    "eslint": "^5.8.0",
+    "eslint-config-airbnb-base": "^13.1.0",
+    "eslint-plugin-import": "^2.14.0",
     "jsdoc": "^3.5.3",
-    "load-grunt-tasks": "^3.1.0",
-    "mocha": "^5.0.1",
-    "mocha-bamboo-reporter": "^1.1.0",
+    "mocha": "^5.2.0",
     "mock-fs": "^4.7.0",
+    "pre-commit": "^1.2.2",
     "sinon": "^4.3.0",
     "sinon-chai": "^2.12.0"
   }
