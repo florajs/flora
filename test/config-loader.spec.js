@@ -16,19 +16,20 @@ const api = {
     log: bunyan.createLogger({ name: 'null', streams: [] })
 };
 
-function parseXml(file, callback) { // fake parser for tests
-    setTimeout(() => callback(null, 'xml config'), 1);
+function parseXml(file) { // fake parser for tests
+    return Promise.resolve('xml config');
 }
 
 describe('config-loader', () => {
     it('should issue an error if config directory does not exist', (done) => {
         const directory = require('path').resolve('nonexistent-directory');
 
-        configLoader(api, { directory }, (err) => {
-            expect(err).to.be.instanceof(Error);
-            expect(err.message).to.equal(`Config directory "${directory}" does not exist`);
-            done();
-        });
+        configLoader(api, { directory })
+            .catch((err) => {
+                expect(err).to.be.instanceof(Error);
+                expect(err.message).to.equal(`Config directory "${directory}" does not exist`);
+                done();
+            });
     });
 
     it('should read configs from directories', (done) => {
@@ -43,35 +44,15 @@ describe('config-loader', () => {
             parsers: { xml: parseXml }
         };
 
-        configLoader(api, cfg, (err, configs) => {
-            expect(configs).to.eql({
-                resource1: {config: 'xml config'},
-                resource2: {config: 'xml config'}
-            });
-            done();
-        });
-    });
-
-    it('should call the callback only once', (done) => {
-        fsMock({
-            config: {
-                resource1: { 'config.xml': '' }
-            }
-        });
-
-        const cfg = {
-            parsers: { xml: parseXml }
-        };
-
-        const callback = sinon.stub();
-        callback.onFirstCall().returns(new Error());
-
-        configLoader(api, cfg, callback);
-
-        setTimeout(() => {
-            expect(callback).to.has.been.calledOnce;
-            done();
-        }, 20);
+        configLoader(api, cfg)
+            .then((configs) => {
+                expect(configs).to.eql({
+                    resource1: {config: 'xml config'},
+                    resource2: {config: 'xml config'}
+                });
+                done();
+            })
+            .catch(done);
     });
 
     it('should read configs recursively', (done) => {
@@ -97,13 +78,15 @@ describe('config-loader', () => {
             parsers: { xml: parseXml }
         };
 
-        configLoader(api, cfg, (err, configs) => {
-            expect(configs).to.eql({
-                'groupfolder1/resource': {config: 'xml config'},
-                'groupfolder2/groupfolder3/resource': {config: 'xml config'}
-            });
-            done();
-        });
+        configLoader(api, cfg)
+            .then((configs) => {
+                expect(configs).to.eql({
+                    'groupfolder1/resource': {config: 'xml config'},
+                    'groupfolder2/groupfolder3/resource': {config: 'xml config'}
+                });
+                done();
+            })
+            .catch(done);
     });
 
     it('should strip path to config directory from resource', (done) => {
@@ -131,13 +114,15 @@ describe('config-loader', () => {
             parsers: { xml: parseXml }
         };
 
-        configLoader(api, cfg, (err, configs) => {
-            expect(configs).to.eql({
-                resource1: {config: 'xml config'},
-                resource2: {config: 'xml config'}
-            });
-            done();
-        });
+        configLoader(api, cfg)
+            .then((configs) => {
+                expect(configs).to.eql({
+                    resource1: {config: 'xml config'},
+                    resource2: {config: 'xml config'}
+                });
+                done();
+            })
+            .catch(done);
     });
 
     it('should strip path also for relative paths', (done) => {
@@ -154,12 +139,14 @@ describe('config-loader', () => {
             parsers: { xml: parseXml }
         };
 
-        configLoader(api, cfg, (err, configs) => {
-            expect(configs).to.eql({
-                resource1: {config: 'xml config'}
-            });
-            done();
-        });
+        configLoader(api, cfg)
+            .then((configs) => {
+                expect(configs).to.eql({
+                    resource1: {config: 'xml config'}
+                });
+                done();
+            })
+            .catch(done);
     });
 
     it('should issue an error if no parser is found for a file extension extension', (done) => {
@@ -174,11 +161,12 @@ describe('config-loader', () => {
             parsers: { xml: parseXml }
         };
 
-        configLoader(api, cfg, (err) => {
-            expect(err).to.be.instanceof(Error);
-            expect(err.message).to.equal('No "json" config parser registered');
-            done();
-        });
+        configLoader(api, cfg)
+            .catch((err) => {
+                expect(err).to.be.instanceof(Error);
+                expect(err.message).to.equal('No "json" config parser registered');
+                done();
+            });
     });
 
     it('should register additional loaders', (done) => {
@@ -192,21 +180,19 @@ describe('config-loader', () => {
         const cfg = {
             parsers: {
                 xml: parseXml,
-                json: (file, callback) => {
-                    setTimeout(() => {
-                        callback(null, 'json config');
-                    }, 1);
-                }
+                json: (file) => Promise.resolve('json config')
             }
         };
 
-        configLoader(api, cfg, (err, configs) => {
-            expect(configs).to.eql({
-                'resource1': {config: 'xml config'},
-                'resource2': {config: 'json config'}
-            });
-            done();
-        });
+        configLoader(api, cfg)
+            .then((configs) => {
+                expect(configs).to.eql({
+                    'resource1': {config: 'xml config'},
+                    'resource2': {config: 'json config'}
+                });
+                done();
+            })
+            .catch(done);
     });
 
     it('should ignore all other but config files', (done) => {
@@ -231,13 +217,15 @@ describe('config-loader', () => {
             parsers: { xml: parseXml }
         };
 
-        configLoader(api, cfg, (err, configs) => {
-            expect(configs).to.eql({
-                'groupfolder1/resource': {config: 'xml config'},
-                'groupfolder2/groupfolder3/resource': {config: 'xml config'}
-            });
-            done();
-        });
+        configLoader(api, cfg)
+            .then((configs) => {
+                expect(configs).to.eql({
+                    'groupfolder1/resource': {config: 'xml config'},
+                    'groupfolder2/groupfolder3/resource': {config: 'xml config'}
+                });
+                done();
+            })
+            .catch(done);
     });
 
     it('should load our example resources (integration)', (done) => {
@@ -247,17 +235,19 @@ describe('config-loader', () => {
             },
             resourcesLoaded = require(__dirname + '/fixtures/resources-loaded.json');
 
-        configLoader(api, cfg, (err, configs) => {
-            // for manually generating fixture:
-            //console.log(JSON.stringify(configs, null, 4));
+        configLoader(api, cfg)
+            .then((configs) => {
+                // for manually generating fixture:
+                //console.log(JSON.stringify(configs, null, 4));
 
-            try {
-                expect(configs).to.eql(resourcesLoaded);
-                done();
-            } catch (e) {
-                done(e);
-            }
-        });
+                try {
+                    expect(configs).to.eql(resourcesLoaded);
+                    done();
+                } catch (e) {
+                    done(e);
+                }
+            })
+            .catch(done);
     });
 
     afterEach(() => {

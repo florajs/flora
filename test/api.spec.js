@@ -20,7 +20,8 @@ const testDataSource = function testDataSource() {
                 totalCount: null
             });
         },
-        prepare: () => {}
+        prepare: () => {},
+        close: (callback) => callback()
     };
 };
 
@@ -39,103 +40,102 @@ describe('Api', () => {
 
     it('should emit `init` when initialized', (done) => {
         const api = new Api();
-        api.on('init', () => {
-            done();
-        });
-        api.init({log: log});
+        api.on('init', () => done());
+        api.init({ log });
     });
 
     it('should emit `close` when closed', (done) => {
         const api = new Api();
-        api.on('init', () => {
-            api.close();
-        });
-        api.on('close', () => {
-            done();
-        });
-        api.init({log: log});
+        api.on('init', () => api.close());
+        api.on('close', () => done());
+        api.init({ log });
     });
 
     it('should return an error when closed without init', (done) => {
         const api = new Api();
-        api.close((err) => {
-            expect(err).to.be.an.instanceof(Error);
-            expect(err.message).to.equal('Not running');
-            done();
-        });
+        api.close()
+            .catch(err => {
+                expect(err).to.be.an.instanceof(Error);
+                expect(err.message).to.equal('Not running');
+                done();
+            });
     });
 
     it('should call the callback after close is called', (done) => {
         const api = new Api();
-        api.init({log: log}, () => {
-            api.close(done);
-        });
+        api
+            .init({ log })
+            .then(() => api.close())
+            .then(() => done())
+            .catch((err) => done(err));
     });
 
     it('should initialize even without a config object', (done) => {
         const api = new Api();
-        api.init({resourcesPath: resourcesPath}, done);
+        api
+            .init({ resourcesPath })
+            .then(() => done())
+            .catch(done);
     });
 
     it('should initialize a default logger', (done) => {
         const api = new Api();
-        api.init({resourcesPath: resourcesPath}, () => {
-            expect(api.log).to.be.an('object');
-            done();
-        });
+        api
+            .init({ resourcesPath })
+            .then(() => {
+                expect(api.log).to.be.an('object');
+                done();
+            })
+            .catch(done);
     });
 
     it('should initialize dataSources', (done) => {
         const api = new Api();
-        api.init({
-            resourcesPath: resourcesPath,
-            dataSources: {
-                test: {
-                    constructor: testDataSource
+        api
+            .init({
+                log,
+                resourcesPath,
+                dataSources: {
+                    test: { constructor: testDataSource }
                 }
-            }
-        }, (err) => {
-            if (err) return done(err);
-            done();
-        });
+            })
+            .then(() => done())
+            .catch(done);
     });
 
     it('should fail to initialize if dataSource lacks constructor', (done) => {
         const api = new Api();
         api.init({
-            log: log,
-            resourcesPath: resourcesPath,
+            log,
+            resourcesPath,
             dataSources: {
-                test: {
-                    constructor: 'foo'
-                }
+                test: { constructor: 'foo' }
             }
-        }, (err) => {
-            expect(err).to.be.an.instanceof(Error);
-            done();
-        });
+        })
+            .catch((err) => {
+                expect(err).to.be.an.instanceof(Error);
+                done();
+            });
     });
 
     it('should fail to initialize if dataSource is invalid', (done) => {
         const api = new Api();
-        api.init({
-            log: log,
-            resourcesPath: resourcesPath,
-            dataSources: {
-                test: 'foo'
-            }
-        }, (err) => {
-            expect(err).to.be.an.instanceof(Error);
-            done();
-        });
+        api
+            .init({
+                log,
+                resourcesPath,
+                dataSources: { test: 'foo' }
+            })
+            .catch((err) => {
+                expect(err).to.be.an.instanceof(Error);
+                done();
+            });
     });
 
     describe('plugins', () => {
-        it('should allow to register plugins', () => {
+        it('should allow to register plugins', (done) => {
             const plugin = {
-                register: (master, options) => {
-                    //done();
-                }
+                register: () => done()
             };
 
             const api = new Api();
@@ -144,90 +144,92 @@ describe('Api', () => {
 
         it('should plugins registered before init', (done) => {
             const plugin = {
-                register: (/*master, options*/) => done()
+                register: () => done()
             };
 
             const api = new Api();
             api.register(plugin);
             api.init({
-                log: log,
-                resourcesPath: resourcesPath
-            }, (err) => {});
+                log,
+                resourcesPath
+            });
         });
     });
 
     describe('execute', () => {
         it('should fail when resource is unknown', (done) => {
             const api = new Api();
-            api.init({
-                log: log,
-                resourcesPath: resourcesPath,
-                dataSources: {
-                    test: {
-                        constructor: testDataSource
+            api
+                .init({
+                    log,
+                    resourcesPath,
+                    dataSources: {
+                        test: {
+                            constructor: testDataSource
+                        }
                     }
-                }
-            }, (err) => {
-                if (err) return done(err);
-
-                const request = new Request({ resource: 'foo' });
-                api.execute(request, (err2, response) => {
-                    expect(err2).to.be.an('error');
-                    expect(err2.message).to.equal('Unknown resource "foo" in request');
-                    api.close(done);
+                })
+                .then(() => {
+                    const request = new Request({ resource: 'foo' });
+                    return api.execute(request);
+                })
+                .catch((err) => {
+                    expect(err).to.be.an('error');
+                    expect(err.message).to.equal('Unknown resource "foo" in request');
+                    api.close().then(() => done());
                 });
-            });
         });
 
         it('should fail when action does not exist', (done) => {
             const api = new Api();
-            api.init({
-                log: log,
-                resourcesPath: resourcesPath,
-                dataSources: {
-                    test: {
-                        constructor: testDataSource
+            api
+                .init({
+                    log,
+                    resourcesPath,
+                    dataSources: {
+                        test: { constructor: testDataSource }
                     }
-                }
-            }, (err) => {
-                if (err) return done(err);
+                })
+                .then(() => {
+                    // mock empty resource:
+                    api.resourceProcessor.resourceConfigs['no-actions'] = {
+                        config: {},
+                        instance: {}
+                    };
 
-                // mock empty resource:
-                api.resourceProcessor.resourceConfigs['no-actions'] = {
-                    config: {},
-                    instance: {}
-                };
-
-                var request = new Request({
-                    resource: 'no-actions'
+                    var request = new Request({
+                        resource: 'no-actions'
+                    });
+                    return api.execute(request);
+                })
+                .catch((err) => {
+                    expect(err).to.be.an('error');
+                    expect(err.message).to.equal('Action "retrieve" is not implemented');
+                    api.close().then(() => done());
                 });
-                api.execute(request, (err2, response) => {
-                    expect(err2).to.be.an('error');
-                    expect(err2.message).to.equal('Action "retrieve" is not implemented');
-                    api.close(done);
-                });
-            });
         });
 
         it('should fail when Api#init is not done', (done) => {
             const api = new Api();
-            api.init({
-                log: log,
-                resourcesPath: resourcesPath,
-                dataSources: {
-                    test: {
-                        constructor: testDataSource
+            api
+                .init({
+                    log,
+                    resourcesPath,
+                    dataSources: {
+                        test: {
+                            constructor: testDataSource
+                        }
                     }
-                }
-            }, () => {});
+                });
 
             var request = new Request({ resource: 'foo' });
-            api.execute(request, (err, response) => {
-                expect(response).to.be.undefined;
-                expect(err).to.be.an('error');
-                expect(err.message).to.equal('Not initialized');
-                done();
-            });
+            api
+                .execute(request)
+                .catch((err) => {
+                    expect(err).to.be.an('error');
+                    expect(err.message).to.equal('Not initialized');
+                    done();
+                });
         });
     });
 });

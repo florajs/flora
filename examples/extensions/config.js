@@ -1,7 +1,7 @@
 const path = require('path');
 
-const emptyDataSource = () => ({
-    process: (request, callback) => {
+class EmptyDataSource {
+    process(request, callback) {
         callback(null, {
             data: [{
                 id: 1,
@@ -9,16 +9,17 @@ const emptyDataSource = () => ({
             }],
             totalCount: null
         });
-    },
-    prepare: () => {}
-});
+    }
+
+    prepare() {}
+}
 
 module.exports = {
     resourcesPath: path.join(__dirname, 'resources'),
     port: 8000,
     dataSources: {
         empty: {
-            constructor: emptyDataSource
+            constructor: EmptyDataSource
         }
     }
 };

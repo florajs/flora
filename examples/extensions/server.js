@@ -12,34 +12,29 @@ server.run();
 
 // Extension: "init"
 // is called when Api is done initializing.
-// All extensions can be used synchronously when the "next" parameter is omitted, i.e. the function
-// has < 2 parameters (so a "dummy" parameter is needed if "next" is used)
 
-server.api.on('init', (ev, next) => {
+server.api.on('init', async (ev) => {
     console.log('Extension: init');
-    next();
 });
 
 
 // Extension: "close"
 // is called when Api is closing.
 
-server.api.on('close', (ev, next) => {
+server.api.on('close', async (ev) => {
     console.log('Extension: close');
-    next();
 });
 
 
 // Extension: "request"
 // is called on each request, before the request is handled.
 
-server.api.on('request', (ev, next) => {
+server.api.on('request', async (ev) => {
     const { request /* , response */ } = ev;
     console.log('Extension: request');
     request.limit = 1; // modify the "limit" parameter
     request.select = 'foo'; // modify the "select" parameter to always select (only) the "foo" attribute
-    next();
-    // we could call `next(new Error(...))` if something goes wrong here
+    // we could throw an error if something goes wrong here
 });
 
 // Extension: "httpRequest"
@@ -56,11 +51,10 @@ server.api.on('httpRequest', (ev) => {
 // The resources' "preExecute" extensions are called after the global one (because they
 // are called for every (sub-) resource involved.
 
-server.api.on('preExecute', (ev, next) => {
+server.api.on('preExecute', async (ev) => {
     const { dataSourceTree } = ev;
     console.log('Extension: preExecute');
     // ...
-    next();
 });
 
 
@@ -68,18 +62,17 @@ server.api.on('preExecute', (ev, next) => {
 // is called after the request has been executed and before the response is being built.
 // The resources' "postExecute" extensions are called _before_ the global one.
 
-server.api.on('postExecute', (ev, next) => {
+server.api.on('postExecute', async (ev) => {
     const { rawResults } = ev;
     console.log('Extension: postExecute');
     // ...
-    next();
 });
 
 
 // Extension: "response"
 // is called after the request is handled and before the response is sent.
 
-server.api.on('response', (ev, next) => {
+server.api.on('response', async (ev) => {
     const { response } = ev;
     console.log('Extension: response');
 
@@ -91,5 +84,4 @@ server.api.on('response', (ev, next) => {
         // single response
         response.data.baz = 'foo';
     }
-    next();
 });

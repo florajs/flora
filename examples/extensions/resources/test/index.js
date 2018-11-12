@@ -2,20 +2,19 @@
 
 module.exports = (api) => ({
     extensions: {
-        // "init" extension (sync or async)
+        // "init" extension
         // is called once upon startup, when all resources are initialized
-        init: function (cb) {
-            console.log('Extension: init');
-            cb();
+        init: async function () {
+            console.log('Extension: init (resource scope)');
         },
 
-        // "request" extension (sync)
-        request: function (ev) {
+        // "request" extension
+        request: async function (ev) {
             var request = ev.request;
             console.log('Extension: request (resource scope)');
         },
 
-        // "item" extension (sync)
+        // "item" extension
         // is called for every item that is handled by the resource-processor, also when the
         // resource is called as sub-resource from another resource.
         item: function (ev) {
@@ -25,23 +24,23 @@ module.exports = (api) => ({
             item.bar = 'baz';
         },
 
-        // "preExecute" extension (sync)
+        // "preExecute" extension
         // is called after the request-resolver has resolved the dataSourceTree.
-        preExecute: function (ev) {
+        preExecute: async function (ev) {
             var request = ev.request;
             var dataSourceTree = ev.dataSourceTree;
             console.log('Extension: preExecute (resource scope)');
         },
 
-        // "postExecute" extension (sync)
+        // "postExecute" extension
         // is called after the request has been executed and before the response is being built
-        postExecute: function (ev) {
+        postExecute: async function (ev) {
             var request = ev.request;
             var rawResults = ev.rawResults;
             console.log('Extension: postExecute (resource scope)');
         },
 
-        // "response" extension (sync)
+        // "response" extension
         response: function (ev) {
             var request = ev.request;
             var response = ev.response;

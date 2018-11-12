@@ -26,10 +26,7 @@ const request = new flora.Request({
     select: 'select=iso2,iso3,currency(order=iso:desc).iso'
 });
 
-api.init(config, (err) => {
-    if (err) return;
-    api.execute(request, (e, response) => {
-        if (e) return;
-        console.log(response);
-    });
-});
+api
+    .init(config)
+    .then(() => api.execute(request))
+    .then(response => console.log(response));

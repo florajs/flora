@@ -6,10 +6,10 @@ const flora = require('../');
 const myPlugin = {
     name: 'myPlugin',
     register: (api, options) => {
-        api.on('request', (ev, next) => {
+        api.on('request', async (ev) => {
+            console.log(ev);
             const { request } = ev;
             // ... do something with the request
-            next();
         });
     }
 };
