@@ -7,12 +7,10 @@ const execute = require('../lib/datasource-executor');
 
 const testDataSource = function testDataSource() {
     return {
-        process: (request, callback) => {
-            callback(null, {
-                data: [],
-                totalCount: null
-            });
-        },
+        process: async (request) => ({
+            data: [],
+            totalCount: null
+        }),
         prepare: () => {}
     };
 };
@@ -44,8 +42,8 @@ describe('datasource-executor', () => {
         });
 
         it('passes through errors from process call', () => {
-            sinon.stub(api.dataSources['test'], 'process').callsFake((query, callback) => {
-                callback(new Error('foo'));
+            sinon.stub(api.dataSources['test'], 'process').callsFake((query) => {
+                throw new Error('foo');
             });
 
             const dst = {request: {type: 'test'}};
@@ -128,15 +126,15 @@ describe('datasource-executor', () => {
 
         describe('with non-empty result', () => {
             before(() => {
-                sinon.stub(api.dataSources['test'], 'process').callsFake((query, callback) => {
+                sinon.stub(api.dataSources['test'], 'process').callsFake(async (query) => {
                     if (query.table === 'email') {
-                        return callback(null, {
+                        return {
                             data: [
                                 { userId: 1, email: 'user1@example.com' },
                                 { userId: 3, email: 'user3@example.com' }
                             ],
                             totalCount: null
-                        });
+                        };
                     }
 
                     if (query.table === 'user') {
@@ -150,19 +148,19 @@ describe('datasource-executor', () => {
                             }
                         ]]);
 
-                        return callback(null, {
+                        return {
                             data: [
                                 { id: 1, username: 'user1' },
                                 { id: 3, username: 'user3' }
                             ],
                             totalCount: null
-                        });
+                        };
                     }
 
-                    callback(null, {
+                    return {
                         data: [],
                         totalCount: null
-                    });
+                    };
                 });
             });
 
@@ -194,12 +192,12 @@ describe('datasource-executor', () => {
 
         describe('with empty result', () => {
             before(() => {
-                sinon.stub(api.dataSources['test'], 'process').callsFake((query, callback) => {
+                sinon.stub(api.dataSources['test'], 'process').callsFake(async (query) => {
                     if (query.table === 'email') {
-                        return callback(null, {
+                        return {
                             data: [],
                             totalCount: null
-                        });
+                        };
                     }
 
                     // other request should not be made
@@ -255,16 +253,16 @@ describe('datasource-executor', () => {
         };
 
         before(() => {
-            sinon.stub(api.dataSources['test'], 'process').callsFake((query, callback) => {
+            sinon.stub(api.dataSources['test'], 'process').callsFake(async (query) => {
                 if (query.table === 'user') {
-                    return callback(null, {
+                    return {
                         data: [
                             { id: 1, username: 'user1' },
                             { id: 2, username: 'user2' },
                             { id: 3, username: 'user3' }
                         ],
                         totalCount: null
-                    });
+                    };
                 }
 
                 if (query.table === 'email') {
@@ -278,19 +276,19 @@ describe('datasource-executor', () => {
                         }
                     ]]);
 
-                    return callback(null, {
+                    return {
                         data: [
                             { userId: 1, email: 'user1@example.com' },
                             { userId: 3, email: 'user3@example.com' }
                         ],
                         totalCount: null
-                    });
+                    };
                 }
 
-                callback(null, {
+                return {
                     data: [],
                     totalCount: null
-                });
+                };
             });
         });
 
@@ -356,26 +354,26 @@ describe('datasource-executor', () => {
         };
 
         before(() => {
-            sinon.stub(api.dataSources['test'], 'process').callsFake((query, callback) => {
+            sinon.stub(api.dataSources['test'], 'process').callsFake(async (query) => {
                 if (query.table === 'article') {
-                    return callback(null, {
+                    return {
                         data: [
                             {id: 1, authorId: null},
                             {id: 2, authorId: null}
                         ],
                         totalCount: null
-                    });
+                    };
                 }
 
                 if (query.table === 'user') {
                     // As authorId is always null, no user needs to be fetched
-                    return callback(new Error('This should not be called'));
+                    throw new Error('This should not be called');
                 }
 
-                callback(null, {
+                return {
                     data: [],
                     totalCount: null
-                });
+                };
             });
         });
 
@@ -435,26 +433,26 @@ describe('datasource-executor', () => {
         };
 
         before(function() {
-            sinon.stub(api.dataSources['test'], 'process').callsFake((query, callback) => {
+            sinon.stub(api.dataSources['test'], 'process').callsFake(async (query) => {
                 if (query.table === 'article') {
-                    return callback(null, {
+                    return {
                         data: [
                             {id: 1},
                             {id: 2}
                         ],
                         totalCount: null
-                    });
+                    };
                 }
 
                 if (query.table === 'user') {
                     // As authorId is always null, no user needs to be fetched
-                    return callback(new Error('This should not be called'));
+                    throw new Error('This should not be called');
                 }
 
-                callback(null, {
+                return {
                     data: [],
                     totalCount: null
-                });
+                };
             });
         });
 
@@ -513,15 +511,15 @@ describe('datasource-executor', () => {
         };
 
         before(() => {
-            sinon.stub(api.dataSources['test'], 'process').callsFake((query, callback) => {
+            sinon.stub(api.dataSources['test'], 'process').callsFake(async (query) => {
                 if (query.table === 'article') {
-                    return callback(null, {
+                    return {
                         data: [
                             {id: 1}, // no authorId
                             {id: 2, authorId: 1000}
                         ],
                         totalCount: null
-                    });
+                    };
                 }
 
                 if (query.table === 'user') {
@@ -534,18 +532,18 @@ describe('datasource-executor', () => {
                         }
                     ]]);
 
-                    return callback(null, {
+                    return {
                         data: [
                             {id: 1000, username: 'user2@example.com'}
                         ],
                         totalCount: null
-                    });
+                    };
                 }
 
-                callback(null, {
+                return {
                     data: [],
                     totalCount: null
-                });
+                };
             });
         });
 
@@ -613,15 +611,15 @@ describe('datasource-executor', () => {
         };
 
         before(() => {
-            sinon.stub(api.dataSources['test'], 'process').callsFake((query, callback) => {
+            sinon.stub(api.dataSources['test'], 'process').callsFake(async (query) => {
                 if (query.table === 'article') {
-                    return callback(null, {
+                    return {
                         data: [
                             {authorId: 1, id: 1001},
                             {authorId: 3, id: 1003}
                         ],
                         totalCount: null
-                    });
+                    };
                 }
 
                 if (query.table === 'email') {
@@ -635,28 +633,28 @@ describe('datasource-executor', () => {
                         }
                     ]]);
 
-                    return callback(null, {
+                    return {
                         data: [
                             {userId: 1, email: 'user1@example.com'}
                         ],
                         totalCount: null
-                    });
+                    };
                 }
 
                 if (query.table === 'user') {
-                    return callback(null, {
+                    return {
                         data: [
                             { id: 1, username: 'user1' },
                             { id: 3, username: 'user3' }
                         ],
                         totalCount: null
-                    });
+                    };
                 }
 
-                callback(null, {
+                return {
                     data: [],
                     totalCount: null
-                });
+                };
             });
         });
 
@@ -728,7 +726,7 @@ describe('datasource-executor', () => {
         };
 
         before(() => {
-            sinon.stub(api.dataSources['test'], 'process').callsFake((query, callback) => {
+            sinon.stub(api.dataSources['test'], 'process').callsFake(async (query) => {
                 if (query.table === 'validemail') {
                     // filter parameter is transformed correctly
                     expect(query.filter).to.eql([[
@@ -739,12 +737,12 @@ describe('datasource-executor', () => {
                         }
                     ]]);
 
-                    return callback(null, {
+                    return {
                         data: [
                             { userId: 1 }
                         ],
                         totalCount: null
-                    });
+                    };
                 }
 
                 if (query.table === 'email') {
@@ -758,12 +756,12 @@ describe('datasource-executor', () => {
                         }
                     ]]);
 
-                    return callback(null, {
+                    return {
                         data: [
                             { userId: 1, email: 'user1@example.com' }
                         ],
                         totalCount: null
-                    });
+                    };
                 }
 
                 if (query.table === 'user') {
@@ -777,18 +775,18 @@ describe('datasource-executor', () => {
                         }
                     ]]);
 
-                    return callback(null, {
+                    return {
                         data: [
                             { id: 1, username: 'user1' }
                         ],
                         totalCount: null
-                    });
+                    };
                 }
 
-                callback(null, {
+                return {
                     data: [],
                     totalCount: null
-                });
+                };
             });
         });
 
@@ -842,8 +840,8 @@ describe('datasource-executor', () => {
         };
 
         before(() => {
-            sinon.stub(api.dataSources['test'], 'process').callsFake((query, callback) => {
-                return callback(null, {
+            sinon.stub(api.dataSources['test'], 'process').callsFake(async () => {
+                return {
                     data: [
                         {
                             string2int: '42',
@@ -863,7 +861,7 @@ describe('datasource-executor', () => {
                         }
                     ],
                     totalCount: null
-                });
+                };
             });
         });
 
@@ -994,7 +992,7 @@ describe('datasource-executor', () => {
 
     describe('delimiter in subFilters', () => {
         before(() => {
-            sinon.stub(api.dataSources['test'], 'process').callsFake((query, callback) => {
+            sinon.stub(api.dataSources['test'], 'process').callsFake(async (query) => {
                 if (query.table === 'email') {
                     // valueFromSubFilter (validemail) is transformed correctly
                     expect(query.filter).to.eql([[
@@ -1006,7 +1004,7 @@ describe('datasource-executor', () => {
                         }
                     ]]);
 
-                    return callback(null, {
+                    return {
                         data: [
                             {id: 10, email: 'user1-0@example.com'},
                             {id: 11, email: 'user1-1@example.com'},
@@ -1014,23 +1012,23 @@ describe('datasource-executor', () => {
                             {id: 21, email: 'user2-1@example.com'}
                         ],
                         totalCount: null
-                    });
+                    };
                 }
 
                 if (query.table === 'user') {
-                    return callback(null, {
+                    return {
                         data: [
                             {id: 1, emailIds: '10,11,12'},
                             {id: 2, emailIds: '20,21'}
                         ],
                         totalCount: null
-                    });
+                    }
                 }
 
-                callback(null, {
+                return {
                     data: [],
                     totalCount: null
-                });
+                };
             });
         });
 
@@ -1102,16 +1100,16 @@ describe('datasource-executor', () => {
 
     describe('casting to storedType in subFilters', () => {
         before(() => {
-            sinon.stub(api.dataSources['test'], 'process').callsFake((query, callback) => {
+            sinon.stub(api.dataSources['test'], 'process').callsFake(async (query) => {
                 if (query.table === 'quotes') {
-                    return callback(null, {
+                    return {
                         data: [
                             {instrumentId: 1, exchangeId: 10, value: 1000},
                             {instrumentId: 1, exchangeId: 20, value: 2000},
                             {instrumentId: 2, exchangeId: 30, value: 3000}
                         ],
                         totalCount: null
-                    });
+                    };
                 }
 
                 if (query.table === 'instruments') {
@@ -1123,16 +1121,16 @@ describe('datasource-executor', () => {
                             value: [[1], ['2']]
                         }
                     ]]);
-                    return callback(null, {
+                    return {
                         data: [],
                         totalCount: null
-                    });
+                    };
                 }
 
-                callback(null, {
+                return {
                     data: [],
                     totalCount: null
-                });
+                };
             });
         });
 
@@ -1203,27 +1201,23 @@ describe('datasource-executor', () => {
         });
 
         before(() => {
-            sinon.stub(api.dataSources['test'], 'process').callsFake((query, callback) => {
+            sinon.stub(api.dataSources['test'], 'process').callsFake(async (query) => {
                 if (query.table === 'article') {
-                    try {
-                        expect(query).to.be.an('object');
-                        expect(query.filter).to.be.an('array');
-                        expect(query.filter.length).to.equal(1);
-                        expect(query.filter[0]).to.be.an('array');
-                        expect(query.filter[0][0].value).to.be.an('array');
-                        expect(query.filter[0][0].value.length).to.equal(1);
-                        expect(query.filter[0][0].value[0]).to.eql(query._expect);
-                    } catch (e) {
-                        callback(e);
-                    }
+                    expect(query).to.be.an('object');
+                    expect(query.filter).to.be.an('array');
+                    expect(query.filter.length).to.equal(1);
+                    expect(query.filter[0]).to.be.an('array');
+                    expect(query.filter[0][0].value).to.be.an('array');
+                    expect(query.filter[0][0].value.length).to.equal(1);
+                    expect(query.filter[0][0].value[0]).to.eql(query._expect);
 
-                    return callback(null, {data: []});
+                    return { data: [] };
                 }
 
-                return callback(null, {
+                return {
                     data: [{id: query._value}],
                     totalCount: null
-                });
+                };
             });
         });
 

@@ -16,20 +16,18 @@ const resourcesPath = path.join(__dirname, 'fixtures', 'extensions', 'resources'
 
 const testDataSource = function testDataSource() {
     return {
-        process: (request, callback) => {
-            callback(null, {
-                data: [{
-                    id: 1,
-                    foo: 'bar'
-                }, {
-                    id: 2,
-                    foo: 'baz'
-                }],
-                totalCount: null
-            });
-        },
+        process: async (request) => ({
+            data: [{
+                id: 1,
+                foo: 'bar'
+            }, {
+                id: 2,
+                foo: 'baz'
+            }],
+            totalCount: null
+        }),
         prepare: () => {},
-        close: (callback) => callback()
+        close: async () => {}
     };
 };
 
@@ -39,7 +37,7 @@ const testConfig = {
     dataSources: {
         empty: {
             constructor: testDataSource,
-            close: (callback) => callback()
+            close: async () => {}
         }
     }
 };
