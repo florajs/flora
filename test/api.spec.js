@@ -14,14 +14,11 @@ const resourcesPath = path.join(__dirname, 'fixtures', 'empty-resources');
 
 const testDataSource = function testDataSource() {
     return {
-        process: (request, callback) => {
-            callback(null, {
-                data: [],
-                totalCount: null
-            });
-        },
-        prepare: () => {},
-        close: (callback) => callback()
+        process: (request) => ({
+            data: [],
+            totalCount: null
+        }),
+        prepare: () => {}
     };
 };
 

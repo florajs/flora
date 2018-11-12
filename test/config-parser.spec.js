@@ -7,7 +7,7 @@ const { ImplementationError } = require('flora-errors');
 const configParser = require('../lib/config-parser');
 
 const mockDataSource = {
-    prepare: function (rawRequest, attributes) {
+    prepare: (rawRequest, attributes) => {
         if (!rawRequest.expectedAttributes) {
             throw new Error('Mocked DataSource: Please set expectedAttributes for all DataSources in your test');
         }
@@ -16,7 +16,7 @@ const mockDataSource = {
 
         delete rawRequest.expectedAttributes;
     },
-    process: function (/*request, callback*/) {}
+    process: async () => {}
 };
 
 const mockDataSources = {
