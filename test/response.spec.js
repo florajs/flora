@@ -44,45 +44,16 @@ describe('Response', () => {
     });
 
     describe('send', () => {
-        it('should call the callback', (done) => {
-            const response = new Response(new Request(reqOpts), function (err) {
-                expect(err).to.eql(null);
-                done();
-            });
+        it('should pass through the payload', () => {
+            const response = new Response(new Request(reqOpts));
             response.send('foo');
+            expect(response.data).to.eql('foo');
         });
 
-        it('should pass through the payload', (done) => {
-            const response = new Response(new Request(reqOpts), (err, res) => {
-                expect(res).to.eql(response);
-                expect(res.data).to.eql('foo');
-                done();
-            });
-            response.send('foo');
-        });
-
-        it('should pass through errors', (done) => {
-            const response = new Response(new Request(reqOpts), (err, res) => {
-                expect(err).to.be.an.instanceof(Error);
-                expect(res).to.be.undefined;
-                done();
-            });
+        it('should pass through errors', () => {
+            const response = new Response(new Request(reqOpts));
             response.send(new Error('bar'));
-        });
-
-        it('cannot be called twice', (done) => {
-            let count = 0;
-            const response = new Response(new Request(reqOpts), (err, res) => {
-                count++;
-                if (count === 1) {
-                    res.send('baz');
-                } else if (count === 2) {
-                    expect(err).to.be.an('error');
-                    expect(err.message).to.equal('Response#send was already called');
-                    done();
-                }
-            });
-            response.send('foo');
+            expect(response.data).to.be.an.instanceof(Error);
         });
     });
 });
