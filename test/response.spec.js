@@ -42,18 +42,4 @@ describe('Response', () => {
         const response = new Response(new Request(reqOpts));
         expect(response.meta.statusCode).to.eql(200);
     });
-
-    describe('send', () => {
-        it('should pass through the payload', () => {
-            const response = new Response(new Request(reqOpts));
-            response.send('foo');
-            expect(response.data).to.eql('foo');
-        });
-
-        it('should pass through errors', () => {
-            const response = new Response(new Request(reqOpts));
-            response.send(new Error('bar'));
-            expect(response.data).to.be.an.instanceof(Error);
-        });
-    });
 });
