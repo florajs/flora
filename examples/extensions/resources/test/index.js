@@ -5,13 +5,13 @@ module.exports = (api) => ({
         // "init" extension
         // is called once upon startup, when all resources are initialized
         init: async function () {
-            console.log('Extension: init (resource scope)');
+            api.log.info('Extension: resource init');
         },
 
         // "request" extension
         request: async function (ev) {
             var request = ev.request;
-            console.log('Extension: request (resource scope)');
+            api.log.info('Extension: resource request');
         },
 
         // "item" extension
@@ -20,7 +20,7 @@ module.exports = (api) => ({
         item: function (ev) {
             var request = ev.request;
             var item = ev.item;
-            console.log('Extension: item (resource scope)');
+            api.log.info('Extension: resource item');
             item.bar = 'baz';
         },
 
@@ -29,7 +29,7 @@ module.exports = (api) => ({
         preExecute: async function (ev) {
             var request = ev.request;
             var dataSourceTree = ev.dataSourceTree;
-            console.log('Extension: preExecute (resource scope)');
+            api.log.info('Extension: resource preExecute');
         },
 
         // "postExecute" extension
@@ -37,14 +37,14 @@ module.exports = (api) => ({
         postExecute: async function (ev) {
             var request = ev.request;
             var rawResults = ev.rawResults;
-            console.log('Extension: postExecute (resource scope)');
+            api.log.info('Extension: resource postExecute');
         },
 
         // "response" extension
         response: function (ev) {
             var request = ev.request;
             var response = ev.response;
-            console.log('Extension: response (resource scope)');
+            api.log.info('Extension: resource response');
         }
     },
 

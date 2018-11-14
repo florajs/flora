@@ -7,14 +7,14 @@ const flora = require('../../');
 const server = new flora.Server(path.join(__dirname, 'config.js'));
 server.run();
 
-// http://localhost:8000/test/
+// http://localhost:3000/test/
 
 
 // Extension: "init"
 // is called when Api is done initializing.
 
 server.api.on('init', async (ev) => {
-    console.log('Extension: init');
+    server.api.log.info('Extension: api init');
 });
 
 
@@ -22,7 +22,7 @@ server.api.on('init', async (ev) => {
 // is called when Api is closing.
 
 server.api.on('close', async (ev) => {
-    console.log('Extension: close');
+    server.api.log.info('Extension: api close');
 });
 
 
@@ -31,7 +31,7 @@ server.api.on('close', async (ev) => {
 
 server.api.on('request', async (ev) => {
     const { request /* , response */ } = ev;
-    console.log('Extension: request');
+    server.api.log.info('Extension: api request');
     request.limit = 1; // modify the "limit" parameter
     request.select = 'foo'; // modify the "select" parameter to always select (only) the "foo" attribute
     // we could throw an error if something goes wrong here
@@ -42,6 +42,7 @@ server.api.on('request', async (ev) => {
 
 server.api.on('httpRequest', (ev) => {
     const { httpRequest, httpResponse } = ev;
+    server.api.log.info('Extension: api httpRequest');
     httpResponse.setHeader('X-Hello', 'World');
 });
 
@@ -53,7 +54,7 @@ server.api.on('httpRequest', (ev) => {
 
 server.api.on('preExecute', async (ev) => {
     const { dataSourceTree } = ev;
-    console.log('Extension: preExecute');
+    server.api.log.info('Extension: api preExecute');
     // ...
 });
 
@@ -64,7 +65,7 @@ server.api.on('preExecute', async (ev) => {
 
 server.api.on('postExecute', async (ev) => {
     const { rawResults } = ev;
-    console.log('Extension: postExecute');
+    server.api.log.info('Extension: api postExecute');
     // ...
 });
 
@@ -74,7 +75,7 @@ server.api.on('postExecute', async (ev) => {
 
 server.api.on('response', async (ev) => {
     const { response } = ev;
-    console.log('Extension: response');
+    server.api.log.info('Extension: api response');
 
     // modify response: add "baz: 'foo'" property to the complete response
     if (Array.isArray(response.data)) {

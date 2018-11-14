@@ -16,7 +16,7 @@ class EmptyDataSource {
 
 module.exports = {
     resourcesPath: path.join(__dirname, 'resources'),
-    port: 8000,
+    port: 3000,
     dataSources: {
         empty: {
             constructor: EmptyDataSource
