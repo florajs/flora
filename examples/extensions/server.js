@@ -46,30 +46,6 @@ server.api.on('httpRequest', (ev) => {
     httpResponse.setHeader('X-Hello', 'World');
 });
 
-
-// Extension: "preExecute" (global)
-// is called after the request-resolver has resolved the dataSourceTree.
-// The resources' "preExecute" extensions are called after the global one (because they
-// are called for every (sub-) resource involved.
-
-server.api.on('preExecute', async (ev) => {
-    const { dataSourceTree } = ev;
-    server.api.log.info('Extension: api preExecute');
-    // ...
-});
-
-
-// Extension: "postExecute" (global)
-// is called after the request has been executed and before the response is being built.
-// The resources' "postExecute" extensions are called _before_ the global one.
-
-server.api.on('postExecute', async (ev) => {
-    const { rawResults } = ev;
-    server.api.log.info('Extension: api postExecute');
-    // ...
-});
-
-
 // Extension: "response"
 // is called after the request is handled and before the response is sent.
 
