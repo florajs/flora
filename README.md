@@ -6,8 +6,6 @@
 
 Flora is a FLexible Open Rest API framework for [Node.js](http://nodejs.org/).
 
-**It is still under heavy develoment, but slowly approaching beta status**
-
 Flora requires __Node.js v10__ or higher.
 
 ## Features
@@ -21,7 +19,7 @@ Flora requires __Node.js v10__ or higher.
 - Locale: Parameterize JOINs i.e. with a localeId - *no need for database views which can't be parameterized*
 - Handle all your special cases as good as possible - *callbacks for "everything"*
 
-## Server-Features
+## Server features
 
 - Node.js HTTP-Server and Cluster based implementation with self-monitoring process-management
 - Extremely verbose server-status - *see everytime what the server is doing and what is hanging around in production*
@@ -29,7 +27,7 @@ Flora requires __Node.js v10__ or higher.
 - Updates in production with zero downtime - *almost every part of code and config is replaceable without shutdown*
 - Comfortable development-features - *usual "code-change - F5 - see result"-workflow*
 
-## Design Goals
+## Design goals
 
 - Generic implementation just for reading - *offer helper for writing*
 - Easy abstraction of complex and distributed database structures
@@ -58,22 +56,35 @@ Flora requires __Node.js v10__ or higher.
 - `GET /article/123` (retrieve article 123 as JSON)
 - `GET /article/` (list of all articles)
 
-### Resource-Implementation
+### Resource implementation
 
 ```js
-module.exports = (api) => {
-    return {
-        actions: {
-            retrieve: (request, response) => {
-                api.resourceProcessor.handle(request, response)
-            },
+module.exports = (api) => ({
+    actions: {
+        retrieve: (request, response) => {
+            return api.resourceProcessor.handle(request, response)
+        },
 
-            hello: (request, response) => {
-                response.send('Hello World');
+        hello: () => {
+            return Promise.resolve("Hello World");
+            // return "Hello World"
+            // Also, a Stream of Buffer can be returned
+        },
+
+        foo: {
+            default: (request, response) => {
+                // If "foo" was a function, only the default format was allowed.
+                // This way you can define additional formats:
+            },
+            image: (request, response) => {
+                // This is executed when /myresource/123.image?action=foo is called.
+                // The behaviour of each format is not dictated by the framework.
+                response.header('Content-Type', 'image/png');
+                return … // Stream or Buffer
             }
         }
     }
-};
+});
 ```
 
 ### Abstract definition

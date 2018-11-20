@@ -229,4 +229,65 @@ describe('Api', () => {
                 });
         });
     });
+
+    describe('formats', () => {
+        let api;
+
+        before(async () => {
+            api = new Api();
+            await api.init({
+                log,
+                resourcesPath: path.join(__dirname, 'fixtures', 'extensions', 'resources'),
+                dataSources: {
+                    empty: {
+                        constructor: testDataSource
+                    }
+                }
+            });
+        });
+
+        after(() => api.close());
+
+        it('default format when action is function', async () => {
+            const request = new Request({ resource: 'simple-js' });
+            const response = await api.execute(request);
+            expect(response.data.called).to.equal('retrieve-default');
+        });
+
+        it('default format when action is async function', async () => {
+            const request = new Request({ resource: 'simple-js', action: 'retrieveAsync' });
+            const response = await api.execute(request);
+            expect(response.data.called).to.equal('retrieveAsync-default');
+        });
+
+        it('default format when action is object', async () => {
+            const request = new Request({ resource: 'simple-js', action: 'formats' });
+            const response = await api.execute(request);
+            expect(response.data.called).to.equal('formats-default');
+        });
+
+        it('specific format when action is object', async () => {
+            const request = new Request({ resource: 'simple-js', action: 'formats', format: 'image' });
+            const response = await api.execute(request);
+            expect(response.data.called).to.equal('formats-image');
+        });
+
+        it('should fail when action is function and format is not default', (done) => {
+            const request = new Request({ resource: 'simple-js', format: 'unknown' });
+            api.execute(request).catch(err => {
+                expect(err).to.be.an('error');
+                expect(err.message).to.equal('Invalid format "unknown" for action "retrieve"');
+                done();
+            });  
+        });
+
+        it('should fail when action is object and format is invalid', (done) => {
+            const request = new Request({ resource: 'simple-js', action: 'formats', format: 'unknown' });
+            api.execute(request).catch(err => {
+                expect(err).to.be.an('error');
+                expect(err.message).to.equal('Invalid format "unknown" for action "formats"');
+                done();
+            });  
+        });
+    });
 });
