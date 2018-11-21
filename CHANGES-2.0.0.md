@@ -129,6 +129,8 @@ Event listeners do not support callback functions anymore but can return a Promi
 - **constructor**: Does not take `callback` argument anymore
 - **send**: Method is removed (resources must send data as return value)
 - **header(key, value)**: New method for setting headers
+- **status(code)**: New method for setting the status code
+- **type(contentType)**: New method for setting the Content-Type
 
 ### datasource-executor
 
