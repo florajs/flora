@@ -37,6 +37,7 @@ module.exports = (api) => ({
         retrieve: {
             default: async (request, response) => {
                 // Same as if retrieve() was a function
+                // Will be called when request.format == 'json' (default case)
                 return { hello: 'world' };
             },
             image: async (request, response) => {

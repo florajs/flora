@@ -26,8 +26,8 @@ describe('Request', () => {
         expect((new Request(reqOpts)).action).to.equal('retrieve');
     });
 
-    it('should set the default format "default"', () => {
-        expect((new Request(reqOpts)).format).to.equal('default');
+    it('should set the default format "json"', () => {
+        expect((new Request(reqOpts)).format).to.equal('json');
     });
 
     it('should store _status', () => {

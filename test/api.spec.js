@@ -266,6 +266,12 @@ describe('Api', () => {
             expect(response.data.called).to.equal('formats-default');
         });
 
+        it('default format when format is "json"', async () => {
+            const request = new Request({ resource: 'simple-js', action: 'formats', format: 'json' });
+            const response = await api.execute(request);
+            expect(response.data.called).to.equal('formats-default');
+        });
+
         it('specific format when action is object', async () => {
             const request = new Request({ resource: 'simple-js', action: 'formats', format: 'image' });
             const response = await api.execute(request);
