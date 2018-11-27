@@ -36,7 +36,7 @@
     }
   ],
   "engines": {
-    "node": ">=8"
+    "node": ">=10"
   },
   "dependencies": {
     "@godmodelabs/busboy": "^0.3.1",
