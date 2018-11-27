@@ -144,6 +144,7 @@ Event listeners do not support callback functions anymore but can return a Promi
 
 - **run**: Is now async function
 - **serverStatus**: Is now an async function (reflecting change in flora-cluster)
+- **register(name, fn, opts)**: Plugin mechanism has been changed, see above
 
 ### Server
 
