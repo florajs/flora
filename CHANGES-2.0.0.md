@@ -27,6 +27,30 @@ module.exports = (api) => ({
 });
 ```
 
+### Plugins
+
+Plugins must return a function which is called when a Plugin is initialized. **Note**: as plugins can be added after initialization, `api.on('init')` cannot be used in plugins.
+
+```js
+// myplugin.js
+module.exports = (api, options) => {
+    api.on('request', async ({ request }) => {
+        api.log.debug('plugin got a request');
+        // ... do something with the request
+    });
+
+    // Plugins can return values that are made available as api.getPlugin(name)
+    return {
+        foo: 'bar'
+    };
+};
+
+// server.js
+api.register('my', myPlugin, { bar: 'baz' });
+...
+api.getPlugin('my'); // { foo: 'bar' }
+```
+
 ### Formats
 
 Resource action can - but do not need - to support different "formats". Format behaviour is up to the developer and not dictated by the framework:
@@ -107,6 +131,8 @@ Event listeners do not support callback functions anymore but can return a Promi
 - **init**: Is now an async function
 - **close**: Is now an async function
 - **execute**: Is now an async function
+- **register(name, fn, opts)**: Plugin mechanism has been changed, see above
+- **getPlugin(name)**: New method for returning plugin data or instance
 - **Event: "init"**: Is now emitted async
 - **Event: "close"**: Is now emitted async
 - **Event: "request"**: Is now emitted async
@@ -123,6 +149,7 @@ Event listeners do not support callback functions anymore but can return a Promi
 
 - **run**: Is now async function
 - **close**: Is now async function
+- **register(name, fn, opts)**: Plugin mechanism has been changed, see above
 
 ### Response
 

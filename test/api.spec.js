@@ -131,24 +131,80 @@ describe('Api', () => {
 
     describe('plugins', () => {
         it('should allow to register plugins', (done) => {
-            const plugin = {
-                register: () => done()
-            };
+            const plugin = api => done();
 
             const api = new Api();
-            api.register(plugin);
+            api.register('my', plugin);
         });
 
-        it('should plugins registered before init', (done) => {
-            const plugin = {
-                register: () => done()
-            };
+        it('should allow plugins registered before init', (done) => {
+            const plugin = api => done();
 
             const api = new Api();
-            api.register(plugin);
+            api.register('my', plugin);
             api.init({
                 log,
                 resourcesPath
+            });
+        });
+
+        it('should allow plugins registered after init', (done) => {
+            const plugin = api => done();
+
+            const api = new Api();
+            api.init({
+                log,
+                resourcesPath
+            }).then(() => {
+                api.register('my', plugin);
+            });
+        });
+
+        it('should pass through plugin options', (done) => {
+            const plugin = (api, options) => {
+                expect(options).to.eql({ foo: 'bar' });
+                done();
+            }
+
+            const api = new Api();
+            api.register('my', plugin, { foo: 'bar' });
+            api.init({
+                log,
+                resourcesPath
+            });
+        });
+
+        it('should provide plugin data at getPlugin', (done) => {
+            const plugin = (api, options) => {
+                return {
+                    bar: 'baz',
+                    options
+                };
+            }
+
+            const api = new Api();
+            api.register('my', plugin, { foo: 'bar' });
+            api.init({
+                log,
+                resourcesPath
+            }).then(() => {
+                const pluginData = api.getPlugin('my');
+                expect(pluginData).to.eql({
+                    bar: 'baz',
+                    options: { foo: 'bar' }
+                });
+                done();
+            });
+        });
+
+        it('getPlugin should return null for unknown plugins', (done) => {
+            const api = new Api();
+            api.init({
+                log,
+                resourcesPath
+            }).then(() => {
+                expect(api.getPlugin('unknown')).to.equal(null);
+                done();
             });
         });
     });
