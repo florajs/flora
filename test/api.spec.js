@@ -203,8 +203,13 @@ describe('Api', () => {
                 log,
                 resourcesPath
             }).then(() => {
-                expect(api.getPlugin('unknown')).to.equal(null);
-                done();
+                try {
+                    api.getPlugin('unknown');
+                } catch (err) {
+                    expect(err).to.be.an('error');
+                    expect(err.message).to.equal('Plugin "unknown" is not registered');
+                    done();
+                }
             });
         });
     });
