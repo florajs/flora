@@ -44,7 +44,7 @@
     "chokidar": "^2.0.4",
     "content-type": "^1.0.2",
     "flora-cluster": "^2.0.0-alpha.1",
-    "flora-errors": "^0.9.1",
+    "flora-errors": "^2.0.0-alpha.1",
     "flora-request-parser": "^0.8.0",
     "has": "^1.0.3",
     "lodash": "^4.17.11",
