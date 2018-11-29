@@ -151,6 +151,7 @@ Event listeners do not support callback functions anymore but can return a Promi
 - **run**: Is now async function
 - **close**: Is now async function
 - **register(name, fn, opts)**: Plugin mechanism has been changed, see above
+- In error cases, the `meta` content is not copied from the `response.meta` property anymore.
 
 ### Response
 
@@ -170,6 +171,33 @@ Event listeners do not support callback functions anymore but can return a Promi
 
 - **Resource extension "init"**: Is now executed as async function
 - **Resource extension "request"**: Is now executed as async function
+
+## flora-errors
+
+Introduce new `ValidationError` class:
+
+```js
+throw new ValidationError('Invalid input', { userId: 'userId must be set' });
+```
+
+Results in:
+
+```json
+{
+    "meta": {
+        "statusCode": 400,
+        "duration": ...
+    },
+    "cursor": null,
+    "error": {
+        "message": "Invalid input",
+        "validation": {
+            "userId": "userId must be set"
+        }
+    },
+    "data": null
+}
+```
 
 ## flora-cluster
 
