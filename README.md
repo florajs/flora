@@ -10,14 +10,14 @@ Flora requires __Node.js v10__ or higher.
 
 ## Features
 
-- Resources in resources (recursive) - *fetch as much as possible in one request, without duplicating code*
-- Lightweight (but powerful) field/sub-resource selection syntax - *fetch exactly what you need in one request*
-- Filter resources even by sub-resource-attributes - *resolve inside database when possible, else feeding ID-lists*
-- Pluggable DataSources - *currently implemented: MySQL, Solr/Lucene*
-- Combine multiple DataSources - *even on per-row-basis - "API-side-JOIN"*
-- Highly optimized database querys - *internal SQL parser to remove unselected fields and thus unreferenced LEFT JOINs*
-- Locale: Parameterize JOINs i.e. with a localeId - *no need for database views which can't be parameterized*
-- Handle all your special cases as good as possible - *callbacks for "everything"*
+- **Resources in resources (recursive):** fetch as much as possible in one request, without duplicating code
+- **Lightweight (but powerful) field/sub-resource selection syntax**: fetch exactly what you need in one request
+- **Filter resources even by sub-resource-attributes**: resolve inside database when possible, or return ID lists
+- **Pluggable data sources**: currently implemented: MySQL, MongoDB, Elasticsearch, Solr/Lucene
+- **Combine multiple data sources**: even on per-row-basis - "API-side-JOIN"
+- **Highly optimized database querys:** internal SQL parser to remove unselected fields and thus unreferenced LEFT JOINs
+- **Locale:** parameterize JOINs i.e. with a localeId - no need for database views which can't be parameterized
+- **Handle all your special cases as good as possible:** hooks and events for extending features
 
 ## Server features
 
@@ -33,6 +33,12 @@ Flora requires __Node.js v10__ or higher.
 - Easy abstraction of complex and distributed database structures
 - Easy standard cases with minimal boilerplate code - *special cases possible - "everywhere"*
 - Flexibility, stability, performance, simplicity, transparency
+
+## Documentation
+
+- [Getting Started](docs/Getting-Started.md)
+- [Extensions](docs/Extensions.md)
+- [Cluster](docs/Cluster.md)
 
 ## Examples
 
