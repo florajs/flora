@@ -1,9 +1,10 @@
+/* global describe, it */
+
 'use strict';
 
 const path = require('path');
 
 const { expect } = require('chai');
-const bunyan = require('bunyan');
 
 const Master = require('../lib/master');
 

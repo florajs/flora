@@ -1,3 +1,5 @@
+/* global describe, it */
+
 'use strict';
 
 const _ = require('lodash');
@@ -18,12 +20,14 @@ describe('result-builder', () => {
 
     describe('simple results', () => {
         it('builds empty result (many = true)', () => {
-            const rawResults = [{
-                attributePath: [],
-                dataSourceName: 'primary',
-                data: [],
-                totalCount: 0
-            }];
+            const rawResults = [
+                {
+                    attributePath: [],
+                    dataSourceName: 'primary',
+                    data: [],
+                    totalCount: 0
+                }
+            ];
 
             const resolvedConfig = _.cloneDeep(defaultResolvedConfig);
             resolvedConfig.attributes['id'].selected = true;
@@ -40,31 +44,37 @@ describe('result-builder', () => {
         });
 
         it('throws NotFoundError on empty result (many = false)', () => {
-            const rawResults = [{
-                attributePath: [],
-                dataSourceName: 'primary',
-                data: [],
-                totalCount: 0
-            }];
+            const rawResults = [
+                {
+                    attributePath: [],
+                    dataSourceName: 'primary',
+                    data: [],
+                    totalCount: 0
+                }
+            ];
 
             const resolvedConfig = _.cloneDeep(defaultResolvedConfig);
             resolvedConfig.many = false;
 
             expect(() => {
-                resultBuilder(api, {resource: 'test', id: 123}, rawResults, resolvedConfig);
+                resultBuilder(api, { resource: 'test', id: 123 }, rawResults, resolvedConfig);
             }).to.throw(NotFoundError, 'Item "123" (in resource "test") not found');
         });
 
         it('builds simple result (many = true)', () => {
-            const rawResults = [{
-                attributePath: [],
-                dataSourceName: 'primary',
-                data: [{
-                    id: 1,
-                    title: 'Test-Article'
-                }],
-                totalCount: 1
-            }];
+            const rawResults = [
+                {
+                    attributePath: [],
+                    dataSourceName: 'primary',
+                    data: [
+                        {
+                            id: 1,
+                            title: 'Test-Article'
+                        }
+                    ],
+                    totalCount: 1
+                }
+            ];
 
             const resolvedConfig = _.cloneDeep(defaultResolvedConfig);
             resolvedConfig.attributes['id'].selected = true;
@@ -74,10 +84,12 @@ describe('result-builder', () => {
                 cursor: {
                     totalCount: 1
                 },
-                data: [{
-                    id: 1,
-                    title: 'Test-Article'
-                }]
+                data: [
+                    {
+                        id: 1,
+                        title: 'Test-Article'
+                    }
+                ]
             };
 
             const result = resultBuilder(api, {}, rawResults, resolvedConfig);
@@ -85,15 +97,19 @@ describe('result-builder', () => {
         });
 
         it('builds simple result (many = false)', () => {
-            const rawResults = [{
-                attributePath: [],
-                dataSourceName: 'primary',
-                data: [{
-                    id: 1,
-                    title: 'Test-Article'
-                }],
-                totalCount: 1
-            }];
+            const rawResults = [
+                {
+                    attributePath: [],
+                    dataSourceName: 'primary',
+                    data: [
+                        {
+                            id: 1,
+                            title: 'Test-Article'
+                        }
+                    ],
+                    totalCount: 1
+                }
+            ];
 
             const resolvedConfig = _.cloneDeep(defaultResolvedConfig);
             resolvedConfig.many = false;
@@ -115,15 +131,19 @@ describe('result-builder', () => {
     describe('attribute features', () => {
         it('builds result with nested attributes', () => {
             // /article/?select=source.name
-            const rawResults = [{
-                attributePath: [],
-                dataSourceName: 'primary',
-                data: [{
-                    id: 1,
-                    sourceName: 'CNN'
-                }],
-                totalCount: 1
-            }];
+            const rawResults = [
+                {
+                    attributePath: [],
+                    dataSourceName: 'primary',
+                    data: [
+                        {
+                            id: 1,
+                            sourceName: 'CNN'
+                        }
+                    ],
+                    totalCount: 1
+                }
+            ];
 
             const resolvedConfig = _.cloneDeep(defaultResolvedConfig);
             resolvedConfig.many = false;
@@ -146,15 +166,19 @@ describe('result-builder', () => {
 
         it('maps attribute names', () => {
             // /article/?select=title ("mappedTitle" in DataSource)
-            const rawResults = [{
-                attributePath: [],
-                dataSourceName: 'primary',
-                data: [{
-                    id: 1,
-                    mappedTitle: 'Title'
-                }],
-                totalCount: 1
-            }];
+            const rawResults = [
+                {
+                    attributePath: [],
+                    dataSourceName: 'primary',
+                    data: [
+                        {
+                            id: 1,
+                            mappedTitle: 'Title'
+                        }
+                    ],
+                    totalCount: 1
+                }
+            ];
 
             const resolvedConfig = _.cloneDeep(defaultResolvedConfig);
             resolvedConfig.many = false;
@@ -175,14 +199,18 @@ describe('result-builder', () => {
 
         it('sets static values', () => {
             // /article/?select=subTitle
-            const rawResults = [{
-                attributePath: [],
-                dataSourceName: 'primary',
-                data: [{
-                    id: 1
-                }],
-                totalCount: 1
-            }];
+            const rawResults = [
+                {
+                    attributePath: [],
+                    dataSourceName: 'primary',
+                    data: [
+                        {
+                            id: 1
+                        }
+                    ],
+                    totalCount: 1
+                }
+            ];
 
             const resolvedConfig = _.cloneDeep(defaultResolvedConfig);
             resolvedConfig.many = false;
@@ -205,26 +233,33 @@ describe('result-builder', () => {
     describe('results with relations', () => {
         it('builds result with 1:1 relation - invisible primaryKey', () => {
             // /article/?select=video.url
-            const rawResults = [{
-                attributePath: [],
-                dataSourceName: 'primary',
-                data: [{
-                    id: 1
-                }],
-                totalCount: 1
-            },{
-                attributePath: ['video'],
-                dataSourceName: 'primary',
-                parentKey: ['id'],
-                childKey: ['articleId'],
-                multiValuedParentKey: false,
-                uniqueChildKey: true,
-                data: [{
-                    articleId: '1',
-                    url: 'http://example.com/video/123'
-                }],
-                totalCount: 1
-            }];
+            const rawResults = [
+                {
+                    attributePath: [],
+                    dataSourceName: 'primary',
+                    data: [
+                        {
+                            id: 1
+                        }
+                    ],
+                    totalCount: 1
+                },
+                {
+                    attributePath: ['video'],
+                    dataSourceName: 'primary',
+                    parentKey: ['id'],
+                    childKey: ['articleId'],
+                    multiValuedParentKey: false,
+                    uniqueChildKey: true,
+                    data: [
+                        {
+                            articleId: '1',
+                            url: 'http://example.com/video/123'
+                        }
+                    ],
+                    totalCount: 1
+                }
+            ];
 
             const resolvedConfig = _.cloneDeep(defaultResolvedConfig);
             resolvedConfig.many = false;
@@ -247,39 +282,50 @@ describe('result-builder', () => {
 
         it('builds result with 1:n relation', () => {
             // /article/?select=comments.content
-            const rawResults = [{
-                attributePath: [],
-                dataSourceName: 'primary',
-                data: [{
-                    id: 1
-                },{
-                    id: 2
-                },{
-                    id: 3
-                }],
-                totalCount: 3
-            },{
-                attributePath: ['comments'],
-                dataSourceName: 'primary',
-                parentKey: ['id'],
-                childKey: ['articleId'],
-                multiValuedParentKey: false,
-                uniqueChildKey: false,
-                data: [{
-                    id: 100,
-                    articleId: 1,
-                    content: 'Comment 1'
-                },{
-                    id: 101,
-                    articleId: 1,
-                    content: 'Comment 2'
-                },{
-                    id: 102,
-                    articleId: 2,
-                    content: 'Comment 3'
-                }],
-                totalCount: 3
-            }];
+            const rawResults = [
+                {
+                    attributePath: [],
+                    dataSourceName: 'primary',
+                    data: [
+                        {
+                            id: 1
+                        },
+                        {
+                            id: 2
+                        },
+                        {
+                            id: 3
+                        }
+                    ],
+                    totalCount: 3
+                },
+                {
+                    attributePath: ['comments'],
+                    dataSourceName: 'primary',
+                    parentKey: ['id'],
+                    childKey: ['articleId'],
+                    multiValuedParentKey: false,
+                    uniqueChildKey: false,
+                    data: [
+                        {
+                            id: 100,
+                            articleId: 1,
+                            content: 'Comment 1'
+                        },
+                        {
+                            id: 101,
+                            articleId: 1,
+                            content: 'Comment 2'
+                        },
+                        {
+                            id: 102,
+                            articleId: 2,
+                            content: 'Comment 3'
+                        }
+                    ],
+                    totalCount: 3
+                }
+            ];
 
             const resolvedConfig = _.cloneDeep(defaultResolvedConfig);
             resolvedConfig.attributes['id'].selected = true;
@@ -291,25 +337,34 @@ describe('result-builder', () => {
                 cursor: {
                     totalCount: 3
                 },
-                data: [{
-                    id: 1,
-                    comments: [{
-                        id: 100,
-                        content: 'Comment 1'
-                    },{
-                        id: 101,
-                        content: 'Comment 2'
-                    }]
-                },{
-                    id: 2,
-                    comments: [{
-                        id: 102,
-                        content: 'Comment 3'
-                    }]
-                },{
-                    id: 3,
-                    comments: []
-                }]
+                data: [
+                    {
+                        id: 1,
+                        comments: [
+                            {
+                                id: 100,
+                                content: 'Comment 1'
+                            },
+                            {
+                                id: 101,
+                                content: 'Comment 2'
+                            }
+                        ]
+                    },
+                    {
+                        id: 2,
+                        comments: [
+                            {
+                                id: 102,
+                                content: 'Comment 3'
+                            }
+                        ]
+                    },
+                    {
+                        id: 3,
+                        comments: []
+                    }
+                ]
             };
 
             const result = resultBuilder(api, {}, rawResults, resolvedConfig);
@@ -318,55 +373,70 @@ describe('result-builder', () => {
 
         it('builds result with 1:n relation (with composite primary keys)', () => {
             // /article/?select=versions.versioninfo.modified
-            const rawResults = [{
-                attributePath: [],
-                dataSourceName: 'primary',
-                data: [{
-                    id: 1
-                },{
-                    id: 2
-                }],
-                totalCount: 2
-            },{
-                attributePath: ['versions'],
-                dataSourceName: 'primary',
-                parentKey: ['id'],
-                childKey: ['articleId'],
-                multiValuedParentKey: false,
-                uniqueChildKey: false,
-                data: [{
-                    articleId: 1,
-                    versionId: 101
-                },{
-                    articleId: 1,
-                    versionId: 102
-                },{
-                    articleId: 1,
-                    versionId: 103
-                }],
-                totalCount: 3
-            },{
-                attributePath: ['versions', 'versioninfo'],
-                dataSourceName: 'primary',
-                parentKey: ['articleId', 'versionId'],
-                childKey: ['articleId', 'versionId'],
-                multiValuedParentKey: false,
-                uniqueChildKey: true,
-                data: [{
-                    articleId: 1,
-                    versionId: 101,
-                    modified: '2015-07-10T15:21:27+02:00'
-                },{
-                    articleId: 1,
-                    versionId: 102,
-                    modified: '2015-07-10T15:21:28+02:00'
-                },{
-                    articleId: 1,
-                    versionId: 103,
-                    modified: '2015-07-10T15:21:29+02:00'
-                }],
-                totalCount: 3
-            }];
+            const rawResults = [
+                {
+                    attributePath: [],
+                    dataSourceName: 'primary',
+                    data: [
+                        {
+                            id: 1
+                        },
+                        {
+                            id: 2
+                        }
+                    ],
+                    totalCount: 2
+                },
+                {
+                    attributePath: ['versions'],
+                    dataSourceName: 'primary',
+                    parentKey: ['id'],
+                    childKey: ['articleId'],
+                    multiValuedParentKey: false,
+                    uniqueChildKey: false,
+                    data: [
+                        {
+                            articleId: 1,
+                            versionId: 101
+                        },
+                        {
+                            articleId: 1,
+                            versionId: 102
+                        },
+                        {
+                            articleId: 1,
+                            versionId: 103
+                        }
+                    ],
+                    totalCount: 3
+                },
+                {
+                    attributePath: ['versions', 'versioninfo'],
+                    dataSourceName: 'primary',
+                    parentKey: ['articleId', 'versionId'],
+                    childKey: ['articleId', 'versionId'],
+                    multiValuedParentKey: false,
+                    uniqueChildKey: true,
+                    data: [
+                        {
+                            articleId: 1,
+                            versionId: 101,
+                            modified: '2015-07-10T15:21:27+02:00'
+                        },
+                        {
+                            articleId: 1,
+                            versionId: 102,
+                            modified: '2015-07-10T15:21:28+02:00'
+                        },
+                        {
+                            articleId: 1,
+                            versionId: 103,
+                            modified: '2015-07-10T15:21:29+02:00'
+                        }
+                    ],
+                    totalCount: 3
+                }
+            ];
 
             const resolvedConfig = _.cloneDeep(defaultResolvedConfig);
             resolvedConfig.attributes['id'].selected = true;
@@ -379,22 +449,29 @@ describe('result-builder', () => {
                 cursor: {
                     totalCount: 2
                 },
-                data: [{
-                    id: 1,
-                    versions: [{
-                        versionId: 101,
-                        versioninfo: {modified: '2015-07-10T15:21:27+02:00'}
-                    },{
-                        versionId: 102,
-                        versioninfo: {modified: '2015-07-10T15:21:28+02:00'}
-                    },{
-                        versionId: 103,
-                        versioninfo: {modified: '2015-07-10T15:21:29+02:00'}
-                    }]
-                },{
-                    id: 2,
-                    versions: []
-                }]
+                data: [
+                    {
+                        id: 1,
+                        versions: [
+                            {
+                                versionId: 101,
+                                versioninfo: { modified: '2015-07-10T15:21:27+02:00' }
+                            },
+                            {
+                                versionId: 102,
+                                versioninfo: { modified: '2015-07-10T15:21:28+02:00' }
+                            },
+                            {
+                                versionId: 103,
+                                versioninfo: { modified: '2015-07-10T15:21:29+02:00' }
+                            }
+                        ]
+                    },
+                    {
+                        id: 2,
+                        versions: []
+                    }
+                ]
             };
 
             const result = resultBuilder(api, {}, rawResults, resolvedConfig);
@@ -403,28 +480,35 @@ describe('result-builder', () => {
 
         it('builds result with n:1 relation', () => {
             // /article/?select=author[firstname,lastname]
-            const rawResults = [{
-                attributePath: [],
-                dataSourceName: 'primary',
-                data: [{
-                    id: 1,
-                    authorId: 10
-                }],
-                totalCount: 1
-            },{
-                attributePath: ['author'],
-                dataSourceName: 'primary',
-                parentKey: ['authorId'],
-                childKey: ['id'],
-                multiValuedParentKey: false,
-                uniqueChildKey: true,
-                data: [{
-                    id: 10,
-                    firstname: 'Bob',
-                    lastname: 'Tester'
-                }],
-                totalCount: 1
-            }];
+            const rawResults = [
+                {
+                    attributePath: [],
+                    dataSourceName: 'primary',
+                    data: [
+                        {
+                            id: 1,
+                            authorId: 10
+                        }
+                    ],
+                    totalCount: 1
+                },
+                {
+                    attributePath: ['author'],
+                    dataSourceName: 'primary',
+                    parentKey: ['authorId'],
+                    childKey: ['id'],
+                    multiValuedParentKey: false,
+                    uniqueChildKey: true,
+                    data: [
+                        {
+                            id: 10,
+                            firstname: 'Bob',
+                            lastname: 'Tester'
+                        }
+                    ],
+                    totalCount: 1
+                }
+            ];
 
             const resolvedConfig = _.cloneDeep(defaultResolvedConfig);
             resolvedConfig.many = false;
@@ -451,24 +535,29 @@ describe('result-builder', () => {
 
         it('builds result with n:1 relation ("null" keys mapped to "null"-objects)', () => {
             // /article/?select=author
-            const rawResults = [{
-                attributePath: [],
-                dataSourceName: 'primary',
-                data: [{
-                    id: 1,
-                    authorId: null
-                }],
-                totalCount: 1
-            },{
-                attributePath: ['author'],
-                dataSourceName: 'primary',
-                parentKey: ['authorId'],
-                childKey: ['id'],
-                multiValuedParentKey: false,
-                uniqueChildKey: true,
-                data: [],
-                totalCount: 0
-            }];
+            const rawResults = [
+                {
+                    attributePath: [],
+                    dataSourceName: 'primary',
+                    data: [
+                        {
+                            id: 1,
+                            authorId: null
+                        }
+                    ],
+                    totalCount: 1
+                },
+                {
+                    attributePath: ['author'],
+                    dataSourceName: 'primary',
+                    parentKey: ['authorId'],
+                    childKey: ['id'],
+                    multiValuedParentKey: false,
+                    uniqueChildKey: true,
+                    data: [],
+                    totalCount: 0
+                }
+            ];
 
             const resolvedConfig = _.cloneDeep(defaultResolvedConfig);
             resolvedConfig.many = false;
@@ -489,30 +578,33 @@ describe('result-builder', () => {
 
         it('builds result with m:n relation - with multi-values', () => {
             // /article/?select=countries.name
-            const rawResults = [{
-                attributePath: [],
-                dataSourceName: 'primary',
-                data: [
-                    {id: 1, countries: ['DE', 'EN', 'FR']},
-                    {id: 2, countries: ['EN']},
-                    {id: 3, countries: []},
-                    {id: 4, countries: null}
-                ],
-                totalCount: 4
-            },{
-                attributePath: ['countries'],
-                dataSourceName: 'primary',
-                parentKey: ['countries'],
-                childKey: ['iso'],
-                multiValuedParentKey: true,
-                uniqueChildKey: true,
-                data: [
-                    {id: 1, iso: 'DE', name: 'Germany'},
-                    {id: 2, iso: 'EN', name: 'England'},
-                    {id: 3, iso: 'FR', name: 'France'}
-                ],
-                totalCount: 3
-            }];
+            const rawResults = [
+                {
+                    attributePath: [],
+                    dataSourceName: 'primary',
+                    data: [
+                        { id: 1, countries: ['DE', 'EN', 'FR'] },
+                        { id: 2, countries: ['EN'] },
+                        { id: 3, countries: [] },
+                        { id: 4, countries: null }
+                    ],
+                    totalCount: 4
+                },
+                {
+                    attributePath: ['countries'],
+                    dataSourceName: 'primary',
+                    parentKey: ['countries'],
+                    childKey: ['iso'],
+                    multiValuedParentKey: true,
+                    uniqueChildKey: true,
+                    data: [
+                        { id: 1, iso: 'DE', name: 'Germany' },
+                        { id: 2, iso: 'EN', name: 'England' },
+                        { id: 3, iso: 'FR', name: 'France' }
+                    ],
+                    totalCount: 3
+                }
+            ];
 
             const resolvedConfig = _.cloneDeep(defaultResolvedConfig);
             resolvedConfig.attributes['id'].selected = true;
@@ -521,24 +613,25 @@ describe('result-builder', () => {
             resolvedConfig.attributes['countries'].attributes['name'].selected = true;
 
             const expectedResult = {
-                cursor: {totalCount: 4},
-                data: [{
-                    id: 1,
-                    countries: [
-                        {id: 1, name: 'Germany'},
-                        {id: 2, name: 'England'},
-                        {id: 3, name: 'France'}
-                    ]
-                },{
-                    id: 2,
-                    countries: [{id: 2, name: 'England'}]
-                },{
-                    id: 3,
-                    countries: []
-                },{
-                    id: 4,
-                    countries: []
-                }]
+                cursor: { totalCount: 4 },
+                data: [
+                    {
+                        id: 1,
+                        countries: [{ id: 1, name: 'Germany' }, { id: 2, name: 'England' }, { id: 3, name: 'France' }]
+                    },
+                    {
+                        id: 2,
+                        countries: [{ id: 2, name: 'England' }]
+                    },
+                    {
+                        id: 3,
+                        countries: []
+                    },
+                    {
+                        id: 4,
+                        countries: []
+                    }
+                ]
             };
 
             const result = resultBuilder(api, {}, rawResults, resolvedConfig);
@@ -547,28 +640,31 @@ describe('result-builder', () => {
 
         it('fails on invalid multiValued attributes in m:n relation', () => {
             // /article/?select=countries.name
-            const rawResults = [{
-                attributePath: [],
-                dataSourceName: 'primary',
-                data: [
-                    {id: 1, countries: ['DE', 'EN', 'FR']},
-                    {id: 2, countries: 'EN'} // not an array
-                ],
-                totalCount: 2
-            },{
-                attributePath: ['countries'],
-                dataSourceName: 'primary',
-                parentKey: ['countries'],
-                childKey: ['iso'],
-                multiValuedParentKey: true,
-                uniqueChildKey: true,
-                data: [
-                    {id: 1, iso: 'DE', name: 'Germany'},
-                    {id: 2, iso: 'EN', name: 'England'},
-                    {id: 3, iso: 'FR', name: 'France'}
-                ],
-                totalCount: 3
-            }];
+            const rawResults = [
+                {
+                    attributePath: [],
+                    dataSourceName: 'primary',
+                    data: [
+                        { id: 1, countries: ['DE', 'EN', 'FR'] },
+                        { id: 2, countries: 'EN' } // not an array
+                    ],
+                    totalCount: 2
+                },
+                {
+                    attributePath: ['countries'],
+                    dataSourceName: 'primary',
+                    parentKey: ['countries'],
+                    childKey: ['iso'],
+                    multiValuedParentKey: true,
+                    uniqueChildKey: true,
+                    data: [
+                        { id: 1, iso: 'DE', name: 'Germany' },
+                        { id: 2, iso: 'EN', name: 'England' },
+                        { id: 3, iso: 'FR', name: 'France' }
+                    ],
+                    totalCount: 3
+                }
+            ];
 
             const resolvedConfig = _.cloneDeep(defaultResolvedConfig);
             resolvedConfig.attributes['id'].selected = true;
@@ -578,49 +674,48 @@ describe('result-builder', () => {
 
             expect(() => {
                 resultBuilder(api, {}, rawResults, resolvedConfig);
-            }).to.throw(DataError, 'Sub-resource "countries" multiValued key attribute "countries" ' +
-                'in parent result is not an array (DataSource "primary")');
+            }).to.throw(
+                DataError,
+                'Sub-resource "countries" multiValued key attribute "countries" ' +
+                    'in parent result is not an array (DataSource "primary")'
+            );
         });
 
         it('builds result with m:n relation - with join-table + additional fields', () => {
             // /article/?select=categories[name,order]
-            const rawResults = [{
-                attributePath: [],
-                dataSourceName: 'primary',
-                data: [
-                    {id: 1},
-                    {id: 2},
-                    {id: 3}
-                ],
-                totalCount: 3
-            },{
-                attributePath: ['categories'],
-                dataSourceName: 'articleCategories',
-                parentKey: ['id'],
-                childKey: ['articleId'],
-                multiValuedParentKey: false,
-                uniqueChildKey: false,
-                data: [
-                    {articleId: 1, categoryId: 100, order: 1},
-                    {articleId: 1, categoryId: 200, order: 2},
-                    {articleId: 1, categoryId: 300, order: 3},
-                    {articleId: 2, categoryId: 100, order: 11}
-                ],
-                totalCount: 4
-            },{
-                attributePath: ['categories'],
-                dataSourceName: 'primary',
-                parentKey: ['categoryId'],
-                childKey: ['id'],
-                multiValuedParentKey: false,
-                uniqueChildKey: true,
-                data: [
-                    {id: 100, name: 'Breaking News'},
-                    {id: 200, name: 'Sport'},
-                    {id: 300, name: 'Fun'}
-                ],
-                totalCount: 3
-            }];
+            const rawResults = [
+                {
+                    attributePath: [],
+                    dataSourceName: 'primary',
+                    data: [{ id: 1 }, { id: 2 }, { id: 3 }],
+                    totalCount: 3
+                },
+                {
+                    attributePath: ['categories'],
+                    dataSourceName: 'articleCategories',
+                    parentKey: ['id'],
+                    childKey: ['articleId'],
+                    multiValuedParentKey: false,
+                    uniqueChildKey: false,
+                    data: [
+                        { articleId: 1, categoryId: 100, order: 1 },
+                        { articleId: 1, categoryId: 200, order: 2 },
+                        { articleId: 1, categoryId: 300, order: 3 },
+                        { articleId: 2, categoryId: 100, order: 11 }
+                    ],
+                    totalCount: 4
+                },
+                {
+                    attributePath: ['categories'],
+                    dataSourceName: 'primary',
+                    parentKey: ['categoryId'],
+                    childKey: ['id'],
+                    multiValuedParentKey: false,
+                    uniqueChildKey: true,
+                    data: [{ id: 100, name: 'Breaking News' }, { id: 200, name: 'Sport' }, { id: 300, name: 'Fun' }],
+                    totalCount: 3
+                }
+            ];
 
             const resolvedConfig = _.cloneDeep(defaultResolvedConfig);
             resolvedConfig.attributes['id'].selected = true;
@@ -630,21 +725,25 @@ describe('result-builder', () => {
             resolvedConfig.attributes['categories'].attributes['order'].selected = true;
 
             const expectedResult = {
-                cursor: {totalCount: 3},
-                data: [{
-                    id: 1,
-                    categories: [
-                        {id: 100, name: 'Breaking News', order: 1},
-                        {id: 200, name: 'Sport', order: 2},
-                        {id: 300, name: 'Fun', order: 3}
-                    ]
-                },{
-                    id: 2,
-                    categories: [{id: 100, name: 'Breaking News', order: 11}]
-                },{
-                    id: 3,
-                    categories: []
-                }]
+                cursor: { totalCount: 3 },
+                data: [
+                    {
+                        id: 1,
+                        categories: [
+                            { id: 100, name: 'Breaking News', order: 1 },
+                            { id: 200, name: 'Sport', order: 2 },
+                            { id: 300, name: 'Fun', order: 3 }
+                        ]
+                    },
+                    {
+                        id: 2,
+                        categories: [{ id: 100, name: 'Breaking News', order: 11 }]
+                    },
+                    {
+                        id: 3,
+                        categories: []
+                    }
+                ]
             };
 
             const result = resultBuilder(api, {}, rawResults, resolvedConfig);
@@ -653,23 +752,24 @@ describe('result-builder', () => {
 
         it('does not depend on primary sub-result when joinVia result is empty', () => {
             // /article/?select=categories.name
-            const rawResults = [{
-                attributePath: [],
-                dataSourceName: 'primary',
-                data: [
-                    {id: 1}
-                ],
-                totalCount: 1
-            },{
-                attributePath: ['categories'],
-                dataSourceName: 'articleCategories',
-                parentKey: ['id'],
-                childKey: ['articleId'],
-                multiValuedParentKey: false,
-                uniqueChildKey: false,
-                data: [],
-                totalCount: 0
-            }];
+            const rawResults = [
+                {
+                    attributePath: [],
+                    dataSourceName: 'primary',
+                    data: [{ id: 1 }],
+                    totalCount: 1
+                },
+                {
+                    attributePath: ['categories'],
+                    dataSourceName: 'articleCategories',
+                    parentKey: ['id'],
+                    childKey: ['articleId'],
+                    multiValuedParentKey: false,
+                    uniqueChildKey: false,
+                    data: [],
+                    totalCount: 0
+                }
+            ];
 
             const resolvedConfig = _.cloneDeep(defaultResolvedConfig);
             resolvedConfig.attributes['id'].selected = true;
@@ -678,11 +778,13 @@ describe('result-builder', () => {
             resolvedConfig.attributes['categories'].attributes['name'].selected = true;
 
             const expectedResult = {
-                cursor: {totalCount: 1},
-                data: [{
-                    id: 1,
-                    categories: []
-                }]
+                cursor: { totalCount: 1 },
+                data: [
+                    {
+                        id: 1,
+                        categories: []
+                    }
+                ]
             };
 
             const result = resultBuilder(api, {}, rawResults, resolvedConfig);
@@ -691,23 +793,24 @@ describe('result-builder', () => {
 
         it('does not depend on primary sub-result when secondary result is empty', () => {
             // /article/?select=author
-            const rawResults = [{
-                attributePath: [],
-                dataSourceName: 'articleBody', // hack as primary
-                data: [
-                    {articleId: 1}
-                ],
-                totalCount: 1
-            },{
-                attributePath: [],
-                dataSourceName: 'primary', // hack as secondary
-                parentKey: ['articleId'],
-                childKey: ['id'],
-                multiValuedParentKey: false,
-                uniqueChildKey: true,
-                data: [], // no matching row, so sub-resource is not executed - no error about missing results!
-                totalCount: 0
-            }];
+            const rawResults = [
+                {
+                    attributePath: [],
+                    dataSourceName: 'articleBody', // hack as primary
+                    data: [{ articleId: 1 }],
+                    totalCount: 1
+                },
+                {
+                    attributePath: [],
+                    dataSourceName: 'primary', // hack as secondary
+                    parentKey: ['articleId'],
+                    childKey: ['id'],
+                    multiValuedParentKey: false,
+                    uniqueChildKey: true,
+                    data: [], // no matching row, so sub-resource is not executed - no error about missing results!
+                    totalCount: 0
+                }
+            ];
 
             const resolvedConfig = _.cloneDeep(defaultResolvedConfig);
             resolvedConfig.primaryDataSource = 'articleBody';
@@ -717,11 +820,13 @@ describe('result-builder', () => {
             resolvedConfig.attributes['author'].parentDataSource = 'primary';
 
             const expectedResult = {
-                cursor: {totalCount: 1},
-                data: [{
-                    id: 1,
-                    author: null
-                }]
+                cursor: { totalCount: 1 },
+                data: [
+                    {
+                        id: 1,
+                        author: null
+                    }
+                ]
             };
 
             const result = resultBuilder(api, {}, rawResults, resolvedConfig);
@@ -730,37 +835,37 @@ describe('result-builder', () => {
 
         it('fails on missing key attributes in join-table for m:n relation', () => {
             // /article/?select=categories.name
-            const rawResults = [{
-                attributePath: [],
-                dataSourceName: 'primary',
-                data: [
-                    {id: 1}
-                ],
-                totalCount: 1
-            },{
-                attributePath: ['categories'],
-                dataSourceName: 'articleCategories',
-                parentKey: ['id'],
-                childKey: ['articleId'],
-                multiValuedParentKey: false,
-                uniqueChildKey: false,
-                data: [
-                    {articleId: 1, categoryId: 100},
-                    {articleId: 1, otherId: 200} // categoryId attribute is missing here
-                ],
-                totalCount: 2
-            },{
-                attributePath: ['categories'],
-                dataSourceName: 'primary',
-                parentKey: ['categoryId'],
-                childKey: ['id'],
-                multiValuedParentKey: false,
-                uniqueChildKey: true,
-                data: [
-                    {id: 100, name: 'Breaking News'}
-                ],
-                totalCount: 1
-            }];
+            const rawResults = [
+                {
+                    attributePath: [],
+                    dataSourceName: 'primary',
+                    data: [{ id: 1 }],
+                    totalCount: 1
+                },
+                {
+                    attributePath: ['categories'],
+                    dataSourceName: 'articleCategories',
+                    parentKey: ['id'],
+                    childKey: ['articleId'],
+                    multiValuedParentKey: false,
+                    uniqueChildKey: false,
+                    data: [
+                        { articleId: 1, categoryId: 100 },
+                        { articleId: 1, otherId: 200 } // categoryId attribute is missing here
+                    ],
+                    totalCount: 2
+                },
+                {
+                    attributePath: ['categories'],
+                    dataSourceName: 'primary',
+                    parentKey: ['categoryId'],
+                    childKey: ['id'],
+                    multiValuedParentKey: false,
+                    uniqueChildKey: true,
+                    data: [{ id: 100, name: 'Breaking News' }],
+                    totalCount: 1
+                }
+            ];
 
             const resolvedConfig = _.cloneDeep(defaultResolvedConfig);
             resolvedConfig.attributes['id'].selected = true;
@@ -770,39 +875,51 @@ describe('result-builder', () => {
 
             expect(() => {
                 resultBuilder(api, {}, rawResults, resolvedConfig);
-            }).to.throw(DataError, 'Sub-resource "categories" misses key attribute "categoryId" ' +
-                'in joinVia result (DataSource "articleCategories")');
+            }).to.throw(
+                DataError,
+                'Sub-resource "categories" misses key attribute "categoryId" ' +
+                    'in joinVia result (DataSource "articleCategories")'
+            );
         });
     });
 
     describe('results with multiple DataSources per resource', () => {
         it('builds result with selected field from secondary DataSource', () => {
             // /article/?select=body
-            const rawResults = [{
-                attributePath: [],
-                dataSourceName: 'primary',
-                data: [{
-                    id: 1
-                },{
-                    id: 2
-                }],
-                totalCount: 1
-            },{
-                attributePath: [],
-                dataSourceName: 'articleBody',
-                parentKey: ['id'],
-                childKey: ['articleId'],
-                multiValuedParentKey: false,
-                uniqueChildKey: true,
-                data: [{
-                    articleId: '1',
-                    body: 'Test-Body 1'
-                },{
-                    articleId: '2',
-                    body: 'Test-Body 2'
-                }],
-                totalCount: 1
-            }];
+            const rawResults = [
+                {
+                    attributePath: [],
+                    dataSourceName: 'primary',
+                    data: [
+                        {
+                            id: 1
+                        },
+                        {
+                            id: 2
+                        }
+                    ],
+                    totalCount: 1
+                },
+                {
+                    attributePath: [],
+                    dataSourceName: 'articleBody',
+                    parentKey: ['id'],
+                    childKey: ['articleId'],
+                    multiValuedParentKey: false,
+                    uniqueChildKey: true,
+                    data: [
+                        {
+                            articleId: '1',
+                            body: 'Test-Body 1'
+                        },
+                        {
+                            articleId: '2',
+                            body: 'Test-Body 2'
+                        }
+                    ],
+                    totalCount: 1
+                }
+            ];
 
             const resolvedConfig = _.cloneDeep(defaultResolvedConfig);
             resolvedConfig.attributes['id'].selected = true;
@@ -813,13 +930,16 @@ describe('result-builder', () => {
                 cursor: {
                     totalCount: 1
                 },
-                data: [{
-                    id: 1,
-                    body: 'Test-Body 1'
-                },{
-                    id: 2,
-                    body: 'Test-Body 2'
-                }]
+                data: [
+                    {
+                        id: 1,
+                        body: 'Test-Body 1'
+                    },
+                    {
+                        id: 2,
+                        body: 'Test-Body 2'
+                    }
+                ]
             };
 
             const result = resultBuilder(api, {}, rawResults, resolvedConfig);
@@ -828,46 +948,58 @@ describe('result-builder', () => {
 
         it('builds result with parentKey from secondary DataSource', () => {
             // /article/?select=author[firstname,lastname]
-            const rawResults = [{
-                attributePath: [],
-                dataSourceName: 'primary',
-                data: [{
-                    id: 1
-                },{
-                    id: 2
-                }],
-                totalCount: 1
-            },{
-                attributePath: [],
-                dataSourceName: 'articleBody',
-                parentKey: ['id'],
-                childKey: ['articleId'],
-                multiValuedParentKey: false,
-                uniqueChildKey: true,
-                data: [{
-                    articleId: '1',
-                    body: 'Test-Body 1',
-                    authorId: 10
-                },{
-                    articleId: '2',
-                    body: 'Test-Body 2',
-                    authorId: 10
-                }],
-                totalCount: 2
-            },{
-                attributePath: ['author'],
-                dataSourceName: 'primary',
-                parentKey: ['authorId'],
-                childKey: ['id'],
-                multiValuedParentKey: false,
-                uniqueChildKey: true,
-                data: [{
-                    id: 10,
-                    firstname: 'Bob',
-                    lastname: 'Tester'
-                }],
-                totalCount: 1
-            }];
+            const rawResults = [
+                {
+                    attributePath: [],
+                    dataSourceName: 'primary',
+                    data: [
+                        {
+                            id: 1
+                        },
+                        {
+                            id: 2
+                        }
+                    ],
+                    totalCount: 1
+                },
+                {
+                    attributePath: [],
+                    dataSourceName: 'articleBody',
+                    parentKey: ['id'],
+                    childKey: ['articleId'],
+                    multiValuedParentKey: false,
+                    uniqueChildKey: true,
+                    data: [
+                        {
+                            articleId: '1',
+                            body: 'Test-Body 1',
+                            authorId: 10
+                        },
+                        {
+                            articleId: '2',
+                            body: 'Test-Body 2',
+                            authorId: 10
+                        }
+                    ],
+                    totalCount: 2
+                },
+                {
+                    attributePath: ['author'],
+                    dataSourceName: 'primary',
+                    parentKey: ['authorId'],
+                    childKey: ['id'],
+                    multiValuedParentKey: false,
+                    uniqueChildKey: true,
+                    data: [
+                        {
+                            id: 10,
+                            firstname: 'Bob',
+                            lastname: 'Tester'
+                        }
+                    ],
+                    totalCount: 1
+                }
+            ];
 
             const resolvedConfig = _.cloneDeep(defaultResolvedConfig);
             resolvedConfig.attributes['id'].selected = true;
@@ -884,23 +1016,26 @@ describe('result-builder', () => {
                 cursor: {
                     totalCount: 1
                 },
-                data: [{
-                    id: 1,
-                    author: {
-                        id: 10,
-                        firstname: 'Bob',
-                        lastname: 'Tester'
+                data: [
+                    {
+                        id: 1,
+                        author: {
+                            id: 10,
+                            firstname: 'Bob',
+                            lastname: 'Tester'
+                        },
+                        body: 'Test-Body 1'
                     },
-                    body: 'Test-Body 1'
-                },{
-                    id: 2,
-                    author: {
-                        id: 10,
-                        firstname: 'Bob',
-                        lastname: 'Tester'
-                    },
-                    body: 'Test-Body 2'
-                }]
+                    {
+                        id: 2,
+                        author: {
+                            id: 10,
+                            firstname: 'Bob',
+                            lastname: 'Tester'
+                        },
+                        body: 'Test-Body 2'
+                    }
+                ]
             };
 
             const result = resultBuilder(api, {}, rawResults, resolvedConfig);
@@ -909,46 +1044,58 @@ describe('result-builder', () => {
 
         it('handle missing row in secondary DataSource from parentKey', () => {
             // /article/?select=author[firstname,lastname]
-            const rawResults = [{
-                attributePath: [],
-                dataSourceName: 'primary',
-                data: [{
-                    id: 1
-                },{
-                    id: 2
-                }],
-                totalCount: 1
-            },{
-                attributePath: [],
-                dataSourceName: 'articleBody',
-                parentKey: ['id'],
-                childKey: ['articleId'],
-                multiValuedParentKey: false,
-                uniqueChildKey: true,
-                data: [{
-                    articleId: '1',
-                    body: 'Test-Body 1',
-                    authorId: 10
-                },{
-                    articleId: '3', // ID does not match above
-                    body: 'Test-Body 2',
-                    authorId: 10
-                }],
-                totalCount: 2
-            },{
-                attributePath: ['author'],
-                dataSourceName: 'primary',
-                parentKey: ['authorId'],
-                childKey: ['id'],
-                multiValuedParentKey: false,
-                uniqueChildKey: true,
-                data: [{
-                    id: 10,
-                    firstname: 'Bob',
-                    lastname: 'Tester'
-                }],
-                totalCount: 1
-            }];
+            const rawResults = [
+                {
+                    attributePath: [],
+                    dataSourceName: 'primary',
+                    data: [
+                        {
+                            id: 1
+                        },
+                        {
+                            id: 2
+                        }
+                    ],
+                    totalCount: 1
+                },
+                {
+                    attributePath: [],
+                    dataSourceName: 'articleBody',
+                    parentKey: ['id'],
+                    childKey: ['articleId'],
+                    multiValuedParentKey: false,
+                    uniqueChildKey: true,
+                    data: [
+                        {
+                            articleId: '1',
+                            body: 'Test-Body 1',
+                            authorId: 10
+                        },
+                        {
+                            articleId: '3', // ID does not match above
+                            body: 'Test-Body 2',
+                            authorId: 10
+                        }
+                    ],
+                    totalCount: 2
+                },
+                {
+                    attributePath: ['author'],
+                    dataSourceName: 'primary',
+                    parentKey: ['authorId'],
+                    childKey: ['id'],
+                    multiValuedParentKey: false,
+                    uniqueChildKey: true,
+                    data: [
+                        {
+                            id: 10,
+                            firstname: 'Bob',
+                            lastname: 'Tester'
+                        }
+                    ],
+                    totalCount: 1
+                }
+            ];
 
             const resolvedConfig = _.cloneDeep(defaultResolvedConfig);
             resolvedConfig.attributes['id'].selected = true;
@@ -965,19 +1112,22 @@ describe('result-builder', () => {
                 cursor: {
                     totalCount: 1
                 },
-                data: [{
-                    id: 1,
-                    author: {
-                        id: 10,
-                        firstname: 'Bob',
-                        lastname: 'Tester'
+                data: [
+                    {
+                        id: 1,
+                        author: {
+                            id: 10,
+                            firstname: 'Bob',
+                            lastname: 'Tester'
+                        },
+                        body: 'Test-Body 1'
                     },
-                    body: 'Test-Body 1'
-                },{
-                    id: 2,
-                    author: null,
-                    body: null
-                }]
+                    {
+                        id: 2,
+                        author: null,
+                        body: null
+                    }
+                ]
             };
 
             const result = resultBuilder(api, {}, rawResults, resolvedConfig);
@@ -987,79 +1137,102 @@ describe('result-builder', () => {
 
     describe('error handling on data level', () => {
         it('fails if a primary key attribute is missing', () => {
-            const rawResults = [{
-                attributePath: [],
-                dataSourceName: 'primary',
-                data: [{
-                    otherId: '1' // "id" (primary key) is missing here
-                }],
-                totalCount: 1
-            }];
+            const rawResults = [
+                {
+                    attributePath: [],
+                    dataSourceName: 'primary',
+                    data: [
+                        {
+                            otherId: '1' // "id" (primary key) is missing here
+                        }
+                    ],
+                    totalCount: 1
+                }
+            ];
 
             const resolvedConfig = _.cloneDeep(defaultResolvedConfig);
 
             expect(() => {
                 resultBuilder(api, {}, rawResults, resolvedConfig);
-            }).to.throw(DataError, 'Result-row of "{root}" (DataSource "primary") ' +
-                'misses primary key attribute "id"');
+            }).to.throw(
+                DataError,
+                'Result-row of "{root}" (DataSource "primary") ' + 'misses primary key attribute "id"'
+            );
         });
 
         it('fails if a child key attribute is missing', () => {
-            const rawResults = [{
-                attributePath: [],
-                dataSourceName: 'primary',
-                data: [{
-                    id: 1
-                }],
-                totalCount: 1
-            },{
-                attributePath: [],
-                dataSourceName: 'articleBody',
-                parentKey: ['id'],
-                childKey: ['articleId'],
-                multiValuedParentKey: false,
-                uniqueChildKey: true,
-                data: [{
-                    articleId: 1,
-                    body: 'Test-Body'
-                },{
-                    otherId: 2, // misses "articleId" child key attribute
-                    body: 'Test-Body'
-                }],
-                totalCount: 1
-            }];
+            const rawResults = [
+                {
+                    attributePath: [],
+                    dataSourceName: 'primary',
+                    data: [
+                        {
+                            id: 1
+                        }
+                    ],
+                    totalCount: 1
+                },
+                {
+                    attributePath: [],
+                    dataSourceName: 'articleBody',
+                    parentKey: ['id'],
+                    childKey: ['articleId'],
+                    multiValuedParentKey: false,
+                    uniqueChildKey: true,
+                    data: [
+                        {
+                            articleId: 1,
+                            body: 'Test-Body'
+                        },
+                        {
+                            otherId: 2, // misses "articleId" child key attribute
+                            body: 'Test-Body'
+                        }
+                    ],
+                    totalCount: 1
+                }
+            ];
 
             const resolvedConfig = _.cloneDeep(defaultResolvedConfig);
 
             expect(() => {
                 resultBuilder(api, {}, rawResults, resolvedConfig);
-            }).to.throw(DataError, 'Result-row 1 of "{root}" (DataSource "articleBody") ' +
-                'misses child key attribute "articleId"');
+            }).to.throw(
+                DataError,
+                'Result-row 1 of "{root}" (DataSource "articleBody") ' + 'misses child key attribute "articleId"'
+            );
         });
 
         it('handles missing parent key attribute as "null"', () => {
-            const rawResults = [{
-                attributePath: [],
-                dataSourceName: 'primary',
-                data: [{
-                    id: 1,
-                    otherId: 10 // misses "authorId" parent key attribute
-                }],
-                totalCount: 1
-            },{
-                attributePath: ['author'],
-                dataSourceName: 'primary',
-                parentKey: ['authorId'],
-                childKey: ['id'],
-                multiValuedParentKey: false,
-                uniqueChildKey: true,
-                data: [{
-                    id: 10,
-                    firstname: 'Bob',
-                    lastname: 'Tester'
-                }],
-                totalCount: 1
-            }];
+            const rawResults = [
+                {
+                    attributePath: [],
+                    dataSourceName: 'primary',
+                    data: [
+                        {
+                            id: 1,
+                            otherId: 10 // misses "authorId" parent key attribute
+                        }
+                    ],
+                    totalCount: 1
+                },
+                {
+                    attributePath: ['author'],
+                    dataSourceName: 'primary',
+                    parentKey: ['authorId'],
+                    childKey: ['id'],
+                    multiValuedParentKey: false,
+                    uniqueChildKey: true,
+                    data: [
+                        {
+                            id: 10,
+                            firstname: 'Bob',
+                            lastname: 'Tester'
+                        }
+                    ],
+                    totalCount: 1
+                }
+            ];
 
             const resolvedConfig = _.cloneDeep(defaultResolvedConfig);
             resolvedConfig.attributes['id'].selected = true;
@@ -1069,10 +1242,12 @@ describe('result-builder', () => {
                 cursor: {
                     totalCount: 1
                 },
-                data: [{
-                    id: 1,
-                    author: null
-                }]
+                data: [
+                    {
+                        id: 1,
+                        author: null
+                    }
+                ]
             };
 
             const result = resultBuilder(api, {}, rawResults, resolvedConfig);
@@ -1088,26 +1263,27 @@ describe('result-builder', () => {
         });
 
         it('fails if uniqueChildKey is not unique', () => {
-            const rawResults = [{
-                attributePath: [],
-                dataSourceName: 'primary',
-                data: [
-                    {id: 1, authorId: 10}
-                ],
-                totalCount: 1
-            },{
-                attributePath: ['author'],
-                dataSourceName: 'primary',
-                parentKey: ['authorId'],
-                childKey: ['id'],
-                multiValuedParentKey: false,
-                uniqueChildKey: true,
-                data: [
-                    {id: 10, firstname: 'Bob', lastname: 'Tester'},
-                    {id: 10, firstname: 'Bob 2', lastname: 'Tester 2'}
-                ],
-                totalCount: 2
-            }];
+            const rawResults = [
+                {
+                    attributePath: [],
+                    dataSourceName: 'primary',
+                    data: [{ id: 1, authorId: 10 }],
+                    totalCount: 1
+                },
+                {
+                    attributePath: ['author'],
+                    dataSourceName: 'primary',
+                    parentKey: ['authorId'],
+                    childKey: ['id'],
+                    multiValuedParentKey: false,
+                    uniqueChildKey: true,
+                    data: [
+                        { id: 10, firstname: 'Bob', lastname: 'Tester' },
+                        { id: 10, firstname: 'Bob 2', lastname: 'Tester 2' }
+                    ],
+                    totalCount: 2
+                }
+            ];
 
             const resolvedConfig = _.cloneDeep(defaultResolvedConfig);
             resolvedConfig.attributes['author'].selected = true;
@@ -1118,26 +1294,33 @@ describe('result-builder', () => {
         });
 
         it('handles missing row in secondary DataSource (by primary key) as "null"', () => {
-            const rawResults = [{
-                attributePath: [],
-                dataSourceName: 'primary',
-                data: [{
-                    id: 1
-                }],
-                totalCount: 1
-            },{
-                attributePath: [],
-                dataSourceName: 'articleBody',
-                parentKey: ['id'],
-                childKey: ['articleId'],
-                multiValuedParentKey: false,
-                uniqueChildKey: true,
-                data: [{
-                    articleId: 10, // does not match ID from primary DataSource
-                    body: 'Test-Body'
-                }],
-                totalCount: 1
-            }];
+            const rawResults = [
+                {
+                    attributePath: [],
+                    dataSourceName: 'primary',
+                    data: [
+                        {
+                            id: 1
+                        }
+                    ],
+                    totalCount: 1
+                },
+                {
+                    attributePath: [],
+                    dataSourceName: 'articleBody',
+                    parentKey: ['id'],
+                    childKey: ['articleId'],
+                    multiValuedParentKey: false,
+                    uniqueChildKey: true,
+                    data: [
+                        {
+                            articleId: 10, // does not match ID from primary DataSource
+                            body: 'Test-Body'
+                        }
+                    ],
+                    totalCount: 1
+                }
+            ];
 
             const resolvedConfig = _.cloneDeep(defaultResolvedConfig);
             resolvedConfig.many = false;
@@ -1157,26 +1340,33 @@ describe('result-builder', () => {
         });
 
         it('handles missing row in child resource as "null"', () => {
-            const rawResults = [{
-                attributePath: [],
-                dataSourceName: 'primary',
-                data: [{
-                    id: 1
-                }],
-                totalCount: 1
-            },{
-                attributePath: ['video'],
-                dataSourceName: 'primary',
-                parentKey: ['id'],
-                childKey: ['articleId'],
-                multiValuedParentKey: false,
-                uniqueChildKey: true,
-                data: [{
-                    articleId: 10, // does not match ID from parent resource
-                    url: 'http://example.com/video/123'
-                }],
-                totalCount: 1
-            }];
+            const rawResults = [
+                {
+                    attributePath: [],
+                    dataSourceName: 'primary',
+                    data: [
+                        {
+                            id: 1
+                        }
+                    ],
+                    totalCount: 1
+                },
+                {
+                    attributePath: ['video'],
+                    dataSourceName: 'primary',
+                    parentKey: ['id'],
+                    childKey: ['articleId'],
+                    multiValuedParentKey: false,
+                    uniqueChildKey: true,
+                    data: [
+                        {
+                            articleId: 10, // does not match ID from parent resource
+                            url: 'http://example.com/video/123'
+                        }
+                    ],
+                    totalCount: 1
+                }
+            ];
 
             const resolvedConfig = _.cloneDeep(defaultResolvedConfig);
             resolvedConfig.many = false;
@@ -1195,15 +1385,19 @@ describe('result-builder', () => {
         });
 
         it('handles missing attribute as null', () => {
-            const rawResults = [{
-                attributePath: [],
-                dataSourceName: 'primary',
-                data: [{
-                    id: 1,
-                    otherTitle: 'Title' // misses "title" attribute
-                }],
-                totalCount: 1
-            }];
+            const rawResults = [
+                {
+                    attributePath: [],
+                    dataSourceName: 'primary',
+                    data: [
+                        {
+                            id: 1,
+                            otherTitle: 'Title' // misses "title" attribute
+                        }
+                    ],
+                    totalCount: 1
+                }
+            ];
 
             const resolvedConfig = _.cloneDeep(defaultResolvedConfig);
             resolvedConfig.many = false;
@@ -1222,14 +1416,18 @@ describe('result-builder', () => {
 
     describe('implementation error handling ("should never happen"-errors)', () => {
         it('fails on invalid attributePath in result', () => {
-            const rawResults = [{
-                attributePath: ['any', 'subresource'], // invalid path
-                dataSourceName: 'primary',
-                data: [{
-                    id: 1
-                }],
-                totalCount: 1
-            }];
+            const rawResults = [
+                {
+                    attributePath: ['any', 'subresource'], // invalid path
+                    dataSourceName: 'primary',
+                    data: [
+                        {
+                            id: 1
+                        }
+                    ],
+                    totalCount: 1
+                }
+            ];
 
             const resolvedConfig = _.cloneDeep(defaultResolvedConfig);
 
@@ -1249,14 +1447,18 @@ describe('result-builder', () => {
         });
 
         it('fails if complete result of secondary DataSource is missing', () => {
-            const rawResults = [{
-                attributePath: [],
-                dataSourceName: 'primary',
-                data: [{
-                    id: '1'
-                }],
-                totalCount: 1
-            }]; // "articleBody" result is missing here
+            const rawResults = [
+                {
+                    attributePath: [],
+                    dataSourceName: 'primary',
+                    data: [
+                        {
+                            id: '1'
+                        }
+                    ],
+                    totalCount: 1
+                }
+            ]; // "articleBody" result is missing here
 
             const resolvedConfig = _.cloneDeep(defaultResolvedConfig);
             resolvedConfig.attributes['body'].selected = true;
@@ -1267,14 +1469,18 @@ describe('result-builder', () => {
         });
 
         it('fails if complete result of primary DataSource of sub-resource is missing', () => {
-            const rawResults = [{
-                attributePath: [],
-                dataSourceName: 'primary',
-                data: [{
-                    id: '1'
-                }],
-                totalCount: 1
-            }]; // "author"/"primary" result is missing here
+            const rawResults = [
+                {
+                    attributePath: [],
+                    dataSourceName: 'primary',
+                    data: [
+                        {
+                            id: '1'
+                        }
+                    ],
+                    totalCount: 1
+                }
+            ]; // "author"/"primary" result is missing here
 
             const resolvedConfig = _.cloneDeep(defaultResolvedConfig);
             resolvedConfig.attributes['author'].selected = true;
@@ -1288,85 +1494,105 @@ describe('result-builder', () => {
     describe('complex results', () => {
         it('builds full featured result', () => {
             // /article/?select=date,title,subTitle,author[firstname],body,video.url,source.name,comments[content,user[lastname]]
-            const rawResults = [{
-                attributePath: [],
-                dataSourceName: 'primary',
-                data: [{
-                    id: 1,
-                    timestamp: '2015-03-03T14:00:00.000Z',
-                    title: 'Title',
-                    authorId: 10,
-                    sourceName: 'CNN'
-                }],
-                totalCount: 1
-            },{
-                attributePath: [],
-                dataSourceName: 'articleBody',
-                parentKey: ['id'],
-                childKey: ['articleId'],
-                multiValuedParentKey: false,
-                uniqueChildKey: true,
-                data: [{
-                    articleId: 1,
-                    body: 'Test-Body'
-                }],
-                totalCount: 1
-            },{
-                attributePath: ['author'],
-                dataSourceName: 'primary',
-                parentKey: ['authorId'],
-                childKey: ['id'],
-                multiValuedParentKey: false,
-                uniqueChildKey: true,
-                data: [{
-                    id: 10,
-                    firstname: 'Bob'
-                }],
-                totalCount: 1
-            },{
-                attributePath: ['video'],
-                dataSourceName: 'primary',
-                parentKey: ['id'],
-                childKey: ['articleId'],
-                multiValuedParentKey: false,
-                uniqueChildKey: true,
-                data: [{
-                    articleId: 1,
-                    url: 'http://example.com/video/123'
-                }],
-                totalCount: 1
-            },{
-                attributePath: ['comments'],
-                dataSourceName: 'primary',
-                parentKey: ['id'],
-                childKey: ['articleId'],
-                multiValuedParentKey: false,
-                uniqueChildKey: false,
-                data: [{
-                    id: 100,
-                    articleId: 1,
-                    userId: 20,
-                    content: 'Comment 1'
-                },{
-                    id: 101,
-                    articleId: 1,
-                    userId: 20,
-                    content: 'Comment 2'
-                }],
-                totalCount: 1
-            },{
-                attributePath: ['comments', 'user'],
-                dataSourceName: 'primary',
-                parentKey: ['userId'],
-                childKey: ['id'],
-                multiValuedParentKey: false,
-                uniqueChildKey: true,
-                data: [{
-                    id: 20,
-                    lastname: 'Commenter'
-                }],
-                totalCount: 1
-            }];
+            const rawResults = [
+                {
+                    attributePath: [],
+                    dataSourceName: 'primary',
+                    data: [
+                        {
+                            id: 1,
+                            timestamp: '2015-03-03T14:00:00.000Z',
+                            title: 'Title',
+                            authorId: 10,
+                            sourceName: 'CNN'
+                        }
+                    ],
+                    totalCount: 1
+                },
+                {
+                    attributePath: [],
+                    dataSourceName: 'articleBody',
+                    parentKey: ['id'],
+                    childKey: ['articleId'],
+                    multiValuedParentKey: false,
+                    uniqueChildKey: true,
+                    data: [
+                        {
+                            articleId: 1,
+                            body: 'Test-Body'
+                        }
+                    ],
+                    totalCount: 1
+                },
+                {
+                    attributePath: ['author'],
+                    dataSourceName: 'primary',
+                    parentKey: ['authorId'],
+                    childKey: ['id'],
+                    multiValuedParentKey: false,
+                    uniqueChildKey: true,
+                    data: [
+                        {
+                            id: 10,
+                            firstname: 'Bob'
+                        }
+                    ],
+                    totalCount: 1
+                },
+                {
+                    attributePath: ['video'],
+                    dataSourceName: 'primary',
+                    parentKey: ['id'],
+                    childKey: ['articleId'],
+                    multiValuedParentKey: false,
+                    uniqueChildKey: true,
+                    data: [
+                        {
+                            articleId: 1,
+                            url: 'http://example.com/video/123'
+                        }
+                    ],
+                    totalCount: 1
+                },
+                {
+                    attributePath: ['comments'],
+                    dataSourceName: 'primary',
+                    parentKey: ['id'],
+                    childKey: ['articleId'],
+                    multiValuedParentKey: false,
+                    uniqueChildKey: false,
+                    data: [
+                        {
+                            id: 100,
+                            articleId: 1,
+                            userId: 20,
+                            content: 'Comment 1'
+                        },
+                        {
+                            id: 101,
+                            articleId: 1,
+                            userId: 20,
+                            content: 'Comment 2'
+                        }
+                    ],
+                    totalCount: 1
+                },
+                {
+                    attributePath: ['comments', 'user'],
+                    dataSourceName: 'primary',
+                    parentKey: ['userId'],
+                    childKey: ['id'],
+                    multiValuedParentKey: false,
+                    uniqueChildKey: true,
+                    data: [
+                        {
+                            id: 20,
+                            lastname: 'Commenter'
+                        }
+                    ],
+                    totalCount: 1
+                }
+            ];
 
             const resolvedConfig = _.cloneDeep(defaultResolvedConfig);
             resolvedConfig.many = false;
@@ -1392,37 +1618,37 @@ describe('result-builder', () => {
 
             const expectedResult = {
                 data: {
-                    'id': 1,
-                    'date': '2015-03-03T14:00:00.000Z',
-                    'title': 'Title',
-                    'subTitle': null,
-                    'author': {
-                        'id': 10,
-                        'firstname': 'Bob'
+                    id: 1,
+                    date: '2015-03-03T14:00:00.000Z',
+                    title: 'Title',
+                    subTitle: null,
+                    author: {
+                        id: 10,
+                        firstname: 'Bob'
                     },
-                    'body': 'Test-Body',
-                    'video': {
-                        'url': 'http://example.com/video/123'
+                    body: 'Test-Body',
+                    video: {
+                        url: 'http://example.com/video/123'
                     },
-                    'source': {
-                        'name': 'CNN'
+                    source: {
+                        name: 'CNN'
                     },
-                    'comments': [
+                    comments: [
                         {
-                            'id': 100,
-                            'user': {
-                                'id': 20,
-                                'lastname': 'Commenter'
+                            id: 100,
+                            user: {
+                                id: 20,
+                                lastname: 'Commenter'
                             },
-                            'content': 'Comment 1'
+                            content: 'Comment 1'
                         },
                         {
-                            'id': 101,
-                            'user': {
-                                'id': 20,
-                                'lastname': 'Commenter'
+                            id: 101,
+                            user: {
+                                id: 20,
+                                lastname: 'Commenter'
                             },
-                            'content': 'Comment 2'
+                            content: 'Comment 2'
                         }
                     ]
                 }

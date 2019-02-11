@@ -4,11 +4,11 @@ const path = require('path');
 const flora = require('../');
 
 /**
- * @param {flora.Api} api 
- * @param {object} [options] 
+ * @param {flora.Api} api
+ * @param {object} [options]
  */
-const myPlugin = (api, options) => {
-    api.on('request', async ({ request }) => {
+const myPlugin = (api /* options */) => {
+    api.on('request', async (/* { request } */) => {
         api.log.debug('plugin got a request');
         // ... do something with the request
     });

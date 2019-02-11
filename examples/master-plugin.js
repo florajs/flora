@@ -4,10 +4,10 @@ const path = require('path');
 const flora = require('../');
 
 /**
- * @param {flora.Master} api 
- * @param {object} [options] 
+ * @param {flora.Master} api
+ * @param {object} [options]
  */
-const masterPlugin = (master, options) => {
+const masterPlugin = (master /* , options */) => {
     master.on('init', () => {
         // Do things on cluster master init
     });

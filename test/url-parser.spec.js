@@ -1,3 +1,5 @@
+/* global describe, it, beforeEach */
+
 'use strict';
 
 const { expect } = require('chai');
@@ -37,38 +39,46 @@ describe('HTTP request parsing', () => {
 
     it('should resolve with null if parsing fails', done => {
         httpRequest.url = 'http://api.example.com/';
-        parseRequest(httpRequest).then(request => {
-            expect(request).to.be.null;
-            done();
-        }).catch(done);
+        parseRequest(httpRequest)
+            .then(request => {
+                expect(request).to.be.null;
+                done();
+            })
+            .catch(done);
     });
 
     describe('flat resources', () => {
         it('should parse resource', done => {
             httpRequest.url = 'http://api.example.com/user/';
 
-            parseRequest(httpRequest).then(request => {
-                expect(request).to.have.property('resource', 'user');
-                done();
-            }).catch(done);
+            parseRequest(httpRequest)
+                .then(request => {
+                    expect(request).to.have.property('resource', 'user');
+                    done();
+                })
+                .catch(done);
         });
 
         it('should parse id', done => {
             httpRequest.url = 'http://api.example.com/user/1337';
 
-            parseRequest(httpRequest).then(request => {
-                expect(request).to.have.property('id', '1337');
-                done();
-            }).catch(done);
+            parseRequest(httpRequest)
+                .then(request => {
+                    expect(request).to.have.property('id', '1337');
+                    done();
+                })
+                .catch(done);
         });
 
         it('should parse format', done => {
             httpRequest.url = 'http://api.example.com/user/1337.jpg';
 
-            parseRequest(httpRequest).then(request => {
-                expect(request).to.have.property('format', 'jpg');
-                done();
-            }).catch(done);
+            parseRequest(httpRequest)
+                .then(request => {
+                    expect(request).to.have.property('format', 'jpg');
+                    done();
+                })
+                .catch(done);
         });
     });
 
@@ -76,37 +86,45 @@ describe('HTTP request parsing', () => {
         it('should parse resource', done => {
             httpRequest.url = 'http://api.example.com/user/image/';
 
-            parseRequest(httpRequest).then(request => {
-                expect(request).to.have.property('resource', 'user/image');
-                done();
-            }).catch(done);
+            parseRequest(httpRequest)
+                .then(request => {
+                    expect(request).to.have.property('resource', 'user/image');
+                    done();
+                })
+                .catch(done);
         });
 
         it('should parse id', done => {
             httpRequest.url = 'http://api.example.com/user/image/1337.image';
 
-            parseRequest(httpRequest).then(request => {
-                expect(request).to.have.property('id', '1337');
-                done();
-            }).catch(done);
+            parseRequest(httpRequest)
+                .then(request => {
+                    expect(request).to.have.property('id', '1337');
+                    done();
+                })
+                .catch(done);
         });
 
         it('should parse format', done => {
             httpRequest.url = 'http://api.example.com/user/image/1337.image';
 
-            parseRequest(httpRequest).then(request => {
-                expect(request).to.have.property('format', 'image');
-                done();
-            }).catch(done);
+            parseRequest(httpRequest)
+                .then(request => {
+                    expect(request).to.have.property('format', 'image');
+                    done();
+                })
+                .catch(done);
         });
 
         it('should parse deeply nested resources', done => {
             httpRequest.url = 'http://api.example.com/store/admin/customer/address/1337';
 
-            parseRequest(httpRequest).then(request => {
-                expect(request).to.have.property('resource', 'store/admin/customer/address');
-                done();
-            }).catch(done);
+            parseRequest(httpRequest)
+                .then(request => {
+                    expect(request).to.have.property('resource', 'store/admin/customer/address');
+                    done();
+                })
+                .catch(done);
         });
     });
 
@@ -114,21 +132,25 @@ describe('HTTP request parsing', () => {
         it('should be copied', done => {
             httpRequest.url = 'http://api.example.com/user/1337.jpg?width=60&rotate=90';
 
-            parseRequest(httpRequest).then(request => {
-                expect(request).to.have.property('width', '60');
-                expect(request).to.have.property('rotate', '90');
-                done();
-            }).catch(done);
+            parseRequest(httpRequest)
+                .then(request => {
+                    expect(request).to.have.property('width', '60');
+                    expect(request).to.have.property('rotate', '90');
+                    done();
+                })
+                .catch(done);
         });
 
         it('should not overwrite existing request properties', done => {
             httpRequest.url = 'http://api.example.com/user/1337.jpg?format=tiff&resource=abc';
 
-            parseRequest(httpRequest).then(request => {
-                expect(request.resource).to.equal('user');
-                expect(request.format).to.equal('jpg');
-                done();
-            }).catch(done);
+            parseRequest(httpRequest)
+                .then(request => {
+                    expect(request.resource).to.equal('user');
+                    expect(request.format).to.equal('jpg');
+                    done();
+                })
+                .catch(done);
         });
     });
 
@@ -139,10 +161,12 @@ describe('HTTP request parsing', () => {
             httpRequest.method = 'POST';
             httpRequest.headers['content-length'] = httpRequest.payload.length;
 
-            parseRequest(httpRequest).then(request => {
-                expect(request.data).to.have.property('a', true);
-                done();
-            }).catch(done);
+            parseRequest(httpRequest)
+                .then(request => {
+                    expect(request.data).to.have.property('a', true);
+                    done();
+                })
+                .catch(done);
         });
 
         it('should parse form-urlencoded payload', done => {
@@ -152,11 +176,13 @@ describe('HTTP request parsing', () => {
             httpRequest.method = 'POST';
             httpRequest.headers['content-length'] = httpRequest.payload.length;
 
-            parseRequest(httpRequest).then(request => {
-                expect(request).to.have.property('a', 'true');
-                expect(request).to.have.property('b', 'false');
-                done();
-            }).catch(done);
+            parseRequest(httpRequest)
+                .then(request => {
+                    expect(request).to.have.property('a', 'true');
+                    expect(request).to.have.property('b', 'false');
+                    done();
+                })
+                .catch(done);
         });
     });
 });

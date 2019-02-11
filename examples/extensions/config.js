@@ -1,12 +1,14 @@
 const path = require('path');
 
 class EmptyDataSource {
-    async process(request) {
+    async process(/* request */) {
         return {
-            data: [{
-                id: 1,
-                foo: 'bar'
-            }],
+            data: [
+                {
+                    id: 1,
+                    foo: 'bar'
+                }
+            ],
             totalCount: null
         };
     }

@@ -26,7 +26,6 @@ const request = new flora.Request({
     select: 'select=iso2,iso3,currency(order=iso:desc).iso'
 });
 
-api
-    .init(config)
+api.init(config)
     .then(() => api.execute(request))
-    .then(response => console.log(response));
+    .then(response => console.log(response)); // eslint-disable-line no-console

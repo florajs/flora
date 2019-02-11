@@ -1,3 +1,5 @@
+/* global describe, it */
+
 'use strict';
 
 const { expect } = require('chai');
@@ -28,7 +30,7 @@ describe('Response', () => {
         const response = new Response(new Request(reqOpts));
 
         expect(() => {
-            response.meta.headers = {'Content-Type': 'application/pdf'};
+            response.meta.headers = { 'Content-Type': 'application/pdf' };
         }).to.not.throw(Error);
         expect(response.meta.headers).to.have.property('Content-Type');
     });

@@ -1,3 +1,5 @@
+/* global describe, it */
+
 'use strict';
 
 const _ = require('lodash');
@@ -11,7 +13,7 @@ describe('request-resolver', () => {
 
     describe('creation of resolved config (attribute tree)', () => {
         it('does not modify the original resourceConfigs tree', () => {
-            const req = {resource: 'article'};
+            const req = { resource: 'article' };
 
             const resourceConfigsBefore = JSON.stringify(resourceConfigs);
             requestResolver(req, resourceConfigs);
@@ -24,19 +26,19 @@ describe('request-resolver', () => {
             const req = {
                 resource: 'article',
                 select: {
-                    'title': {},
-                    'author': {
+                    title: {},
+                    author: {
                         select: {
-                            'firstname': {},
+                            firstname: {}
                         }
                     },
-                    'categories': {},
-                    'comments': {
+                    categories: {},
+                    comments: {
                         select: {
-                            'content': {},
-                            'user': {
+                            content: {},
+                            user: {
                                 select: {
-                                    'firstname': {}
+                                    firstname: {}
                                 }
                             }
                         }
@@ -66,16 +68,16 @@ describe('request-resolver', () => {
 
         it('handles resource-includes at top level (also recursive)', () => {
             const configs = {
-                "resource1": {
-                    config: {"resource": "resource2"}
+                resource1: {
+                    config: { resource: 'resource2' }
                 },
-                "resource2": {
-                    config: {"resource": "real-resource"}
+                resource2: {
+                    config: { resource: 'real-resource' }
                 },
-                "real-resource": resourceConfigs['user']
+                'real-resource': resourceConfigs['user']
             };
 
-            const req = {resource: 'resource1'};
+            const req = { resource: 'resource1' };
             const resolvedRequest = requestResolver(req, configs);
 
             expect(resolvedRequest.resolvedConfig).to.have.nested.property('attributes.id');
@@ -90,7 +92,7 @@ describe('request-resolver', () => {
         });
 
         it('fails on unknown resource in request', () => {
-            const req = {resource: 'non-existing'};
+            const req = { resource: 'non-existing' };
 
             expect(() => {
                 requestResolver(req, resourceConfigs);
@@ -99,36 +101,39 @@ describe('request-resolver', () => {
 
         it('fails on unknown included resource with different error', () => {
             const configs = {
-                "existing": {
-                    config: {"resource": "non-existing"}
+                existing: {
+                    config: { resource: 'non-existing' }
                 }
             };
 
-            const req = {resource: 'existing'};
+            const req = { resource: 'existing' };
 
             expect(() => {
                 requestResolver(req, configs);
-            }).to.throw(ImplementationError, 'Unknown resource "non-existing" (included from: existing -> non-existing)');
+            }).to.throw(
+                ImplementationError,
+                'Unknown resource "non-existing" (included from: existing -> non-existing)'
+            );
         });
 
         it('fails on unknown included sub-resource with different error', () => {
             const configs = {
-                "existing": {
+                existing: {
                     config: {
-                        "dataSources": resourceConfigs['user'].config.dataSources,
-                    "attributes": {
-                        "existingAttribute": {
-                            "resource": "non-existing"
+                        dataSources: resourceConfigs['user'].config.dataSources,
+                        attributes: {
+                            existingAttribute: {
+                                resource: 'non-existing'
+                            }
                         }
                     }
-                }
                 }
             };
 
             const req = {
                 resource: 'existing',
                 select: {
-                    'existingAttribute': {}
+                    existingAttribute: {}
                 }
             };
 
@@ -139,26 +144,29 @@ describe('request-resolver', () => {
 
         it('fails on endless recursion in resource-includes at top level', () => {
             const configs = {
-                "resource1": {
-                    config: {"resource": "resource2"}
+                resource1: {
+                    config: { resource: 'resource2' }
                 },
-                "resource2": {
-                    config: {"resource": "resource1"}
+                resource2: {
+                    config: { resource: 'resource1' }
                 }
             };
 
-            const req = {resource: 'resource1'};
+            const req = { resource: 'resource1' };
 
             expect(() => {
                 requestResolver(req, configs);
-            }).to.throw(ImplementationError, 'Resource inclusion depth too big (included from: resource1 -> resource2' /* ...) */);
+            }).to.throw(
+                ImplementationError,
+                'Resource inclusion depth too big (included from: resource1 -> resource2' /* ...) */
+            );
         });
 
         it('fails if no DataSources defined at root', () => {
             const configs = _.cloneDeep(resourceConfigs);
             delete configs['article'].config.dataSources;
 
-            const req = {resource: 'article'};
+            const req = { resource: 'article' };
 
             expect(() => {
                 requestResolver(req, configs);
@@ -166,7 +174,7 @@ describe('request-resolver', () => {
         });
 
         it('selects primary key in attribute tree automatically', () => {
-            const req = {resource: 'article'};
+            const req = { resource: 'article' };
 
             const resolvedRequest = requestResolver(req, resourceConfigs);
             expect(resolvedRequest.resolvedConfig.attributes['id'].selected).to.be.true;
@@ -176,7 +184,7 @@ describe('request-resolver', () => {
             const req = {
                 resource: 'article',
                 select: {
-                    'title': {}
+                    title: {}
                 }
             };
 
@@ -187,60 +195,60 @@ describe('request-resolver', () => {
 
     describe('merging of included sub-resources', () => {
         const mergeResourceConfigs = {
-            "resource1": {
+            resource1: {
                 config: {
-                "primaryKey": [["id"]],
-                "resolvedPrimaryKey": {"primary": ["id"]},
-                "dataSources": {
-                    "primary": {"type": "test"}
-                },
-                "attributes": {
-                    "id": {
-                        "type": "int",
-                        "map": {"default": {"primary": "id"}}
+                    primaryKey: [['id']],
+                    resolvedPrimaryKey: { primary: ['id'] },
+                    dataSources: {
+                        primary: { type: 'test' }
                     },
-                    "resource2": {
-                        "resource": "resource2",
-                        "parentKey": [["id"]],
-                        "resolvedParentKey": {"primary": ["id"]},
-                        "childKey": [["id"]],
-                        "resolvedChildKey": {"primary": ["id"]}
+                    attributes: {
+                        id: {
+                            type: 'int',
+                            map: { default: { primary: 'id' } }
+                        },
+                        resource2: {
+                            resource: 'resource2',
+                            parentKey: [['id']],
+                            resolvedParentKey: { primary: ['id'] },
+                            childKey: [['id']],
+                            resolvedChildKey: { primary: ['id'] }
+                        }
                     }
-                }
                 }
             },
-            "resource2": {
+            resource2: {
                 config: {
-                "primaryKey": [["id"]],
-                "resolvedPrimaryKey": {"primary": ["id"]},
-                "dataSources": {
-                    "primary": {"type": "test"}
-                },
-                "attributes": {
-                    "id": {
-                        "type": "int",
-                        "map": {"default": {"primary": "id"}}
+                    primaryKey: [['id']],
+                    resolvedPrimaryKey: { primary: ['id'] },
+                    dataSources: {
+                        primary: { type: 'test' }
                     },
-                    "attr1": {
-                        "map": {"default": {"primary": "attr1"}}
-                    },
-                    "attr2": {
-                        "map": {"default": {"primary": "attr2"}}
+                    attributes: {
+                        id: {
+                            type: 'int',
+                            map: { default: { primary: 'id' } }
+                        },
+                        attr1: {
+                            map: { default: { primary: 'attr1' } }
+                        },
+                        attr2: {
+                            map: { default: { primary: 'attr2' } }
+                        }
                     }
                 }
-            }
             }
         };
 
         it('allows additional attributes and keeps order from request', () => {
             const configs = _.cloneDeep(mergeResourceConfigs);
-            configs['resource1'].config.attributes['resource2'].attributes = {'attr3': {value: 'test'}};
+            configs['resource1'].config.attributes['resource2'].attributes = { attr3: { value: 'test' } };
 
             const req = {
                 resource: 'resource1',
                 select: {
-                    'resource2': {
-                        select: {'attr3': {}, 'attr2': {}, 'attr1': {}}
+                    resource2: {
+                        select: { attr3: {}, attr2: {}, attr1: {} }
                     }
                 }
             };
@@ -254,13 +262,13 @@ describe('request-resolver', () => {
 
         it('does not allow overwriting of attributes', () => {
             const configs = _.cloneDeep(mergeResourceConfigs);
-            configs['resource1'].config.attributes['resource2'].attributes = {'attr1': {value: 'test'}};
+            configs['resource1'].config.attributes['resource2'].attributes = { attr1: { value: 'test' } };
 
             const req = {
                 resource: 'resource1',
                 select: {
-                    'resource2': {
-                        select: {'attr1': {}}
+                    resource2: {
+                        select: { attr1: {} }
                     }
                 }
             };
@@ -272,34 +280,36 @@ describe('request-resolver', () => {
 
         it('allows additional DataSources', () => {
             const configs = _.cloneDeep(mergeResourceConfigs);
-            configs['resource1'].config.attributes['resource2'].dataSources = {'test': {type: 'test'}};
+            configs['resource1'].config.attributes['resource2'].dataSources = { test: { type: 'test' } };
             // TODO: Currently "map" is not mergeable - maybe future feature - hack for now for this test:
             configs['resource2'].config.resolvedPrimaryKey['test'] = ['id'];
             configs['resource2'].config.attributes['id'].map['default']['test'] = 'id';
-            configs['resource2'].config.attributes['attr1'].map['default'] = {'test': 'attr1'};
+            configs['resource2'].config.attributes['attr1'].map['default'] = { test: 'attr1' };
 
             const req = {
                 resource: 'resource1',
                 select: {
-                    'resource2': {
-                        select: {'attr1': {}}
+                    resource2: {
+                        select: { attr1: {} }
                     }
                 }
             };
 
             const resolvedRequest = requestResolver(req, configs);
-            expect(resolvedRequest.resolvedConfig.attributes['resource2'].dataSources)
-                .to.have.all.keys('primary', 'test');
+            expect(resolvedRequest.resolvedConfig.attributes['resource2'].dataSources).to.have.all.keys(
+                'primary',
+                'test'
+            );
         });
 
         it('does not allow overwriting of DataSources', () => {
             const configs = _.cloneDeep(mergeResourceConfigs);
-            configs['resource1'].config.attributes['resource2'].dataSources = {'primary': {type: 'test'}};
+            configs['resource1'].config.attributes['resource2'].dataSources = { primary: { type: 'test' } };
 
             const req = {
                 resource: 'resource1',
                 select: {
-                    'resource2': {}
+                    resource2: {}
                 }
             };
 
@@ -310,37 +320,46 @@ describe('request-resolver', () => {
 
         it('does allow overwriting of DataSources with "inherit=inherit" flag', () => {
             const configs = _.cloneDeep(mergeResourceConfigs);
-            configs['resource1'].config.dataSources = {'primary': {customFlag: 'default'}};
-            configs['resource1'].config.attributes['resource2'].dataSources = {'primary': {inherit: 'inherit', customFlag: 'overwritten'}};
+            configs['resource1'].config.dataSources = { primary: { customFlag: 'default' } };
+            configs['resource1'].config.attributes['resource2'].dataSources = {
+                primary: { inherit: 'inherit', customFlag: 'overwritten' }
+            };
 
             const req = {
                 resource: 'resource1',
                 select: {
-                    'resource2': {}
+                    resource2: {}
                 }
             };
 
             const resolvedRequest = requestResolver(req, configs);
             expect(resolvedRequest.resolvedConfig.attributes['resource2'].dataSources.primary.type).to.equal('test');
-            expect(resolvedRequest.resolvedConfig.attributes['resource2'].dataSources.primary.customFlag).to.equal('overwritten');
+            expect(resolvedRequest.resolvedConfig.attributes['resource2'].dataSources.primary.customFlag).to.equal(
+                'overwritten'
+            );
         });
 
         it('does allow overwriting of DataSources with "inherit=replace" flag', () => {
             const configs = _.cloneDeep(mergeResourceConfigs);
-            configs['resource1'].config.dataSources = {'primary': {customFlag: 'default', otherFlag: 'hello'}};
-            configs['resource1'].config.attributes['resource2'].dataSources = {'primary': {type: 'test2', inherit: 'replace', customFlag: 'overwritten'}};
+            configs['resource1'].config.dataSources = { primary: { customFlag: 'default', otherFlag: 'hello' } };
+            configs['resource1'].config.attributes['resource2'].dataSources = {
+                primary: { type: 'test2', inherit: 'replace', customFlag: 'overwritten' }
+            };
 
             const req = {
                 resource: 'resource1',
                 select: {
-                    'resource2': {}
+                    resource2: {}
                 }
             };
 
             const resolvedRequest = requestResolver(req, configs);
             expect(resolvedRequest.resolvedConfig.attributes['resource2'].dataSources.primary.type).to.equal('test2');
-            expect(resolvedRequest.resolvedConfig.attributes['resource2'].dataSources.primary.customFlag).to.equal('overwritten');
-            expect(resolvedRequest.resolvedConfig.attributes['resource2'].dataSources.primary.otherFlag).to.be.undefined;
+            expect(resolvedRequest.resolvedConfig.attributes['resource2'].dataSources.primary.customFlag).to.equal(
+                'overwritten'
+            );
+            expect(resolvedRequest.resolvedConfig.attributes['resource2'].dataSources.primary.otherFlag).to.be
+                .undefined;
         });
     });
 
@@ -348,7 +367,7 @@ describe('request-resolver', () => {
         it('resolves minimal request', () => {
             // /article/
             const req = {
-                resource: 'article',
+                resource: 'article'
             };
 
             const dataSourceTree = {
@@ -363,7 +382,7 @@ describe('request-resolver', () => {
                     limit: 10
                 },
                 attributeOptions: {
-                    'id': {type: 'int'}
+                    id: { type: 'int' }
                 }
             };
 
@@ -389,13 +408,13 @@ describe('request-resolver', () => {
                     attributes: ['id'],
                     filter: [
                         [
-                            {attribute: 'id', operator: 'equal', value: '1'}
+                            { attribute: 'id', operator: 'equal', value: '1' }
                             // TODO: Type mapping of primaryKey value to defined type
                         ]
                     ]
                 },
                 attributeOptions: {
-                    'id': {type: 'int'}
+                    id: { type: 'int' }
                 }
             };
 
@@ -408,7 +427,7 @@ describe('request-resolver', () => {
             const req = {
                 resource: 'article',
                 select: {
-                    'title': {}
+                    title: {}
                 }
             };
 
@@ -424,8 +443,8 @@ describe('request-resolver', () => {
                     limit: 10
                 },
                 attributeOptions: {
-                    'id': {type: 'int'},
-                    'title': {type: 'string'}
+                    id: { type: 'int' },
+                    title: { type: 'string' }
                 }
             };
 
@@ -438,7 +457,7 @@ describe('request-resolver', () => {
             const req = {
                 resource: 'article',
                 select: {
-                    'invalid': {}
+                    invalid: {}
                 }
             };
 
@@ -452,9 +471,9 @@ describe('request-resolver', () => {
             const req = {
                 resource: 'article',
                 select: {
-                    'title': {
+                    title: {
                         select: {
-                            'invalid': {}
+                            invalid: {}
                         }
                     }
                 }
@@ -470,7 +489,7 @@ describe('request-resolver', () => {
             const req = {
                 resource: 'article',
                 select: {
-                    'secretInfo': {}
+                    secretInfo: {}
                 }
             };
 
@@ -483,11 +502,7 @@ describe('request-resolver', () => {
             // /article/?filter=id=2
             const req = {
                 resource: 'article',
-                filter: [
-                    [
-                        {attribute: ['id'], operator: 'equal', value: 2}
-                    ]
-                ]
+                filter: [[{ attribute: ['id'], operator: 'equal', value: 2 }]]
             };
 
             const dataSourceTree = {
@@ -499,15 +514,11 @@ describe('request-resolver', () => {
                     database: 'contents',
                     table: 'article',
                     attributes: ['id'],
-                    filter: [
-                        [
-                            {attribute: 'id', operator: 'equal', value: 2}
-                        ]
-                    ],
+                    filter: [[{ attribute: 'id', operator: 'equal', value: 2 }]],
                     limit: 10
                 },
                 attributeOptions: {
-                    'id': {type: 'int'}
+                    id: { type: 'int' }
                 }
             };
 
@@ -519,11 +530,7 @@ describe('request-resolver', () => {
             // /article/?filter=title=Test
             const req = {
                 resource: 'article',
-                filter: [
-                    [
-                        {attribute: ['title'], operator: 'equal', value: 'Test'}
-                    ]
-                ]
+                filter: [[{ attribute: ['title'], operator: 'equal', value: 'Test' }]]
             };
 
             expect(() => {
@@ -535,16 +542,15 @@ describe('request-resolver', () => {
             // /article/?filter=date!=Test
             const req = {
                 resource: 'article',
-                filter: [
-                    [
-                        {attribute: ['date'], operator: 'notEqual', value: 'Test'}
-                    ]
-                ]
+                filter: [[{ attribute: ['date'], operator: 'notEqual', value: 'Test' }]]
             };
 
             expect(() => {
                 requestResolver(req, resourceConfigs);
-            }).to.throw(RequestError, 'Can not filter by attribute "date" with "notEqual" (allowed operators: greaterOrEqual, lessOrEqual)');
+            }).to.throw(
+                RequestError,
+                'Can not filter by attribute "date" with "notEqual" (allowed operators: greaterOrEqual, lessOrEqual)'
+            );
         });
 
         it('resolves request with search', () => {
@@ -567,7 +573,7 @@ describe('request-resolver', () => {
                     limit: 10
                 },
                 attributeOptions: {
-                    'articleId': {type: 'int'}
+                    articleId: { type: 'int' }
                 }
             };
 
@@ -591,9 +597,7 @@ describe('request-resolver', () => {
             // /article/?order=date:desc
             const req = {
                 resource: 'article',
-                order: [
-                    {attribute: ['date'], direction: 'asc'}
-                ]
+                order: [{ attribute: ['date'], direction: 'asc' }]
             };
 
             const dataSourceTree = {
@@ -605,13 +609,11 @@ describe('request-resolver', () => {
                     database: 'contents',
                     table: 'article',
                     attributes: ['id'],
-                    order: [
-                        {attribute: 'timestamp', direction: 'asc'}
-                    ],
+                    order: [{ attribute: 'timestamp', direction: 'asc' }],
                     limit: 10
                 },
                 attributeOptions: {
-                    'id': {type: 'int'}
+                    id: { type: 'int' }
                 }
             };
 
@@ -623,9 +625,7 @@ describe('request-resolver', () => {
             // /article/?order=title:desc
             const req = {
                 resource: 'article',
-                order: [
-                    {attribute: ['title'], direction: 'asc'}
-                ]
+                order: [{ attribute: ['title'], direction: 'asc' }]
             };
 
             expect(() => {
@@ -637,9 +637,7 @@ describe('request-resolver', () => {
             // /article/?order=date:topflop
             const req = {
                 resource: 'article',
-                order: [
-                    {attribute: ['date'], direction: 'topflop'}
-                ]
+                order: [{ attribute: ['date'], direction: 'topflop' }]
             };
 
             expect(() => {
@@ -666,7 +664,7 @@ describe('request-resolver', () => {
                     limit: 100
                 },
                 attributeOptions: {
-                    'id': {type: 'int'}
+                    id: { type: 'int' }
                 }
             };
 
@@ -695,7 +693,7 @@ describe('request-resolver', () => {
                     page: 2
                 },
                 attributeOptions: {
-                    'id': {type: 'int'}
+                    id: { type: 'int' }
                 }
             };
 
@@ -751,7 +749,7 @@ describe('request-resolver', () => {
             resourceConfigs2['article'].config.maxLimit = 43;
 
             const req = {
-                resource: 'article',
+                resource: 'article'
             };
 
             const resolvedRequest = requestResolver(req, resourceConfigs2).dataSourceTree.request;
@@ -766,7 +764,7 @@ describe('request-resolver', () => {
             resourceConfigs2['article'].config.defaultLimit = 40;
 
             const req = {
-                resource: 'article',
+                resource: 'article'
             };
 
             const resolvedRequest = requestResolver(req, resourceConfigs2).dataSourceTree.request;
@@ -834,7 +832,7 @@ describe('request-resolver', () => {
             const req = {
                 resource: 'article',
                 select: {
-                    'comments': {
+                    comments: {
                         limit: 5
                     }
                 }
@@ -855,7 +853,7 @@ describe('request-resolver', () => {
                 resource: 'article',
                 id: 1,
                 select: {
-                    'comments': {}
+                    comments: {}
                 }
             };
 
@@ -874,7 +872,7 @@ describe('request-resolver', () => {
                 resource: 'article',
                 id: 1,
                 select: {
-                    'comments': {
+                    comments: {
                         limit: 44
                     }
                 }
@@ -895,7 +893,7 @@ describe('request-resolver', () => {
                 resource: 'article',
                 id: 1,
                 select: {
-                    'comments': {}
+                    comments: {}
                 }
             };
 
@@ -915,7 +913,7 @@ describe('request-resolver', () => {
                 resource: 'article',
                 id: 1,
                 select: {
-                    'comments': {}
+                    comments: {}
                 }
             };
 
@@ -934,7 +932,7 @@ describe('request-resolver', () => {
                 resource: 'article',
                 id: 1,
                 select: {
-                    'comments': {
+                    comments: {
                         limit: 45
                     }
                 }
@@ -955,7 +953,7 @@ describe('request-resolver', () => {
                 resource: 'article',
                 id: 1,
                 select: {
-                    'comments': {
+                    comments: {
                         limit: 46
                     }
                 }
@@ -971,7 +969,7 @@ describe('request-resolver', () => {
                 resource: 'article',
                 id: 1,
                 select: {
-                    'author': {
+                    author: {
                         limit: 2
                     }
                 }
@@ -986,10 +984,12 @@ describe('request-resolver', () => {
     describe('defaultOrder', () => {
         it('uses defaultOrder if no order is given', () => {
             const resourceConfigs2 = _.cloneDeep(resourceConfigs);
-            resourceConfigs2['article'].config['defaultOrder'] = [{
-                attribute: ['date'],
-                direction: 'asc'
-            }];
+            resourceConfigs2['article'].config['defaultOrder'] = [
+                {
+                    attribute: ['date'],
+                    direction: 'asc'
+                }
+            ];
 
             // /article/
             const req = {
@@ -1006,10 +1006,10 @@ describe('request-resolver', () => {
                     table: 'article',
                     attributes: ['id'],
                     limit: 10,
-                    order: [{attribute: "timestamp", direction: "asc"}]
+                    order: [{ attribute: 'timestamp', direction: 'asc' }]
                 },
                 attributeOptions: {
-                    'id': {type: 'int'}
+                    id: { type: 'int' }
                 }
             };
 
@@ -1019,18 +1019,22 @@ describe('request-resolver', () => {
 
         it('uses order to override defaultOrder', () => {
             const resourceConfigs2 = _.cloneDeep(resourceConfigs);
-            resourceConfigs2['article']['defaultOrder'] = [{
-                attribute: ['date'],
-                direction: 'asc'
-            }];
+            resourceConfigs2['article']['defaultOrder'] = [
+                {
+                    attribute: ['date'],
+                    direction: 'asc'
+                }
+            ];
 
             // /article/
             const req = {
                 resource: 'article',
-                order: [{
-                    attribute: ['date'],
-                    direction: 'desc'
-                }]
+                order: [
+                    {
+                        attribute: ['date'],
+                        direction: 'desc'
+                    }
+                ]
             };
 
             const dataSourceTree = {
@@ -1043,10 +1047,10 @@ describe('request-resolver', () => {
                     table: 'article',
                     attributes: ['id'],
                     limit: 10,
-                    order: [{attribute: "timestamp", direction: "desc"}]
+                    order: [{ attribute: 'timestamp', direction: 'desc' }]
                 },
                 attributeOptions: {
-                    'id': {type: 'int'}
+                    id: { type: 'int' }
                 }
             };
 
@@ -1061,7 +1065,7 @@ describe('request-resolver', () => {
             const req = {
                 resource: 'article',
                 select: {
-                    'comments': {
+                    comments: {
                         id: 1
                     }
                 }
@@ -1077,7 +1081,7 @@ describe('request-resolver', () => {
             let req = {
                 resource: 'article',
                 select: {
-                    'source': {
+                    source: {
                         limit: 20
                     }
                 }
@@ -1092,9 +1096,9 @@ describe('request-resolver', () => {
             req = {
                 resource: 'article',
                 select: {
-                    'source': {
+                    source: {
                         select: {
-                            'name': {}
+                            name: {}
                         }
                     }
                 }
@@ -1112,9 +1116,9 @@ describe('request-resolver', () => {
             const req = {
                 resource: 'article',
                 select: {
-                    'video': {
+                    video: {
                         select: {
-                            'url': {}
+                            url: {}
                         }
                     }
                 }
@@ -1132,7 +1136,7 @@ describe('request-resolver', () => {
                     limit: 10
                 },
                 attributeOptions: {
-                    'id': {type: 'int'}
+                    id: { type: 'int' }
                 },
                 subRequests: [
                     {
@@ -1147,15 +1151,11 @@ describe('request-resolver', () => {
                             database: 'contents',
                             table: 'article_video',
                             attributes: ['articleId', 'url'],
-                            filter: [
-                                [
-                                    {attribute: 'articleId', operator: 'equal', valueFromParentKey: true}
-                                ]
-                            ]
+                            filter: [[{ attribute: 'articleId', operator: 'equal', valueFromParentKey: true }]]
                         },
                         attributeOptions: {
-                            'articleId': {type: 'int'},
-                            'url': {type: 'string'}
+                            articleId: { type: 'int' },
+                            url: { type: 'string' }
                         }
                     }
                 ]
@@ -1170,9 +1170,9 @@ describe('request-resolver', () => {
             const req = {
                 resource: 'article',
                 select: {
-                    'comments': {
+                    comments: {
                         select: {
-                            'content': {}
+                            content: {}
                         }
                     }
                 }
@@ -1190,7 +1190,7 @@ describe('request-resolver', () => {
                     limit: 10
                 },
                 attributeOptions: {
-                    'id': {type: 'int'}
+                    id: { type: 'int' }
                 },
                 subRequests: [
                     {
@@ -1205,16 +1205,12 @@ describe('request-resolver', () => {
                             database: 'contents',
                             table: 'article_comment',
                             attributes: ['id', 'articleId', 'content'],
-                            filter: [
-                                [
-                                    {attribute: 'articleId', operator: 'equal', valueFromParentKey: true}
-                                ]
-                            ]
+                            filter: [[{ attribute: 'articleId', operator: 'equal', valueFromParentKey: true }]]
                         },
                         attributeOptions: {
-                            'id': {type: 'int'},
-                            'articleId': {type: 'int'},
-                            'content': {type: 'string'}
+                            id: { type: 'int' },
+                            articleId: { type: 'int' },
+                            content: { type: 'string' }
                         }
                     }
                 ]
@@ -1229,10 +1225,10 @@ describe('request-resolver', () => {
             const req = {
                 resource: 'article',
                 select: {
-                    'comments': {
+                    comments: {
                         select: {
-                            'content': {},
-                            'likes': {}
+                            content: {},
+                            likes: {}
                         }
                     }
                 }
@@ -1250,7 +1246,7 @@ describe('request-resolver', () => {
                     limit: 10
                 },
                 attributeOptions: {
-                    'id': {type: 'int'}
+                    id: { type: 'int' }
                 },
                 subRequests: [
                     {
@@ -1265,16 +1261,12 @@ describe('request-resolver', () => {
                             database: 'contents',
                             table: 'article_comment',
                             attributes: ['id', 'articleId', 'content'],
-                            filter: [
-                                [
-                                    {attribute: 'articleId', operator: 'equal', valueFromParentKey: true}
-                                ]
-                            ]
+                            filter: [[{ attribute: 'articleId', operator: 'equal', valueFromParentKey: true }]]
                         },
                         attributeOptions: {
-                            'id': {type: 'int'},
-                            'articleId': {type: 'int'},
-                            'content': {type: 'string'}
+                            id: { type: 'int' },
+                            articleId: { type: 'int' },
+                            content: { type: 'string' }
                         },
                         subRequests: [
                             {
@@ -1289,15 +1281,11 @@ describe('request-resolver', () => {
                                     database: 'contents',
                                     table: 'comment_likes',
                                     attributes: ['commentId', 'count'],
-                                    filter: [
-                                        [
-                                            {attribute: 'commentId', operator: 'equal', valueFromParentKey: true}
-                                        ]
-                                    ]
+                                    filter: [[{ attribute: 'commentId', operator: 'equal', valueFromParentKey: true }]]
                                 },
                                 attributeOptions: {
-                                    'commentId': {type: 'int'},
-                                    'count': {type: 'int'}
+                                    commentId: { type: 'int' },
+                                    count: { type: 'int' }
                                 }
                             }
                         ]
@@ -1314,10 +1302,10 @@ describe('request-resolver', () => {
             const req = {
                 resource: 'article',
                 select: {
-                    'author': {
+                    author: {
                         select: {
-                            'firstname': {},
-                            'lastname': {}
+                            firstname: {},
+                            lastname: {}
                         }
                     }
                 }
@@ -1335,8 +1323,8 @@ describe('request-resolver', () => {
                     limit: 10
                 },
                 attributeOptions: {
-                    'id': {type: 'int'},
-                    'authorId': {type: 'int'}
+                    id: { type: 'int' },
+                    authorId: { type: 'int' }
                 },
                 subRequests: [
                     {
@@ -1352,16 +1340,12 @@ describe('request-resolver', () => {
                             database: 'contents',
                             table: 'user',
                             attributes: ['id', 'firstname', 'lastname'],
-                            filter: [
-                                [
-                                    {attribute: 'id', operator: 'equal', valueFromParentKey: true}
-                                ]
-                            ]
+                            filter: [[{ attribute: 'id', operator: 'equal', valueFromParentKey: true }]]
                         },
                         attributeOptions: {
-                            'id': {type: 'int'},
-                            'firstname': {type: 'string'},
-                            'lastname': {type: 'string'}
+                            id: { type: 'int' },
+                            firstname: { type: 'string' },
+                            lastname: { type: 'string' }
                         }
                     }
                 ]
@@ -1376,9 +1360,9 @@ describe('request-resolver', () => {
             const req = {
                 resource: 'article',
                 select: {
-                    'countries': {
+                    countries: {
                         select: {
-                            'name': {}
+                            name: {}
                         }
                     }
                 }
@@ -1396,8 +1380,8 @@ describe('request-resolver', () => {
                     limit: 10
                 },
                 attributeOptions: {
-                    'id': {type: 'int'},
-                    'countries': {multiValued: true, type: 'string', delimiter: ','}
+                    id: { type: 'int' },
+                    countries: { multiValued: true, type: 'string', delimiter: ',' }
                 },
                 subRequests: [
                     {
@@ -1412,16 +1396,12 @@ describe('request-resolver', () => {
                             database: 'contents',
                             table: 'country',
                             attributes: ['id', 'iso', 'name'],
-                            filter: [
-                                [
-                                    {attribute: 'iso', operator: 'equal', valueFromParentKey: true}
-                                ]
-                            ]
+                            filter: [[{ attribute: 'iso', operator: 'equal', valueFromParentKey: true }]]
                         },
                         attributeOptions: {
-                            'id': {type: 'int'},
-                            'iso': {type: 'string'},
-                            'name': {type: 'string'}
+                            id: { type: 'int' },
+                            iso: { type: 'string' },
+                            name: { type: 'string' }
                         }
                     }
                 ]
@@ -1436,10 +1416,10 @@ describe('request-resolver', () => {
             const req = {
                 resource: 'article',
                 select: {
-                    'categories': {
+                    categories: {
                         select: {
-                            'name': {},
-                            'order': {}
+                            name: {},
+                            order: {}
                         }
                     }
                 }
@@ -1457,7 +1437,7 @@ describe('request-resolver', () => {
                     limit: 10
                 },
                 attributeOptions: {
-                    'id': {type: 'int'}
+                    id: { type: 'int' }
                 },
                 subRequests: [
                     {
@@ -1472,16 +1452,12 @@ describe('request-resolver', () => {
                             database: 'contents',
                             table: 'article_category',
                             attributes: ['articleId', 'categoryId', 'order'],
-                            filter: [
-                                [
-                                    {attribute: 'articleId', operator: 'equal', valueFromParentKey: true}
-                                ]
-                            ]
+                            filter: [[{ attribute: 'articleId', operator: 'equal', valueFromParentKey: true }]]
                         },
                         attributeOptions: {
-                            'articleId': {type: 'int'},
-                            'categoryId': {type: 'int'},
-                            'order': {type: 'int'}
+                            articleId: { type: 'int' },
+                            categoryId: { type: 'int' },
+                            order: { type: 'int' }
                         },
                         subRequests: [
                             {
@@ -1496,15 +1472,11 @@ describe('request-resolver', () => {
                                     database: 'contents',
                                     table: 'category',
                                     attributes: ['id', 'name'],
-                                    filter: [
-                                        [
-                                            {attribute: 'id', operator: 'equal', valueFromParentKey: true}
-                                        ]
-                                    ]
+                                    filter: [[{ attribute: 'id', operator: 'equal', valueFromParentKey: true }]]
                                 },
                                 attributeOptions: {
-                                    'id': {type: 'int'},
-                                    'name': {type: 'string'}
+                                    id: { type: 'int' },
+                                    name: { type: 'string' }
                                 }
                             }
                         ]
@@ -1521,14 +1493,10 @@ describe('request-resolver', () => {
             const req = {
                 resource: 'article',
                 select: {
-                    'comments': {
+                    comments: {
                         filter: [
-                            [
-                                {attribute: ['id'], operator: 'equal', value: 3}
-                            ],
-                            [
-                                {attribute: ['id'], operator: 'equal', value: 4}
-                            ]
+                            [{ attribute: ['id'], operator: 'equal', value: 3 }],
+                            [{ attribute: ['id'], operator: 'equal', value: 4 }]
                         ]
                     }
                 }
@@ -1546,7 +1514,7 @@ describe('request-resolver', () => {
                     limit: 10
                 },
                 attributeOptions: {
-                    'id': {type: 'int'}
+                    id: { type: 'int' }
                 },
                 subRequests: [
                     {
@@ -1563,18 +1531,18 @@ describe('request-resolver', () => {
                             attributes: ['id', 'articleId'],
                             filter: [
                                 [
-                                    {attribute: 'id', operator: 'equal', value: 3},
-                                    {attribute: 'articleId', operator: 'equal', valueFromParentKey: true}
+                                    { attribute: 'id', operator: 'equal', value: 3 },
+                                    { attribute: 'articleId', operator: 'equal', valueFromParentKey: true }
                                 ],
                                 [
-                                    {attribute: 'id', operator: 'equal', value: 4},
-                                    {attribute: 'articleId', operator: 'equal', valueFromParentKey: true}
+                                    { attribute: 'id', operator: 'equal', value: 4 },
+                                    { attribute: 'articleId', operator: 'equal', valueFromParentKey: true }
                                 ]
                             ]
                         },
                         attributeOptions: {
-                            'id': {type: 'int'},
-                            'articleId': {type: 'int'}
+                            id: { type: 'int' },
+                            articleId: { type: 'int' }
                         }
                     }
                 ]
@@ -1588,14 +1556,13 @@ describe('request-resolver', () => {
     describe('handling of dependencies', () => {
         it('selects dependant attributes internally (but not externally)', () => {
             const configs = _.cloneDeep(resourceConfigs);
-            configs['article'].config.attributes['copyright'].depends =
-                {'date': {}};
+            configs['article'].config.attributes['copyright'].depends = { date: {} };
 
             // /article/?select=copyright
             const req = {
                 resource: 'article',
                 select: {
-                    'copyright': {}
+                    copyright: {}
                 }
             };
 
@@ -1611,27 +1578,25 @@ describe('request-resolver', () => {
                     limit: 10
                 },
                 attributeOptions: {
-                    'id': {type: 'int'},
-                    'timestamp': {type: 'datetime'}
+                    id: { type: 'int' },
+                    timestamp: { type: 'datetime' }
                 }
             };
 
             const resolvedRequest = requestResolver(req, configs);
             expect(resolvedRequest.dataSourceTree).to.eql(dataSourceTree);
-            expect(resolvedRequest.resolvedConfig.
-                attributes['date'].selected).not.to.be.true;
+            expect(resolvedRequest.resolvedConfig.attributes['date'].selected).not.to.be.true;
         });
 
         it('allows to depend on hidden attributes', () => {
             const configs = _.cloneDeep(resourceConfigs);
-            configs['article'].config.attributes['copyright'].depends =
-                {'secretInfo': {}};
+            configs['article'].config.attributes['copyright'].depends = { secretInfo: {} };
 
             // /article/?select=copyright
             const req = {
                 resource: 'article',
                 select: {
-                    'copyright': {}
+                    copyright: {}
                 }
             };
 
@@ -1647,27 +1612,26 @@ describe('request-resolver', () => {
                     limit: 10
                 },
                 attributeOptions: {
-                    'id': {type: 'int'},
-                    'secretInfo': {type: 'string'}
+                    id: { type: 'int' },
+                    secretInfo: { type: 'string' }
                 }
             };
 
             const resolvedRequest = requestResolver(req, configs);
             expect(resolvedRequest.dataSourceTree).to.eql(dataSourceTree);
-            expect(resolvedRequest.resolvedConfig.
-                attributes['secretInfo'].selected).not.to.be.true;
+            expect(resolvedRequest.resolvedConfig.attributes['secretInfo'].selected).not.to.be.true;
         });
 
         it('selects recursive dependencies', () => {
             const configs = _.cloneDeep(resourceConfigs);
-            configs['article'].config.attributes['title'].depends = {'copyright': {}};
-            configs['article'].config.attributes['copyright'].depends = {'date': {}};
+            configs['article'].config.attributes['title'].depends = { copyright: {} };
+            configs['article'].config.attributes['copyright'].depends = { date: {} };
 
             // /article/?select=title
             const req = {
                 resource: 'article',
                 select: {
-                    'title': {}
+                    title: {}
                 }
             };
 
@@ -1683,29 +1647,28 @@ describe('request-resolver', () => {
                     limit: 10
                 },
                 attributeOptions: {
-                    'id': {type: 'int'},
-                    'title': {type: 'string'},
-                    'timestamp': {type: 'datetime'}
+                    id: { type: 'int' },
+                    title: { type: 'string' },
+                    timestamp: { type: 'datetime' }
                 }
             };
 
             const resolvedRequest = requestResolver(req, configs);
             expect(resolvedRequest.dataSourceTree).to.eql(dataSourceTree);
-            expect(resolvedRequest.resolvedConfig.
-                attributes['date'].selected).not.to.be.true;
+            expect(resolvedRequest.resolvedConfig.attributes['date'].selected).not.to.be.true;
         });
 
         it('selects cyclic dependencies properly', () => {
             const configs = _.cloneDeep(resourceConfigs);
-            configs['article'].config.attributes['title'].depends = {'date': {}};
-            configs['article'].config.attributes['date'].depends = {'copyright': {}};
-            configs['article'].config.attributes['copyright'].depends = {'title': {}};
+            configs['article'].config.attributes['title'].depends = { date: {} };
+            configs['article'].config.attributes['date'].depends = { copyright: {} };
+            configs['article'].config.attributes['copyright'].depends = { title: {} };
 
             // /article/?select=title
             const req = {
                 resource: 'article',
                 select: {
-                    'title': {}
+                    title: {}
                 }
             };
 
@@ -1721,28 +1684,28 @@ describe('request-resolver', () => {
                     limit: 10
                 },
                 attributeOptions: {
-                    'id': {type: 'int'},
-                    'title': {type: 'string'},
-                    'timestamp': {type: 'datetime'}
+                    id: { type: 'int' },
+                    title: { type: 'string' },
+                    timestamp: { type: 'datetime' }
                 }
             };
 
             const resolvedRequest = requestResolver(req, configs);
             expect(resolvedRequest.dataSourceTree).to.eql(dataSourceTree);
-            expect(resolvedRequest.resolvedConfig.
-                attributes['date'].selected).not.to.be.true;
+            expect(resolvedRequest.resolvedConfig.attributes['date'].selected).not.to.be.true;
         });
 
         it('selects dependant sub-resources internally', () => {
             const configs = _.cloneDeep(resourceConfigs);
-            configs['article'].config.attributes['copyright'].depends =
-                {'author': {select: {'firstname': {}, 'lastname': {}}}};
+            configs['article'].config.attributes['copyright'].depends = {
+                author: { select: { firstname: {}, lastname: {} } }
+            };
 
             // /article/?select=copyright
             const req = {
                 resource: 'article',
                 select: {
-                    'copyright': {}
+                    copyright: {}
                 }
             };
 
@@ -1758,8 +1721,8 @@ describe('request-resolver', () => {
                     limit: 10
                 },
                 attributeOptions: {
-                    'id': {type: 'int'},
-                    'authorId': {type: 'int'}
+                    id: { type: 'int' },
+                    authorId: { type: 'int' }
                 },
                 subRequests: [
                     {
@@ -1775,16 +1738,12 @@ describe('request-resolver', () => {
                             database: 'contents',
                             table: 'user',
                             attributes: ['id', 'firstname', 'lastname'],
-                            filter: [
-                                [
-                                    {attribute: 'id', operator: 'equal', valueFromParentKey: true}
-                                ]
-                            ]
+                            filter: [[{ attribute: 'id', operator: 'equal', valueFromParentKey: true }]]
                         },
                         attributeOptions: {
-                            'id': {type: 'int'},
-                            'firstname': {type: 'string'},
-                            'lastname': {type: 'string'}
+                            id: { type: 'int' },
+                            firstname: { type: 'string' },
+                            lastname: { type: 'string' }
                         }
                     }
                 ]
@@ -1792,21 +1751,21 @@ describe('request-resolver', () => {
 
             const resolvedRequest = requestResolver(req, configs);
             expect(resolvedRequest.dataSourceTree).to.eql(dataSourceTree);
-            expect(resolvedRequest.resolvedConfig.
-                attributes['author'].selected).not.to.be.true;
+            expect(resolvedRequest.resolvedConfig.attributes['author'].selected).not.to.be.true;
         });
 
         it('handles "depends" + "select" on same sub-resource', () => {
             const configs = _.cloneDeep(resourceConfigs);
-            configs['article'].config.attributes['copyright'].depends =
-                {'author': {select: {'firstname': {}, 'lastname': {}}}};
+            configs['article'].config.attributes['copyright'].depends = {
+                author: { select: { firstname: {}, lastname: {} } }
+            };
 
             // /article/?select=copyright,author.firstname
             const req = {
                 resource: 'article',
                 select: {
-                    'copyright': {},
-                    'author': {select: {'firstname': {}}}
+                    copyright: {},
+                    author: { select: { firstname: {} } }
                 }
             };
 
@@ -1822,8 +1781,8 @@ describe('request-resolver', () => {
                     limit: 10
                 },
                 attributeOptions: {
-                    'id': {type: 'int'},
-                    'authorId': {type: 'int'}
+                    id: { type: 'int' },
+                    authorId: { type: 'int' }
                 },
                 subRequests: [
                     {
@@ -1839,16 +1798,12 @@ describe('request-resolver', () => {
                             database: 'contents',
                             table: 'user',
                             attributes: ['id', 'firstname', 'lastname'],
-                            filter: [
-                                [
-                                    {attribute: 'id', operator: 'equal', valueFromParentKey: true}
-                                ]
-                            ]
+                            filter: [[{ attribute: 'id', operator: 'equal', valueFromParentKey: true }]]
                         },
                         attributeOptions: {
-                            'id': {type: 'int'},
-                            'firstname': {type: 'string'},
-                            'lastname': {type: 'string'}
+                            id: { type: 'int' },
+                            firstname: { type: 'string' },
+                            lastname: { type: 'string' }
                         }
                     }
                 ]
@@ -1856,12 +1811,9 @@ describe('request-resolver', () => {
 
             const resolvedRequest = requestResolver(req, configs);
             expect(resolvedRequest.dataSourceTree).to.eql(dataSourceTree);
-            expect(resolvedRequest.resolvedConfig.
-                attributes['author'].selected).to.be.true;
-            expect(resolvedRequest.resolvedConfig.
-                attributes['author'].attributes['firstname'].selected).to.be.true;
-            expect(resolvedRequest.resolvedConfig.
-                attributes['author'].attributes['lastname'].selected).not.to.be.true;
+            expect(resolvedRequest.resolvedConfig.attributes['author'].selected).to.be.true;
+            expect(resolvedRequest.resolvedConfig.attributes['author'].attributes['firstname'].selected).to.be.true;
+            expect(resolvedRequest.resolvedConfig.attributes['author'].attributes['lastname'].selected).not.to.be.true;
         });
     });
 
@@ -1871,7 +1823,7 @@ describe('request-resolver', () => {
             const req = {
                 resource: 'article',
                 select: {
-                    'body': {}
+                    body: {}
                 }
             };
 
@@ -1887,7 +1839,7 @@ describe('request-resolver', () => {
                     limit: 10
                 },
                 attributeOptions: {
-                    'id': {type: 'int'}
+                    id: { type: 'int' }
                 },
                 subRequests: [
                     {
@@ -1902,15 +1854,11 @@ describe('request-resolver', () => {
                             database: 'contents',
                             table: 'article_body',
                             attributes: ['articleId', 'body'],
-                            filter: [
-                                [
-                                    {attribute: 'articleId', operator: 'equal', valueFromParentKey: true}
-                                ]
-                            ]
+                            filter: [[{ attribute: 'articleId', operator: 'equal', valueFromParentKey: true }]]
                         },
                         attributeOptions: {
-                            'articleId': {type: 'int'},
-                            'body': {type: 'string'}
+                            articleId: { type: 'int' },
+                            body: { type: 'string' }
                         }
                     }
                 ]
@@ -1925,10 +1873,10 @@ describe('request-resolver', () => {
             const req = {
                 resource: 'article',
                 select: {
-                    'author': {
+                    author: {
                         select: {
-                            'firstname': {},
-                            'lastname': {}
+                            firstname: {},
+                            lastname: {}
                         }
                     }
                 },
@@ -1948,58 +1896,52 @@ describe('request-resolver', () => {
                     limit: 10
                 },
                 attributeOptions: {
-                    'articleId': {type: 'int'}
+                    articleId: { type: 'int' }
                 },
-                subRequests: [{
-                    attributePath: [],
-                    dataSourceName: 'primary',
-                    parentKey: ['articleId'],
-                    childKey: ['id'],
-                    multiValuedParentKey: false,
-                    uniqueChildKey: true,
-                    request: {
-                        type: 'mysql',
-                        database: 'contents',
-                        table: 'article',
-                        attributes: ['id', 'authorId'],
-                        filter: [
-                            [
-                                {attribute: 'id', operator: 'equal', valueFromParentKey: true}
-                            ]
-                        ]
-                    },
-                    attributeOptions: {
-                        'id': {type: 'int'},
-                        'authorId': {type: 'int'}
-                    },
-                    subRequests: [
-                        {
-                            resourceName: 'user',
-                            attributePath: ['author'],
-                            dataSourceName: 'primary',
-                            parentKey: ['authorId'],
-                            childKey: ['id'],
-                            multiValuedParentKey: false,
-                            uniqueChildKey: true,
-                            request: {
-                                type: 'mysql',
-                                database: 'contents',
-                                table: 'user',
-                                attributes: ['id', 'firstname', 'lastname'],
-                                filter: [
-                                    [
-                                        {attribute: 'id', operator: 'equal', valueFromParentKey: true}
-                                    ]
-                                ]
-                            },
-                            attributeOptions: {
-                                'id': {type: 'int'},
-                                'firstname': {type: 'string'},
-                                'lastname': {type: 'string'}
+                subRequests: [
+                    {
+                        attributePath: [],
+                        dataSourceName: 'primary',
+                        parentKey: ['articleId'],
+                        childKey: ['id'],
+                        multiValuedParentKey: false,
+                        uniqueChildKey: true,
+                        request: {
+                            type: 'mysql',
+                            database: 'contents',
+                            table: 'article',
+                            attributes: ['id', 'authorId'],
+                            filter: [[{ attribute: 'id', operator: 'equal', valueFromParentKey: true }]]
+                        },
+                        attributeOptions: {
+                            id: { type: 'int' },
+                            authorId: { type: 'int' }
+                        },
+                        subRequests: [
+                            {
+                                resourceName: 'user',
+                                attributePath: ['author'],
+                                dataSourceName: 'primary',
+                                parentKey: ['authorId'],
+                                childKey: ['id'],
+                                multiValuedParentKey: false,
+                                uniqueChildKey: true,
+                                request: {
+                                    type: 'mysql',
+                                    database: 'contents',
+                                    table: 'user',
+                                    attributes: ['id', 'firstname', 'lastname'],
+                                    filter: [[{ attribute: 'id', operator: 'equal', valueFromParentKey: true }]]
+                                },
+                                attributeOptions: {
+                                    id: { type: 'int' },
+                                    firstname: { type: 'string' },
+                                    lastname: { type: 'string' }
+                                }
                             }
-                        }
-                    ]
-                }]
+                        ]
+                    }
+                ]
             };
 
             const resolvedRequest = requestResolver(req, resourceConfigs);
@@ -2014,9 +1956,9 @@ describe('request-resolver', () => {
             const req = {
                 resource: 'article',
                 select: {
-                    'versions': {
+                    versions: {
                         select: {
-                            'title': {}
+                            title: {}
                         }
                     }
                 }
@@ -2034,7 +1976,7 @@ describe('request-resolver', () => {
                     limit: 10
                 },
                 attributeOptions: {
-                    'id': {type: 'int'}
+                    id: { type: 'int' }
                 },
                 subRequests: [
                     {
@@ -2049,16 +1991,12 @@ describe('request-resolver', () => {
                             database: 'contents',
                             table: 'article_versions',
                             attributes: ['articleId', 'versionId', 'title'],
-                            filter: [
-                                [
-                                    {attribute: 'articleId', operator: 'equal', valueFromParentKey: true}
-                                ]
-                            ]
+                            filter: [[{ attribute: 'articleId', operator: 'equal', valueFromParentKey: true }]]
                         },
                         attributeOptions: {
-                            'articleId': {type: 'int'},
-                            'versionId': {type: 'int'},
-                            'title': {type: 'string'}
+                            articleId: { type: 'int' },
+                            versionId: { type: 'int' },
+                            title: { type: 'string' }
                         }
                     }
                 ]
@@ -2073,11 +2011,11 @@ describe('request-resolver', () => {
             const req = {
                 resource: 'article',
                 select: {
-                    'versions': {
+                    versions: {
                         select: {
-                            'versioninfo': {
+                            versioninfo: {
                                 select: {
-                                    'modified': {}
+                                    modified: {}
                                 }
                             }
                         }
@@ -2097,7 +2035,7 @@ describe('request-resolver', () => {
                     limit: 10
                 },
                 attributeOptions: {
-                    'id': {type: 'int'}
+                    id: { type: 'int' }
                 },
                 subRequests: [
                     {
@@ -2112,15 +2050,11 @@ describe('request-resolver', () => {
                             database: 'contents',
                             table: 'article_versions',
                             attributes: ['articleId', 'versionId'],
-                            filter: [
-                                [
-                                    {attribute: 'articleId', operator: 'equal', valueFromParentKey: true}
-                                ]
-                            ]
+                            filter: [[{ attribute: 'articleId', operator: 'equal', valueFromParentKey: true }]]
                         },
                         attributeOptions: {
-                            'articleId': {type: 'int'},
-                            'versionId': {type: 'int'}
+                            articleId: { type: 'int' },
+                            versionId: { type: 'int' }
                         },
                         subRequests: [
                             {
@@ -2137,14 +2071,18 @@ describe('request-resolver', () => {
                                     attributes: ['articleId', 'versionId', 'modified'],
                                     filter: [
                                         [
-                                            {attribute: ['articleId', 'versionId'], operator: 'equal', valueFromParentKey: true}
+                                            {
+                                                attribute: ['articleId', 'versionId'],
+                                                operator: 'equal',
+                                                valueFromParentKey: true
+                                            }
                                         ]
                                     ]
                                 },
                                 attributeOptions: {
-                                    'articleId': {type: 'int'},
-                                    'versionId': {type: 'int'},
-                                    'modified': {type: 'datetime'}
+                                    articleId: { type: 'int' },
+                                    versionId: { type: 'int' },
+                                    modified: { type: 'datetime' }
                                 }
                             }
                         ]
@@ -2165,11 +2103,7 @@ describe('request-resolver', () => {
             // /article/?filter=author.id=11,12,13
             const req = {
                 resource: 'article',
-                filter: [
-                    [
-                        {attribute: ['author', 'id'], operator: 'equal', value: [11, 12, 13]}
-                    ]
-                ]
+                filter: [[{ attribute: ['author', 'id'], operator: 'equal', value: [11, 12, 13] }]]
             };
 
             const dataSourceTree = {
@@ -2181,34 +2115,28 @@ describe('request-resolver', () => {
                     database: 'contents',
                     table: 'article',
                     attributes: ['id'],
-                    filter: [
-                        [
-                            {attribute: 'authorId', operator: 'equal', valueFromSubFilter: 0}
-                        ]
-                    ],
+                    filter: [[{ attribute: 'authorId', operator: 'equal', valueFromSubFilter: 0 }]],
                     limit: 10
                 },
                 attributeOptions: {
-                    'id': {type: 'int'}
+                    id: { type: 'int' }
                 },
-                subFilters: [{
-                    parentKey: ['authorId'],
-                    childKey: ['id'],
-                    request: {
-                        type: 'mysql',
-                        database: 'contents',
-                        table: 'user',
-                        attributes: ['id'],
-                        filter: [
-                            [
-                                {attribute: 'id', operator: 'equal', value: [11, 12, 13]}
-                            ]
-                        ]
-                    },
-                    attributeOptions: {
-                        'id': {type: 'int'}
+                subFilters: [
+                    {
+                        parentKey: ['authorId'],
+                        childKey: ['id'],
+                        request: {
+                            type: 'mysql',
+                            database: 'contents',
+                            table: 'user',
+                            attributes: ['id'],
+                            filter: [[{ attribute: 'id', operator: 'equal', value: [11, 12, 13] }]]
+                        },
+                        attributeOptions: {
+                            id: { type: 'int' }
+                        }
                     }
-                }]
+                ]
             };
 
             const resolvedRequest = requestResolver(req, configs);
@@ -2219,11 +2147,7 @@ describe('request-resolver', () => {
             // /article/?filter=author.id=11,12,13
             const req = {
                 resource: 'article',
-                filter: [
-                    [
-                        {attribute: ['author', 'id'], operator: 'equal', value: [11, 12, 13]}
-                    ]
-                ]
+                filter: [[{ attribute: ['author', 'id'], operator: 'equal', value: [11, 12, 13] }]]
             };
 
             const dataSourceTree = {
@@ -2235,15 +2159,11 @@ describe('request-resolver', () => {
                     database: 'contents',
                     table: 'article',
                     attributes: ['id'],
-                    filter: [
-                        [
-                            {attribute: 'authorId', operator: 'equal', value: [11, 12, 13]}
-                        ]
-                    ],
+                    filter: [[{ attribute: 'authorId', operator: 'equal', value: [11, 12, 13] }]],
                     limit: 10
                 },
                 attributeOptions: {
-                    'id': {type: 'int'}
+                    id: { type: 'int' }
                 }
             };
 
@@ -2255,11 +2175,7 @@ describe('request-resolver', () => {
             // /article/?filter=video.youtubeId="xyz123"
             const req = {
                 resource: 'article',
-                filter: [
-                    [
-                        {attribute: ['video', 'youtubeId'], operator: 'equal', value: 'xyz123'}
-                    ]
-                ]
+                filter: [[{ attribute: ['video', 'youtubeId'], operator: 'equal', value: 'xyz123' }]]
             };
 
             const dataSourceTree = {
@@ -2271,34 +2187,28 @@ describe('request-resolver', () => {
                     database: 'contents',
                     table: 'article',
                     attributes: ['id'],
-                    filter: [
-                        [
-                            {attribute: 'id', operator: 'equal', valueFromSubFilter: 0}
-                        ]
-                    ],
+                    filter: [[{ attribute: 'id', operator: 'equal', valueFromSubFilter: 0 }]],
                     limit: 10
                 },
                 attributeOptions: {
-                    'id': {type: 'int'}
+                    id: { type: 'int' }
                 },
-                subFilters: [{
-                    parentKey: ['id'],
-                    childKey: ['articleId'],
-                    request: {
-                        type: 'mysql',
-                        database: 'contents',
-                        table: 'article_video',
-                        attributes: ['articleId'],
-                        filter: [
-                            [
-                                {attribute: 'youtubeId', operator: 'equal', value: 'xyz123'}
-                            ]
-                        ]
-                    },
-                    attributeOptions: {
-                        'articleId': {type: 'int'}
+                subFilters: [
+                    {
+                        parentKey: ['id'],
+                        childKey: ['articleId'],
+                        request: {
+                            type: 'mysql',
+                            database: 'contents',
+                            table: 'article_video',
+                            attributes: ['articleId'],
+                            filter: [[{ attribute: 'youtubeId', operator: 'equal', value: 'xyz123' }]]
+                        },
+                        attributeOptions: {
+                            articleId: { type: 'int' }
+                        }
                     }
-                }]
+                ]
             };
 
             const resolvedRequest = requestResolver(req, resourceConfigs);
@@ -2309,11 +2219,7 @@ describe('request-resolver', () => {
             // /article/?filter=comments.user.id=123
             const req = {
                 resource: 'article',
-                filter: [
-                    [
-                        {attribute: ['comments', 'user', 'id'], operator: 'equal', value: 123}
-                    ]
-                ]
+                filter: [[{ attribute: ['comments', 'user', 'id'], operator: 'equal', value: 123 }]]
             };
 
             const dataSourceTree = {
@@ -2325,52 +2231,44 @@ describe('request-resolver', () => {
                     database: 'contents',
                     table: 'article',
                     attributes: ['id'],
-                    filter: [
-                        [
-                            {attribute: 'id', operator: 'equal', valueFromSubFilter: 0}
-                        ]
-                    ],
+                    filter: [[{ attribute: 'id', operator: 'equal', valueFromSubFilter: 0 }]],
                     limit: 10
                 },
                 attributeOptions: {
-                    'id': {type: 'int'}
+                    id: { type: 'int' }
                 },
-                subFilters: [{
-                    parentKey: ['id'],
-                    childKey: ['articleId'],
-                    request: {
-                        type: 'mysql',
-                        database: 'contents',
-                        table: 'article_comment',
-                        attributes: ['articleId'],
-                        filter: [
-                            [
-                                {attribute: 'userId', operator: 'equal', valueFromSubFilter: 0}
-                            ]
-                        ]
-                    },
-                    attributeOptions: {
-                        'articleId': {type: 'int'}
-                    },
-                    subFilters: [{
-                        parentKey: ['userId'],
-                        childKey: ['id'],
+                subFilters: [
+                    {
+                        parentKey: ['id'],
+                        childKey: ['articleId'],
                         request: {
                             type: 'mysql',
                             database: 'contents',
-                            table: 'user',
-                            attributes: ['id'],
-                            filter: [
-                                [
-                                    {attribute: 'id', operator: 'equal', value: 123}
-                                ]
-                            ]
+                            table: 'article_comment',
+                            attributes: ['articleId'],
+                            filter: [[{ attribute: 'userId', operator: 'equal', valueFromSubFilter: 0 }]]
                         },
                         attributeOptions: {
-                            'id': {type: 'int'}
-                        }
-                    }]
-                }]
+                            articleId: { type: 'int' }
+                        },
+                        subFilters: [
+                            {
+                                parentKey: ['userId'],
+                                childKey: ['id'],
+                                request: {
+                                    type: 'mysql',
+                                    database: 'contents',
+                                    table: 'user',
+                                    attributes: ['id'],
+                                    filter: [[{ attribute: 'id', operator: 'equal', value: 123 }]]
+                                },
+                                attributeOptions: {
+                                    id: { type: 'int' }
+                                }
+                            }
+                        ]
+                    }
+                ]
             };
 
             const resolvedRequest = requestResolver(req, resourceConfigs);
@@ -2381,11 +2279,7 @@ describe('request-resolver', () => {
             // /article/?filter=categories.id=1234
             const req = {
                 resource: 'article',
-                filter: [
-                    [
-                        {attribute: ['categories', 'id'], operator: 'equal', value: 1234}
-                    ]
-                ]
+                filter: [[{ attribute: ['categories', 'id'], operator: 'equal', value: 1234 }]]
             };
 
             const dataSourceTree = {
@@ -2397,56 +2291,48 @@ describe('request-resolver', () => {
                     database: 'contents',
                     table: 'article',
                     attributes: ['id'],
-                    filter: [
-                        [
-                            {attribute: 'id', operator: 'equal', valueFromSubFilter: 0}
-                        ]
-                    ],
+                    filter: [[{ attribute: 'id', operator: 'equal', valueFromSubFilter: 0 }]],
                     limit: 10
                 },
                 attributeOptions: {
-                    'id': {type: 'int'}
+                    id: { type: 'int' }
                 },
-                subFilters: [{
-                    parentKey: ['id'],
-                    childKey: ['articleId'],
-                    request: {
-                        type: 'mysql',
-                        database: 'contents',
-                        table: 'article_category',
-                        joinParentKey: [['articleId']],
-                        joinChildKey: [['categoryId']],
-                        resolvedJoinParentKey: ['articleId'],
-                        resolvedJoinChildKey: ['categoryId'],
-                        attributes: ['articleId'],
-                        filter: [
-                            [
-                                {attribute: 'categoryId', operator: 'equal', valueFromSubFilter: 0}
-                            ]
-                        ]
-                    },
-                    attributeOptions: {
-                        'articleId': {type: 'int'}
-                    },
-                    subFilters: [{
-                        parentKey: ['categoryId'],
-                        childKey: ['id'],
+                subFilters: [
+                    {
+                        parentKey: ['id'],
+                        childKey: ['articleId'],
                         request: {
                             type: 'mysql',
                             database: 'contents',
-                            table: 'category',
-                            attributes: ['id'],
-                            filter: [
-                                [
-                                    {attribute: 'id', operator: 'equal', value: 1234}
-                                ]
-                            ]
+                            table: 'article_category',
+                            joinParentKey: [['articleId']],
+                            joinChildKey: [['categoryId']],
+                            resolvedJoinParentKey: ['articleId'],
+                            resolvedJoinChildKey: ['categoryId'],
+                            attributes: ['articleId'],
+                            filter: [[{ attribute: 'categoryId', operator: 'equal', valueFromSubFilter: 0 }]]
                         },
                         attributeOptions: {
-                            'id': {type: 'int'}
-                        }
-                    }]
-                }]
+                            articleId: { type: 'int' }
+                        },
+                        subFilters: [
+                            {
+                                parentKey: ['categoryId'],
+                                childKey: ['id'],
+                                request: {
+                                    type: 'mysql',
+                                    database: 'contents',
+                                    table: 'category',
+                                    attributes: ['id'],
+                                    filter: [[{ attribute: 'id', operator: 'equal', value: 1234 }]]
+                                },
+                                attributeOptions: {
+                                    id: { type: 'int' }
+                                }
+                            }
+                        ]
+                    }
+                ]
             };
 
             const resolvedRequest = requestResolver(req, resourceConfigs);
@@ -2457,84 +2343,84 @@ describe('request-resolver', () => {
     describe('complex request resolving', () => {
         it('resolves two overlapping composite parentKeys in different secondary DataSources', () => {
             const testResourceConfigs = {
-                "resource1": {
+                resource1: {
                     config: {
-                    "primaryKey": [["id"]],
-                    "resolvedPrimaryKey": {"primary": ["id"], "secondary1": ["id"], "secondary2": ["id"]},
-                    "dataSources": {
-                        "primary": {"type": "test"},
-                        "secondary1": {"type": "test"},
-                        "secondary2": {"type": "test"}
-                    },
-                    "attributes": {
-                        "id": {
-                            "type": "int",
-                            "map": {"default": {"primary": "id", "secondary1": "id", "secondary2": "id"}}
+                        primaryKey: [['id']],
+                        resolvedPrimaryKey: { primary: ['id'], secondary1: ['id'], secondary2: ['id'] },
+                        dataSources: {
+                            primary: { type: 'test' },
+                            secondary1: { type: 'test' },
+                            secondary2: { type: 'test' }
                         },
-                        "firstKeyPart": {
-                            "type": "int",
-                            "map": {"default": {"secondary1": "firstKeyPart", "secondary2": "firstKeyPart"}}
-                        },
-                        "keyPart1": {
-                            "type": "int",
-                            "map": {"default": {"secondary1": "keyPart1"}}
-                        },
-                        "keyPart2": {
-                            "type": "int",
-                            "map": {"default": {"secondary2": "keyPart2"}}
-                        },
-                        "subResource1": {
-                            "primaryKey": [["firstKeyPart"], ["keyPart1"]],
-                            "resolvedPrimaryKey": {"primary": ["firstKeyPart", "keyPart1"]},
-                            "parentKey": [["firstKeyPart"], ["keyPart1"]],
-                            "resolvedParentKey": {"secondary1": ["firstKeyPart", "keyPart1"]},
-                            "childKey": [["firstKeyPart"], ["keyPart1"]],
-                            "resolvedChildKey": {"primary": ["firstKeyPart", "keyPart1"]},
-                            "dataSources": {
-                                "primary": {"type": "test"}
+                        attributes: {
+                            id: {
+                                type: 'int',
+                                map: { default: { primary: 'id', secondary1: 'id', secondary2: 'id' } }
                             },
-                            "attributes": {
-                                "firstKeyPart": {
-                                    "type": "int",
-                                    "map": {"default": {"primary": "firstKeyPart"}}
+                            firstKeyPart: {
+                                type: 'int',
+                                map: { default: { secondary1: 'firstKeyPart', secondary2: 'firstKeyPart' } }
+                            },
+                            keyPart1: {
+                                type: 'int',
+                                map: { default: { secondary1: 'keyPart1' } }
+                            },
+                            keyPart2: {
+                                type: 'int',
+                                map: { default: { secondary2: 'keyPart2' } }
+                            },
+                            subResource1: {
+                                primaryKey: [['firstKeyPart'], ['keyPart1']],
+                                resolvedPrimaryKey: { primary: ['firstKeyPart', 'keyPart1'] },
+                                parentKey: [['firstKeyPart'], ['keyPart1']],
+                                resolvedParentKey: { secondary1: ['firstKeyPart', 'keyPart1'] },
+                                childKey: [['firstKeyPart'], ['keyPart1']],
+                                resolvedChildKey: { primary: ['firstKeyPart', 'keyPart1'] },
+                                dataSources: {
+                                    primary: { type: 'test' }
                                 },
-                                "keyPart1": {
-                                    "type": "int",
-                                    "map": {"default": {"primary": "keyPart1"}}
-                                },
-                                "name": {
-                                    "type": "string",
-                                    "map": {"default": {"primary": "name"}}
+                                attributes: {
+                                    firstKeyPart: {
+                                        type: 'int',
+                                        map: { default: { primary: 'firstKeyPart' } }
+                                    },
+                                    keyPart1: {
+                                        type: 'int',
+                                        map: { default: { primary: 'keyPart1' } }
+                                    },
+                                    name: {
+                                        type: 'string',
+                                        map: { default: { primary: 'name' } }
+                                    }
                                 }
-                            }
-                        },
-                        "subResource2": {
-                            "primaryKey": [["firstKeyPart"], ["keyPart2"]],
-                            "resolvedPrimaryKey": {"primary": ["firstKeyPart", "keyPart2"]},
-                            "parentKey": [["firstKeyPart"], ["keyPart2"]],
-                            "resolvedParentKey": {"secondary2": ["firstKeyPart", "keyPart2"]},
-                            "childKey": [["firstKeyPart"], ["keyPart2"]],
-                            "resolvedChildKey": {"primary": ["firstKeyPart", "keyPart2"]},
-                            "dataSources": {
-                                "primary": {"type": "test"}
                             },
-                            "attributes": {
-                                "firstKeyPart": {
-                                    "type": "int",
-                                    "map": {"default": {"primary": "firstKeyPart"}}
+                            subResource2: {
+                                primaryKey: [['firstKeyPart'], ['keyPart2']],
+                                resolvedPrimaryKey: { primary: ['firstKeyPart', 'keyPart2'] },
+                                parentKey: [['firstKeyPart'], ['keyPart2']],
+                                resolvedParentKey: { secondary2: ['firstKeyPart', 'keyPart2'] },
+                                childKey: [['firstKeyPart'], ['keyPart2']],
+                                resolvedChildKey: { primary: ['firstKeyPart', 'keyPart2'] },
+                                dataSources: {
+                                    primary: { type: 'test' }
                                 },
-                                "keyPart2": {
-                                    "type": "int",
-                                    "map": {"default": {"primary": "keyPart2"}}
-                                },
-                                "name": {
-                                    "type": "string",
-                                    "map": {"default": {"primary": "name"}}
+                                attributes: {
+                                    firstKeyPart: {
+                                        type: 'int',
+                                        map: { default: { primary: 'firstKeyPart' } }
+                                    },
+                                    keyPart2: {
+                                        type: 'int',
+                                        map: { default: { primary: 'keyPart2' } }
+                                    },
+                                    name: {
+                                        type: 'string',
+                                        map: { default: { primary: 'name' } }
+                                    }
                                 }
                             }
                         }
                     }
-                }
                 }
             };
 
@@ -2542,14 +2428,14 @@ describe('request-resolver', () => {
             const req = {
                 resource: 'resource1',
                 select: {
-                    'subResource1': {
+                    subResource1: {
                         select: {
-                            'name': {}
+                            name: {}
                         }
                     },
-                    'subResource2': {
+                    subResource2: {
                         select: {
-                            'name': {}
+                            name: {}
                         }
                     }
                 }
@@ -2565,99 +2451,102 @@ describe('request-resolver', () => {
                     limit: 10
                 },
                 attributeOptions: {
-                    'id': {type: 'int'}
+                    id: { type: 'int' }
                 },
-                subRequests: [{
-                    attributePath: [],
-                    dataSourceName: 'secondary1',
-                    parentKey: ['id'],
-                    childKey: ['id'],
-                    multiValuedParentKey: false,
-                    uniqueChildKey: true,
-                    request: {
-                        type: 'test',
-                        attributes: ['id', 'firstKeyPart', 'keyPart1'],
-                        filter: [
-                            [
-                                {attribute: 'id', operator: 'equal', valueFromParentKey: true}
-                            ]
+                subRequests: [
+                    {
+                        attributePath: [],
+                        dataSourceName: 'secondary1',
+                        parentKey: ['id'],
+                        childKey: ['id'],
+                        multiValuedParentKey: false,
+                        uniqueChildKey: true,
+                        request: {
+                            type: 'test',
+                            attributes: ['id', 'firstKeyPart', 'keyPart1'],
+                            filter: [[{ attribute: 'id', operator: 'equal', valueFromParentKey: true }]]
+                        },
+                        attributeOptions: {
+                            id: { type: 'int' },
+                            firstKeyPart: { type: 'int' },
+                            keyPart1: { type: 'int' }
+                        },
+                        subRequests: [
+                            {
+                                attributePath: ['subResource1'],
+                                dataSourceName: 'primary',
+                                parentKey: ['firstKeyPart', 'keyPart1'],
+                                childKey: ['firstKeyPart', 'keyPart1'],
+                                multiValuedParentKey: false,
+                                uniqueChildKey: true,
+                                request: {
+                                    type: 'test',
+                                    attributes: ['firstKeyPart', 'keyPart1', 'name'],
+                                    filter: [
+                                        [
+                                            {
+                                                attribute: ['firstKeyPart', 'keyPart1'],
+                                                operator: 'equal',
+                                                valueFromParentKey: true
+                                            }
+                                        ]
+                                    ]
+                                },
+                                attributeOptions: {
+                                    firstKeyPart: { type: 'int' },
+                                    keyPart1: { type: 'int' },
+                                    name: { type: 'string' }
+                                }
+                            }
                         ]
                     },
-                    attributeOptions: {
-                        'id': {type: 'int'},
-                        'firstKeyPart': {type: 'int'},
-                        'keyPart1': {type: 'int'}
-                    },
-                    subRequests: [
-                        {
-                            attributePath: ['subResource1'],
-                            dataSourceName: 'primary',
-                            parentKey: ['firstKeyPart', 'keyPart1'],
-                            childKey: ['firstKeyPart', 'keyPart1'],
-                            multiValuedParentKey: false,
-                            uniqueChildKey: true,
-                            request: {
-                                type: 'test',
-                                attributes: ['firstKeyPart', 'keyPart1', 'name'],
-                                filter: [
-                                    [
-                                        {attribute: ['firstKeyPart', 'keyPart1'], operator: 'equal', valueFromParentKey: true}
+                    {
+                        attributePath: [],
+                        dataSourceName: 'secondary2',
+                        parentKey: ['id'],
+                        childKey: ['id'],
+                        multiValuedParentKey: false,
+                        uniqueChildKey: true,
+                        request: {
+                            type: 'test',
+                            attributes: ['id', 'firstKeyPart', 'keyPart2'],
+                            filter: [[{ attribute: 'id', operator: 'equal', valueFromParentKey: true }]]
+                        },
+                        attributeOptions: {
+                            id: { type: 'int' },
+                            firstKeyPart: { type: 'int' },
+                            keyPart2: { type: 'int' }
+                        },
+                        subRequests: [
+                            {
+                                attributePath: ['subResource2'],
+                                dataSourceName: 'primary',
+                                parentKey: ['firstKeyPart', 'keyPart2'],
+                                childKey: ['firstKeyPart', 'keyPart2'],
+                                multiValuedParentKey: false,
+                                uniqueChildKey: true,
+                                request: {
+                                    type: 'test',
+                                    attributes: ['firstKeyPart', 'keyPart2', 'name'],
+                                    filter: [
+                                        [
+                                            {
+                                                attribute: ['firstKeyPart', 'keyPart2'],
+                                                operator: 'equal',
+                                                valueFromParentKey: true
+                                            }
+                                        ]
                                     ]
-                                ]
-                            },
-                            attributeOptions: {
-                                'firstKeyPart': {type: 'int'},
-                                'keyPart1': {type: 'int'},
-                                'name': {type: 'string'}
+                                },
+                                attributeOptions: {
+                                    firstKeyPart: { type: 'int' },
+                                    keyPart2: { type: 'int' },
+                                    name: { type: 'string' }
+                                }
                             }
-                        }
-                    ]
-                },{
-                    attributePath: [],
-                    dataSourceName: 'secondary2',
-                    parentKey: ['id'],
-                    childKey: ['id'],
-                    multiValuedParentKey: false,
-                    uniqueChildKey: true,
-                    request: {
-                        type: 'test',
-                        attributes: ['id', 'firstKeyPart', 'keyPart2'],
-                        filter: [
-                            [
-                                {attribute: 'id', operator: 'equal', valueFromParentKey: true}
-                            ]
                         ]
-                    },
-                    attributeOptions: {
-                        'id': {type: 'int'},
-                        'firstKeyPart': {type: 'int'},
-                        'keyPart2': {type: 'int'}
-                    },
-                    subRequests: [
-                        {
-                            attributePath: ['subResource2'],
-                            dataSourceName: 'primary',
-                            parentKey: ['firstKeyPart', 'keyPart2'],
-                            childKey: ['firstKeyPart', 'keyPart2'],
-                            multiValuedParentKey: false,
-                            uniqueChildKey: true,
-                            request: {
-                                type: 'test',
-                                attributes: ['firstKeyPart', 'keyPart2', 'name'],
-                                filter: [
-                                    [
-                                        {attribute: ['firstKeyPart', 'keyPart2'], operator: 'equal', valueFromParentKey: true}
-                                    ]
-                                ]
-                            },
-                            attributeOptions: {
-                                'firstKeyPart': {type: 'int'},
-                                'keyPart2': {type: 'int'},
-                                'name': {type: 'string'}
-                            }
-                        }
-                    ]
-                }]
+                    }
+                ]
             };
 
             const resolvedRequest = requestResolver(req, testResourceConfigs);
@@ -2676,33 +2565,35 @@ describe('request-resolver', () => {
             const req = {
                 resource: 'article',
                 select: {
-                    'date': {},
-                    'title': {},
-                    'subTitle': {},
-                    'source': {
+                    date: {},
+                    title: {},
+                    subTitle: {},
+                    source: {
                         select: {
-                            'name': {},
-                            'externalId': {}
+                            name: {},
+                            externalId: {}
                         }
                     },
-                    'body': {},
-                    'author': {
+                    body: {},
+                    author: {
                         select: {
-                            'firstname': {},
-                            'lastname': {}
+                            firstname: {},
+                            lastname: {}
                         }
                     }
                 },
                 filter: [
                     [
-                        {attribute: ['date'], operator: 'lessOrEqual', value: '2014-12-01T00:00:00+01:00'},
-                        {attribute: ['categories', 'id'], operator: 'equal', value: [12, 13]}
+                        { attribute: ['date'], operator: 'lessOrEqual', value: '2014-12-01T00:00:00+01:00' },
+                        { attribute: ['categories', 'id'], operator: 'equal', value: [12, 13] }
                     ]
                 ],
-                order: [{
-                    attribute: ['date'],
-                    direction: 'desc'
-                }],
+                order: [
+                    {
+                        attribute: ['date'],
+                        direction: 'desc'
+                    }
+                ],
                 limit: 10,
                 page: 1
             };
@@ -2718,65 +2609,63 @@ describe('request-resolver', () => {
                     attributes: ['id', 'timestamp', 'title', 'sourceName', 'externalId', 'authorId'],
                     filter: [
                         [
-                            {attribute: 'timestamp', operator: 'lessOrEqual', value: '2014-12-01T00:00:00+01:00'},
-                            {attribute: 'id', operator: 'equal', valueFromSubFilter: 0}
+                            { attribute: 'timestamp', operator: 'lessOrEqual', value: '2014-12-01T00:00:00+01:00' },
+                            { attribute: 'id', operator: 'equal', valueFromSubFilter: 0 }
                         ]
                     ],
-                    order: [{
-                        attribute: 'timestamp',
-                        direction: 'desc'
-                    }],
+                    order: [
+                        {
+                            attribute: 'timestamp',
+                            direction: 'desc'
+                        }
+                    ],
                     limit: 10,
                     page: 1
                 },
                 attributeOptions: {
-                    'id': {type: 'int'},
-                    'timestamp': {type: 'datetime'},
-                    'title': {type: 'string'},
-                    'sourceName': {type: 'string'},
-                    'externalId': {type: 'string'},
-                    'authorId': {type: 'int'}
+                    id: { type: 'int' },
+                    timestamp: { type: 'datetime' },
+                    title: { type: 'string' },
+                    sourceName: { type: 'string' },
+                    externalId: { type: 'string' },
+                    authorId: { type: 'int' }
                 },
-                subFilters: [{
-                    parentKey: ['id'],
-                    childKey: ['articleId'],
-                    request: {
-                        type: 'mysql',
-                        database: 'contents',
-                        table: 'article_category',
-                        joinParentKey: [['articleId']],
-                        joinChildKey: [['categoryId']],
-                        resolvedJoinParentKey: ['articleId'],
-                        resolvedJoinChildKey: ['categoryId'],
-                        attributes: ['articleId'],
-                        filter: [
-                            [
-                                {attribute: 'categoryId', operator: 'equal', valueFromSubFilter: 0}
-                            ]
-                        ]
-                    },
-                    attributeOptions: {
-                        'articleId': {type: 'int'}
-                    },
-                    subFilters: [{
-                        parentKey: ['categoryId'],
-                        childKey: ['id'],
+                subFilters: [
+                    {
+                        parentKey: ['id'],
+                        childKey: ['articleId'],
                         request: {
                             type: 'mysql',
                             database: 'contents',
-                            table: 'category',
-                            attributes: ['id'],
-                            filter: [
-                                [
-                                    {attribute: 'id', operator: 'equal', value: [12, 13]}
-                                ]
-                            ]
+                            table: 'article_category',
+                            joinParentKey: [['articleId']],
+                            joinChildKey: [['categoryId']],
+                            resolvedJoinParentKey: ['articleId'],
+                            resolvedJoinChildKey: ['categoryId'],
+                            attributes: ['articleId'],
+                            filter: [[{ attribute: 'categoryId', operator: 'equal', valueFromSubFilter: 0 }]]
                         },
                         attributeOptions: {
-                            'id': {type: 'int'}
-                        }
-                    }]
-                }],
+                            articleId: { type: 'int' }
+                        },
+                        subFilters: [
+                            {
+                                parentKey: ['categoryId'],
+                                childKey: ['id'],
+                                request: {
+                                    type: 'mysql',
+                                    database: 'contents',
+                                    table: 'category',
+                                    attributes: ['id'],
+                                    filter: [[{ attribute: 'id', operator: 'equal', value: [12, 13] }]]
+                                },
+                                attributeOptions: {
+                                    id: { type: 'int' }
+                                }
+                            }
+                        ]
+                    }
+                ],
                 subRequests: [
                     {
                         attributePath: [],
@@ -2790,15 +2679,11 @@ describe('request-resolver', () => {
                             database: 'contents',
                             table: 'article_body',
                             attributes: ['articleId', 'body'],
-                            filter: [
-                                [
-                                    {attribute: 'articleId', operator: 'equal', valueFromParentKey: true}
-                                ]
-                            ]
+                            filter: [[{ attribute: 'articleId', operator: 'equal', valueFromParentKey: true }]]
                         },
                         attributeOptions: {
-                            'articleId': {type: 'int'},
-                            'body': {type: 'string'}
+                            articleId: { type: 'int' },
+                            body: { type: 'string' }
                         }
                     },
                     {
@@ -2814,16 +2699,12 @@ describe('request-resolver', () => {
                             database: 'contents',
                             table: 'user',
                             attributes: ['id', 'firstname', 'lastname'],
-                            filter: [
-                                [
-                                    {attribute: 'id', operator: 'equal', valueFromParentKey: true}
-                                ]
-                            ]
+                            filter: [[{ attribute: 'id', operator: 'equal', valueFromParentKey: true }]]
                         },
                         attributeOptions: {
-                            'id': {type: 'int'},
-                            'firstname': {type: 'string'},
-                            'lastname': {type: 'string'}
+                            id: { type: 'int' },
+                            firstname: { type: 'string' },
+                            lastname: { type: 'string' }
                         }
                     }
                 ]
@@ -2841,55 +2722,55 @@ describe('request-resolver', () => {
             const req = {
                 resource: 'article',
                 select: {
-                    'date': {},
-                    'title': {},
-                    'subTitle': {},
-                    'author': {
+                    date: {},
+                    title: {},
+                    subTitle: {},
+                    author: {
                         select: {
-                            'firstname': {},
-                            'lastname': {}
+                            firstname: {},
+                            lastname: {}
                         }
                     },
-                    'categories': {
+                    categories: {
                         select: {
-                            'name': {},
-                            'order': {}
+                            name: {},
+                            order: {}
                         }
                     },
-                    'countries': {
+                    countries: {
                         select: {
-                            'name': {}
+                            name: {}
                         }
                     },
-                    'body': {},
-                    'video': {
+                    body: {},
+                    video: {
                         select: {
-                            'url': {}
+                            url: {}
                         }
                     },
-                    'source': {
+                    source: {
                         select: {
-                            'name': {},
-                            'externalId': {}
+                            name: {},
+                            externalId: {}
                         }
                     },
-                    'comments': {
+                    comments: {
                         select: {
-                            'content': {},
-                            'user': {
+                            content: {},
+                            user: {
                                 select: {
-                                    'firstname': {},
-                                    'lastname': {}
+                                    firstname: {},
+                                    lastname: {}
                                 }
                             }
                         }
                     },
-                    'versions': {
+                    versions: {
                         select: {
-                            'title': {},
-                            'versioninfo': {
+                            title: {},
+                            versioninfo: {
                                 select: {
-                                    'modified': {}
+                                    modified: {}
                                 }
                             }
                         }

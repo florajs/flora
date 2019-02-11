@@ -6,5 +6,8 @@ const Request = require('./lib/request');
 const Server = require('./lib/server');
 
 module.exports = {
-    Api, Master, Request, Server
+    Api,
+    Master,
+    Request,
+    Server
 };

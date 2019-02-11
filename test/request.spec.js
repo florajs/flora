@@ -1,3 +1,5 @@
+/* global describe, it */
+
 'use strict';
 
 const { expect } = require('chai');
@@ -23,27 +25,31 @@ describe('Request', () => {
     });
 
     it('should set the default action "retrieve"', () => {
-        expect((new Request(reqOpts)).action).to.equal('retrieve');
+        expect(new Request(reqOpts).action).to.equal('retrieve');
     });
 
     it('should set the default format "json"', () => {
-        expect((new Request(reqOpts)).format).to.equal('json');
+        expect(new Request(reqOpts).format).to.equal('json');
     });
 
     it('should store _status', () => {
-        expect((new Request({
-            _status: 'foo'
-        }))._status).to.equal('foo');
+        expect(
+            new Request({
+                _status: 'foo'
+            })._status
+        ).to.equal('foo');
     });
 
     it('should instantiate a _profiler', () => {
-        expect((new Request(reqOpts))._profiler).to.be.an('object');
+        expect(new Request(reqOpts)._profiler).to.be.an('object');
     });
 
     it('should store _httpRequest', () => {
-        expect((new Request({
-            _httpRequest: 'foo'
-        }))._httpRequest).to.equal('foo');
+        expect(
+            new Request({
+                _httpRequest: 'foo'
+            })._httpRequest
+        ).to.equal('foo');
     });
 
     it('should store custom properties', () => {

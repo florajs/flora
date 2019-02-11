@@ -23,7 +23,7 @@ server.api.on('close', async () => {
 
 // Event: "request"
 // is called on each request, before the request is handled.
-server.api.on('request', async ({ request, response }) => {
+server.api.on('request', async ({ request /*, response */ }) => {
     server.api.log.info('Extension: api request');
     request.limit = 1; // modify the "limit" parameter
     request.select = 'foo'; // modify the "select" parameter to always select (only) the "foo" attribute
@@ -32,14 +32,14 @@ server.api.on('request', async ({ request, response }) => {
 
 // Event: "httpRequest"
 // is called before any flora.Request instanciation and allows modifying HTTP headers
-server.api.on('httpRequest', ({ httpRequest, httpResponse }) => {
+server.api.on('httpRequest', ({ /* httpRequest, */ httpResponse }) => {
     server.api.log.info('Extension: api httpRequest');
     httpResponse.setHeader('X-Hello', 'World');
 });
 
 // Event: "response"
 // is called after the request is handled and before the response is sent.
-server.api.on('response', async ({ request, response }) => {
+server.api.on('response', async ({ /* request, */ response }) => {
     server.api.log.info('Extension: api response');
 
     // modify response: add "baz: 'foo'" property to the complete response

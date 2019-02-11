@@ -2,7 +2,7 @@
 
 let initCalled = 0;
 
-module.exports = (api) => {
+module.exports = api => {
     initCalled = 0;
 
     return {
@@ -15,15 +15,15 @@ module.exports = (api) => {
                 initCalled++;
             },
 
-            item: (ev) => {
+            item: ev => {
                 ev.item.bar = 'baz';
             },
 
-            preExecute: (ev) => {
+            preExecute: ev => {
                 ev.floraRequest._preExecuteArgs = ev;
             },
 
-            postExecute: (ev) => {
+            postExecute: ev => {
                 ev.floraRequest._postExecuteArgs = ev;
             }
         },
