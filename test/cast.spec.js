@@ -122,6 +122,97 @@ describe('type casting', () => {
         });
     });
 
+    describe('casts type "date" without timezone', () => {
+        it('passes through when parsing from date to date', () => {
+            expect(
+                cast.cast('2009-08-18', {
+                    type: 'date',
+                    storedType: { type: 'date' }
+                })
+            ).to.equal('2009-08-18');
+        });
+
+        it('passes through when parsing from string to date (no storedType)', () => {
+            expect(
+                cast.cast('2009-08-18', {
+                    type: 'date'
+                })
+            ).to.equal('2009-08-18');
+        });
+
+        it('"2015-03-03 (datetime) 15:00:00" to date (no timezone)', () => {
+            expect(
+                cast.cast('2015-03-03 15:00:00', {
+                    type: 'date',
+                    storedType: { type: 'datetime' }
+                })
+            ).to.equal('2015-03-03');
+        });
+
+        it('"2015-03-03 (date) 15:00:00" to date (no timezone)', () => {
+            expect(
+                cast.cast('2015-03-03 15:00:00', {
+                    type: 'date',
+                    storedType: { type: 'date' }
+                })
+            ).to.equal('2015-03-03');
+        });
+
+        it('"2015-03-03 00:00:00" (datetime) to date (no timezone)', () => {
+            expect(
+                cast.cast('2015-03-03 00:00:00', {
+                    type: 'date',
+                    storedType: { type: 'datetime' }
+                })
+            ).to.equal('2015-03-03');
+        });
+
+        it('"2015-03-03 00:00:00" (date) to date (no timezone)', () => {
+            expect(
+                cast.cast('2015-03-03 00:00:00', {
+                    type: 'date',
+                    storedType: { type: 'date' }
+                })
+            ).to.equal('2015-03-03');
+        });
+
+        it('"2015-03-03 01:00:00" (datetime)  to date (no timezone)', () => {
+            expect(
+                cast.cast('2015-03-03 01:00:00', {
+                    type: 'date',
+                    storedType: { type: 'datetime' }
+                })
+            ).to.equal('2015-03-03');
+        });
+
+        it('"2015-03-03 01:00:00" (date)  to date (no timezone)', () => {
+            expect(
+                cast.cast('2015-03-03 01:00:00', {
+                    type: 'date',
+                    storedType: { type: 'date' }
+                })
+            ).to.equal('2015-03-03');
+        });
+
+        it('"2015-03-03 23:00:00" (datetime) to date (no timezone)', () => {
+            expect(
+                cast.cast('2015-03-03 23:00:00', {
+                    type: 'date',
+                    storedType: { type: 'datetime' }
+                })
+            ).to.equal('2015-03-03');
+        });
+
+        it('"2015-03-03 23:00:00" (date) to date (no timezone)', () => {
+            expect(
+                cast.cast('2015-03-03 23:00:00', {
+                    type: 'date',
+                    storedType: { type: 'date' }
+                })
+            ).to.equal('2015-03-03');
+        });
+    });
+
     describe('casts type "date" with timezone', () => {
         it('casts invalid datetime values to null', () => {
             expect(cast.cast('0000-00-00 00:00:00', { type: 'date' })).to.equal(null);
@@ -146,13 +237,22 @@ describe('type casting', () => {
             ).to.equal('2015-03-03');
         });
 
+        it('"2015-03-03 15:00:00" (date) to date (Europe/Berlin)', () => {
+            expect(
+                cast.cast('2015-03-03 15:00:00', {
+                    type: 'date',
+                    storedType: { type: 'date', options: { timezone: 'Europe/Berlin' } }
+                })
+            ).to.equal('2015-03-03');
+        });
+
         it('"2015-03-03 00:00:00" to date (Europe/Berlin)', () => {
             expect(
                 cast.cast('2015-03-03 00:00:00', {
                     type: 'date',
                     storedType: { type: 'datetime', options: { timezone: 'Europe/Berlin' } }
                 })
-            ).to.equal('2015-03-02');
+            ).to.equal('2015-03-03');
         });
 
         it('"2015-03-03 03:00:00" to date (America/New_York)', () => {
