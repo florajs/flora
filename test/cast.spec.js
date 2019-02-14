@@ -33,6 +33,25 @@ describe('type casting', () => {
         expect(cast.cast('0', { type: 'boolean' })).to.equal(false);
     });
 
+    describe('casts type "datetime" without timezone', () => {
+        it('"2015-03-03 15:00:00" to datetime', () => {
+            expect(
+                cast.cast('2015-03-03 15:00:00', {
+                    type: 'datetime'
+                })
+            ).to.equal('2015-03-03T15:00:00.000Z');
+        });
+
+        it('"2015-03-03 15:00:00" (datetime) to datetime', () => {
+            expect(
+                cast.cast('2015-03-03 15:00:00', {
+                    type: 'datetime',
+                    storedType: { type: 'datetime' }
+                })
+            ).to.equal('2015-03-03T15:00:00.000Z');
+        });
+    });
+
     describe('casts type "datetime" with timezone', () => {
         it('casts invalid datetime values to null', () => {
             expect(cast.cast('0000-00-00 00:00:00', { type: 'datetime' })).to.equal(null);
