@@ -44,7 +44,7 @@
     "bunyan": "^1.5.1",
     "chokidar": "^2.1.0",
     "content-type": "^1.0.2",
-    "flora-cluster": "^2.0.0-alpha.1",
+    "flora-cluster": "^2.0.0-alpha.2",
     "flora-errors": "^2.0.0-alpha.1",
     "flora-request-parser": "^0.8.0",
     "has": "^1.0.3",
