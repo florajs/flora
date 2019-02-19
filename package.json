@@ -5,10 +5,11 @@
   "main": "index.js",
   "scripts": {
     "doc": "jsdoc -R README.md -d build/docs lib",
-    "test": "eslint . && mocha",
-    "lint": "eslint ."
+    "test": "mocha",
+    "lint": "eslint .",
+    "test-lint": "eslint . && mocha"
   },
-  "pre-commit": "test",
+  "pre-commit": "test-lint",
   "keywords": [
     "api",
     "framework",
