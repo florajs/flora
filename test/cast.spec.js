@@ -1,4 +1,4 @@
-/* global describe, it */
+/* global describe, it, before, after */
 
 'use strict';
 
@@ -101,6 +101,38 @@ describe('type casting', () => {
                     storedType: { type: 'datetime' }
                 })
             ).to.equal(null);
+        });
+    });
+
+    describe('honours api.config.timezone', () => {
+        let savedTimezone;
+
+        before(() => {
+            savedTimezone = api.config.timezone;
+        });
+
+        after(() => {
+            api.config.timezone = savedTimezone;
+        });
+
+        it('"2019-02-19 14:28:00" (UTC) to datetime', () => {
+            api.config.timezone = 'UTC';
+            expect(
+                cast.cast('2019-02-19 14:28:00', {
+                    type: 'datetime',
+                    storedType: { type: 'datetime' }
+                })
+            ).to.equal('2019-02-19T14:28:00.000Z');
+        });
+
+        it('"2019-02-19 14:28:00" (Europe/Berlin) to datetime', () => {
+            api.config.timezone = 'Europe/Berlin';
+            expect(
+                cast.cast('2019-02-19 14:28:00', {
+                    type: 'datetime',
+                    storedType: { type: 'datetime' }
+                })
+            ).to.equal('2019-02-19T14:28:00.000+01:00');
         });
     });
 
