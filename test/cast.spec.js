@@ -136,6 +136,54 @@ describe('type casting', () => {
         });
     });
 
+    describe('honours api.config.defaultStoredTimezone', () => {
+        let savedTimezone;
+        let savedStoredTimezone;
+
+        before(() => {
+            savedTimezone = api.config.timezone;
+            savedStoredTimezone = api.config.defaultStoredTimezone;
+        });
+
+        after(() => {
+            api.config.timezone = savedTimezone;
+            api.config.defaultStoredTimezone = savedStoredTimezone;
+        });
+
+        it('"2019-02-19 14:28:00" (undefined) to datetime (UTC)', () => {
+            api.config.timezone = 'UTC';
+            // api.config.defaultStoredTimezone = undefined;
+            expect(
+                cast.cast('2019-02-19 14:28:00', {
+                    type: 'datetime',
+                    storedType: { type: 'datetime' }
+                })
+            ).to.equal('2019-02-19T14:28:00.000Z');
+        });
+
+        it('"2019-02-19 14:28:00" (UTC) to datetime (UTC)', () => {
+            api.config.timezone = 'UTC';
+            api.config.defaultStoredTimezone = 'UTC';
+            expect(
+                cast.cast('2019-02-19 14:28:00', {
+                    type: 'datetime',
+                    storedType: { type: 'datetime' }
+                })
+            ).to.equal('2019-02-19T14:28:00.000Z');
+        });
+
+        it('"2019-02-19 14:28:00" (Europe/Berlin) to datetime (UTC)', () => {
+            api.config.timezone = 'UTC';
+            api.config.defaultStoredTimezone = 'Europe/Berlin';
+            expect(
+                cast.cast('2019-02-19 14:28:00', {
+                    type: 'datetime',
+                    storedType: { type: 'datetime' }
+                })
+            ).to.equal('2019-02-19T13:28:00.000Z');
+        });
+    });
+
     describe('casts type "date" types from "unixtime"', () => {
         it('casts unixtime integer to datetime', () => {
             expect(
