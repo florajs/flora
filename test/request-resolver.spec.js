@@ -253,7 +253,7 @@ describe('request-resolver', () => {
                 }
             };
 
-            const expectedOrder = ['id', 'attr3', 'attr2', 'attr1'];
+            const expectedOrder = ['attr3', 'attr2', 'attr1', 'id'];
 
             const resolvedRequest = requestResolver(req, configs);
             const currentOrder = Object.keys(resolvedRequest.resolvedConfig.attributes['resource2'].attributes);
@@ -1752,6 +1752,132 @@ describe('request-resolver', () => {
             const resolvedRequest = requestResolver(req, configs);
             expect(resolvedRequest.dataSourceTree).to.eql(dataSourceTree);
             expect(resolvedRequest.resolvedConfig.attributes['author'].selected).not.to.be.true;
+        });
+
+        it('selects dependant attributes on sub-resources', () => {
+            const configs = _.cloneDeep(resourceConfigs);
+            configs['article'].config.attributes['copyright'].depends = {
+                video: { select: { url: {} } }
+            };
+            configs['article'].config.attributes['video'].depends = {
+                youtubeId: {}
+            };
+            configs['article'].config.attributes['video'].attributes['youtubeId'].depends = {
+                url: {}
+            };
+
+            // /article/?select=copyright
+            const req = {
+                resource: 'article',
+                select: {
+                    copyright: {}
+                }
+            };
+
+            const dataSourceTree = {
+                resourceName: 'article',
+                attributePath: [],
+                dataSourceName: 'primary',
+                request: {
+                    type: 'mysql',
+                    database: 'contents',
+                    table: 'article',
+                    attributes: ['id'],
+                    limit: 10
+                },
+                attributeOptions: {
+                    id: { type: 'int' }
+                },
+                subRequests: [
+                    {
+                        attributePath: ['video'],
+                        dataSourceName: 'primary',
+                        parentKey: ['id'],
+                        childKey: ['articleId'],
+                        multiValuedParentKey: false,
+                        uniqueChildKey: true,
+                        request: {
+                            type: 'mysql',
+                            database: 'contents',
+                            table: 'article_video',
+                            attributes: ['articleId', 'url', 'youtubeId'],
+                            filter: [[{ attribute: 'articleId', operator: 'equal', valueFromParentKey: true }]]
+                        },
+                        attributeOptions: {
+                            articleId: { type: 'int' },
+                            url: { type: 'string' },
+                            youtubeId: { type: 'string' }
+                        }
+                    }
+                ]
+            };
+
+            const resolvedRequest = requestResolver(req, configs);
+            expect(resolvedRequest.dataSourceTree).to.eql(dataSourceTree);
+            expect(resolvedRequest.resolvedConfig.attributes['video'].attributes['youtubeId'].selected).not.to.be.true;
+            expect(resolvedRequest.resolvedConfig.attributes['video'].attributes['url'].selected).not.to.be.true;
+        });
+
+        it('selects attributes in {root} from sub-resources', () => {
+            const configs = _.cloneDeep(resourceConfigs);
+            configs['article'].config.attributes['video'].attributes['url'].depends = {
+                '{root}': { select: { title: {} } }
+            };
+
+            // /article/?select=video.url
+            const req = {
+                resource: 'article',
+                select: {
+                    video: {
+                        select: {
+                            url: {}
+                        }
+                    }
+                }
+            };
+
+            const dataSourceTree = {
+                resourceName: 'article',
+                attributePath: [],
+                dataSourceName: 'primary',
+                request: {
+                    type: 'mysql',
+                    database: 'contents',
+                    table: 'article',
+                    attributes: ['id', 'title'],
+                    limit: 10
+                },
+                attributeOptions: {
+                    id: { type: 'int' },
+                    title: { type: 'string' }
+                },
+                subRequests: [
+                    {
+                        attributePath: ['video'],
+                        dataSourceName: 'primary',
+                        parentKey: ['id'],
+                        childKey: ['articleId'],
+                        multiValuedParentKey: false,
+                        uniqueChildKey: true,
+                        request: {
+                            type: 'mysql',
+                            database: 'contents',
+                            table: 'article_video',
+                            attributes: ['articleId', 'url'],
+                            filter: [[{ attribute: 'articleId', operator: 'equal', valueFromParentKey: true }]]
+                        },
+                        attributeOptions: {
+                            articleId: { type: 'int' },
+                            url: { type: 'string' }
+                        }
+                    }
+                ]
+            };
+
+            const resolvedRequest = requestResolver(req, configs);
+            expect(resolvedRequest.dataSourceTree).to.eql(dataSourceTree);
+            expect(resolvedRequest.resolvedConfig.attributes['title'].selected).not.to.be.true;
+            expect(resolvedRequest.resolvedConfig.attributes['video'].attributes['url'].selected).to.be.true;
         });
 
         it('handles "depends" + "select" on same sub-resource', () => {
