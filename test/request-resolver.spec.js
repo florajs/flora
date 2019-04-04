@@ -88,7 +88,7 @@ describe('request-resolver', () => {
 
             expect(() => {
                 requestResolver(req, resourceConfigs);
-            }).to.throw(RequestError, 'Resource not specified in request');
+            }).to.throw(RequestError, 'Resource not specified');
         });
 
         it('fails on unknown resource in request', () => {
@@ -96,7 +96,7 @@ describe('request-resolver', () => {
 
             expect(() => {
                 requestResolver(req, resourceConfigs);
-            }).to.throw(RequestError, 'Unknown resource "non-existing" in request');
+            }).to.throw(RequestError, 'Unknown resource "non-existing"');
         });
 
         it('fails on unknown included resource with different error', () => {
@@ -463,7 +463,7 @@ describe('request-resolver', () => {
 
             expect(() => {
                 requestResolver(req, resourceConfigs);
-            }).to.throw(RequestError, 'Unknown attribute "invalid" in request');
+            }).to.throw(RequestError, 'Unknown attribute "invalid"');
         });
 
         it('fails when selecting unknown sub-attributes', () => {
@@ -481,7 +481,7 @@ describe('request-resolver', () => {
 
             expect(() => {
                 requestResolver(req, resourceConfigs);
-            }).to.throw(RequestError, 'Unknown attribute "title.invalid" in request');
+            }).to.throw(RequestError, 'Unknown attribute "title.invalid"');
         });
 
         it('fails when selecting hidden attributes', () => {
@@ -495,7 +495,7 @@ describe('request-resolver', () => {
 
             expect(() => {
                 requestResolver(req, resourceConfigs);
-            }).to.throw(RequestError, 'Unknown attribute "secretInfo" in request - it is a hidden attribute');
+            }).to.throw(RequestError, 'Unknown attribute "secretInfo" - it is a hidden attribute');
         });
 
         it('resolves request with filter', () => {
