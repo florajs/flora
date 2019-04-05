@@ -296,26 +296,6 @@
                     "selected": false,
                     "selectedDataSource": "primary"
                 },
-                "articleId": {
-                    "hidden": true,
-                    "type": "int",
-                    "map": {
-                        "default": {
-                            "articleCategories": "articleId"
-                        }
-                    },
-                    "selectedDataSource": "articleCategories"
-                },
-                "categoryId": {
-                    "hidden": true,
-                    "type": "int",
-                    "map": {
-                        "default": {
-                            "articleCategories": "categoryId"
-                        }
-                    },
-                    "selectedDataSource": "articleCategories"
-                },
                 "name": {
                     "map": {
                         "default": {
@@ -334,6 +314,26 @@
                         }
                     },
                     "selected": false,
+                    "selectedDataSource": "articleCategories"
+                },
+                "articleId": {
+                    "hidden": true,
+                    "type": "int",
+                    "map": {
+                        "default": {
+                            "articleCategories": "articleId"
+                        }
+                    },
+                    "selectedDataSource": "articleCategories"
+                },
+                "categoryId": {
+                    "hidden": true,
+                    "type": "int",
+                    "map": {
+                        "default": {
+                            "articleCategories": "categoryId"
+                        }
+                    },
                     "selectedDataSource": "articleCategories"
                 }
             },
@@ -387,8 +387,8 @@
                     "database": "contents",
                     "table": "country",
                     "attributes": [
-                        "id",
                         "iso",
+                        "id",
                         "name"
                     ],
                     "filter": [
@@ -416,15 +416,6 @@
                     "selected": false,
                     "selectedDataSource": "primary"
                 },
-                "iso": {
-                    "map": {
-                        "default": {
-                            "primary": "iso"
-                        }
-                    },
-                    "type": "string",
-                    "selectedDataSource": "primary"
-                },
                 "name": {
                     "map": {
                         "default": {
@@ -433,6 +424,15 @@
                     },
                     "type": "string",
                     "selected": false,
+                    "selectedDataSource": "primary"
+                },
+                "iso": {
+                    "map": {
+                        "default": {
+                            "primary": "iso"
+                        }
+                    },
+                    "type": "string",
                     "selectedDataSource": "primary"
                 }
             },
@@ -597,8 +597,8 @@
                     "database": "contents",
                     "table": "article_comment",
                     "attributes": [
-                        "id",
                         "articleId",
+                        "id",
                         "content",
                         "userId"
                     ],
@@ -626,16 +626,6 @@
                         "equal"
                     ],
                     "selected": false,
-                    "selectedDataSource": "primary"
-                },
-                "articleId": {
-                    "hidden": true,
-                    "type": "int",
-                    "map": {
-                        "default": {
-                            "primary": "articleId"
-                        }
-                    },
                     "selectedDataSource": "primary"
                 },
                 "content": {
@@ -738,6 +728,16 @@
                     },
                     "selected": false,
                     "primaryDataSource": "primary"
+                },
+                "articleId": {
+                    "hidden": true,
+                    "type": "int",
+                    "map": {
+                        "default": {
+                            "primary": "articleId"
+                        }
+                    },
+                    "selectedDataSource": "primary"
                 },
                 "userId": {
                     "hidden": true,
