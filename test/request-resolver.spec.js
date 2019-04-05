@@ -253,7 +253,7 @@ describe('request-resolver', () => {
                 }
             };
 
-            const expectedOrder = ['attr3', 'attr2', 'attr1', 'id'];
+            const expectedOrder = ['id', 'attr3', 'attr2', 'attr1'];
 
             const resolvedRequest = requestResolver(req, configs);
             const currentOrder = Object.keys(resolvedRequest.resolvedConfig.attributes['resource2'].attributes);
@@ -1204,7 +1204,7 @@ describe('request-resolver', () => {
                             type: 'mysql',
                             database: 'contents',
                             table: 'article_comment',
-                            attributes: ['id', 'articleId', 'content'],
+                            attributes: ['articleId', 'id', 'content'],
                             filter: [[{ attribute: 'articleId', operator: 'equal', valueFromParentKey: true }]]
                         },
                         attributeOptions: {
@@ -1260,7 +1260,7 @@ describe('request-resolver', () => {
                             type: 'mysql',
                             database: 'contents',
                             table: 'article_comment',
-                            attributes: ['id', 'articleId', 'content'],
+                            attributes: ['articleId', 'id', 'content'],
                             filter: [[{ attribute: 'articleId', operator: 'equal', valueFromParentKey: true }]]
                         },
                         attributeOptions: {
@@ -1395,7 +1395,7 @@ describe('request-resolver', () => {
                             type: 'mysql',
                             database: 'contents',
                             table: 'country',
-                            attributes: ['id', 'iso', 'name'],
+                            attributes: ['iso', 'id', 'name'],
                             filter: [[{ attribute: 'iso', operator: 'equal', valueFromParentKey: true }]]
                         },
                         attributeOptions: {
@@ -1528,7 +1528,7 @@ describe('request-resolver', () => {
                             type: 'mysql',
                             database: 'contents',
                             table: 'article_comment',
-                            attributes: ['id', 'articleId'],
+                            attributes: ['articleId', 'id'],
                             filter: [
                                 [
                                     { attribute: 'id', operator: 'equal', value: 3 },
