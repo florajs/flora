@@ -48,7 +48,7 @@ describe('request-resolver', () => {
 
             function polluteObject(object, depth) {
                 for (const key in object) {
-                    if (key === '_attrsRefs') continue;
+                    if (key === '_origNodes') continue;
 
                     if (typeof object[key] === 'object' && object[key] !== null && depth > 0) {
                         polluteObject(object[key], key === 'dataSources' ? 1 : depth - 1);
@@ -1964,6 +1964,88 @@ describe('request-resolver', () => {
             expect(resolvedReq).to.eql(req);
         });
 
+        it('uses correct {root} context for merged included sub-resource ("depends" in parent)', () => {
+            const configs = _.cloneDeep(resourceConfigs);
+            configs['article'].config.attributes['author'].attributes = {
+                firstname: {
+                    inherit: 'inherit',
+                    value: null,
+                    depends: {
+                        '{root}': { select: { title: {} } }
+                    }
+                }
+            };
+
+            const req = {
+                resource: 'article',
+                select: {
+                    author: {
+                        select: {
+                            firstname: {}
+                        }
+                    }
+                }
+            };
+
+            const resolvedReq = {
+                resource: 'article',
+                select: {
+                    id: { isPrimary: true },
+                    title: { internal: true },
+                    author: {
+                        select: {
+                            id: { isPrimary: true },
+                            firstname: {}
+                        }
+                    }
+                }
+            };
+
+            requestResolver(req, configs);
+            expect(resolvedReq).to.eql(req);
+        });
+
+        it('uses correct {root} context for merged included sub-resource ("depends" in child)', () => {
+            const configs = _.cloneDeep(resourceConfigs);
+            configs['article'].config.attributes['author'].attributes = {
+                firstname: {
+                    inherit: 'inherit',
+                    value: null
+                }
+            };
+            configs['user'].config.attributes['firstname'].depends = {
+                '{root}': { select: { lastname: {} } }
+            };
+
+            const req = {
+                resource: 'article',
+                select: {
+                    author: {
+                        select: {
+                            firstname: {}
+                        }
+                    }
+                }
+            };
+
+            const resolvedReq = {
+                resource: 'article',
+                select: {
+                    id: { isPrimary: true },
+                    author: {
+                        select: {
+                            id: { isPrimary: true },
+                            firstname: {},
+                            lastname: { internal: true }
+                        }
+                    }
+                }
+            };
+
+            requestResolver(req, configs);
+            expect(resolvedReq).to.eql(req);
+        });
+
         it('handles "depends" + "select" on same sub-resource', () => {
             const configs = _.cloneDeep(resourceConfigs);
             configs['article'].config.attributes['copyright'].depends = {
@@ -2993,16 +3075,14 @@ describe('request-resolver', () => {
             const resolvedRequest = requestResolver(req, resourceConfigs);
 
             function cleanupAttributes(parentAttrNode) {
-                if (parentAttrNode._attrsRefs) {
-                    delete parentAttrNode._attrsRefs;
+                if (parentAttrNode._origNodes) {
+                    delete parentAttrNode._origNodes;
                 }
 
                 for (let attrName in parentAttrNode.attributes) {
                     let attrNode = parentAttrNode.attributes[attrName];
 
-                    if (attrNode.attributes) {
-                        cleanupAttributes(attrNode);
-                    }
+                    cleanupAttributes(attrNode);
 
                     if (attrNode.selected) {
                         attrNode.selected = false;
