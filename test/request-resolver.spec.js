@@ -1818,66 +1818,150 @@ describe('request-resolver', () => {
             expect(resolvedRequest.resolvedConfig.attributes['video'].attributes['url'].selected).not.to.be.true;
         });
 
-        it('selects attributes in {root} from sub-resources', () => {
+        it('uses correct {root} context for inline sub-resource', () => {
             const configs = _.cloneDeep(resourceConfigs);
             configs['article'].config.attributes['video'].attributes['url'].depends = {
                 '{root}': { select: { title: {} } }
             };
 
-            // /article/?select=video.url
             const req = {
                 resource: 'article',
                 select: {
                     video: {
+                        select: { url: {} }
+                    }
+                }
+            };
+
+            const resolvedReq = {
+                resource: 'article',
+                select: {
+                    id: { isPrimary: true },
+                    title: { internal: true },
+                    video: {
                         select: {
+                            articleId: { internal: true, isPrimary: true },
                             url: {}
                         }
                     }
                 }
             };
 
-            const dataSourceTree = {
-                resourceName: 'article',
-                attributePath: [],
-                dataSourceName: 'primary',
-                request: {
-                    type: 'mysql',
-                    database: 'contents',
-                    table: 'article',
-                    attributes: ['id', 'title'],
-                    limit: 10
-                },
-                attributeOptions: {
-                    id: { type: 'int' },
-                    title: { type: 'string' }
-                },
-                subRequests: [
-                    {
-                        attributePath: ['video'],
-                        dataSourceName: 'primary',
-                        parentKey: ['id'],
-                        childKey: ['articleId'],
-                        multiValuedParentKey: false,
-                        uniqueChildKey: true,
-                        request: {
-                            type: 'mysql',
-                            database: 'contents',
-                            table: 'article_video',
-                            attributes: ['articleId', 'url'],
-                            filter: [[{ attribute: 'articleId', operator: 'equal', valueFromParentKey: true }]]
-                        },
-                        attributeOptions: {
-                            articleId: { type: 'int' },
-                            url: { type: 'string' }
-                        }
-                    }
-                ]
+            requestResolver(req, configs);
+            expect(resolvedReq).to.eql(req);
+        });
+
+        it('uses correct {root} context for included sub-resource', () => {
+            const configs = _.cloneDeep(resourceConfigs);
+            configs['user'].config.attributes['firstname'].depends = {
+                '{root}': { select: { lastname: {} } }
             };
 
-            const resolvedRequest = requestResolver(req, configs);
-            expect(resolvedRequest.dataSourceTree).to.eql(dataSourceTree);
-            expect(resolvedRequest.resolvedConfig.attributes['title'].selected).not.to.be.true;
-            expect(resolvedRequest.resolvedConfig.attributes['video'].attributes['url'].selected).to.be.true;
+            const req = {
+                resource: 'article',
+                select: {
+                    author: {
+                        select: {
+                            firstname: {}
+                        }
+                    }
+                }
+            };
+
+            const resolvedReq = {
+                resource: 'article',
+                select: {
+                    id: { isPrimary: true },
+                    author: {
+                        select: {
+                            id: { isPrimary: true },
+                            firstname: {},
+                            lastname: { internal: true }
+                        }
+                    }
+                }
+            };
+
+            requestResolver(req, configs);
+            expect(resolvedReq).to.eql(req);
+        });
+
+        it('handles "depends" at root level', () => {
+            const configs = _.cloneDeep(resourceConfigs);
+            configs['user'].config.depends = {
+                '{root}': { select: { lastname: {} } }
+            };
+
+            const req = {
+                resource: 'user'
+            };
+
+            const resolvedReq = {
+                resource: 'user',
+                select: {
+                    id: { isPrimary: true },
+                    lastname: { internal: true }
+                }
+            };
+
+            requestResolver(req, configs);
+            expect(resolvedReq).to.eql(req);
+        });
+
+        it('uses correct relative context for included sub-resource', () => {
+            const configs = _.cloneDeep(resourceConfigs);
+            configs['article'].config.attributes['author'].depends = { lastname: {} };
+
+            const req = {
+                resource: 'article',
+                select: {
+                    author: {}
+                }
+            };
+
+            const resolvedReq = {
+                resource: 'article',
+                select: {
+                    id: { isPrimary: true },
+                    author: {
+                        select: {
+                            id: { isPrimary: true },
+                            lastname: { internal: true }
+                        }
+                    }
+                }
+            };
+
+            requestResolver(req, configs);
+            expect(resolvedReq).to.eql(req);
+        });
+
+        it('uses correct {root} context for included sub-resource', () => {
+            const configs = _.cloneDeep(resourceConfigs);
+            configs['article'].config.attributes['author'].depends = { '{root}': { select: { title: {} } } };
+
+            const req = {
+                resource: 'article',
+                select: {
+                    author: {}
+                }
+            };
+
+            const resolvedReq = {
+                resource: 'article',
+                select: {
+                    id: { isPrimary: true },
+                    title: { internal: true },
+                    author: {
+                        select: {
+                            id: { isPrimary: true }
+                        }
+                    }
+                }
+            };
+
+            requestResolver(req, configs);
+            expect(resolvedReq).to.eql(req);
         });
 
         it('handles "depends" + "select" on same sub-resource', () => {
