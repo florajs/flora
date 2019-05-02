@@ -2135,6 +2135,7 @@ describe('request-resolver', () => {
                 },
                 subRequests: [
                     {
+                        resourceName: 'article',
                         attributePath: [],
                         dataSourceName: 'articleBody',
                         parentKey: ['id'],
@@ -2192,6 +2193,7 @@ describe('request-resolver', () => {
                 },
                 subRequests: [
                     {
+                        resourceName: 'article',
                         attributePath: [],
                         dataSourceName: 'primary',
                         parentKey: ['articleId'],
@@ -2747,6 +2749,7 @@ describe('request-resolver', () => {
                 },
                 subRequests: [
                     {
+                        resourceName: 'resource1',
                         attributePath: [],
                         dataSourceName: 'secondary1',
                         parentKey: ['id'],
@@ -2793,6 +2796,7 @@ describe('request-resolver', () => {
                         ]
                     },
                     {
+                        resourceName: 'resource1',
                         attributePath: [],
                         dataSourceName: 'secondary2',
                         parentKey: ['id'],
@@ -2960,6 +2964,7 @@ describe('request-resolver', () => {
                 ],
                 subRequests: [
                     {
+                        resourceName: 'article',
                         attributePath: [],
                         dataSourceName: 'articleBody',
                         parentKey: ['id'],
