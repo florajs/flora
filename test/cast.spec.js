@@ -25,6 +25,10 @@ describe('type casting', () => {
             expect(cast.cast('100', { type: 'string' })).to.equal('100');
             expect(cast.cast('test data', { type: 'string' })).to.equal('test data');
         });
+
+        it('Buffer to string', () => {
+            expect(cast.cast(Buffer.from('Abcäöüß'), { type: 'string' })).to.equal('Abcäöüß');
+        });
     });
 
     describe('to "int"', () => {
@@ -39,6 +43,10 @@ describe('type casting', () => {
         it('invalid string to NaN', () => {
             expect(isNaN(cast.cast('foo', { type: 'int' }))).to.equal(true);
         });
+
+        it('Buffer to int', () => {
+            expect(cast.cast(Buffer.from('100'), { type: 'int' })).to.equal(100);
+        });
     });
 
     describe('to "float"', () => {
@@ -52,6 +60,10 @@ describe('type casting', () => {
 
         it('string to float', () => {
             expect(cast.cast('100.1', { type: 'float' })).to.equal(100.1);
+        });
+
+        it('string to float', () => {
+            expect(cast.cast(Buffer.from('100.1'), { type: 'float' })).to.equal(100.1);
         });
     });
 
@@ -69,6 +81,11 @@ describe('type casting', () => {
         it('string to boolean', () => {
             expect(cast.cast('1', { type: 'boolean' })).to.equal(true);
             expect(cast.cast('0', { type: 'boolean' })).to.equal(false);
+        });
+
+        it('Buffer to boolean', () => {
+            expect(cast.cast(Buffer.from('1'), { type: 'boolean' })).to.equal(true);
+            expect(cast.cast(Buffer.from('0'), { type: 'boolean' })).to.equal(false);
         });
     });
 
@@ -88,6 +105,14 @@ describe('type casting', () => {
             it('string without timezone to datetime', () => {
                 expect(
                     cast.cast('2015-03-03 15:00:00', {
+                        type: 'datetime'
+                    })
+                ).to.equal('2015-03-03T15:00:00.000Z');
+            });
+
+            it('Buffer to datetime', () => {
+                expect(
+                    cast.cast(Buffer.from('2015-03-03 15:00:00'), {
                         type: 'datetime'
                     })
                 ).to.equal('2015-03-03T15:00:00.000Z');
@@ -244,12 +269,23 @@ describe('type casting', () => {
         describe('without timezone', () => {
             it('invalid date values to null', () => {
                 expect(cast.cast('0000-00-00 00:00:00', { type: 'date' })).to.equal(null);
+                expect(cast.cast('0000-00-00', { type: 'date' })).to.equal(null);
+                expect(cast.cast(Buffer.from('0000-00-00 00:00:00'), { type: 'date' })).to.equal(null);
+                expect(cast.cast(Buffer.from('0000-00-00'), { type: 'date' })).to.equal(null);
                 expect(cast.cast('foo', { type: 'date' })).to.equal(null);
             });
 
             it('string to date', () => {
                 expect(
                     cast.cast('2009-08-18', {
+                        type: 'date'
+                    })
+                ).to.equal('2009-08-18');
+            });
+
+            it('Buffer to date', () => {
+                expect(
+                    cast.cast(Buffer.from('2009-08-18'), {
                         type: 'date'
                     })
                 ).to.equal('2009-08-18');
@@ -437,11 +473,21 @@ describe('type casting', () => {
         it('string to unixtime', () => {
             expect(cast.cast('2016-09-20T11:46:30.000Z', { type: 'unixtime' })).to.equal(1474371990);
         });
+
+        it('Buffer to unixtime', () => {
+            expect(cast.cast(Buffer.from('2016-09-20T11:46:30.000Z'), { type: 'unixtime' })).to.equal(1474371990);
+        });
     });
 
     describe('to "object"', () => {
         it('string (json) to object', () => {
             expect(cast.cast('{"foo":"bar"}', { storedType: { type: 'json' }, type: 'object' })).to.eql({ foo: 'bar' });
+        });
+
+        it('Buffer (json) to object', () => {
+            expect(cast.cast(Buffer.from('{"foo":"bar"}'), { storedType: { type: 'json' }, type: 'object' })).to.eql({
+                foo: 'bar'
+            });
         });
 
         it('invalid string (json) to null', () => {
@@ -462,6 +508,12 @@ describe('type casting', () => {
     describe('to "json"', () => {
         it('string (json) to json', () => {
             expect(cast.cast('{"foo":"bar"}', { storedType: { type: 'json' }, type: 'json' })).to.eql('{"foo":"bar"}');
+        });
+
+        it('Buffer (json) to json', () => {
+            expect(cast.cast(Buffer.from('{"foo":"bar"}'), { storedType: { type: 'json' }, type: 'json' })).to.eql(
+                '{"foo":"bar"}'
+            );
         });
 
         it('object (object) to json', () => {
@@ -487,7 +539,12 @@ describe('type casting', () => {
         });
 
         it('null to raw', () => {
-            expect(cast.cast(null, { type: 'int' })).to.eql(null);
+            expect(cast.cast(null, { type: 'raw' })).to.eql(null);
+        });
+
+        it('Buffer to raw', () => {
+            const b = Buffer.from('foo');
+            expect(cast.cast(b, { type: 'raw' })).to.eql(b);
         });
     });
 
@@ -526,8 +583,20 @@ describe('type casting', () => {
             expect(cast.cast(['1', 2, 'foo'], { type: 'string', multiValued: true })).to.eql(['1', '2', 'foo']);
         });
 
+        it('mixed[] with Buffer to string[]', () => {
+            expect(cast.cast(['1', 2, Buffer.from('foo')], { type: 'string', multiValued: true })).to.eql([
+                '1',
+                '2',
+                'foo'
+            ]);
+        });
+
         it('mixed[] to int[]', () => {
             expect(cast.cast(['1', 2, 'foo'], { type: 'int', multiValued: true })).to.eql([1, 2, NaN]);
+        });
+
+        it('mixed[] with Buffer to int[]', () => {
+            expect(cast.cast([Buffer.from('1'), 2, 'foo'], { type: 'int', multiValued: true })).to.eql([1, 2, NaN]);
         });
 
         it('null to []', () => {
