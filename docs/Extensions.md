@@ -106,54 +106,76 @@ module.exports = (api) => ({
 - **init**: Called when the API is initialized.
 - **request ({ request, response })**: Called when the resource is executed directly.
 - **item ({ item, row, request })**: Called for each item of this resource. For lists this method is called for each item of the list. When items of this resource are included by another resource, this method is also called for each of these items. **Note: this is the only method that is synchronous.**
-- **preExecute ({ name, request, dataSourceTree, floraRequest })**: Called after the data source tree has been resolved. May be used for internal optimizations.
-- **postExecute ({ name, request, floraRequest, rawResults })**: Called after the request has been executed and before the response is being built.
+- **preExecute ({ request, dataSourceTree, floraRequest })**: Called after the data source tree has been resolved. May be used for internal optimizations.
+- **postExecute ({ request, floraRequest, rawResults })**: Called after the request has been executed and before the response is being built.
 - **response**: Called before the response is being sent.
 
 ### Full example
 
 ```js
-module.exports = (api) => ({
+module.exports = api => ({
     extensions: {
         // Extension: "init"
         // is called once upon startup, when all resources are initialized
-        init: async function () {
+        init: async function() {
             api.log.info('Extension: resource init');
         },
 
         // Extension: "request"
-        request: async function ({ request, response }) {
+        request: async function(/* { request, response } */) {
             api.log.info('Extension: resource request');
         },
 
         // Extension: "item"
         // is called for every item that is handled by the resource-processor, also when the
         // resource is called as sub-resource from another resource.
-        item: function ({ item, row, secondaryRows, request, getAttribute, getResult, buildItem }) {
+        item: function({ item /* , row, secondaryRows, request, getAttribute, getResult, buildItem */ }) {
             api.log.info('Extension: resource item');
             item.bar = 'baz';
         },
 
         // Extension: "preExecute"
         // is called after the request-resolver has resolved the dataSourceTree.
-        preExecute: async function ({ name, request, dataSourceTree, floraRequest }) {
+        preExecute: async function(/* { request, dataSourceTree, floraRequest } */) {
             api.log.info('Extension: resource preExecute');
         },
 
         // Extension: "postExecute"
         // is called after the request has been executed and before the response is being built
-        postExecute: async function ({ name, request, floraRequest, rawResults }) {
+        postExecute: async function(/* { request, floraRequest, rawResults } */) {
             api.log.info('Extension: resource postExecute');
         },
 
+        // Extension: "preExecute" / "postExecute"
+        // when having more data-sources than just "primary" you can reference them individually:
+        preExecute_or_postExecute: {
+            primary: async function(/* { request, dataSourceTree, floraRequest } */) {
+                api.log.info('Extension: resource preExecute for "primary" data-source');
+            },
+            fulltextSearch: async function(/* { request, dataSourceTree, floraRequest } */) {
+                api.log.info('Extension: resource preExecute for "fulltextSearch" data-source');
+            }
+        },
+
         // Extension: "response"
-        response: function ({ request, response }) {
+        response: function(/* { request, response } */) {
             api.log.info('Extension: resource response');
+        },
+
+        // Sub-Resources: for every (inline or included) sub-resource you can define individual extensions.
+        // works for: preExecute, postExecute, item
+        // if an included sub-resource defines the same extension it is executed first:
+        subResources: {
+            'addresses.country': {
+                preExecute: async function(/* { request, dataSourceTree, floraRequest } */) {
+                    api.log.info('Extension: resource preExecute');
+                }
+            }
         }
     },
 
     actions: {
-        retrieve: function (request, response) {
+        retrieve: function(request, response) {
             return api.resourceProcessor.handle(request, response);
         }
     }

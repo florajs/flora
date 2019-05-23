@@ -23,19 +23,41 @@ module.exports = api => ({
 
         // Extension: "preExecute"
         // is called after the request-resolver has resolved the dataSourceTree.
-        preExecute: async function(/* { name, request, dataSourceTree, floraRequest } */) {
+        preExecute: async function(/* { request, dataSourceTree, floraRequest } */) {
             api.log.info('Extension: resource preExecute');
         },
 
         // Extension: "postExecute"
         // is called after the request has been executed and before the response is being built
-        postExecute: async function(/* { name, request, floraRequest, rawResults } */) {
+        postExecute: async function(/* { request, floraRequest, rawResults } */) {
             api.log.info('Extension: resource postExecute');
+        },
+
+        // Extension: "preExecute" / "postExecute"
+        // when having more data-sources than just "primary" you can reference them individually:
+        preExecute_or_postExecute: {
+            primary: async function(/* { request, dataSourceTree, floraRequest } */) {
+                api.log.info('Extension: resource preExecute for "primary" data-source');
+            },
+            fulltextSearch: async function(/* { request, dataSourceTree, floraRequest } */) {
+                api.log.info('Extension: resource preExecute for "fulltextSearch" data-source');
+            }
         },
 
         // Extension: "response"
         response: function(/* { request, response } */) {
             api.log.info('Extension: resource response');
+        },
+
+        // Sub-Resources: for every (inline or included) sub-resource you can define individual extensions.
+        // works for: preExecute, postExecute, item
+        // if an included sub-resource defines the same extension it is executed first:
+        subResources: {
+            'addresses.country': {
+                preExecute: async function(/* { request, dataSourceTree, floraRequest } */) {
+                    api.log.info('Extension: resource preExecute');
+                }
+            }
         }
     },
 
