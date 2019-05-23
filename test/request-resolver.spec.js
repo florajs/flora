@@ -2419,6 +2419,7 @@ describe('request-resolver', () => {
                     {
                         parentKey: ['authorId'],
                         childKey: ['id'],
+                        dataSourceName: 'primary',
                         request: {
                             type: 'mysql',
                             database: 'contents',
@@ -2491,6 +2492,7 @@ describe('request-resolver', () => {
                     {
                         parentKey: ['id'],
                         childKey: ['articleId'],
+                        dataSourceName: 'primary',
                         request: {
                             type: 'mysql',
                             database: 'contents',
@@ -2535,6 +2537,7 @@ describe('request-resolver', () => {
                     {
                         parentKey: ['id'],
                         childKey: ['articleId'],
+                        dataSourceName: 'primary',
                         request: {
                             type: 'mysql',
                             database: 'contents',
@@ -2549,6 +2552,7 @@ describe('request-resolver', () => {
                             {
                                 parentKey: ['userId'],
                                 childKey: ['id'],
+                                dataSourceName: 'primary',
                                 request: {
                                     type: 'mysql',
                                     database: 'contents',
@@ -2595,6 +2599,7 @@ describe('request-resolver', () => {
                     {
                         parentKey: ['id'],
                         childKey: ['articleId'],
+                        dataSourceName: 'articleCategories',
                         request: {
                             type: 'mysql',
                             database: 'contents',
@@ -2613,6 +2618,7 @@ describe('request-resolver', () => {
                             {
                                 parentKey: ['categoryId'],
                                 childKey: ['id'],
+                                dataSourceName: 'primary',
                                 request: {
                                     type: 'mysql',
                                     database: 'contents',
@@ -2930,6 +2936,7 @@ describe('request-resolver', () => {
                     {
                         parentKey: ['id'],
                         childKey: ['articleId'],
+                        dataSourceName: 'articleCategories',
                         request: {
                             type: 'mysql',
                             database: 'contents',
@@ -2948,6 +2955,7 @@ describe('request-resolver', () => {
                             {
                                 parentKey: ['categoryId'],
                                 childKey: ['id'],
+                                dataSourceName: 'primary',
                                 request: {
                                     type: 'mysql',
                                     database: 'contents',
