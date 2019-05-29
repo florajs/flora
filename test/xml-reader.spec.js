@@ -9,9 +9,9 @@ const xmlReader = require('../lib/xml-reader');
 describe('xml-reader', () => {
     describe('DataSources', () => {
         it('should parse simple database data source without query', async () => {
-            const config = await xmlReader(__dirname + '/fixtures/xml-reader/datasource-simple.xml');
+            const { dataSources } = await xmlReader(__dirname + '/fixtures/xml-reader/datasource-simple.xml');
 
-            expect(config.dataSources).to.deep.equal({
+            expect(dataSources).to.eql({
                 primary: {
                     type: 'mysql',
                     database: 'db',
@@ -21,9 +21,9 @@ describe('xml-reader', () => {
         });
 
         it('should parse database data source with SQL query', async () => {
-            const config = await xmlReader(__dirname + '/fixtures/xml-reader/datasource-custom-query.xml');
+            const { dataSources } = await xmlReader(__dirname + '/fixtures/xml-reader/datasource-custom-query.xml');
 
-            expect(config.dataSources).to.eql({
+            expect(dataSources).to.eql({
                 primary: {
                     type: 'mysql',
                     database: 'db',
@@ -33,9 +33,9 @@ describe('xml-reader', () => {
         });
 
         it('should parse join attributes', async () => {
-            const config = await xmlReader(__dirname + '/fixtures/xml-reader/datasource-join-attributes.xml');
+            const { attributes } = await xmlReader(__dirname + '/fixtures/xml-reader/datasource-join-attributes.xml');
 
-            expect(config.attributes['sub-resource'].dataSources).to.eql({
+            expect(attributes['sub-resource'].dataSources).to.eql({
                 primary: {
                     type: 'mysql',
                     database: 'db',
@@ -194,8 +194,8 @@ describe('xml-reader', () => {
     });
 
     it('should preserve order for attributes and sub-resources', async () => {
-        const config = await xmlReader(__dirname + '/fixtures/xml-reader/subresource.xml');
-        const keys = Object.keys(config.attributes);
+        const { attributes } = await xmlReader(__dirname + '/fixtures/xml-reader/subresource.xml');
+        const keys = Object.keys(attributes);
 
         expect(keys).to.eql(['subresource1', 'attr', 'subresource2']);
     });
