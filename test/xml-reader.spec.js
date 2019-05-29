@@ -210,6 +210,15 @@ describe('xml-reader', () => {
         });
     });
 
+    it('should generate an error if XML contains nodes with same name', done => {
+        xmlReader(__dirname + '/fixtures/xml-reader/duplicate-node.xml').catch(err => {
+            expect(err)
+                .to.be.instanceof(Error)
+                .and.has.property('message', 'Resource already contains an attribute with name "node"');
+            done();
+        });
+    });
+
     it('should parse flora specific elements by uri namespace (instead of prefix)', done => {
         xmlReader(__dirname + '/fixtures/xml-reader/namespace-uri.xml')
             .then(config => {
