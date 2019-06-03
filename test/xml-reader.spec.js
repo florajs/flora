@@ -217,7 +217,7 @@ describe('xml-reader', () => {
         } catch (err) {
             expect(err)
                 .to.be.instanceof(Error)
-                .and.has.property('message', 'Resource already contains an attribute with name "node"');
+                .and.has.property('message', 'Duplicate attribute "node"');
             return;
         }
 
