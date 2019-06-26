@@ -37,7 +37,7 @@ describe('Response', () => {
 
     it('should not expose headers in response.meta', () => {
         const response = new Response(new Request(reqOpts));
-        expect(response.meta.propertyIsEnumerable('headers')).to.be.false;
+        expect({}.propertyIsEnumerable.call(response.meta, 'headers')).to.be.false;
     });
 
     it('should have default status code', () => {

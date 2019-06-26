@@ -4,6 +4,9 @@
         "node": true,
         "es6": true
     },
+    "rules": {
+        "require-atomic-updates": "off"       
+    },
     "parserOptions": {
         "ecmaVersion": 2017
     }
