@@ -27,6 +27,10 @@ module.exports = (api) => ({
 });
 ```
 
+### Extensions
+
+The `preExecute` and `postExecute` resource extensions can now be defined per-datasource (if there are multiple data sources per resource). See `docs/Extensions.md` for details and examples.
+
 ### Plugins
 
 Plugins must return a function which is called when a Plugin is initialized. **Note**: as plugins can be added after initialization, `api.on('init')` cannot be used in plugins.
