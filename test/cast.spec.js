@@ -474,6 +474,10 @@ describe('type casting', () => {
             expect(cast.cast('2016-09-20T11:46:30.000Z', { type: 'unixtime' })).to.equal(1474371990);
         });
 
+        it('string to unixtime (rounded)', () => {
+            expect(cast.cast('2016-09-20T11:46:30.999Z', { type: 'unixtime' })).to.equal(1474371990);
+        });
+
         it('Buffer to unixtime', () => {
             expect(cast.cast(Buffer.from('2016-09-20T11:46:30.000Z'), { type: 'unixtime' })).to.equal(1474371990);
         });
