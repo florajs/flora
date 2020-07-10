@@ -617,7 +617,11 @@ describe('result-builder', () => {
                 data: [
                     {
                         id: 1,
-                        countries: [{ id: 1, name: 'Germany' }, { id: 2, name: 'England' }, { id: 3, name: 'France' }]
+                        countries: [
+                            { id: 1, name: 'Germany' },
+                            { id: 2, name: 'England' },
+                            { id: 3, name: 'France' }
+                        ]
                     },
                     {
                         id: 2,
@@ -712,7 +716,11 @@ describe('result-builder', () => {
                     childKey: ['id'],
                     multiValuedParentKey: false,
                     uniqueChildKey: true,
-                    data: [{ id: 100, name: 'Breaking News' }, { id: 200, name: 'Sport' }, { id: 300, name: 'Fun' }],
+                    data: [
+                        { id: 100, name: 'Breaking News' },
+                        { id: 200, name: 'Sport' },
+                        { id: 300, name: 'Fun' }
+                    ],
                     totalCount: 3
                 }
             ];

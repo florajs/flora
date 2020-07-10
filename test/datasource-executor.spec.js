@@ -146,7 +146,10 @@ describe('datasource-executor', () => {
                         ]);
 
                         return {
-                            data: [{ id: 1, username: 'user1' }, { id: 3, username: 'user3' }],
+                            data: [
+                                { id: 1, username: 'user1' },
+                                { id: 3, username: 'user3' }
+                            ],
                             totalCount: null
                         };
                     }
@@ -172,7 +175,10 @@ describe('datasource-executor', () => {
                         {
                             attributePath: [],
                             dataSourceName: 'ds1',
-                            data: [{ id: 1, username: 'user1' }, { id: 3, username: 'user3' }],
+                            data: [
+                                { id: 1, username: 'user1' },
+                                { id: 3, username: 'user3' }
+                            ],
                             totalCount: null
                         }
                     ]);
@@ -268,7 +274,10 @@ describe('datasource-executor', () => {
                     ]);
 
                     return {
-                        data: [{ userId: 1, email: 'user1@example.com' }, { userId: 3, email: 'user3@example.com' }],
+                        data: [
+                            { userId: 1, email: 'user1@example.com' },
+                            { userId: 3, email: 'user3@example.com' }
+                        ],
                         totalCount: null
                     };
                 }
@@ -306,7 +315,10 @@ describe('datasource-executor', () => {
                         dataSourceName: 'ds2',
                         childKey: ['userId'],
                         parentKey: ['id'],
-                        data: [{ userId: 1, email: 'user1@example.com' }, { userId: 3, email: 'user3@example.com' }],
+                        data: [
+                            { userId: 1, email: 'user1@example.com' },
+                            { userId: 3, email: 'user3@example.com' }
+                        ],
                         totalCount: null
                     }
                 ]);
@@ -341,7 +353,10 @@ describe('datasource-executor', () => {
             sinon.stub(api.dataSources['test'], 'process').callsFake(async query => {
                 if (query.table === 'article') {
                     return {
-                        data: [{ id: 1, authorId: null }, { id: 2, authorId: null }],
+                        data: [
+                            { id: 1, authorId: null },
+                            { id: 2, authorId: null }
+                        ],
                         totalCount: null
                     };
                 }
@@ -372,7 +387,10 @@ describe('datasource-executor', () => {
                     {
                         attributePath: [],
                         dataSourceName: 'ds1',
-                        data: [{ id: 1, authorId: null }, { id: 2, authorId: null }],
+                        data: [
+                            { id: 1, authorId: null },
+                            { id: 2, authorId: null }
+                        ],
                         totalCount: null
                     },
                     {
@@ -589,7 +607,10 @@ describe('datasource-executor', () => {
             sinon.stub(api.dataSources['test'], 'process').callsFake(async query => {
                 if (query.table === 'article') {
                     return {
-                        data: [{ authorId: 1, id: 1001 }, { authorId: 3, id: 1003 }],
+                        data: [
+                            { authorId: 1, id: 1001 },
+                            { authorId: 3, id: 1003 }
+                        ],
                         totalCount: null
                     };
                 }
@@ -615,7 +636,10 @@ describe('datasource-executor', () => {
 
                 if (query.table === 'user') {
                     return {
-                        data: [{ id: 1, username: 'user1' }, { id: 3, username: 'user3' }],
+                        data: [
+                            { id: 1, username: 'user1' },
+                            { id: 3, username: 'user3' }
+                        ],
                         totalCount: null
                     };
                 }
@@ -640,7 +664,10 @@ describe('datasource-executor', () => {
                 expect(result).to.eql([
                     {
                         attributePath: [],
-                        data: [{ id: 1, username: 'user1' }, { id: 3, username: 'user3' }],
+                        data: [
+                            { id: 1, username: 'user1' },
+                            { id: 3, username: 'user3' }
+                        ],
                         totalCount: null
                     },
                     {
@@ -968,7 +995,10 @@ describe('datasource-executor', () => {
 
                 if (query.table === 'user') {
                     return {
-                        data: [{ id: 1, emailIds: '10,11,12' }, { id: 2, emailIds: '20,21' }],
+                        data: [
+                            { id: 1, emailIds: '10,11,12' },
+                            { id: 2, emailIds: '20,21' }
+                        ],
                         totalCount: null
                     };
                 }
@@ -1025,7 +1055,10 @@ describe('datasource-executor', () => {
 
         it('resolves emailIds', () => {
             return execute(api, {}, dst).then(results => {
-                expect(results[0].data).to.eql([{ id: 1, emailIds: [10, 11, 12] }, { id: 2, emailIds: [20, 21] }]);
+                expect(results[0].data).to.eql([
+                    { id: 1, emailIds: [10, 11, 12] },
+                    { id: 2, emailIds: [20, 21] }
+                ]);
             });
         });
 
