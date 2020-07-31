@@ -1021,5 +1021,8 @@
         ]
     },
     "selected": true,
+    "cursor": {
+        "limit": 10
+    },
     "primaryDataSource": "primary"
 }
