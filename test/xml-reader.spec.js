@@ -215,9 +215,7 @@ describe('xml-reader', () => {
         try {
             await xmlReader(__dirname + '/fixtures/xml-reader/duplicate-node.xml');
         } catch (err) {
-            expect(err)
-                .to.be.instanceof(Error)
-                .and.has.property('message', 'Duplicate attribute "node"');
+            expect(err).to.be.instanceof(Error).and.has.property('message', 'Duplicate attribute "node"');
             return;
         }
 

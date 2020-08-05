@@ -50,7 +50,7 @@ const testConfig = {
 describe('extensions', () => {
     describe('Api', () => {
         describe('init', () => {
-            it('is emitted when the instance is initialized', done => {
+            it('is emitted when the instance is initialized', (done) => {
                 const api = new Api();
 
                 api.on('init', async () => {
@@ -81,7 +81,7 @@ describe('extensions', () => {
 
                 await api.init({ log });
 
-                api.on('request', ev => {
+                api.on('request', (ev) => {
                     expect(ev).to.be.an('object');
                     expect(ev.request).to.be.an('object');
                     expect(ev.request.resource).to.eql('test');
@@ -105,7 +105,7 @@ describe('extensions', () => {
                 await api.init(testConfig);
 
                 let emitted = false;
-                api.on('response', ev => {
+                api.on('response', (ev) => {
                     expect(ev).to.be.an('object');
                     expect(ev.response).to.be.an('object');
                     expect(ev.response.data).to.be.an('array');
@@ -120,7 +120,7 @@ describe('extensions', () => {
         });
 
         describe('close', () => {
-            it('is emitted when the instance is closed', done => {
+            it('is emitted when the instance is closed', (done) => {
                 const api = new Api();
                 api.on('init', () => {
                     api.close();
@@ -164,7 +164,7 @@ describe('extensions', () => {
                 await api.init(testConfig);
 
                 const request = new Request({ resource: 'test' });
-                api.on('response', ev => {
+                api.on('response', (ev) => {
                     expect(ev).to.be.an('object');
                     expect(ev.response).to.be.an('object');
                     expect(ev.response.data).to.be.an('array');
@@ -187,7 +187,7 @@ describe('extensions', () => {
                 await api.init(testConfig);
 
                 const request = new Request({ resource: 'test' });
-                api.on('response', ev => {
+                api.on('response', (ev) => {
                     expect(ev).to.be.an('object');
                     expect(ev.response).to.be.an('object');
 
@@ -208,7 +208,7 @@ describe('extensions', () => {
                 await api.init(testConfig);
                 const request = new Request({ resource: 'test' });
 
-                api.on('response', ev => {
+                api.on('response', (ev) => {
                     expect(ev).to.be.an('object');
                     expect(ev.response).to.be.an('object');
 

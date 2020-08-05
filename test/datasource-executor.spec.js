@@ -35,8 +35,8 @@ describe('datasource-executor', () => {
     });
 
     describe('error handling', () => {
-        it('returns error on invalid request type', done => {
-            execute(api, {}, { request: { type: 'test-invalid' } }).catch(err => {
+        it('returns error on invalid request type', (done) => {
+            execute(api, {}, { request: { type: 'test-invalid' } }).catch((err) => {
                 expect(err).to.be.an.instanceof(Error);
                 done();
             });
@@ -49,14 +49,14 @@ describe('datasource-executor', () => {
 
             const dst = { request: { type: 'test' } };
 
-            execute(api, {}, dst).catch(err => {
+            execute(api, {}, dst).catch((err) => {
                 api.dataSources['test'].process.restore();
                 expect(err).to.be.an.instanceof(Error);
                 expect(err.message).to.equal('foo');
             });
         });
 
-        it('detects missing subFilters', done => {
+        it('detects missing subFilters', (done) => {
             const dst = {
                 request: {
                     type: 'test',
@@ -64,7 +64,7 @@ describe('datasource-executor', () => {
                 }
             };
 
-            execute(api, {}, dst).catch(err => {
+            execute(api, {}, dst).catch((err) => {
                 expect(err).to.be.an.instanceof(Error);
                 expect(err.message).to.equal('Missing subFilter for attribute "bar"');
                 done();
@@ -121,7 +121,7 @@ describe('datasource-executor', () => {
 
         describe('with non-empty result', () => {
             before(() => {
-                sinon.stub(api.dataSources['test'], 'process').callsFake(async query => {
+                sinon.stub(api.dataSources['test'], 'process').callsFake(async (query) => {
                     if (query.table === 'email') {
                         return {
                             data: [
@@ -170,7 +170,7 @@ describe('datasource-executor', () => {
             });
 
             it('returns the correct result', () => {
-                return execute(api, {}, dst).then(result => {
+                return execute(api, {}, dst).then((result) => {
                     expect(result).to.eql([
                         {
                             attributePath: [],
@@ -188,7 +188,7 @@ describe('datasource-executor', () => {
 
         describe('with empty result', () => {
             before(() => {
-                sinon.stub(api.dataSources['test'], 'process').callsFake(async query => {
+                sinon.stub(api.dataSources['test'], 'process').callsFake(async (query) => {
                     if (query.table === 'email') {
                         return {
                             data: [],
@@ -210,7 +210,7 @@ describe('datasource-executor', () => {
             });
 
             it('returns an empty main result', () => {
-                return execute(api, {}, dst).then(result => {
+                return execute(api, {}, dst).then((result) => {
                     expect(result).to.eql([
                         {
                             attributePath: [],
@@ -248,7 +248,7 @@ describe('datasource-executor', () => {
         };
 
         before(() => {
-            sinon.stub(api.dataSources['test'], 'process').callsFake(async query => {
+            sinon.stub(api.dataSources['test'], 'process').callsFake(async (query) => {
                 if (query.table === 'user') {
                     return {
                         data: [
@@ -298,7 +298,7 @@ describe('datasource-executor', () => {
         });
 
         it('integration test', () => {
-            return execute(api, {}, dst).then(result => {
+            return execute(api, {}, dst).then((result) => {
                 expect(result).to.eql([
                     {
                         attributePath: [],
@@ -350,7 +350,7 @@ describe('datasource-executor', () => {
         };
 
         before(() => {
-            sinon.stub(api.dataSources['test'], 'process').callsFake(async query => {
+            sinon.stub(api.dataSources['test'], 'process').callsFake(async (query) => {
                 if (query.table === 'article') {
                     return {
                         data: [
@@ -382,7 +382,7 @@ describe('datasource-executor', () => {
         });
 
         it('returns the correct result', () => {
-            return execute(api, {}, dst).then(result => {
+            return execute(api, {}, dst).then((result) => {
                 expect(result).to.eql([
                     {
                         attributePath: [],
@@ -430,8 +430,8 @@ describe('datasource-executor', () => {
             ]
         };
 
-        before(function() {
-            sinon.stub(api.dataSources['test'], 'process').callsFake(async query => {
+        before(function () {
+            sinon.stub(api.dataSources['test'], 'process').callsFake(async (query) => {
                 if (query.table === 'article') {
                     return {
                         data: [{ id: 1 }, { id: 2 }],
@@ -460,7 +460,7 @@ describe('datasource-executor', () => {
         });
 
         it('returns the correct result', () => {
-            return execute(api, {}, dst).then(result => {
+            return execute(api, {}, dst).then((result) => {
                 expect(result).to.eql([
                     {
                         attributePath: [],
@@ -505,7 +505,7 @@ describe('datasource-executor', () => {
         };
 
         before(() => {
-            sinon.stub(api.dataSources['test'], 'process').callsFake(async query => {
+            sinon.stub(api.dataSources['test'], 'process').callsFake(async (query) => {
                 if (query.table === 'article') {
                     return {
                         data: [
@@ -550,7 +550,7 @@ describe('datasource-executor', () => {
         });
 
         it('returns the correct result', () => {
-            return execute(api, {}, dst).then(result => {
+            return execute(api, {}, dst).then((result) => {
                 expect(result).to.eql([
                     {
                         attributePath: [],
@@ -604,7 +604,7 @@ describe('datasource-executor', () => {
         };
 
         before(() => {
-            sinon.stub(api.dataSources['test'], 'process').callsFake(async query => {
+            sinon.stub(api.dataSources['test'], 'process').callsFake(async (query) => {
                 if (query.table === 'article') {
                     return {
                         data: [
@@ -660,7 +660,7 @@ describe('datasource-executor', () => {
         });
 
         it('returns the correct result', () => {
-            return execute(api, {}, dst).then(result => {
+            return execute(api, {}, dst).then((result) => {
                 expect(result).to.eql([
                     {
                         attributePath: [],
@@ -716,7 +716,7 @@ describe('datasource-executor', () => {
         };
 
         before(() => {
-            sinon.stub(api.dataSources['test'], 'process').callsFake(async query => {
+            sinon.stub(api.dataSources['test'], 'process').callsFake(async (query) => {
                 if (query.table === 'validemail') {
                     // filter parameter is transformed correctly
                     expect(query.filter).to.eql([
@@ -789,7 +789,7 @@ describe('datasource-executor', () => {
         });
 
         it('returns the correct result', () => {
-            return execute(api, {}, dst).then(result => {
+            return execute(api, {}, dst).then((result) => {
                 expect(result).to.eql([
                     {
                         attributePath: [],
@@ -860,7 +860,7 @@ describe('datasource-executor', () => {
         });
 
         it('supports type casting', () => {
-            return execute(api, {}, dst).then(result => {
+            return execute(api, {}, dst).then((result) => {
                 expect(result).to.be.an('array');
                 expect(result[0]).to.be.an('object');
                 expect(result[0].data).to.be.an('array');
@@ -869,49 +869,49 @@ describe('datasource-executor', () => {
         });
 
         it('casts string to int', () => {
-            return execute(api, {}, dst).then(result => {
+            return execute(api, {}, dst).then((result) => {
                 expect(result[0].data[0].string2int).to.be.a('number');
                 expect(result[0].data[0].string2int).to.equal(42);
             });
         });
 
         it('casts string to float', () => {
-            return execute(api, {}, dst).then(result => {
+            return execute(api, {}, dst).then((result) => {
                 expect(result[0].data[0].string2float).to.be.a('number');
                 expect(result[0].data[0].string2float).to.equal(3.1415);
             });
         });
 
         it('casts int to string', () => {
-            return execute(api, {}, dst).then(result => {
+            return execute(api, {}, dst).then((result) => {
                 expect(result[0].data[0].int2string).to.be.a('string');
                 expect(result[0].data[0].int2string).to.equal('42');
             });
         });
 
         it('casts string to boolean ("1")', () => {
-            return execute(api, {}, dst).then(result => {
+            return execute(api, {}, dst).then((result) => {
                 expect(result[0].data[0].string2boolean1).to.be.a('boolean');
                 expect(result[0].data[0].string2boolean1).to.equal(true);
             });
         });
 
         it('casts string to boolean ("0")', () => {
-            return execute(api, {}, dst).then(result => {
+            return execute(api, {}, dst).then((result) => {
                 expect(result[0].data[0].string2boolean0).to.be.a('boolean');
                 expect(result[0].data[0].string2boolean0).to.equal(false);
             });
         });
 
         it('casts int to boolean (1)', () => {
-            return execute(api, {}, dst).then(result => {
+            return execute(api, {}, dst).then((result) => {
                 expect(result[0].data[0].int2boolean1).to.be.a('boolean');
                 expect(result[0].data[0].int2boolean1).to.equal(true);
             });
         });
 
         it('casts int to boolean (0)', () => {
-            return execute(api, {}, dst).then(result => {
+            return execute(api, {}, dst).then((result) => {
                 expect(result[0].data[0].int2boolean0).to.be.a('boolean');
                 expect(result[0].data[0].int2boolean0).to.equal(false);
             });
@@ -925,41 +925,41 @@ describe('datasource-executor', () => {
         });
 
         it('casts string to time', () => {
-            return execute(api, {}, dst).then(result => {
+            return execute(api, {}, dst).then((result) => {
                 expect(result[0].data[0].string2time).to.be.a('string');
                 expect(result[0].data[0].string2time).to.equal('10:13:14.000Z');
             });
         });
 
         it('casts string to date', () => {
-            return execute(api, {}, dst).then(result => {
+            return execute(api, {}, dst).then((result) => {
                 expect(result[0].data[0].string2date).to.be.a('string');
                 expect(result[0].data[0].string2date).to.equal('2015-06-17');
             });
         });
 
         it('passes through raw data', () => {
-            return execute(api, {}, dst).then(result => {
+            return execute(api, {}, dst).then((result) => {
                 expect(result[0].data[0].raw).to.be.an('object');
                 expect(result[0].data[0].raw).to.eql({ foo: 'bar' });
             });
         });
 
         it('passes through null', () => {
-            return execute(api, {}, dst).then(result => {
+            return execute(api, {}, dst).then((result) => {
                 expect(result[0].data[0].null2int).to.equal(null);
             });
         });
 
         it('passes through empty type', () => {
-            return execute(api, {}, dst).then(result => {
+            return execute(api, {}, dst).then((result) => {
                 expect(result[0].data[0].emptyType).to.be.an('object');
                 expect(result[0].data[0].emptyType).to.eql({ foo: 'bar' });
             });
         });
 
         it('passes through unknown type', () => {
-            return execute(api, {}, dst).then(result => {
+            return execute(api, {}, dst).then((result) => {
                 expect(result[0].data[0].unknownType).to.be.an('object');
                 expect(result[0].data[0].unknownType).to.eql({ foo: 'bar' });
             });
@@ -968,7 +968,7 @@ describe('datasource-executor', () => {
 
     describe('delimiter in subFilters', () => {
         before(() => {
-            sinon.stub(api.dataSources['test'], 'process').callsFake(async query => {
+            sinon.stub(api.dataSources['test'], 'process').callsFake(async (query) => {
                 if (query.table === 'email') {
                     // valueFromSubFilter (validemail) is transformed correctly
                     expect(query.filter).to.eql([
@@ -1054,7 +1054,7 @@ describe('datasource-executor', () => {
         });
 
         it('resolves emailIds', () => {
-            return execute(api, {}, dst).then(results => {
+            return execute(api, {}, dst).then((results) => {
                 expect(results[0].data).to.eql([
                     { id: 1, emailIds: [10, 11, 12] },
                     { id: 2, emailIds: [20, 21] }
@@ -1062,8 +1062,8 @@ describe('datasource-executor', () => {
             });
         });
 
-        it('resolves email entries', function() {
-            return execute(api, {}, dst).then(results => {
+        it('resolves email entries', function () {
+            return execute(api, {}, dst).then((results) => {
                 expect(results[1].data).to.eql([
                     { id: 10, email: 'user1-0@example.com' },
                     { id: 11, email: 'user1-1@example.com' },
@@ -1076,7 +1076,7 @@ describe('datasource-executor', () => {
 
     describe('casting to storedType in subFilters', () => {
         before(() => {
-            sinon.stub(api.dataSources['test'], 'process').callsFake(async query => {
+            sinon.stub(api.dataSources['test'], 'process').callsFake(async (query) => {
                 if (query.table === 'quotes') {
                     return {
                         data: [
@@ -1177,7 +1177,7 @@ describe('datasource-executor', () => {
         });
 
         before(() => {
-            sinon.stub(api.dataSources['test'], 'process').callsFake(async query => {
+            sinon.stub(api.dataSources['test'], 'process').callsFake(async (query) => {
                 if (query.table === 'article') {
                     expect(query).to.be.an('object');
                     expect(query.filter).to.be.an('array');

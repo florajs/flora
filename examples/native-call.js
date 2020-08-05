@@ -28,4 +28,4 @@ const request = new flora.Request({
 
 api.init(config)
     .then(() => api.execute(request))
-    .then(response => console.log(response)); // eslint-disable-line no-console
+    .then((response) => console.log(response)); // eslint-disable-line no-console
