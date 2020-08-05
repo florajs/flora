@@ -52,7 +52,7 @@
     "moment-timezone": "^0.5.31",
     "promise-events": "^0.1.8",
     "serve-static": "^1.14.1",
-    "xmldom": "^0.1.27"
+    "xmldom": "^0.3.0"
   },
   "devDependencies": {
     "@types/chai": "^4.2.12",
