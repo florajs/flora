@@ -2413,7 +2413,8 @@ describe('request-resolver', () => {
                     limit: 10
                 },
                 attributeOptions: {
-                    id: { type: 'int' }
+                    id: { type: 'int' },
+                    authorId: { type: 'int' }
                 },
                 subFilters: [
                     {
@@ -2458,7 +2459,8 @@ describe('request-resolver', () => {
                     limit: 10
                 },
                 attributeOptions: {
-                    id: { type: 'int' }
+                    id: { type: 'int' },
+                    authorId: { type: 'int' }
                 }
             };
 
@@ -2501,7 +2503,8 @@ describe('request-resolver', () => {
                             filter: [[{ attribute: 'youtubeId', operator: 'equal', value: 'xyz123' }]]
                         },
                         attributeOptions: {
-                            articleId: { type: 'int' }
+                            articleId: { type: 'int' },
+                            youtubeId: { type: 'string' }
                         }
                     }
                 ]
@@ -2546,7 +2549,8 @@ describe('request-resolver', () => {
                             filter: [[{ attribute: 'userId', operator: 'equal', valueFromSubFilter: 0 }]]
                         },
                         attributeOptions: {
-                            articleId: { type: 'int' }
+                            articleId: { type: 'int' },
+                            userId: { type: 'int' }
                         },
                         subFilters: [
                             {
@@ -2612,7 +2616,8 @@ describe('request-resolver', () => {
                             filter: [[{ attribute: 'categoryId', operator: 'equal', valueFromSubFilter: 0 }]]
                         },
                         attributeOptions: {
-                            articleId: { type: 'int' }
+                            articleId: { type: 'int' },
+                            categoryId: { type: 'int' }
                         },
                         subFilters: [
                             {
@@ -2949,7 +2954,8 @@ describe('request-resolver', () => {
                             filter: [[{ attribute: 'categoryId', operator: 'equal', valueFromSubFilter: 0 }]]
                         },
                         attributeOptions: {
-                            articleId: { type: 'int' }
+                            articleId: { type: 'int' },
+                            categoryId: { type: 'int' }
                         },
                         subFilters: [
                             {
