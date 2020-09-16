@@ -74,6 +74,18 @@ describe('Api', () => {
             .catch(done);
     });
 
+    it('should fail to initialize with invalid timezone', (done) => {
+        const api = new Api();
+        api.init({
+            log,
+            timezone: 'America/Bogus'
+        }).catch((err) => {
+            expect(err).to.be.an.instanceof(Error);
+            expect(err.message).to.equal('Timezone "America/Bogus" does not exist');
+            done();
+        });
+    });
+
     it('should initialize a default logger', (done) => {
         const api = new Api();
         api.init({ resourcesPath })

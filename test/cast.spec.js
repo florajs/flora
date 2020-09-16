@@ -364,6 +364,15 @@ describe('type casting', () => {
         });
 
         describe('with timezone', () => {
+            it('ignore invalid timezone', () => {
+                expect(
+                    cast.cast('2009-08-18', {
+                        type: 'date',
+                        storedType: { type: 'date', options: { timezone: 'America/Bogus' } }
+                    })
+                ).to.equal(null);
+            });
+
             it('string (date, timezone=Europe/Berlin) to date', () => {
                 expect(
                     cast.cast('2009-08-18', {
