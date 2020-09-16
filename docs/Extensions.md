@@ -104,7 +104,7 @@ module.exports = (api) => ({
 ```
 
 - **init**: Called when the API is initialized.
-- **request ({ request, response })**: Called when the resource is executed directly.
+- **request ({ request, response })**: Called when the resource is executed directly (via resource-processor – note that actions that do not use the resource-processor will not call this extension).
 - **item ({ item, row, request })**: Called for each item of this resource. For lists this method is called for each item of the list. When items of this resource are included by another resource, this method is also called for each of these items. **Note: this is the only method that is synchronous.**
 - **preExecute ({ request, dataSourceTree, floraRequest })**: Called after the data source tree has been resolved. May be used for internal optimizations.
 - **postExecute ({ request, floraRequest, rawResults })**: Called after the request has been executed and before the response is being built.
