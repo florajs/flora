@@ -46,7 +46,7 @@
     "content-type": "^1.0.4",
     "flora-cluster": "^2.0.0",
     "flora-errors": "^2.0.0",
-    "flora-request-parser": "^2.2.4",
+    "flora-request-parser": "^2.3.0",
     "has": "^1.0.3",
     "lodash": "^4.17.15",
     "moment-timezone": "^0.5.31",
