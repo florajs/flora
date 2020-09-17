@@ -47,7 +47,6 @@
     "flora-cluster": "^2.0.0",
     "flora-errors": "^2.0.0",
     "flora-request-parser": "^2.3.1",
-    "has": "^1.0.3",
     "lodash": "^4.17.15",
     "moment-timezone": "^0.5.31",
     "promise-events": "^0.1.8",
