@@ -1,7 +1,9 @@
-'use strict';
-
 const path = require('path');
-const flora = require('../');
+const flora = require('flora');
+
+/*
+ * Extend master functionality with master plugins
+ */
 
 /**
  * @param {flora.Master} api

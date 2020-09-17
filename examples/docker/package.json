@@ -1,0 +1,7 @@
+{
+  "name": "flora-example",
+  "dependencies": {
+    "flora": "^2.0.7",
+    "flora-mysql": "^2.0.4"
+  }
+}

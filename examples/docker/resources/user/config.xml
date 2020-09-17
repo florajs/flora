@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resource primaryKey="id" xmlns:flora="urn:flora:options">
+    <flora:dataSource type="mysql" database="users" table="user"/>
+
+    <id type="int" order="true" map="id"/>
+    
+    <firstname order="true"/>
+    <lastname order="true"/>
+    <domain filter="equal"/>
+
+    <version map="updatedAt" type="datetime"/>
+
+    <emails many="true" primaryKey="id" parentKey="{primary}" childKey="userId">
+        <flora:dataSource type="mysql" database="users" table="email"/>
+
+        <userId type="int" hidden="true"/>
+        <id type="int"/>
+
+        <email/>
+        <type/>
+        <main type="boolean" filter="equal" order="true"/>
+        <active type="boolean" filter="equal"/>
+    </emails>
+
+    <locale value="de_DE"/>
+</resource>

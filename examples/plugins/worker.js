@@ -1,7 +1,9 @@
-'use strict';
-
 const path = require('path');
 const flora = require('../');
+
+/*
+ * Extend worker (server) functionality with worker plugins
+ */
 
 /**
  * @param {flora.Api} api

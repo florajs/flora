@@ -1,7 +1,9 @@
-'use strict';
-
 const path = require('path');
 const flora = require('../');
+
+/*
+ * Make native calls to a Flora API without using HTTP
+ */
 
 const api = new flora.Api();
 
@@ -13,8 +15,8 @@ const config = {
             options: {
                 server: {
                     host: 'localhost',
-                    user: 'root',
-                    password: 'secret'
+                    user: 'dbuser',
+                    password: 'dbpassword'
                 }
             }
         }
