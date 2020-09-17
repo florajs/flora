@@ -3,15 +3,18 @@
 'use strict';
 
 const _ = require('lodash');
-const bunyan = require('bunyan');
+const nullLogger = require('abstract-logging');
 const { expect } = require('chai');
 const { ImplementationError, DataError, NotFoundError } = require('flora-errors');
 
 const resultBuilder = require('../lib/result-builder');
 
+const log = nullLogger;
+log.child = () => log;
+
 // mock Api instance
 const api = {
-    log: bunyan.createLogger({ name: 'null', streams: [] }),
+    log,
     getResource: () => null
 };
 

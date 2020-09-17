@@ -2,12 +2,14 @@
 
 'use strict';
 
-const bunyan = require('bunyan');
+const nullLogger = require('abstract-logging');
 const expect = require('chai').expect;
 
 const Cast = require('../lib/cast');
 
-const log = bunyan.createLogger({ name: 'null', streams: [] });
+const log = nullLogger;
+log.child = () => log;
+
 const api = {
     log,
     config: { timezone: 'UTC' }

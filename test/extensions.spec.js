@@ -5,7 +5,7 @@
 const path = require('path');
 
 const chai = require('chai');
-const bunyan = require('bunyan');
+const nullLogger = require('abstract-logging');
 
 const { Api } = require('../');
 const Request = require('../lib/request');
@@ -13,7 +13,8 @@ const Request = require('../lib/request');
 const expect = chai.expect;
 chai.use(require('sinon-chai'));
 
-const log = bunyan.createLogger({ name: 'null', streams: [] });
+const log = nullLogger;
+log.child = () => log;
 const resourcesPath = path.join(__dirname, 'fixtures', 'extensions', 'resources');
 
 const testDataSource = function testDataSource() {

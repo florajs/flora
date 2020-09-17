@@ -6,17 +6,18 @@ const chai = require('chai');
 const fsMock = require('mock-fs');
 // const sinon = require('sinon');
 const sinonChai = require('sinon-chai');
-const bunyan = require('bunyan');
+const nullLogger = require('abstract-logging');
 
 const configLoader = require('../lib/config-loader');
 
 const expect = chai.expect;
 chai.use(sinonChai);
 
+const log = nullLogger;
+log.child = () => log;
+
 // mock Api instance
-const api = {
-    log: bunyan.createLogger({ name: 'null', streams: [] })
-};
+const api = { log };
 
 function parseXml(/* file */) {
     // fake parser for tests

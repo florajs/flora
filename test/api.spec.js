@@ -6,12 +6,14 @@ const path = require('path');
 const { EventEmitter } = require('events');
 
 const { expect } = require('chai');
-const bunyan = require('bunyan');
+const nullLogger = require('abstract-logging');
 
 const { Api } = require('../');
 const Request = require('../lib/request');
 
-const log = bunyan.createLogger({ name: 'null', streams: [] });
+const log = nullLogger;
+log.child = () => log;
+
 const resourcesPath = path.join(__dirname, 'fixtures', 'empty-resources');
 
 const testDataSource = function testDataSource() {
