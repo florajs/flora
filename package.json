@@ -46,7 +46,7 @@
     "content-type": "^1.0.4",
     "flora-cluster": "^2.0.0",
     "flora-errors": "^2.0.0",
-    "flora-request-parser": "^2.3.0",
+    "flora-request-parser": "^2.3.1",
     "has": "^1.0.3",
     "lodash": "^4.17.15",
     "moment-timezone": "^0.5.31",
@@ -59,15 +59,15 @@
     "abstract-logging": "^2.0.0",
     "chai": "^4.2.0",
     "chai-as-promised": "^7.1.1",
-    "eslint": "^7.6.0",
+    "eslint": "^7.9.0",
     "eslint-config-prettier": "^6.11.0",
     "eslint-plugin-prettier": "^3.1.4",
     "jsdoc": "^3.6.5",
     "mocha": "^8.1.1",
     "mock-fs": "^4.12.0",
     "pre-commit": "^1.2.2",
-    "prettier": "^2.0.5",
-    "sinon": "^9.0.2",
+    "prettier": "^2.1.2",
+    "sinon": "^9.0.3",
     "sinon-chai": "^3.5.0"
   }
 }
