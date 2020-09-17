@@ -2,7 +2,7 @@
 
 'use strict';
 
-const cloneDeep = require('lodash/cloneDeep');
+const cloneDeep = require('lodash.clonedeep');
 const { expect } = require('chai');
 const { ImplementationError } = require('flora-errors');
 
