@@ -2,7 +2,7 @@
 
 'use strict';
 
-const _ = require('lodash');
+const cloneDeep = require('lodash/cloneDeep');
 const { expect } = require('chai');
 const { RequestError, ImplementationError } = require('flora-errors');
 
@@ -163,7 +163,7 @@ describe('request-resolver', () => {
         });
 
         it('fails if no DataSources defined at root', () => {
-            const configs = _.cloneDeep(resourceConfigs);
+            const configs = cloneDeep(resourceConfigs);
             delete configs['article'].config.dataSources;
 
             const req = { resource: 'article' };
@@ -241,7 +241,7 @@ describe('request-resolver', () => {
         };
 
         it('allows additional attributes and keeps order from request', () => {
-            const configs = _.cloneDeep(mergeResourceConfigs);
+            const configs = cloneDeep(mergeResourceConfigs);
             configs['resource1'].config.attributes['resource2'].attributes = { attr3: { value: 'test' } };
 
             const req = {
@@ -261,7 +261,7 @@ describe('request-resolver', () => {
         });
 
         it('does not allow overwriting of attributes', () => {
-            const configs = _.cloneDeep(mergeResourceConfigs);
+            const configs = cloneDeep(mergeResourceConfigs);
             configs['resource1'].config.attributes['resource2'].attributes = { attr1: { value: 'test' } };
 
             const req = {
@@ -279,7 +279,7 @@ describe('request-resolver', () => {
         });
 
         it('allows additional DataSources', () => {
-            const configs = _.cloneDeep(mergeResourceConfigs);
+            const configs = cloneDeep(mergeResourceConfigs);
             configs['resource1'].config.attributes['resource2'].dataSources = { test: { type: 'test' } };
             // TODO: Currently "map" is not mergeable - maybe future feature - hack for now for this test:
             configs['resource2'].config.resolvedPrimaryKey['test'] = ['id'];
@@ -303,7 +303,7 @@ describe('request-resolver', () => {
         });
 
         it('does not allow overwriting of DataSources', () => {
-            const configs = _.cloneDeep(mergeResourceConfigs);
+            const configs = cloneDeep(mergeResourceConfigs);
             configs['resource1'].config.attributes['resource2'].dataSources = { primary: { type: 'test' } };
 
             const req = {
@@ -319,7 +319,7 @@ describe('request-resolver', () => {
         });
 
         it('does allow overwriting of DataSources with "inherit=inherit" flag', () => {
-            const configs = _.cloneDeep(mergeResourceConfigs);
+            const configs = cloneDeep(mergeResourceConfigs);
             configs['resource1'].config.dataSources = { primary: { customFlag: 'default' } };
             configs['resource1'].config.attributes['resource2'].dataSources = {
                 primary: { inherit: 'inherit', customFlag: 'overwritten' }
@@ -340,7 +340,7 @@ describe('request-resolver', () => {
         });
 
         it('does allow overwriting of DataSources with "inherit=replace" flag', () => {
-            const configs = _.cloneDeep(mergeResourceConfigs);
+            const configs = cloneDeep(mergeResourceConfigs);
             configs['resource1'].config.dataSources = { primary: { customFlag: 'default', otherFlag: 'hello' } };
             configs['resource1'].config.attributes['resource2'].dataSources = {
                 primary: { type: 'test2', inherit: 'replace', customFlag: 'overwritten' }
@@ -716,7 +716,7 @@ describe('request-resolver', () => {
 
     describe('limit, defaultLimit and maxLimit', () => {
         it('uses defaultLimit if no limit is given', () => {
-            const resourceConfigs2 = _.cloneDeep(resourceConfigs);
+            const resourceConfigs2 = cloneDeep(resourceConfigs);
             resourceConfigs2['article'].config.defaultLimit = 42;
 
             const req = {
@@ -730,7 +730,7 @@ describe('request-resolver', () => {
         });
 
         it('uses limit to override defaultLimit', () => {
-            const resourceConfigs2 = _.cloneDeep(resourceConfigs);
+            const resourceConfigs2 = cloneDeep(resourceConfigs);
             resourceConfigs2['article'].config.defaultLimit = 42;
 
             const req = {
@@ -745,7 +745,7 @@ describe('request-resolver', () => {
         });
 
         it('uses maxLimit if no limit is given', () => {
-            const resourceConfigs2 = _.cloneDeep(resourceConfigs);
+            const resourceConfigs2 = cloneDeep(resourceConfigs);
             resourceConfigs2['article'].config.maxLimit = 43;
 
             const req = {
@@ -759,7 +759,7 @@ describe('request-resolver', () => {
         });
 
         it('uses defaultLimit even if maxLimit is given', () => {
-            const resourceConfigs2 = _.cloneDeep(resourceConfigs);
+            const resourceConfigs2 = cloneDeep(resourceConfigs);
             resourceConfigs2['article'].config.maxLimit = 43;
             resourceConfigs2['article'].config.defaultLimit = 40;
 
@@ -774,7 +774,7 @@ describe('request-resolver', () => {
         });
 
         it('uses limit if limit <= maxLimit', () => {
-            const resourceConfigs2 = _.cloneDeep(resourceConfigs);
+            const resourceConfigs2 = cloneDeep(resourceConfigs);
             resourceConfigs2['article'].config.maxLimit = 45;
 
             const req = {
@@ -789,7 +789,7 @@ describe('request-resolver', () => {
         });
 
         it('fails if limit > maxLimit', () => {
-            const resourceConfigs2 = _.cloneDeep(resourceConfigs);
+            const resourceConfigs2 = cloneDeep(resourceConfigs);
             resourceConfigs2['article'].config.maxLimit = 43;
 
             const req = {
@@ -846,7 +846,7 @@ describe('request-resolver', () => {
         });
 
         it('uses defaultLimit if no limit is given', () => {
-            const resourceConfigs2 = _.cloneDeep(resourceConfigs);
+            const resourceConfigs2 = cloneDeep(resourceConfigs);
             resourceConfigs2['article'].config.attributes['comments'].defaultLimit = 42;
 
             const req = {
@@ -865,7 +865,7 @@ describe('request-resolver', () => {
         });
 
         it('uses limit to override defaultLimit', () => {
-            const resourceConfigs2 = _.cloneDeep(resourceConfigs);
+            const resourceConfigs2 = cloneDeep(resourceConfigs);
             resourceConfigs2['article'].config.attributes['comments'].defaultLimit = 42;
 
             const req = {
@@ -886,7 +886,7 @@ describe('request-resolver', () => {
         });
 
         it('uses maxLimit if no limit is given', () => {
-            const resourceConfigs2 = _.cloneDeep(resourceConfigs);
+            const resourceConfigs2 = cloneDeep(resourceConfigs);
             resourceConfigs2['article'].config.attributes['comments'].maxLimit = 43;
 
             const req = {
@@ -905,7 +905,7 @@ describe('request-resolver', () => {
         });
 
         it('uses defaultLimit even if maxLimit is given', () => {
-            const resourceConfigs2 = _.cloneDeep(resourceConfigs);
+            const resourceConfigs2 = cloneDeep(resourceConfigs);
             resourceConfigs2['article'].config.attributes['comments'].maxLimit = 43;
             resourceConfigs2['article'].config.attributes['comments'].defaultLimit = 40;
 
@@ -925,7 +925,7 @@ describe('request-resolver', () => {
         });
 
         it('uses limit if limit <= maxLimit', () => {
-            const resourceConfigs2 = _.cloneDeep(resourceConfigs);
+            const resourceConfigs2 = cloneDeep(resourceConfigs);
             resourceConfigs2['article'].config.attributes['comments'].maxLimit = 45;
 
             const req = {
@@ -946,7 +946,7 @@ describe('request-resolver', () => {
         });
 
         it('fails if limit > maxLimit', () => {
-            const resourceConfigs2 = _.cloneDeep(resourceConfigs);
+            const resourceConfigs2 = cloneDeep(resourceConfigs);
             resourceConfigs2['article'].config.attributes['comments'].maxLimit = 45;
 
             const req = {
@@ -983,7 +983,7 @@ describe('request-resolver', () => {
 
     describe('defaultOrder', () => {
         it('uses defaultOrder if no order is given', () => {
-            const resourceConfigs2 = _.cloneDeep(resourceConfigs);
+            const resourceConfigs2 = cloneDeep(resourceConfigs);
             resourceConfigs2['article'].config['defaultOrder'] = [
                 {
                     attribute: ['date'],
@@ -1018,7 +1018,7 @@ describe('request-resolver', () => {
         });
 
         it('uses order to override defaultOrder', () => {
-            const resourceConfigs2 = _.cloneDeep(resourceConfigs);
+            const resourceConfigs2 = cloneDeep(resourceConfigs);
             resourceConfigs2['article']['defaultOrder'] = [
                 {
                     attribute: ['date'],
@@ -1555,7 +1555,7 @@ describe('request-resolver', () => {
 
     describe('handling of dependencies', () => {
         it('selects dependant attributes internally (but not externally)', () => {
-            const configs = _.cloneDeep(resourceConfigs);
+            const configs = cloneDeep(resourceConfigs);
             configs['article'].config.attributes['copyright'].depends = { date: {} };
 
             // /article/?select=copyright
@@ -1589,7 +1589,7 @@ describe('request-resolver', () => {
         });
 
         it('allows to depend on hidden attributes', () => {
-            const configs = _.cloneDeep(resourceConfigs);
+            const configs = cloneDeep(resourceConfigs);
             configs['article'].config.attributes['copyright'].depends = { secretInfo: {} };
 
             // /article/?select=copyright
@@ -1623,7 +1623,7 @@ describe('request-resolver', () => {
         });
 
         it('selects recursive dependencies', () => {
-            const configs = _.cloneDeep(resourceConfigs);
+            const configs = cloneDeep(resourceConfigs);
             configs['article'].config.attributes['title'].depends = { copyright: {} };
             configs['article'].config.attributes['copyright'].depends = { date: {} };
 
@@ -1659,7 +1659,7 @@ describe('request-resolver', () => {
         });
 
         it('selects cyclic dependencies properly', () => {
-            const configs = _.cloneDeep(resourceConfigs);
+            const configs = cloneDeep(resourceConfigs);
             configs['article'].config.attributes['title'].depends = { date: {} };
             configs['article'].config.attributes['date'].depends = { copyright: {} };
             configs['article'].config.attributes['copyright'].depends = { title: {} };
@@ -1696,7 +1696,7 @@ describe('request-resolver', () => {
         });
 
         it('selects dependant sub-resources internally', () => {
-            const configs = _.cloneDeep(resourceConfigs);
+            const configs = cloneDeep(resourceConfigs);
             configs['article'].config.attributes['copyright'].depends = {
                 author: { select: { firstname: {}, lastname: {} } }
             };
@@ -1755,7 +1755,7 @@ describe('request-resolver', () => {
         });
 
         it('selects dependant attributes on sub-resources', () => {
-            const configs = _.cloneDeep(resourceConfigs);
+            const configs = cloneDeep(resourceConfigs);
             configs['article'].config.attributes['copyright'].depends = {
                 video: { select: { url: {} } }
             };
@@ -1819,7 +1819,7 @@ describe('request-resolver', () => {
         });
 
         it('uses correct {root} context for inline sub-resource', () => {
-            const configs = _.cloneDeep(resourceConfigs);
+            const configs = cloneDeep(resourceConfigs);
             configs['article'].config.attributes['video'].attributes['url'].depends = {
                 '{root}': { select: { title: {} } }
             };
@@ -1852,7 +1852,7 @@ describe('request-resolver', () => {
         });
 
         it('uses correct {root} context for included sub-resource', () => {
-            const configs = _.cloneDeep(resourceConfigs);
+            const configs = cloneDeep(resourceConfigs);
             configs['user'].config.attributes['firstname'].depends = {
                 '{root}': { select: { lastname: {} } }
             };
@@ -1887,7 +1887,7 @@ describe('request-resolver', () => {
         });
 
         it('handles "depends" at root level', () => {
-            const configs = _.cloneDeep(resourceConfigs);
+            const configs = cloneDeep(resourceConfigs);
             configs['user'].config.depends = {
                 '{root}': { select: { lastname: {} } }
             };
@@ -1909,7 +1909,7 @@ describe('request-resolver', () => {
         });
 
         it('uses correct relative context for included sub-resource', () => {
-            const configs = _.cloneDeep(resourceConfigs);
+            const configs = cloneDeep(resourceConfigs);
             configs['article'].config.attributes['author'].depends = { lastname: {} };
 
             const req = {
@@ -1937,7 +1937,7 @@ describe('request-resolver', () => {
         });
 
         it('uses correct {root} context for included sub-resource', () => {
-            const configs = _.cloneDeep(resourceConfigs);
+            const configs = cloneDeep(resourceConfigs);
             configs['article'].config.attributes['author'].depends = { '{root}': { select: { title: {} } } };
 
             const req = {
@@ -1965,7 +1965,7 @@ describe('request-resolver', () => {
         });
 
         it('uses correct {root} context for merged included sub-resource ("depends" in parent)', () => {
-            const configs = _.cloneDeep(resourceConfigs);
+            const configs = cloneDeep(resourceConfigs);
             configs['article'].config.attributes['author'].attributes = {
                 firstname: {
                     inherit: 'inherit',
@@ -2006,7 +2006,7 @@ describe('request-resolver', () => {
         });
 
         it('uses correct {root} context for merged included sub-resource ("depends" in child)', () => {
-            const configs = _.cloneDeep(resourceConfigs);
+            const configs = cloneDeep(resourceConfigs);
             configs['article'].config.attributes['author'].attributes = {
                 firstname: {
                     inherit: 'inherit',
@@ -2047,7 +2047,7 @@ describe('request-resolver', () => {
         });
 
         it('handles "depends" + "select" on same sub-resource', () => {
-            const configs = _.cloneDeep(resourceConfigs);
+            const configs = cloneDeep(resourceConfigs);
             configs['article'].config.attributes['copyright'].depends = {
                 author: { select: { firstname: {}, lastname: {} } }
             };
@@ -2391,7 +2391,7 @@ describe('request-resolver', () => {
 
     describe('filter by sub-resources', () => {
         it('resolves filter by sub-resource primary key without "rewriteTo"', () => {
-            const configs = _.cloneDeep(resourceConfigs);
+            const configs = cloneDeep(resourceConfigs);
             delete configs['article'].config.subFilters[0].rewriteTo;
 
             // /article/?filter=author.id=11,12,13
