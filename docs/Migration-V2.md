@@ -1,4 +1,4 @@
-# Flora 2
+# Flora v2 Migration
 
 ## Breaking changes
 
