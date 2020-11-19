@@ -164,6 +164,8 @@ describe('HTTP request parsing', () => {
             parseRequest(httpRequest)
                 .then((request) => {
                     expect(request.data).to.have.property('a', true);
+                    expect(request._httpRequest).to.have.property('body');
+                    expect(request._httpRequest.body).to.have.property('a', true);
                     done();
                 })
                 .catch(done);
@@ -180,6 +182,9 @@ describe('HTTP request parsing', () => {
                 .then((request) => {
                     expect(request).to.have.property('a', 'true');
                     expect(request).to.have.property('b', 'false');
+                    expect(request._httpRequest).to.have.property('body');
+                    expect(request._httpRequest.body).to.have.property('a', 'true');
+                    expect(request._httpRequest.body).to.have.property('b', 'false');
                     done();
                 })
                 .catch(done);
