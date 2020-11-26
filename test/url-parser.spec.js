@@ -152,6 +152,19 @@ describe('HTTP request parsing', () => {
                 })
                 .catch(done);
         });
+
+        it('should not be duplicated', (done) => {
+            httpRequest.url = 'http://api.example.com/user/1337.jpg?width=120&resource=abc&width=200';
+
+            parseRequest(httpRequest)
+                .then(() =>
+                    done(new Error('Parsing was expected to fail because querystring contains "width" parameter twice'))
+                )
+                .catch((err) => {
+                    expect(err).to.be.an('error').and.to.have.property('message', 'Duplicate parameter "width" in URL');
+                    done();
+                });
+        });
     });
 
     describe('POST payload', () => {
