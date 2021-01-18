@@ -1,7 +1,8 @@
 # Flora
 
-[![Build Status](https://travis-ci.org/godmodelabs/flora.svg?branch=master)](https://travis-ci.org/godmodelabs/flora)
-[![NPM version](https://badge.fury.io/js/flora.svg)](https://www.npmjs.com/package/flora)
+![](https://github.com/godmodelabs/flora/workflows/ci/badge.svg)
+[![NPM version](https://img.shields.io/npm/v/flora.svg?style=flat)](https://www.npmjs.com/package/flora)
+[![NPM downloads](https://img.shields.io/npm/dm/flora.svg?style=flat)](https://www.npmjs.com/package/flora)
 
 Flora is a FLexible Open Rest API framework for [Node.js](http://nodejs.org/).
 
