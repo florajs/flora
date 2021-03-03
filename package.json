@@ -44,7 +44,7 @@
     "bunyan": "^1.8.14",
     "chokidar": "^3.4.3",
     "content-type": "^1.0.4",
-    "flora-cluster": "^2.0.0",
+    "flora-cluster": "^2.0.1",
     "flora-errors": "^2.0.0",
     "flora-request-parser": "^2.3.1",
     "lodash.clonedeep": "^4.5.0",
