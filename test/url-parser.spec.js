@@ -47,6 +47,16 @@ describe('HTTP request parsing', () => {
             .catch(done);
     });
 
+    it('should parse relative urls', (done) => {
+        httpRequest.url = '/';
+        parseRequest(httpRequest)
+            .then((request) => {
+                expect(request).to.be.null;
+                done();
+            })
+            .catch(done);
+    });
+
     describe('flat resources', () => {
         it('should parse resource', (done) => {
             httpRequest.url = 'http://api.example.com/user/';
