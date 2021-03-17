@@ -212,5 +212,28 @@ describe('HTTP request parsing', () => {
                 })
                 .catch(done);
         });
+
+        it('should time out after postTimeout', (done) => {
+            const slowRequest = {
+                flora: { status: {} },
+                method: 'POST',
+                headers: {
+                    'content-type': 'application/x-www-form-urlencoded',
+                    'content-length': 1000
+                },
+                url: '/user/',
+                payload: null,
+                setEncoding() {},
+                on() {}
+            };
+            parseRequest(slowRequest, { postTimeout: 10 })
+                .then(() => {
+                    done(new Error('Should have thrown Timeout error'));
+                })
+                .catch((err) => {
+                    expect(err).to.be.an('error').and.to.have.property('message', 'Timeout reading POST data');
+                    done();
+                });
+        });
     });
 });
