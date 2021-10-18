@@ -40,7 +40,6 @@
     "node": ">=12"
   },
   "dependencies": {
-    "@godmodelabs/busboy": "^0.3.1",
     "bunyan": "^1.8.15",
     "chokidar": "^3.5.2",
     "content-type": "^1.0.4",
