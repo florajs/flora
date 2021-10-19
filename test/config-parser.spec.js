@@ -180,7 +180,7 @@ describe('config-parser', () => {
         });
 
         it('fails on DataSources with "inherit" option but without included resource', () => {
-            var resourceConfigs = cloneDeep(minimalResourceConfigs);
+            const resourceConfigs = cloneDeep(minimalResourceConfigs);
 
             resourceConfigs['test'].config.dataSources['primary'] = { inherit: 'true' };
 

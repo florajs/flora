@@ -261,9 +261,7 @@ describe('Api', () => {
                         instance: {}
                     };
 
-                    var request = new Request({
-                        resource: 'no-actions'
-                    });
+                    const request = new Request({ resource: 'no-actions' });
                     return api.execute(request);
                 })
                 .catch((err) => {
@@ -285,7 +283,7 @@ describe('Api', () => {
                 }
             });
 
-            var request = new Request({ resource: 'foo' });
+            const request = new Request({ resource: 'foo' });
             api.execute(request).catch((err) => {
                 expect(err).to.be.an('error');
                 expect(err.message).to.equal('Not initialized');

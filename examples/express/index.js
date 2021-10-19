@@ -6,7 +6,7 @@ const { URL } = require('url');
 
 module.exports = function (api) {
     function sendResponse(response, httpRequest, httpResponse) {
-        var header = { 'Content-Type': 'application/json; charset=utf-8' };
+        const header = { 'Content-Type': 'application/json; charset=utf-8' };
         httpResponse.writeHead(response.meta.statusCode || 200, header);
         httpResponse.end(
             JSON.stringify({
@@ -29,7 +29,7 @@ module.exports = function (api) {
     }
 
     return function (httpRequest, httpResponse, next) {
-        var parsedUrl = new URL(httpRequest.url, true);
+        const parsedUrl = new URL(httpRequest.url, true);
         const matches = parsedUrl.pathname.match(/^\/(.+)\/([^/.]*)(?:\.([a-z]+))?$/);
         if (!matches) {
             return next();
