@@ -156,9 +156,27 @@ describe('type casting', () => {
                 ).to.equal('2015-03-03T08:00:00.000Z');
             });
 
-            it('string (datetime with offset) to datetime', () => {
+            it('string (datetime with offset, ISO-8601 basic) to datetime', () => {
+                expect(
+                    cast.cast('20090630T210000+0200', {
+                        type: 'datetime',
+                        storedType: { type: 'datetime' }
+                    })
+                ).to.equal('2009-06-30T19:00:00.000Z');
+            });
+
+            it('string (datetime with offset, ISO-8601 extended) to datetime', () => {
                 expect(
                     cast.cast('2009-06-30T21:00:00+02:00', {
+                        type: 'datetime',
+                        storedType: { type: 'datetime' }
+                    })
+                ).to.equal('2009-06-30T19:00:00.000Z');
+            });
+
+            it('string (datetime with offset, PHP DateTime::ISO8601) to datetime', () => {
+                expect(
+                    cast.cast('2009-06-30T21:00:00+0200', {
                         type: 'datetime',
                         storedType: { type: 'datetime' }
                     })
