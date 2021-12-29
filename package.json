@@ -9,6 +9,10 @@
     "lint": "eslint .",
     "test-lint": "eslint . && mocha"
   },
+  "files": [
+    "index.js",
+    "lib/"
+  ],
   "pre-commit": "test-lint",
   "keywords": [
     "api",
