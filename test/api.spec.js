@@ -1,5 +1,3 @@
-/* global describe, it, before, after */
-
 'use strict';
 
 const path = require('path');
