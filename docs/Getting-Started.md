@@ -1,16 +1,14 @@
-# Flora
+# Getting Started
 
-## Getting Started
-
-### Installation
+## Installation
 
     npm install flora --save
 
-### Configuration
+## Configuration
 
 The configuration needs to be a CommonJS module file that exports an object.
 
-#### config.js
+### config.js
 
 ```js
 const path = require('path');
@@ -27,9 +25,9 @@ module.exports = {
 };
 ```
 
-### A simple API server
+## A simple API server
 
-#### server.js
+### server.js
 
 ```js
 const flora = require('flora');
@@ -38,11 +36,11 @@ const server = new flora.Server('./config.js');
 server.run();
 ```
 
-### Your first resource
+## Your first resource
 
 The `hello` resource is a simple Hello World endpoint.
 
-#### resources/hello/index.js
+### resources/hello/index.js
 
 ```js
 module.exports = (api) => ({

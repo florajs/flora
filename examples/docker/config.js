@@ -9,7 +9,7 @@ module.exports = {
 
     dataSources: {
         mysql: {
-            constructor: require('flora-mysql'),
+            constructor: require('@florajs/datasource-mysql'),
             options: {
                 servers: {
                     default: {

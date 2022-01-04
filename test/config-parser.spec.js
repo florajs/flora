@@ -2,7 +2,7 @@
 
 const cloneDeep = require('lodash.clonedeep');
 const { expect } = require('chai');
-const { ImplementationError } = require('flora-errors');
+const { ImplementationError } = require('@florajs/errors');
 
 const configParser = require('../lib/config-parser');
 

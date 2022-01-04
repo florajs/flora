@@ -1,5 +1,5 @@
 const path = require('path');
-const flora = require('../');
+const flora = require('flora');
 
 /*
  * Make native calls to a Flora API without using HTTP
@@ -11,7 +11,7 @@ const config = {
     resourcesPath: path.join(__dirname, 'resources'),
     dataSources: {
         mysql: {
-            constructor: require('flora-mysql'),
+            constructor: require('@florajs/datasource-mysql'),
             options: {
                 server: {
                     host: 'localhost',

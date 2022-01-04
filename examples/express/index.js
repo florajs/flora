@@ -1,6 +1,6 @@
 'use strict';
 
-const errors = require('flora-errors');
+const errors = require('@florajs/errors');
 const flora = require('flora');
 const { URL } = require('url');
 

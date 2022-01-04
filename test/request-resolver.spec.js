@@ -2,7 +2,7 @@
 
 const cloneDeep = require('lodash.clonedeep');
 const { expect } = require('chai');
-const { RequestError, ImplementationError } = require('flora-errors');
+const { RequestError, ImplementationError } = require('@florajs/errors');
 
 const requestResolver = require('../lib/request-resolver');
 

@@ -9,7 +9,7 @@ $ docker run --rm -p 8000:8000 -it flora-example
 $ open http://localhost:8000/user/
 ```
 
-## Request using flora-ql
+## Request using @florajs/ql
 
 * List: [/user/](http://localhost:8000/user/)
 * Retrieve: [/user/1001](http://localhost:8000/user/1001)

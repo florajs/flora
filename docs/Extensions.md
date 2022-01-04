@@ -1,5 +1,3 @@
-# Flora
-
 # Extensions
 
 Flora can be extended in various ways. The `Api` class itself fires a set of (asynchronous) events that can be listened to, but also the resources can provide hooks that are executed during request handling.

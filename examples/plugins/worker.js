@@ -1,5 +1,5 @@
 const path = require('path');
-const flora = require('../');
+const flora = require('flora');
 
 /*
  * Extend worker (server) functionality with worker plugins

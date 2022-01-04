@@ -3,7 +3,7 @@
 const cloneDeep = require('lodash.clonedeep');
 const nullLogger = require('abstract-logging');
 const { expect } = require('chai');
-const { ImplementationError, DataError, NotFoundError } = require('flora-errors');
+const { ImplementationError, DataError, NotFoundError } = require('@florajs/errors');
 
 const resultBuilder = require('../lib/result-builder');
 

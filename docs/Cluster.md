@@ -2,7 +2,7 @@
 
 ## Cluster
 
-Flora includes simple but powerful clustering tools. The [flora-cluster](https://www.npmjs.com/package/flora-cluster) module provides tools for spawning and monitoring processes to optimize CPU usage on multi-core machines.
+Flora includes simple but powerful clustering tools. The [@florajs/cluster](https://www.npmjs.com/package/@florajs/cluster) module provides tools for spawning and monitoring processes to optimize CPU usage on multi-core machines.
 
 ### Example
 
