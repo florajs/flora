@@ -17,15 +17,16 @@
   "keywords": [
     "api",
     "framework",
-    "rest"
+    "rest",
+    "florajs"
   ],
   "author": {
     "name": "BörseGo AG",
     "email": "it@boerse-go.de"
   },
-  "homepage": "https://github.com/godmodelabs/flora",
+  "homepage": "https://github.com/florajs/flora",
   "license": "MIT",
-  "repository": "godmodelabs/flora",
+  "repository": "florajs/flora",
   "contributors": [
     {
       "name": "Mark Plomer",

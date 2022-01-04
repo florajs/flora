@@ -1,6 +1,6 @@
 # Flora
 
-![](https://github.com/godmodelabs/flora/workflows/ci/badge.svg)
+![](https://github.com/florajs/flora/workflows/ci/badge.svg)
 [![NPM version](https://img.shields.io/npm/v/flora.svg?style=flat)](https://www.npmjs.com/package/flora)
 [![NPM downloads](https://img.shields.io/npm/dm/flora.svg?style=flat)](https://www.npmjs.com/package/flora)
 
