@@ -35,7 +35,7 @@ describe('Response', () => {
 
     it('should not expose headers in response.meta', () => {
         const response = new Response(new Request(reqOpts));
-        expect({}.propertyIsEnumerable.call(response.meta, 'headers')).to.be.false;
+        expect(response.meta).to.have.ownPropertyDescriptor('headers').that.has.property('enumerable', false);
     });
 
     it('should have default status code', () => {
@@ -46,13 +46,13 @@ describe('Response', () => {
     it('should allow to set headers', () => {
         const response = new Response(new Request(reqOpts));
         response.header('X-Foo', 'bar');
-        expect(response.meta.headers['X-Foo']).to.equal('bar');
+        expect(response.meta.headers).to.have.property('x-foo', 'bar');
     });
 
     it('should allow to set type', () => {
         const response = new Response(new Request(reqOpts));
         response.type('image/png');
-        expect(response.meta.headers['Content-Type']).to.equal('image/png');
+        expect(response.meta.headers).to.have.property('content-type', 'image/png');
     });
 
     it('should allow to set status code', () => {
