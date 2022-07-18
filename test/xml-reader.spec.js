@@ -99,7 +99,7 @@ describe('xml-reader', () => {
             throw new Error('Expected an error');
         });
 
-        it('should throw an if xml contains invalid text nodes', async () => {
+        it('should throw an error if xml contains invalid text nodes', async () => {
             try {
                 await xmlReader(__dirname + '/fixtures/xml-reader/invalid-text-node.xml');
             } catch (err) {
