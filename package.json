@@ -45,18 +45,17 @@
     "node": ">=14"
   },
   "dependencies": {
-    "bunyan": "^1.8.15",
-    "chokidar": "^3.5.3",
-    "content-type": "^1.0.4",
     "@florajs/cluster": "^3.0.0",
     "@florajs/errors": "^3.0.0",
     "@florajs/request-parser": "^3.0.0",
+    "@xmldom/xmldom": "^0.8.2",
+    "bunyan": "^1.8.15",
+    "chokidar": "^3.5.3",
+    "content-type": "^1.0.4",
     "lodash.clonedeep": "^4.5.0",
-    "lodash.pick": "^4.4.0",
     "luxon": "^3.0.1",
     "promise-events": "^0.2.4",
-    "serve-static": "^1.15.0",
-    "@xmldom/xmldom": "^0.8.2"
+    "serve-static": "^1.15.0"
   },
   "devDependencies": {
     "abstract-logging": "^2.0.1",
