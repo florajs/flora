@@ -24,13 +24,12 @@ describe('Response', () => {
         expect(response.meta.headers).to.be.an('object');
     });
 
-    it('should have writeable meta.headers property', () => {
+    it('should disallow setting meta.headers property directly', () => {
         const response = new Response(new Request(reqOpts));
 
         expect(() => {
             response.meta.headers = { 'Content-Type': 'application/pdf' };
-        }).to.not.throw(Error);
-        expect(response.meta.headers).to.have.property('Content-Type');
+        }).to.throw(TypeError, `Cannot assign to read only property 'headers'`);
     });
 
     it('should not expose headers in response.meta', () => {
