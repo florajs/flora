@@ -15,7 +15,7 @@ Flora requires __Node.js v14__ or higher.
 - **Filter resources even by sub-resource-attributes**: resolve inside database when possible, or return ID lists
 - **Pluggable data sources**: currently implemented: MySQL, MongoDB, Elasticsearch, Solr/Lucene
 - **Combine multiple data sources**: even on per-row-basis - "API-side-JOIN"
-- **Highly optimized database querys:** internal SQL parser to remove unselected fields and thus unreferenced LEFT JOINs
+- **Highly optimized database queries:** internal SQL parser to remove unselected fields and thus unreferenced LEFT JOINs
 - **Locale:** parameterize JOINs i.e. with a localeId - no need for database views which can't be parameterized
 - **Handle all your special cases as good as possible:** hooks and events for extending features
 
