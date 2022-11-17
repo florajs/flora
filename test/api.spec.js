@@ -288,6 +288,40 @@ describe('Api', () => {
                 done();
             });
         });
+
+        it('should clone the Request', async () => {
+            const api = new Api();
+            await api.init({
+                log,
+                resourcesPath: path.join(__dirname, 'fixtures', 'extensions', 'resources'),
+                dataSources: {
+                    empty: {
+                        constructor: testDataSource
+                    }
+                }
+            });
+
+            const r = new Request({ resource: 'simple-js' });
+            const { request } = await api.execute(r);
+            expect(r).to.not.equal(request);
+        });
+
+        it('should pass through _auth property', async () => {
+            const api = new Api();
+            await api.init({
+                log,
+                resourcesPath: path.join(__dirname, 'fixtures', 'extensions', 'resources'),
+                dataSources: {
+                    empty: {
+                        constructor: testDataSource
+                    }
+                }
+            });
+
+            const r = new Request({ resource: 'simple-js', _auth: 'AUTH' });
+            const { request } = await api.execute(r);
+            expect(request._auth).to.equal('AUTH');
+        });
     });
 
     describe('formats', () => {
