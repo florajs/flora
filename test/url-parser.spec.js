@@ -233,5 +233,42 @@ describe('HTTP request parsing', () => {
                     done();
                 });
         });
+
+        it('should remove protected properties (GET)', (done) => {
+            httpRequest.url = 'http://api.example.com/user/1337.jpg?_auth=FOO';
+            parseRequest(httpRequest)
+                .then((request) => {
+                    expect(request._auth).to.equal(null);
+                    done();
+                })
+                .catch(done);
+        });
+
+        it('should remove protected properties (urlencoded)', (done) => {
+            httpRequest.url = 'http://api.example.com/user/';
+            httpRequest.headers['content-type'] = 'application/x-www-form-urlencoded';
+            httpRequest.payload = '_auth=FOO';
+            httpRequest.method = 'POST';
+            httpRequest.headers['content-length'] = httpRequest.payload.length;
+            parseRequest(httpRequest)
+                .then((request) => {
+                    expect(request._auth).to.equal(null);
+                    done();
+                })
+                .catch(done);
+        });
+
+        it('should remove protected properties (JSON)', (done) => {
+            httpRequest.url = 'http://api.example.com/user/';
+            httpRequest.payload = '{"_auth": "FOO"}';
+            httpRequest.method = 'POST';
+            httpRequest.headers['content-length'] = httpRequest.payload.length;
+            parseRequest(httpRequest)
+                .then((request) => {
+                    expect(request._auth).to.equal(null);
+                    done();
+                })
+                .catch(done);
+        });
     });
 });
