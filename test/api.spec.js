@@ -278,7 +278,7 @@ describe('Api', () => {
                 .then(() => done(new Error('Expected wrong export to throw error')))
                 .catch((err) => {
                     expect(err).to.be.an('error');
-                    expect(err.message).to.include('Required resource is not a function. Path: ');
+                    expect(err.message).to.include('Resource does not export a function: ');
                     done();
                 });
         });
