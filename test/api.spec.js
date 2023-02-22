@@ -269,6 +269,20 @@ describe('Api', () => {
                 });
         });
 
+        it('should fail when index.js does not export a function', (done) => {
+            const api = new Api();
+            api.init({
+                log,
+                resourcesPath: path.join(__dirname, 'fixtures', 'wrong-export', 'resources')
+            })
+                .then(() => done(new Error('Expected wrong export to throw error')))
+                .catch((err) => {
+                    expect(err).to.be.an('error');
+                    expect(err.message).to.include('Required resource is not a function. Path: ');
+                    done();
+                });
+        });
+
         it('should fail when Api#init is not done', (done) => {
             const api = new Api();
             api.init({
