@@ -342,6 +342,24 @@ describe('datasource-executor', () => {
                         type: 'test',
                         table: 'user',
                         filter: [[{ attribute: 'id', operator: 'equal', valueFromParentKey: true }]]
+                    },
+                    extensions: {
+                        preExecute: [
+                            {
+                                ds2: (ev) => {
+                                    expect(ev.request.filter).eql([
+                                        [
+                                            {
+                                                attribute: 'id',
+                                                operator: 'equal',
+                                                valueFromParentKey: true,
+                                                value: []
+                                            }
+                                        ]
+                                    ]);
+                                }
+                            }
+                        ]
                     }
                 }
             ]
