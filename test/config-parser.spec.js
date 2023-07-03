@@ -654,6 +654,23 @@ describe('config-parser', () => {
             expect(resourceConfigs).to.eql(resourceConfigsParsed);
         });
 
+        it('parses and resolves parentKey/childKey in mixed/included sub-resource', () => {
+            const resourceConfigs = cloneDeep(minimalResourceConfigs);
+
+            resourceConfigs['test-included'] = cloneDeep(resourceConfigs['test']);
+            resourceConfigs['test'].config.resource = 'test-included';
+            delete resourceConfigs['test'].config.primaryKey;
+            delete resourceConfigs['test'].config.dataSources;
+            delete resourceConfigs['test'].config.attributes['id'];
+
+            resourceConfigs['test'].config.attributes['subResource'] = cloneDeep(resourceConfigs['test'].config);
+            resourceConfigs['test'].config.attributes['subResource'].parentKey = '{primary}';
+            resourceConfigs['test'].config.attributes['subResource'].childKey = '{primary}';
+
+            // just check, if we can resolve keys without error (primaryKey is defined in included sub-resource):
+            configParser(resourceConfigs, mockDataSources);
+        });
+
         it('fails on missing parentKey/childKey', () => {
             let resourceConfigs = cloneDeep(minimalResourceConfigs);
             resourceConfigs['test'].config.attributes['subResource'] = {};
