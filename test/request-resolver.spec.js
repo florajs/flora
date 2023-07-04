@@ -1144,6 +1144,7 @@ describe('request-resolver', () => {
                         childKey: ['articleId'],
                         multiValuedParentKey: false,
                         uniqueChildKey: true,
+                        multiValuedChildKey: false,
                         request: {
                             type: 'mysql',
                             database: 'contents',
@@ -1198,6 +1199,7 @@ describe('request-resolver', () => {
                         childKey: ['articleId'],
                         multiValuedParentKey: false,
                         uniqueChildKey: false,
+                        multiValuedChildKey: false,
                         request: {
                             type: 'mysql',
                             database: 'contents',
@@ -1254,6 +1256,7 @@ describe('request-resolver', () => {
                         childKey: ['articleId'],
                         multiValuedParentKey: false,
                         uniqueChildKey: false,
+                        multiValuedChildKey: false,
                         request: {
                             type: 'mysql',
                             database: 'contents',
@@ -1274,6 +1277,7 @@ describe('request-resolver', () => {
                                 childKey: ['commentId'],
                                 multiValuedParentKey: false,
                                 uniqueChildKey: true,
+                                multiValuedChildKey: false,
                                 request: {
                                     type: 'mysql',
                                     database: 'contents',
@@ -1333,6 +1337,7 @@ describe('request-resolver', () => {
                         childKey: ['id'],
                         multiValuedParentKey: false,
                         uniqueChildKey: true,
+                        multiValuedChildKey: false,
                         request: {
                             type: 'mysql',
                             database: 'contents',
@@ -1389,6 +1394,7 @@ describe('request-resolver', () => {
                         childKey: ['iso'],
                         multiValuedParentKey: true,
                         uniqueChildKey: true,
+                        multiValuedChildKey: false,
                         request: {
                             type: 'mysql',
                             database: 'contents',
@@ -1445,6 +1451,7 @@ describe('request-resolver', () => {
                         childKey: ['articleId'],
                         multiValuedParentKey: false,
                         uniqueChildKey: false,
+                        multiValuedChildKey: false,
                         request: {
                             type: 'mysql',
                             database: 'contents',
@@ -1465,6 +1472,7 @@ describe('request-resolver', () => {
                                 childKey: ['id'],
                                 multiValuedParentKey: false,
                                 uniqueChildKey: true,
+                                multiValuedChildKey: false,
                                 request: {
                                     type: 'mysql',
                                     database: 'contents',
@@ -1522,6 +1530,7 @@ describe('request-resolver', () => {
                         childKey: ['articleId'],
                         multiValuedParentKey: false,
                         uniqueChildKey: false,
+                        multiValuedChildKey: false,
                         request: {
                             type: 'mysql',
                             database: 'contents',
@@ -1731,6 +1740,7 @@ describe('request-resolver', () => {
                         childKey: ['id'],
                         multiValuedParentKey: false,
                         uniqueChildKey: true,
+                        multiValuedChildKey: false,
                         request: {
                             type: 'mysql',
                             database: 'contents',
@@ -1794,6 +1804,7 @@ describe('request-resolver', () => {
                         childKey: ['articleId'],
                         multiValuedParentKey: false,
                         uniqueChildKey: true,
+                        multiValuedChildKey: false,
                         request: {
                             type: 'mysql',
                             database: 'contents',
@@ -2083,6 +2094,7 @@ describe('request-resolver', () => {
                         childKey: ['id'],
                         multiValuedParentKey: false,
                         uniqueChildKey: true,
+                        multiValuedChildKey: false,
                         request: {
                             type: 'mysql',
                             database: 'contents',
@@ -2140,6 +2152,7 @@ describe('request-resolver', () => {
                         childKey: ['articleId'],
                         multiValuedParentKey: false,
                         uniqueChildKey: true,
+                        multiValuedChildKey: false,
                         request: {
                             type: 'mysql',
                             database: 'contents',
@@ -2198,6 +2211,7 @@ describe('request-resolver', () => {
                         childKey: ['id'],
                         multiValuedParentKey: false,
                         uniqueChildKey: true,
+                        multiValuedChildKey: false,
                         request: {
                             type: 'mysql',
                             database: 'contents',
@@ -2218,6 +2232,7 @@ describe('request-resolver', () => {
                                 childKey: ['id'],
                                 multiValuedParentKey: false,
                                 uniqueChildKey: true,
+                                multiValuedChildKey: false,
                                 request: {
                                     type: 'mysql',
                                     database: 'contents',
@@ -2278,6 +2293,7 @@ describe('request-resolver', () => {
                         childKey: ['articleId'],
                         multiValuedParentKey: false,
                         uniqueChildKey: false,
+                        multiValuedChildKey: false,
                         request: {
                             type: 'mysql',
                             database: 'contents',
@@ -2337,6 +2353,7 @@ describe('request-resolver', () => {
                         childKey: ['articleId'],
                         multiValuedParentKey: false,
                         uniqueChildKey: false,
+                        multiValuedChildKey: false,
                         request: {
                             type: 'mysql',
                             database: 'contents',
@@ -2356,6 +2373,7 @@ describe('request-resolver', () => {
                                 childKey: ['articleId', 'versionId'],
                                 multiValuedParentKey: false,
                                 uniqueChildKey: true,
+                                multiValuedChildKey: false,
                                 request: {
                                     type: 'mysql',
                                     database: 'contents',
@@ -2765,6 +2783,7 @@ describe('request-resolver', () => {
                         childKey: ['id'],
                         multiValuedParentKey: false,
                         uniqueChildKey: true,
+                        multiValuedChildKey: false,
                         request: {
                             type: 'test',
                             attributes: ['id', 'firstKeyPart', 'keyPart1'],
@@ -2783,6 +2802,7 @@ describe('request-resolver', () => {
                                 childKey: ['firstKeyPart', 'keyPart1'],
                                 multiValuedParentKey: false,
                                 uniqueChildKey: true,
+                                multiValuedChildKey: false,
                                 request: {
                                     type: 'test',
                                     attributes: ['firstKeyPart', 'keyPart1', 'name'],
@@ -2812,6 +2832,7 @@ describe('request-resolver', () => {
                         childKey: ['id'],
                         multiValuedParentKey: false,
                         uniqueChildKey: true,
+                        multiValuedChildKey: false,
                         request: {
                             type: 'test',
                             attributes: ['id', 'firstKeyPart', 'keyPart2'],
@@ -2830,6 +2851,7 @@ describe('request-resolver', () => {
                                 childKey: ['firstKeyPart', 'keyPart2'],
                                 multiValuedParentKey: false,
                                 uniqueChildKey: true,
+                                multiValuedChildKey: false,
                                 request: {
                                     type: 'test',
                                     attributes: ['firstKeyPart', 'keyPart2', 'name'],
@@ -2983,6 +3005,7 @@ describe('request-resolver', () => {
                         childKey: ['articleId'],
                         multiValuedParentKey: false,
                         uniqueChildKey: true,
+                        multiValuedChildKey: false,
                         request: {
                             type: 'mysql',
                             database: 'contents',
@@ -3003,6 +3026,7 @@ describe('request-resolver', () => {
                         childKey: ['id'],
                         multiValuedParentKey: false,
                         uniqueChildKey: true,
+                        multiValuedChildKey: false,
                         request: {
                             type: 'mysql',
                             database: 'contents',
