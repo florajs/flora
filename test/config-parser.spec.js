@@ -782,7 +782,7 @@ describe('config-parser', () => {
             );
         });
 
-        it('fails if childKey references multiValued attribute', () => {
+        it('allows childKey referencing multiValued attribute', () => {
             const resourceConfigs = cloneDeep(minimalResourceConfigs);
             resourceConfigs['test'].config.attributes['subResource'] = cloneDeep(minimalResourceConfigs['test'].config);
             resourceConfigs['test'].config.attributes['subResource'].parentKey = 'id';
@@ -798,10 +798,7 @@ describe('config-parser', () => {
 
             expect(() => {
                 configParser(resourceConfigs, mockDataSources);
-            }).to.throw(
-                ImplementationError,
-                'Key attribute "childId" must not be multiValued in childKey in sub-resource "test:subResource"'
-            );
+            }).to.not.throw(ImplementationError);
         });
 
         it('allows parentKey mapping to secondary DataSource', () => {
