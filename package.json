@@ -47,7 +47,7 @@
   "dependencies": {
     "@florajs/cluster": "^3.0.0",
     "@florajs/errors": "^3.0.0",
-    "@florajs/request-parser": "^3.0.0",
+    "@florajs/request-parser": "^3.1.0",
     "@xmldom/xmldom": "^0.8.6",
     "bunyan": "^1.8.15",
     "chokidar": "^3.5.3",
