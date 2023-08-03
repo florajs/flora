@@ -42,12 +42,12 @@
     }
   ],
   "engines": {
-    "node": ">=14"
+    "node": ">=16"
   },
   "dependencies": {
-    "@florajs/cluster": "^3.0.0",
-    "@florajs/errors": "^3.0.0",
-    "@florajs/request-parser": "^3.1.0",
+    "@florajs/cluster": "^4.0.0",
+    "@florajs/errors": "^4.0.0",
+    "@florajs/request-parser": "^4.0.0",
     "@xmldom/xmldom": "^0.8.10",
     "bunyan": "^1.8.15",
     "chokidar": "^3.5.3",
