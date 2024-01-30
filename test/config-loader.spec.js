@@ -22,7 +22,7 @@ function parseXml(/* file */) {
     return Promise.resolve('xml config');
 }
 
-describe.only('config-loader', () => {
+describe('config-loader', () => {
     it('should issue an error if config directory does not exist', (done) => {
         const directory = require('path').resolve('nonexistent-directory');
 
