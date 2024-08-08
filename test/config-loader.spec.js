@@ -33,7 +33,7 @@ describe('config-loader', () => {
         });
     });
 
-    xit('should read configs from directories', (done) => {
+    it('should read configs from directories', (done) => {
         fsMock({
             config: {
                 resource1: { 'config.xml': '' },
@@ -56,7 +56,7 @@ describe('config-loader', () => {
             .catch(done);
     });
 
-    xit('should read configs recursively', (done) => {
+    it('should read configs recursively', (done) => {
         fsMock({
             config: {
                 groupfolder1: {
@@ -90,7 +90,7 @@ describe('config-loader', () => {
             .catch(done);
     });
 
-    xit('should strip path to config directory from resource', (done) => {
+    it('should strip path to config directory from resource', (done) => {
         fsMock({
             configs: {
                 are: {
@@ -126,7 +126,7 @@ describe('config-loader', () => {
             .catch(done);
     });
 
-    xit('should strip path also for relative paths', (done) => {
+    it('should strip path also for relative paths', (done) => {
         fsMock({
             configs: {
                 'relative-path': {
@@ -150,7 +150,7 @@ describe('config-loader', () => {
             .catch(done);
     });
 
-    xit('should issue an error if no parser is found for a file extension extension', (done) => {
+    it('should issue an error if no parser is found for a file extension extension', (done) => {
         fsMock({
             config: {
                 resource1: { 'config.xml': '' },
@@ -169,7 +169,7 @@ describe('config-loader', () => {
         });
     });
 
-    xit('should register additional loaders', (done) => {
+    it('should register additional loaders', (done) => {
         fsMock({
             config: {
                 resource1: { 'config.xml': '' },
@@ -195,7 +195,7 @@ describe('config-loader', () => {
             .catch(done);
     });
 
-    xit('should ignore all other but config files', (done) => {
+    it('should ignore all other but config files', (done) => {
         fsMock({
             config: {
                 groupfolder1: {
