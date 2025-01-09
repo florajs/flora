@@ -5,10 +5,9 @@ const { expect } = require('chai');
 const { RequestError, ImplementationError } = require('@florajs/errors');
 
 const requestResolver = require('../lib/request-resolver');
+let resourceConfigs = require('./fixtures/resources-parsed.json');
 
 describe('request-resolver', () => {
-    let resourceConfigs = require('./fixtures/resources-parsed.json');
-
     describe('creation of resolved config (attribute tree)', () => {
         it('does not modify the original resourceConfigs tree', () => {
             const req = { resource: 'article' };
@@ -1945,7 +1944,7 @@ describe('request-resolver', () => {
             expect(resolvedReq).to.eql(req);
         });
 
-        it('uses correct {root} context for included sub-resource', () => {
+        it('uses correct {root} context for included sub-resource 2', () => {
             const configs = cloneDeep(resourceConfigs);
             configs['article'].config.attributes['author'].depends = { '{root}': { select: { title: {} } } };
 

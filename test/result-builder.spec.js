@@ -6,6 +6,7 @@ const { expect } = require('chai');
 const { ImplementationError, DataError, NotFoundError } = require('@florajs/errors');
 
 const resultBuilder = require('../lib/result-builder');
+const defaultResolvedConfig = require('./fixtures/resolved-config.json');
 
 const log = nullLogger;
 log.child = () => log;
@@ -17,8 +18,6 @@ const api = {
 };
 
 describe('result-builder', () => {
-    const defaultResolvedConfig = require('./fixtures/resolved-config.json');
-
     describe('simple results', () => {
         it('builds empty result (many = true)', () => {
             const rawResults = [

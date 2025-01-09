@@ -62,7 +62,7 @@ describe('type casting', () => {
             expect(cast.cast('100.1', { type: 'float' })).to.equal(100.1);
         });
 
-        it('string to float', () => {
+        it('Buffer to float', () => {
             expect(cast.cast(Buffer.from('100.1'), { type: 'float' })).to.equal(100.1);
         });
     });
@@ -357,7 +357,7 @@ describe('type casting', () => {
                 ).to.equal('2015-03-03');
             });
 
-            it('string (datetime) to date', () => {
+            it('string (datetime) to date with storedType', () => {
                 expect(
                     cast.cast('2015-03-03 00:00:00', {
                         type: 'date',

@@ -1267,7 +1267,7 @@ describe('datasource-executor', () => {
             return execute(api, {}, dst);
         });
 
-        it('casts string to datetime (with timezone)', () => {
+        it('casts string to datetime (with timezone Europe/Berlin)', () => {
             dst.request._expect = '2015-06-17T10:13:14.000Z';
             dst.subFilters[0].request._value = '2015-06-17 12:13:14';
             dst.subFilters[0].attributeOptions.id.type = 'datetime';
@@ -1278,7 +1278,7 @@ describe('datasource-executor', () => {
             return execute(api, {}, dst);
         });
 
-        it('casts string to datetime (with timezone)', () => {
+        it('casts string to datetime (with timezone America/New_York)', () => {
             dst.request._expect = '2015-06-17T16:13:14.000Z';
             dst.subFilters[0].request._value = '2015-06-17 12:13:14';
             dst.subFilters[0].attributeOptions.id.type = 'datetime';
