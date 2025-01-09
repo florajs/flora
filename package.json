@@ -48,7 +48,7 @@
     "@florajs/cluster": "^4.0.0",
     "@florajs/errors": "^4.0.0",
     "@florajs/request-parser": "^5.0.0",
-    "@xmldom/xmldom": "0.8.10",
+    "@xmldom/xmldom": "^0.9.6",
     "bunyan": "^1.8.15",
     "chokidar": "^4.0.3",
     "content-type": "^1.0.5",
