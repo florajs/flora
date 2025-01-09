@@ -1,6 +1,5 @@
 'use strict';
 
-const cloneDeep = require('lodash.clonedeep');
 const nullLogger = require('abstract-logging');
 const { expect } = require('chai');
 const { ImplementationError, DataError, NotFoundError } = require('@florajs/errors');
@@ -29,7 +28,7 @@ describe('result-builder', () => {
                 }
             ];
 
-            const resolvedConfig = cloneDeep(defaultResolvedConfig);
+            const resolvedConfig = structuredClone(defaultResolvedConfig);
             resolvedConfig.attributes['id'].selected = true;
 
             const expectedResult = {
@@ -53,7 +52,7 @@ describe('result-builder', () => {
                 }
             ];
 
-            const resolvedConfig = cloneDeep(defaultResolvedConfig);
+            const resolvedConfig = structuredClone(defaultResolvedConfig);
             resolvedConfig.many = false;
 
             expect(() => {
@@ -76,7 +75,7 @@ describe('result-builder', () => {
                 }
             ];
 
-            const resolvedConfig = cloneDeep(defaultResolvedConfig);
+            const resolvedConfig = structuredClone(defaultResolvedConfig);
             resolvedConfig.attributes['id'].selected = true;
             resolvedConfig.attributes['title'].selected = true;
 
@@ -111,7 +110,7 @@ describe('result-builder', () => {
                 }
             ];
 
-            const resolvedConfig = cloneDeep(defaultResolvedConfig);
+            const resolvedConfig = structuredClone(defaultResolvedConfig);
             resolvedConfig.many = false;
             resolvedConfig.attributes['id'].selected = true;
             resolvedConfig.attributes['title'].selected = true;
@@ -145,7 +144,7 @@ describe('result-builder', () => {
                 }
             ];
 
-            const resolvedConfig = cloneDeep(defaultResolvedConfig);
+            const resolvedConfig = structuredClone(defaultResolvedConfig);
             resolvedConfig.many = false;
             resolvedConfig.attributes['id'].selected = true;
             resolvedConfig.attributes['source'].selected = true;
@@ -180,7 +179,7 @@ describe('result-builder', () => {
                 }
             ];
 
-            const resolvedConfig = cloneDeep(defaultResolvedConfig);
+            const resolvedConfig = structuredClone(defaultResolvedConfig);
             resolvedConfig.many = false;
             resolvedConfig.attributes['id'].selected = true;
             resolvedConfig.attributes['title'].selected = true;
@@ -212,7 +211,7 @@ describe('result-builder', () => {
                 }
             ];
 
-            const resolvedConfig = cloneDeep(defaultResolvedConfig);
+            const resolvedConfig = structuredClone(defaultResolvedConfig);
             resolvedConfig.many = false;
             resolvedConfig.attributes['id'].selected = true;
             resolvedConfig.attributes['subTitle'].selected = true;
@@ -261,7 +260,7 @@ describe('result-builder', () => {
                 }
             ];
 
-            const resolvedConfig = cloneDeep(defaultResolvedConfig);
+            const resolvedConfig = structuredClone(defaultResolvedConfig);
             resolvedConfig.many = false;
             resolvedConfig.attributes['id'].selected = true;
             resolvedConfig.attributes['video'].selected = true;
@@ -327,7 +326,7 @@ describe('result-builder', () => {
                 }
             ];
 
-            const resolvedConfig = cloneDeep(defaultResolvedConfig);
+            const resolvedConfig = structuredClone(defaultResolvedConfig);
             resolvedConfig.attributes['id'].selected = true;
             resolvedConfig.attributes['comments'].selected = true;
             resolvedConfig.attributes['comments'].attributes['id'].selected = true;
@@ -438,7 +437,7 @@ describe('result-builder', () => {
                 }
             ];
 
-            const resolvedConfig = cloneDeep(defaultResolvedConfig);
+            const resolvedConfig = structuredClone(defaultResolvedConfig);
             resolvedConfig.attributes['id'].selected = true;
             resolvedConfig.attributes['versions'].selected = true;
             resolvedConfig.attributes['versions'].attributes['versionId'].selected = true;
@@ -510,7 +509,7 @@ describe('result-builder', () => {
                 }
             ];
 
-            const resolvedConfig = cloneDeep(defaultResolvedConfig);
+            const resolvedConfig = structuredClone(defaultResolvedConfig);
             resolvedConfig.many = false;
             resolvedConfig.attributes['id'].selected = true;
             resolvedConfig.attributes['author'].selected = true;
@@ -559,7 +558,7 @@ describe('result-builder', () => {
                 }
             ];
 
-            const resolvedConfig = cloneDeep(defaultResolvedConfig);
+            const resolvedConfig = structuredClone(defaultResolvedConfig);
             resolvedConfig.many = false;
             resolvedConfig.attributes['id'].selected = true;
             resolvedConfig.attributes['author'].selected = true;
@@ -606,7 +605,7 @@ describe('result-builder', () => {
                 }
             ];
 
-            const resolvedConfig = cloneDeep(defaultResolvedConfig);
+            const resolvedConfig = structuredClone(defaultResolvedConfig);
             resolvedConfig.attributes['id'].selected = true;
             resolvedConfig.attributes['countries'].selected = true;
             resolvedConfig.attributes['countries'].attributes['id'].selected = true;
@@ -670,7 +669,7 @@ describe('result-builder', () => {
                 }
             ];
 
-            const resolvedConfig = cloneDeep(defaultResolvedConfig);
+            const resolvedConfig = structuredClone(defaultResolvedConfig);
             resolvedConfig.attributes['id'].selected = true;
             resolvedConfig.attributes['countries'].selected = true;
             resolvedConfig.attributes['countries'].attributes['id'].selected = true;
@@ -725,7 +724,7 @@ describe('result-builder', () => {
                 }
             ];
 
-            const resolvedConfig = cloneDeep(defaultResolvedConfig);
+            const resolvedConfig = structuredClone(defaultResolvedConfig);
             resolvedConfig.attributes['id'].selected = true;
             resolvedConfig.attributes['categories'].selected = true;
             resolvedConfig.attributes['categories'].attributes['id'].selected = true;
@@ -779,7 +778,7 @@ describe('result-builder', () => {
                 }
             ];
 
-            const resolvedConfig = cloneDeep(defaultResolvedConfig);
+            const resolvedConfig = structuredClone(defaultResolvedConfig);
             resolvedConfig.attributes['id'].selected = true;
             resolvedConfig.attributes['categories'].selected = true;
             resolvedConfig.attributes['categories'].attributes['id'].selected = true;
@@ -820,7 +819,7 @@ describe('result-builder', () => {
                 }
             ];
 
-            const resolvedConfig = cloneDeep(defaultResolvedConfig);
+            const resolvedConfig = structuredClone(defaultResolvedConfig);
             resolvedConfig.primaryDataSource = 'articleBody';
             resolvedConfig.attributes['id'].selected = true;
             resolvedConfig.attributes['id'].selectedDataSource = 'articleBody';
@@ -875,7 +874,7 @@ describe('result-builder', () => {
                 }
             ];
 
-            const resolvedConfig = cloneDeep(defaultResolvedConfig);
+            const resolvedConfig = structuredClone(defaultResolvedConfig);
             resolvedConfig.attributes['id'].selected = true;
             resolvedConfig.attributes['categories'].selected = true;
             resolvedConfig.attributes['categories'].attributes['id'].selected = true;
@@ -929,7 +928,7 @@ describe('result-builder', () => {
                 }
             ];
 
-            const resolvedConfig = cloneDeep(defaultResolvedConfig);
+            const resolvedConfig = structuredClone(defaultResolvedConfig);
             resolvedConfig.attributes['id'].selected = true;
             resolvedConfig.attributes['body'].selected = true;
             resolvedConfig.attributes['body'].selectedDataSource = 'articleBody';
@@ -1009,7 +1008,7 @@ describe('result-builder', () => {
                 }
             ];
 
-            const resolvedConfig = cloneDeep(defaultResolvedConfig);
+            const resolvedConfig = structuredClone(defaultResolvedConfig);
             resolvedConfig.attributes['id'].selected = true;
             // move authorId to articleBody DataSource for this test:
             resolvedConfig.attributes['author'].parentDataSource = 'articleBody';
@@ -1105,7 +1104,7 @@ describe('result-builder', () => {
                 }
             ];
 
-            const resolvedConfig = cloneDeep(defaultResolvedConfig);
+            const resolvedConfig = structuredClone(defaultResolvedConfig);
             resolvedConfig.attributes['id'].selected = true;
             // move authorId to articleBody DataSource for this test:
             resolvedConfig.attributes['author'].parentDataSource = 'articleBody';
@@ -1158,7 +1157,7 @@ describe('result-builder', () => {
                 }
             ];
 
-            const resolvedConfig = cloneDeep(defaultResolvedConfig);
+            const resolvedConfig = structuredClone(defaultResolvedConfig);
 
             expect(() => {
                 resultBuilder(api, {}, rawResults, resolvedConfig);
@@ -1201,7 +1200,7 @@ describe('result-builder', () => {
                 }
             ];
 
-            const resolvedConfig = cloneDeep(defaultResolvedConfig);
+            const resolvedConfig = structuredClone(defaultResolvedConfig);
 
             expect(() => {
                 resultBuilder(api, {}, rawResults, resolvedConfig);
@@ -1242,7 +1241,7 @@ describe('result-builder', () => {
                 }
             ];
 
-            const resolvedConfig = cloneDeep(defaultResolvedConfig);
+            const resolvedConfig = structuredClone(defaultResolvedConfig);
             resolvedConfig.attributes['id'].selected = true;
             resolvedConfig.attributes['author'].selected = true;
 
@@ -1293,7 +1292,7 @@ describe('result-builder', () => {
                 }
             ];
 
-            const resolvedConfig = cloneDeep(defaultResolvedConfig);
+            const resolvedConfig = structuredClone(defaultResolvedConfig);
             resolvedConfig.attributes['author'].selected = true;
 
             expect(() => {
@@ -1330,7 +1329,7 @@ describe('result-builder', () => {
                 }
             ];
 
-            const resolvedConfig = cloneDeep(defaultResolvedConfig);
+            const resolvedConfig = structuredClone(defaultResolvedConfig);
             resolvedConfig.many = false;
             resolvedConfig.attributes['id'].selected = true;
             resolvedConfig.attributes['body'].selected = true;
@@ -1376,7 +1375,7 @@ describe('result-builder', () => {
                 }
             ];
 
-            const resolvedConfig = cloneDeep(defaultResolvedConfig);
+            const resolvedConfig = structuredClone(defaultResolvedConfig);
             resolvedConfig.many = false;
             resolvedConfig.attributes['id'].selected = true;
             resolvedConfig.attributes['video'].selected = true;
@@ -1407,7 +1406,7 @@ describe('result-builder', () => {
                 }
             ];
 
-            const resolvedConfig = cloneDeep(defaultResolvedConfig);
+            const resolvedConfig = structuredClone(defaultResolvedConfig);
             resolvedConfig.many = false;
             resolvedConfig.attributes['title'].selected = true;
 
@@ -1437,7 +1436,7 @@ describe('result-builder', () => {
                 }
             ];
 
-            const resolvedConfig = cloneDeep(defaultResolvedConfig);
+            const resolvedConfig = structuredClone(defaultResolvedConfig);
 
             expect(() => {
                 resultBuilder(api, {}, rawResults, resolvedConfig);
@@ -1447,7 +1446,7 @@ describe('result-builder', () => {
         it('fails if complete result of primary DataSource is missing', () => {
             const rawResults = []; // complete result is missing here
 
-            const resolvedConfig = cloneDeep(defaultResolvedConfig);
+            const resolvedConfig = structuredClone(defaultResolvedConfig);
 
             expect(() => {
                 resultBuilder(api, {}, rawResults, resolvedConfig);
@@ -1468,7 +1467,7 @@ describe('result-builder', () => {
                 }
             ]; // "articleBody" result is missing here
 
-            const resolvedConfig = cloneDeep(defaultResolvedConfig);
+            const resolvedConfig = structuredClone(defaultResolvedConfig);
             resolvedConfig.attributes['body'].selected = true;
 
             expect(() => {
@@ -1490,7 +1489,7 @@ describe('result-builder', () => {
                 }
             ]; // "author"/"primary" result is missing here
 
-            const resolvedConfig = cloneDeep(defaultResolvedConfig);
+            const resolvedConfig = structuredClone(defaultResolvedConfig);
             resolvedConfig.attributes['author'].selected = true;
 
             expect(() => {
@@ -1602,7 +1601,7 @@ describe('result-builder', () => {
                 }
             ];
 
-            const resolvedConfig = cloneDeep(defaultResolvedConfig);
+            const resolvedConfig = structuredClone(defaultResolvedConfig);
             resolvedConfig.many = false;
             resolvedConfig.attributes['id'].selected = true;
             resolvedConfig.attributes['date'].selected = true;
