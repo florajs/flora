@@ -1,7 +1,9 @@
 'use strict';
 
+const { describe, it } = require('node:test');
+const assert = require('node:assert/strict');
+
 const nullLogger = require('abstract-logging');
-const { expect } = require('chai');
 const { ImplementationError, DataError, NotFoundError } = require('@florajs/errors');
 
 const resultBuilder = require('../lib/result-builder');
@@ -39,7 +41,7 @@ describe('result-builder', () => {
             };
 
             const result = resultBuilder(api, {}, rawResults, resolvedConfig);
-            expect(result).to.eql(expectedResult);
+            assert.deepEqual(result, expectedResult);
         });
 
         it('throws NotFoundError on empty result (many = false)', () => {
@@ -55,9 +57,10 @@ describe('result-builder', () => {
             const resolvedConfig = structuredClone(defaultResolvedConfig);
             resolvedConfig.many = false;
 
-            expect(() => {
-                resultBuilder(api, { resource: 'test', id: 123 }, rawResults, resolvedConfig);
-            }).to.throw(NotFoundError, 'Item "123" (in resource "test") not found');
+            assert.throws(
+                () => resultBuilder(api, { resource: 'test', id: 123 }, rawResults, resolvedConfig),
+                new NotFoundError('Item "123" (in resource "test") not found')
+            );
         });
 
         it('builds simple result (many = true)', () => {
@@ -92,7 +95,7 @@ describe('result-builder', () => {
             };
 
             const result = resultBuilder(api, {}, rawResults, resolvedConfig);
-            expect(result).to.eql(expectedResult);
+            assert.deepEqual(result, expectedResult);
         });
 
         it('builds simple result (many = false)', () => {
@@ -123,7 +126,7 @@ describe('result-builder', () => {
             };
 
             const result = resultBuilder(api, {}, rawResults, resolvedConfig);
-            expect(result).to.eql(expectedResult);
+            assert.deepEqual(result, expectedResult);
         });
     });
 
@@ -160,7 +163,7 @@ describe('result-builder', () => {
             };
 
             const result = resultBuilder(api, {}, rawResults, resolvedConfig);
-            expect(result).to.eql(expectedResult);
+            assert.deepEqual(result, expectedResult);
         });
 
         it('maps attribute names', () => {
@@ -193,7 +196,7 @@ describe('result-builder', () => {
             };
 
             const result = resultBuilder(api, {}, rawResults, resolvedConfig);
-            expect(result).to.eql(expectedResult);
+            assert.deepEqual(result, expectedResult);
         });
 
         it('sets static values', () => {
@@ -225,7 +228,7 @@ describe('result-builder', () => {
             };
 
             const result = resultBuilder(api, {}, rawResults, resolvedConfig);
-            expect(result).to.eql(expectedResult);
+            assert.deepEqual(result, expectedResult);
         });
     });
 
@@ -276,7 +279,7 @@ describe('result-builder', () => {
             };
 
             const result = resultBuilder(api, {}, rawResults, resolvedConfig);
-            expect(result).to.eql(expectedResult);
+            assert.deepEqual(result, expectedResult);
         });
 
         it('builds result with 1:n relation', () => {
@@ -367,7 +370,7 @@ describe('result-builder', () => {
             };
 
             const result = resultBuilder(api, {}, rawResults, resolvedConfig);
-            expect(result).to.eql(expectedResult);
+            assert.deepEqual(result, expectedResult);
         });
 
         it('builds result with 1:n relation (with composite primary keys)', () => {
@@ -474,7 +477,7 @@ describe('result-builder', () => {
             };
 
             const result = resultBuilder(api, {}, rawResults, resolvedConfig);
-            expect(result).to.eql(expectedResult);
+            assert.deepEqual(result, expectedResult);
         });
 
         it('builds result with n:1 relation', () => {
@@ -529,7 +532,7 @@ describe('result-builder', () => {
             };
 
             const result = resultBuilder(api, {}, rawResults, resolvedConfig);
-            expect(result).to.eql(expectedResult);
+            assert.deepEqual(result, expectedResult);
         });
 
         it('builds result with n:1 relation ("null" keys mapped to "null"-objects)', () => {
@@ -572,7 +575,7 @@ describe('result-builder', () => {
             };
 
             const result = resultBuilder(api, {}, rawResults, resolvedConfig);
-            expect(result).to.eql(expectedResult);
+            assert.deepEqual(result, expectedResult);
         });
 
         it('builds result with m:n relation - with multi-values', () => {
@@ -638,7 +641,7 @@ describe('result-builder', () => {
             };
 
             const result = resultBuilder(api, {}, rawResults, resolvedConfig);
-            expect(result).to.eql(expectedResult);
+            assert.deepEqual(result, expectedResult);
         });
 
         it('fails on invalid multiValued attributes in m:n relation', () => {
@@ -675,12 +678,11 @@ describe('result-builder', () => {
             resolvedConfig.attributes['countries'].attributes['id'].selected = true;
             resolvedConfig.attributes['countries'].attributes['name'].selected = true;
 
-            expect(() => {
-                resultBuilder(api, {}, rawResults, resolvedConfig);
-            }).to.throw(
-                DataError,
-                'Sub-resource "countries" multiValued key attribute "countries" ' +
-                    'in parent result is not an array (DataSource "primary")'
+            assert.throws(
+                () => resultBuilder(api, {}, rawResults, resolvedConfig),
+                new DataError(
+                    'Sub-resource "countries" multiValued key attribute "countries" in parent result is not an array (DataSource "primary")'
+                )
             );
         });
 
@@ -754,7 +756,7 @@ describe('result-builder', () => {
             };
 
             const result = resultBuilder(api, {}, rawResults, resolvedConfig);
-            expect(result).to.eql(expectedResult);
+            assert.deepEqual(result, expectedResult);
         });
 
         it('does not depend on primary sub-result when joinVia result is empty', () => {
@@ -795,7 +797,7 @@ describe('result-builder', () => {
             };
 
             const result = resultBuilder(api, {}, rawResults, resolvedConfig);
-            expect(result).to.eql(expectedResult);
+            assert.deepEqual(result, expectedResult);
         });
 
         it('does not depend on primary sub-result when secondary result is empty', () => {
@@ -837,7 +839,7 @@ describe('result-builder', () => {
             };
 
             const result = resultBuilder(api, {}, rawResults, resolvedConfig);
-            expect(result).to.eql(expectedResult);
+            assert.deepEqual(result, expectedResult);
         });
 
         it('fails on missing key attributes in join-table for m:n relation', () => {
@@ -880,12 +882,11 @@ describe('result-builder', () => {
             resolvedConfig.attributes['categories'].attributes['id'].selected = true;
             resolvedConfig.attributes['categories'].attributes['name'].selected = true;
 
-            expect(() => {
-                resultBuilder(api, {}, rawResults, resolvedConfig);
-            }).to.throw(
-                DataError,
-                'Sub-resource "categories" misses key attribute "categoryId" ' +
-                    'in joinVia result (DataSource "articleCategories")'
+            assert.throws(
+                () => resultBuilder(api, {}, rawResults, resolvedConfig),
+                new DataError(
+                    'Sub-resource "categories" misses key attribute "categoryId" in joinVia result (DataSource "articleCategories")'
+                )
             );
         });
     });
@@ -950,7 +951,7 @@ describe('result-builder', () => {
             };
 
             const result = resultBuilder(api, {}, rawResults, resolvedConfig);
-            expect(result).to.eql(expectedResult);
+            assert.deepEqual(result, expectedResult);
         });
 
         it('builds result with parentKey from secondary DataSource', () => {
@@ -1046,7 +1047,7 @@ describe('result-builder', () => {
             };
 
             const result = resultBuilder(api, {}, rawResults, resolvedConfig);
-            expect(result).to.eql(expectedResult);
+            assert.deepEqual(result, expectedResult);
         });
 
         it('handle missing row in secondary DataSource from parentKey', () => {
@@ -1138,7 +1139,7 @@ describe('result-builder', () => {
             };
 
             const result = resultBuilder(api, {}, rawResults, resolvedConfig);
-            expect(result).to.eql(expectedResult);
+            assert.deepEqual(result, expectedResult);
         });
     });
 
@@ -1159,11 +1160,9 @@ describe('result-builder', () => {
 
             const resolvedConfig = structuredClone(defaultResolvedConfig);
 
-            expect(() => {
-                resultBuilder(api, {}, rawResults, resolvedConfig);
-            }).to.throw(
-                DataError,
-                'Result-row of "{root}" (DataSource "primary") ' + 'misses primary key attribute "id"'
+            assert.throws(
+                () => resultBuilder(api, {}, rawResults, resolvedConfig),
+                new DataError('Result-row of "{root}" (DataSource "primary") misses primary key attribute "id"')
             );
         });
 
@@ -1202,11 +1201,11 @@ describe('result-builder', () => {
 
             const resolvedConfig = structuredClone(defaultResolvedConfig);
 
-            expect(() => {
-                resultBuilder(api, {}, rawResults, resolvedConfig);
-            }).to.throw(
-                DataError,
-                'Result-row 1 of "{root}" (DataSource "articleBody") ' + 'misses child key attribute "articleId"'
+            assert.throws(
+                () => resultBuilder(api, {}, rawResults, resolvedConfig),
+                new DataError(
+                    'Result-row 1 of "{root}" (DataSource "articleBody") misses child key attribute "articleId"'
+                )
             );
         });
 
@@ -1258,7 +1257,7 @@ describe('result-builder', () => {
             };
 
             const result = resultBuilder(api, {}, rawResults, resolvedConfig);
-            expect(result).to.eql(expectedResult);
+            assert.deepEqual(result, expectedResult);
 
             /*
             // TODO: Strict mode?
@@ -1295,9 +1294,10 @@ describe('result-builder', () => {
             const resolvedConfig = structuredClone(defaultResolvedConfig);
             resolvedConfig.attributes['author'].selected = true;
 
-            expect(() => {
-                resultBuilder(api, {}, rawResults, resolvedConfig);
-            }).to.throw(DataError, 'Result-row 1 of "author" (DataSource "primary") has duplicate child key "10"');
+            assert.throws(
+                () => resultBuilder(api, {}, rawResults, resolvedConfig),
+                new DataError('Result-row 1 of "author" (DataSource "primary") has duplicate child key "10"')
+            );
         });
 
         it('handles missing row in secondary DataSource (by primary key) as "null"', () => {
@@ -1343,7 +1343,7 @@ describe('result-builder', () => {
             };
 
             const result = resultBuilder(api, {}, rawResults, resolvedConfig);
-            expect(result).to.eql(expectedResult);
+            assert.deepEqual(result, expectedResult);
         });
 
         it('handles missing row in child resource as "null"', () => {
@@ -1388,7 +1388,7 @@ describe('result-builder', () => {
             };
 
             const result = resultBuilder(api, {}, rawResults, resolvedConfig);
-            expect(result).to.eql(expectedResult);
+            assert.deepEqual(result, expectedResult);
         });
 
         it('handles missing attribute as null', () => {
@@ -1417,7 +1417,7 @@ describe('result-builder', () => {
             };
 
             const result = resultBuilder(api, {}, rawResults, resolvedConfig);
-            expect(result).to.eql(expectedResult);
+            assert.deepEqual(result, expectedResult);
         });
     });
 
@@ -1438,9 +1438,10 @@ describe('result-builder', () => {
 
             const resolvedConfig = structuredClone(defaultResolvedConfig);
 
-            expect(() => {
-                resultBuilder(api, {}, rawResults, resolvedConfig);
-            }).to.throw(ImplementationError, 'Result-Builder: Unknown attribute "any.subresource"');
+            assert.throws(
+                () => resultBuilder(api, {}, rawResults, resolvedConfig),
+                new ImplementationError('Result-Builder: Unknown attribute "any.subresource"')
+            );
         });
 
         it('fails if complete result of primary DataSource is missing', () => {
@@ -1448,9 +1449,10 @@ describe('result-builder', () => {
 
             const resolvedConfig = structuredClone(defaultResolvedConfig);
 
-            expect(() => {
-                resultBuilder(api, {}, rawResults, resolvedConfig);
-            }).to.throw(ImplementationError, 'Result for "{root}" (DataSource "primary") missing');
+            assert.throws(
+                () => resultBuilder(api, {}, rawResults, resolvedConfig),
+                new ImplementationError('Result for "{root}" (DataSource "primary") missing')
+            );
         });
 
         it('fails if complete result of secondary DataSource is missing', () => {
@@ -1470,9 +1472,10 @@ describe('result-builder', () => {
             const resolvedConfig = structuredClone(defaultResolvedConfig);
             resolvedConfig.attributes['body'].selected = true;
 
-            expect(() => {
-                resultBuilder(api, {}, rawResults, resolvedConfig);
-            }).to.throw(ImplementationError, 'Secondary-Result for "{root}" (DataSource "articleBody") missing');
+            assert.throws(
+                () => resultBuilder(api, {}, rawResults, resolvedConfig),
+                new ImplementationError('Secondary-Result for "{root}" (DataSource "articleBody") missing')
+            );
         });
 
         it('fails if complete result of primary DataSource of sub-resource is missing', () => {
@@ -1492,9 +1495,10 @@ describe('result-builder', () => {
             const resolvedConfig = structuredClone(defaultResolvedConfig);
             resolvedConfig.attributes['author'].selected = true;
 
-            expect(() => {
-                resultBuilder(api, {}, rawResults, resolvedConfig);
-            }).to.throw(ImplementationError, 'Result for "author" (DataSource "primary") missing');
+            assert.throws(
+                () => resultBuilder(api, {}, rawResults, resolvedConfig),
+                new ImplementationError('Result for "author" (DataSource "primary") missing')
+            );
         });
     });
 
@@ -1662,7 +1666,7 @@ describe('result-builder', () => {
             };
 
             const result = resultBuilder(api, {}, rawResults, resolvedConfig);
-            expect(result).to.eql(expectedResult);
+            assert.deepEqual(result, expectedResult);
         });
     });
 });

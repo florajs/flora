@@ -1,6 +1,7 @@
 'use strict';
 
-const { expect } = require('chai');
+const { describe, it } = require('node:test');
+const assert = require('node:assert/strict');
 
 const Request = require('../lib/request');
 
@@ -8,7 +9,7 @@ describe('Request', () => {
     const reqOpts = { resource: 'foo' };
 
     it('should be instantiable', () => {
-        expect(new Request(reqOpts)).to.be.an('object');
+        assert.equal(typeof new Request(reqOpts), 'object');
     });
 
     it('should accept an options object', () => {
@@ -17,42 +18,44 @@ describe('Request', () => {
             action: '_ACTION_',
             format: '_FORMAT_'
         });
-        expect(request.resource).to.equal('_RESOURCE_');
-        expect(request.action).to.equal('_ACTION_');
-        expect(request.format).to.equal('_FORMAT_');
+        assert.equal(request.resource, '_RESOURCE_');
+        assert.equal(request.action, '_ACTION_');
+        assert.equal(request.format, '_FORMAT_');
     });
 
     it('should set the default action "retrieve"', () => {
-        expect(new Request(reqOpts).action).to.equal('retrieve');
+        assert.equal(new Request(reqOpts).action, 'retrieve');
     });
 
     it('should set the default format "json"', () => {
-        expect(new Request(reqOpts).format).to.equal('json');
+        assert.equal(new Request(reqOpts).format, 'json');
     });
 
     it('should store _status', () => {
-        expect(
+        assert.equal(
             new Request({
                 _status: 'foo'
-            })._status
-        ).to.equal('foo');
+            })._status,
+            'foo'
+        );
     });
 
     it('should instantiate a _profiler', () => {
-        expect(new Request(reqOpts)._profiler).to.be.an('object');
+        assert.equal(typeof new Request(reqOpts)._profiler, 'object');
     });
 
     it('should store _httpRequest', () => {
-        expect(
+        assert.equal(
             new Request({
                 _httpRequest: 'foo'
-            })._httpRequest
-        ).to.equal('foo');
+            })._httpRequest,
+            'foo'
+        );
     });
 
     it('should store custom properties', () => {
-        expect(new Request({ resource: 'foo', customParam: 1337 }))
-            .to.have.property('customParam')
-            .and.to.equal(1337);
+        const request = new Request({ resource: 'foo', customParam: 1337 });
+        assert.ok(Object.hasOwn(request, 'customParam'));
+        assert.equal(request.customParam, 1337);
     });
 });

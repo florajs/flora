@@ -1,6 +1,7 @@
 'use strict';
 
-const { expect } = require('chai');
+const { describe, it, beforeEach } = require('node:test');
+const assert = require('node:assert/strict');
 
 const parseRequest = require('../lib/url-parser');
 
@@ -32,186 +33,154 @@ describe('HTTP request parsing', () => {
 
     it('should return promise', () => {
         httpRequest.url = 'http://api.example.com/user/';
-        expect(parseRequest(httpRequest)).to.be.instanceOf(Promise);
+        assert.ok(parseRequest(httpRequest) instanceof Promise);
     });
 
-    it('should resolve with null if parsing fails', (done) => {
+    it('should resolve with null if parsing fails', async () => {
         httpRequest.url = 'http://api.example.com/';
-        parseRequest(httpRequest)
-            .then((request) => {
-                expect(request).to.be.null;
-                done();
-            })
-            .catch(done);
+        const request = await parseRequest(httpRequest);
+        assert.equal(request, null);
     });
 
-    it('should parse relative urls', (done) => {
+    it('should parse relative urls', async () => {
         httpRequest.url = '/';
-        parseRequest(httpRequest)
-            .then((request) => {
-                expect(request).to.be.null;
-                done();
-            })
-            .catch(done);
+        const request = await parseRequest(httpRequest);
+        assert.equal(request, null);
     });
 
     describe('flat resources', () => {
-        it('should parse resource', (done) => {
+        it('should parse resource', async () => {
             httpRequest.url = 'http://api.example.com/user/';
+            const request = await parseRequest(httpRequest);
 
-            parseRequest(httpRequest)
-                .then((request) => {
-                    expect(request).to.have.property('resource', 'user');
-                    done();
-                })
-                .catch(done);
+            assert.ok(Object.hasOwn(request, 'resource'));
+            assert.equal(request.resource, 'user');
         });
 
-        it('should parse id', (done) => {
+        it('should parse id', async () => {
             httpRequest.url = 'http://api.example.com/user/1337';
+            const request = await parseRequest(httpRequest);
 
-            parseRequest(httpRequest)
-                .then((request) => {
-                    expect(request).to.have.property('id', '1337');
-                    done();
-                })
-                .catch(done);
+            assert.ok(Object.hasOwn(request, 'id'));
+            assert.equal(request.id, '1337');
         });
 
-        it('should parse format', (done) => {
+        it('should parse format', async () => {
             httpRequest.url = 'http://api.example.com/user/1337.jpg';
+            const request = await parseRequest(httpRequest);
 
-            parseRequest(httpRequest)
-                .then((request) => {
-                    expect(request).to.have.property('format', 'jpg');
-                    done();
-                })
-                .catch(done);
+            assert.ok(Object.hasOwn(request, 'format'));
+            assert.equal(request.format, 'jpg');
         });
     });
 
     describe('nested resources', () => {
-        it('should parse resource', (done) => {
+        it('should parse resource', async () => {
             httpRequest.url = 'http://api.example.com/user/image/';
+            const request = await parseRequest(httpRequest);
 
-            parseRequest(httpRequest)
-                .then((request) => {
-                    expect(request).to.have.property('resource', 'user/image');
-                    done();
-                })
-                .catch(done);
+            assert.ok(Object.hasOwn(request, 'resource'));
+            assert.equal(request.resource, 'user/image');
         });
 
-        it('should parse id', (done) => {
+        it('should parse id', async () => {
             httpRequest.url = 'http://api.example.com/user/image/1337.image';
+            const request = await parseRequest(httpRequest);
 
-            parseRequest(httpRequest)
-                .then((request) => {
-                    expect(request).to.have.property('id', '1337');
-                    done();
-                })
-                .catch(done);
+            assert.ok(Object.hasOwn(request, 'id'));
+            assert.equal(request.id, '1337');
         });
 
-        it('should parse format', (done) => {
+        it('should parse format', async () => {
             httpRequest.url = 'http://api.example.com/user/image/1337.image';
+            const request = await parseRequest(httpRequest);
 
-            parseRequest(httpRequest)
-                .then((request) => {
-                    expect(request).to.have.property('format', 'image');
-                    done();
-                })
-                .catch(done);
+            assert.ok(Object.hasOwn(request, 'format'));
+            assert.equal(request.format, 'image');
         });
 
-        it('should parse deeply nested resources', (done) => {
+        it('should parse deeply nested resources', async () => {
             httpRequest.url = 'http://api.example.com/store/admin/customer/address/1337';
+            const request = await parseRequest(httpRequest);
 
-            parseRequest(httpRequest)
-                .then((request) => {
-                    expect(request).to.have.property('resource', 'store/admin/customer/address');
-                    done();
-                })
-                .catch(done);
+            assert.ok(Object.hasOwn(request, 'resource'));
+            assert.equal(request.resource, 'store/admin/customer/address');
         });
     });
 
     describe('query parameters', () => {
-        it('should be copied', (done) => {
+        it('should be copied', async () => {
             httpRequest.url = 'http://api.example.com/user/1337.jpg?width=60&rotate=90';
+            const request = await parseRequest(httpRequest);
 
-            parseRequest(httpRequest)
-                .then((request) => {
-                    expect(request).to.have.property('width', '60');
-                    expect(request).to.have.property('rotate', '90');
-                    done();
-                })
-                .catch(done);
+            assert.ok(Object.hasOwn(request, 'width'));
+            assert.equal(request.width, '60');
+            assert.ok(Object.hasOwn(request, 'rotate'));
+            assert.equal(request.rotate, '90');
         });
 
-        it('should not overwrite existing request properties', (done) => {
+        it('should not overwrite existing request properties', async () => {
             httpRequest.url = 'http://api.example.com/user/1337.jpg?format=tiff&resource=abc';
+            const request = await parseRequest(httpRequest);
 
-            parseRequest(httpRequest)
-                .then((request) => {
-                    expect(request.resource).to.equal('user');
-                    expect(request.format).to.equal('jpg');
-                    done();
-                })
-                .catch(done);
+            assert.ok(Object.hasOwn(request, 'resource'));
+            assert.equal(request.resource, 'user');
+            assert.ok(Object.hasOwn(request, 'format'));
+            assert.equal(request.format, 'jpg');
         });
 
-        it('should not be duplicated', (done) => {
+        it('should not be duplicated', async () => {
             httpRequest.url = 'http://api.example.com/user/1337.jpg?width=120&resource=abc&width=200';
 
-            parseRequest(httpRequest)
-                .then(() =>
-                    done(new Error('Parsing was expected to fail because querystring contains "width" parameter twice'))
-                )
-                .catch((err) => {
-                    expect(err).to.be.an('error').and.to.have.property('message', 'Duplicate parameter "width" in URL');
-                    done();
-                });
+            await assert.rejects(parseRequest(httpRequest), {
+                message: 'Duplicate parameter "width" in URL'
+            });
         });
     });
 
     describe('POST payload', () => {
-        it('should parse JSON payload', (done) => {
+        it('should parse JSON payload', async () => {
             httpRequest.url = 'http://api.example.com/user/';
             httpRequest.payload = '{"a": true}';
             httpRequest.method = 'POST';
             httpRequest.headers['content-length'] = httpRequest.payload.length;
 
-            parseRequest(httpRequest)
-                .then((request) => {
-                    expect(request.data).to.have.property('a', true);
-                    expect(request._httpRequest).to.have.property('body');
-                    expect(request._httpRequest.body).to.have.property('a', true);
-                    done();
-                })
-                .catch(done);
+            const request = await parseRequest(httpRequest);
+
+            assert.ok(Object.hasOwn(request, 'data'));
+            assert.ok(Object.hasOwn(request.data, 'a'));
+            assert.equal(request.data.a, true);
+
+            assert.ok(Object.hasOwn(request, '_httpRequest'));
+            assert.ok(Object.hasOwn(request._httpRequest, 'body'));
+            assert.ok(Object.hasOwn(request._httpRequest.body, 'a'));
+            assert.equal(request._httpRequest.body.a, true);
         });
 
-        it('should parse form-urlencoded payload', (done) => {
+        it('should parse form-urlencoded payload', async () => {
             httpRequest.url = 'http://api.example.com/user/';
             httpRequest.headers['content-type'] = 'application/x-www-form-urlencoded';
             httpRequest.payload = 'a=true&b=false';
             httpRequest.method = 'POST';
             httpRequest.headers['content-length'] = httpRequest.payload.length;
 
-            parseRequest(httpRequest)
-                .then((request) => {
-                    expect(request).to.have.property('a', 'true');
-                    expect(request).to.have.property('b', 'false');
-                    expect(request._httpRequest).to.have.property('body');
-                    expect(request._httpRequest.body).to.have.property('a', 'true');
-                    expect(request._httpRequest.body).to.have.property('b', 'false');
-                    done();
-                })
-                .catch(done);
+            const request = await parseRequest(httpRequest);
+
+            assert.ok(Object.hasOwn(request, 'data'));
+            assert.ok(Object.hasOwn(request, 'a'));
+            assert.equal(request.a, 'true');
+            assert.ok(Object.hasOwn(request, 'b'));
+            assert.equal(request.b, 'false');
+
+            assert.ok(Object.hasOwn(request, '_httpRequest'));
+            assert.ok(Object.hasOwn(request._httpRequest, 'body'));
+            assert.ok(Object.hasOwn(request._httpRequest.body, 'a'));
+            assert.equal(request._httpRequest.body.a, 'true');
+            assert.ok(Object.hasOwn(request._httpRequest.body, 'b'));
+            assert.equal(request._httpRequest.body.b, 'false');
         });
 
-        it('should time out after postTimeout', (done) => {
+        it('should time out after postTimeout', async () => {
             const slowRequest = {
                 flora: { status: {} },
                 method: 'POST',
@@ -224,51 +193,43 @@ describe('HTTP request parsing', () => {
                 setEncoding() {},
                 on() {}
             };
-            parseRequest(slowRequest, { postTimeout: 10 })
-                .then(() => {
-                    done(new Error('Should have thrown Timeout error'));
-                })
-                .catch((err) => {
-                    expect(err).to.be.an('error').and.to.have.property('message', 'Timeout reading POST data');
-                    done();
-                });
+
+            await assert.rejects(parseRequest(slowRequest, { postTimeout: 10 }), {
+                message: 'Timeout reading POST data'
+            });
         });
 
-        it('should remove protected properties (GET)', (done) => {
+        it('should remove protected properties (GET)', async () => {
             httpRequest.url = 'http://api.example.com/user/1337.jpg?_auth=FOO';
-            parseRequest(httpRequest)
-                .then((request) => {
-                    expect(request._auth).to.equal(null);
-                    done();
-                })
-                .catch(done);
+            const request = await parseRequest(httpRequest);
+
+            assert.ok(Object.hasOwn(request, '_auth'));
+            assert.equal(request._auth, null);
         });
 
-        it('should remove protected properties (urlencoded)', (done) => {
+        it('should remove protected properties (urlencoded)', async () => {
             httpRequest.url = 'http://api.example.com/user/';
             httpRequest.headers['content-type'] = 'application/x-www-form-urlencoded';
             httpRequest.payload = '_auth=FOO';
             httpRequest.method = 'POST';
             httpRequest.headers['content-length'] = httpRequest.payload.length;
-            parseRequest(httpRequest)
-                .then((request) => {
-                    expect(request._auth).to.equal(null);
-                    done();
-                })
-                .catch(done);
+
+            const request = await parseRequest(httpRequest);
+
+            assert.ok(Object.hasOwn(request, '_auth'));
+            assert.equal(request._auth, null);
         });
 
-        it('should remove protected properties (JSON)', (done) => {
+        it('should remove protected properties (JSON)', async () => {
             httpRequest.url = 'http://api.example.com/user/';
             httpRequest.payload = '{"_auth": "FOO"}';
             httpRequest.method = 'POST';
             httpRequest.headers['content-length'] = httpRequest.payload.length;
-            parseRequest(httpRequest)
-                .then((request) => {
-                    expect(request._auth).to.equal(null);
-                    done();
-                })
-                .catch(done);
+
+            const request = await parseRequest(httpRequest);
+
+            assert.ok(Object.hasOwn(request, '_auth'));
+            assert.equal(request._auth, null);
         });
     });
 });

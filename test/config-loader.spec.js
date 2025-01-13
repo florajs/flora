@@ -1,15 +1,13 @@
 'use strict';
 
-const chai = require('chai');
+const { describe, it, afterEach } = require('node:test');
+const assert = require('node:assert/strict');
+
 const fsMock = require('mock-fs');
 // const sinon = require('sinon');
-const sinonChai = require('sinon-chai');
 const nullLogger = require('abstract-logging');
 
 const configLoader = require('../lib/config-loader');
-
-const expect = chai.expect;
-chai.use(sinonChai);
 
 const log = nullLogger;
 log.child = () => log;
@@ -23,17 +21,16 @@ function parseXml(/* file */) {
 }
 
 describe('config-loader', () => {
-    it('should issue an error if config directory does not exist', (done) => {
+    it('should issue an error if config directory does not exist', async () => {
         const directory = require('path').resolve('nonexistent-directory');
 
-        configLoader(api, { directory }).catch((err) => {
-            expect(err).to.be.instanceof(Error);
-            expect(err.message).to.equal(`Config directory "${directory}" does not exist`);
-            done();
-        });
+        await assert.rejects(
+            configLoader(api, { directory }),
+            new Error(`Config directory "${directory}" does not exist`)
+        );
     });
 
-    it('should read configs from directories', (done) => {
+    it('should read configs from directories', async () => {
         fsMock({
             config: {
                 resource1: { 'config.xml': '' },
@@ -45,18 +42,15 @@ describe('config-loader', () => {
             parsers: { xml: parseXml }
         };
 
-        configLoader(api, cfg)
-            .then((configs) => {
-                expect(configs).to.eql({
-                    resource1: { config: 'xml config' },
-                    resource2: { config: 'xml config' }
-                });
-                done();
-            })
-            .catch(done);
+        const configs = await configLoader(api, cfg);
+
+        assert.deepEqual(configs, {
+            resource1: { config: 'xml config' },
+            resource2: { config: 'xml config' }
+        });
     });
 
-    it('should read configs recursively', (done) => {
+    it('should read configs recursively', async () => {
         fsMock({
             config: {
                 groupfolder1: {
@@ -79,18 +73,15 @@ describe('config-loader', () => {
             parsers: { xml: parseXml }
         };
 
-        configLoader(api, cfg)
-            .then((configs) => {
-                expect(configs).to.eql({
-                    'groupfolder1/resource': { config: 'xml config' },
-                    'groupfolder2/groupfolder3/resource': { config: 'xml config' }
-                });
-                done();
-            })
-            .catch(done);
+        const configs = await configLoader(api, cfg);
+
+        assert.deepEqual(configs, {
+            'groupfolder1/resource': { config: 'xml config' },
+            'groupfolder2/groupfolder3/resource': { config: 'xml config' }
+        });
     });
 
-    it('should strip path to config directory from resource', (done) => {
+    it('should strip path to config directory from resource', async () => {
         fsMock({
             configs: {
                 are: {
@@ -115,18 +106,15 @@ describe('config-loader', () => {
             parsers: { xml: parseXml }
         };
 
-        configLoader(api, cfg)
-            .then((configs) => {
-                expect(configs).to.eql({
-                    resource1: { config: 'xml config' },
-                    resource2: { config: 'xml config' }
-                });
-                done();
-            })
-            .catch(done);
+        const configs = await configLoader(api, cfg);
+
+        assert.deepEqual(configs, {
+            resource1: { config: 'xml config' },
+            resource2: { config: 'xml config' }
+        });
     });
 
-    it('should strip path also for relative paths', (done) => {
+    it('should strip path also for relative paths', async () => {
         fsMock({
             configs: {
                 'relative-path': {
@@ -140,17 +128,14 @@ describe('config-loader', () => {
             parsers: { xml: parseXml }
         };
 
-        configLoader(api, cfg)
-            .then((configs) => {
-                expect(configs).to.eql({
-                    resource1: { config: 'xml config' }
-                });
-                done();
-            })
-            .catch(done);
+        const configs = await configLoader(api, cfg);
+
+        assert.deepEqual(configs, {
+            resource1: { config: 'xml config' }
+        });
     });
 
-    it('should issue an error if no parser is found for a file extension extension', (done) => {
+    it('should issue an error if no parser is found for a file extension extension', async () => {
         fsMock({
             config: {
                 resource1: { 'config.xml': '' },
@@ -162,14 +147,10 @@ describe('config-loader', () => {
             parsers: { xml: parseXml }
         };
 
-        configLoader(api, cfg).catch((err) => {
-            expect(err).to.be.instanceof(Error);
-            expect(err.message).to.equal('No "json" config parser registered');
-            done();
-        });
+        await assert.rejects(configLoader(api, cfg), new Error('No "json" config parser registered'));
     });
 
-    it('should register additional loaders', (done) => {
+    it('should register additional loaders', async () => {
         fsMock({
             config: {
                 resource1: { 'config.xml': '' },
@@ -184,18 +165,15 @@ describe('config-loader', () => {
             }
         };
 
-        configLoader(api, cfg)
-            .then((configs) => {
-                expect(configs).to.eql({
-                    resource1: { config: 'xml config' },
-                    resource2: { config: 'json config' }
-                });
-                done();
-            })
-            .catch(done);
+        const configs = await configLoader(api, cfg);
+
+        assert.deepEqual(configs, {
+            resource1: { config: 'xml config' },
+            resource2: { config: 'json config' }
+        });
     });
 
-    it('should ignore all other but config files', (done) => {
+    it('should ignore all other but config files', async () => {
         fsMock({
             config: {
                 groupfolder1: {
@@ -218,37 +196,26 @@ describe('config-loader', () => {
             parsers: { xml: parseXml }
         };
 
-        configLoader(api, cfg)
-            .then((configs) => {
-                expect(configs).to.eql({
-                    'groupfolder1/resource': { config: 'xml config' },
-                    'groupfolder2/groupfolder3/resource': { config: 'xml config' }
-                });
-                done();
-            })
-            .catch(done);
+        const configs = await configLoader(api, cfg);
+
+        assert.deepEqual(configs, {
+            'groupfolder1/resource': { config: 'xml config' },
+            'groupfolder2/groupfolder3/resource': { config: 'xml config' }
+        });
     });
 
-    it('should load our example resources (integration)', (done) => {
+    it('should load our example resources (integration)', async () => {
         const cfg = {
                 directory: __dirname + '/fixtures/resources',
                 parsers: { xml: require('../lib/xml-reader') }
             },
             resourcesLoaded = require(__dirname + '/fixtures/resources-loaded.json');
 
-        configLoader(api, cfg)
-            .then((configs) => {
-                // for manually generating fixture:
-                //console.log(JSON.stringify(configs, null, 4));
+        const configs = await configLoader(api, cfg);
 
-                try {
-                    expect(configs).to.eql(resourcesLoaded);
-                    done();
-                } catch (e) {
-                    done(e);
-                }
-            })
-            .catch(done);
+        // for manually generating fixture:
+        //console.log(JSON.stringify(configs, null, 4));
+        assert.deepEqual(configs, resourcesLoaded);
     });
 
     afterEach(() => {

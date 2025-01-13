@@ -1,6 +1,8 @@
 'use strict';
 
-const { expect } = require('chai');
+const { describe, it } = require('node:test');
+const assert = require('node:assert/strict');
+
 const { ImplementationError } = require('@florajs/errors');
 
 const configParser = require('../lib/config-parser');
@@ -11,7 +13,7 @@ const mockDataSource = {
             throw new Error('Mocked DataSource: Please set expectedAttributes for all DataSources in your test');
         }
 
-        expect(attributes).to.eql(rawRequest.expectedAttributes);
+        assert.deepEqual(attributes, rawRequest.expectedAttributes);
 
         delete rawRequest.expectedAttributes;
     },
@@ -78,7 +80,7 @@ describe('config-parser', () => {
 
             configParser(resourceConfigs, mockDataSources);
 
-            expect(resourceConfigs).to.eql(resourceConfigsParsed);
+            assert.deepEqual(resourceConfigs, resourceConfigsParsed);
         });
 
         it('parses minimal "symlink"-resource', () => {
@@ -97,7 +99,7 @@ describe('config-parser', () => {
 
             configParser(resourceConfigs, mockDataSources);
 
-            expect(resourceConfigs).to.eql(resourceConfigsParsed);
+            assert.deepEqual(resourceConfigs, resourceConfigsParsed);
         });
 
         it('fails on unknown "symlink"-resource', () => {
@@ -107,9 +109,10 @@ describe('config-parser', () => {
                 }
             };
 
-            expect(() => {
-                configParser(resourceConfigs, mockDataSources);
-            }).to.throw(ImplementationError, 'Unknown resource "test2" in resource "test:{root}"');
+            assert.throws(
+                () => configParser(resourceConfigs, mockDataSources),
+                new ImplementationError('Unknown resource "test2" in resource "test:{root}"')
+            );
         });
     });
 
@@ -119,9 +122,10 @@ describe('config-parser', () => {
 
             resourceConfigs['test'].config.type = 'int';
 
-            expect(() => {
-                configParser(resourceConfigs, mockDataSources);
-            }).to.throw(ImplementationError, 'Invalid option "type" in resource "test:{root}"');
+            assert.throws(
+                () => configParser(resourceConfigs, mockDataSources),
+                new ImplementationError('Invalid option "type" in resource "test:{root}"')
+            );
         });
 
         it('fails on unknown sub-resource', () => {
@@ -129,9 +133,10 @@ describe('config-parser', () => {
 
             resourceConfigs['test'].config.attributes['subResource'] = { resource: 'unknown' };
 
-            expect(() => {
-                configParser(resourceConfigs, mockDataSources);
-            }).to.throw(ImplementationError, 'Unknown resource "unknown" in sub-resource "test:subResource"');
+            assert.throws(
+                () => configParser(resourceConfigs, mockDataSources),
+                new ImplementationError('Unknown resource "unknown" in sub-resource "test:subResource"')
+            );
         });
 
         it('fails on DataSources without "type" option', () => {
@@ -139,9 +144,10 @@ describe('config-parser', () => {
 
             resourceConfigs['test'].config.dataSources['articleBody'] = {};
 
-            expect(() => {
-                configParser(resourceConfigs, mockDataSources);
-            }).to.throw(ImplementationError, 'DataSource "articleBody" misses "type" option in resource "test:{root}"');
+            assert.throws(
+                () => configParser(resourceConfigs, mockDataSources),
+                new ImplementationError('DataSource "articleBody" misses "type" option in resource "test:{root}"')
+            );
         });
 
         it('parses DataSources with "inherit" option', () => {
@@ -173,7 +179,7 @@ describe('config-parser', () => {
 
             configParser(resourceConfigs, mockDataSources);
 
-            expect(resourceConfigs).to.eql(resourceConfigsParsed);
+            assert.deepEqual(resourceConfigs, resourceConfigsParsed);
         });
 
         it('fails on DataSources with "inherit" option but without included resource', () => {
@@ -181,11 +187,9 @@ describe('config-parser', () => {
 
             resourceConfigs['test'].config.dataSources['primary'] = { inherit: 'true' };
 
-            expect(() => {
-                configParser(resourceConfigs, mockDataSources);
-            }).to.throw(
-                ImplementationError,
-                'DataSource "primary" is defined as "inherit" but has no included resource'
+            assert.throws(
+                () => configParser(resourceConfigs, mockDataSources),
+                new ImplementationError('DataSource "primary" is defined as "inherit" but has no included resource')
             );
         });
 
@@ -236,7 +240,7 @@ describe('config-parser', () => {
 
             configParser(resourceConfigs, mockDataSources);
 
-            expect(resourceConfigs).to.eql(resourceConfigsParsed);
+            assert.deepEqual(resourceConfigs, resourceConfigsParsed);
         });
 
         it('fails on DataSources with "replace" option but without included resource', () => {
@@ -244,11 +248,9 @@ describe('config-parser', () => {
 
             resourceConfigs['test'].config.dataSources['primary'] = { inherit: 'replace' };
 
-            expect(() => {
-                configParser(resourceConfigs, mockDataSources);
-            }).to.throw(
-                ImplementationError,
-                'DataSource "primary" is defined as "inherit" but has no included resource'
+            assert.throws(
+                () => configParser(resourceConfigs, mockDataSources),
+                new ImplementationError('DataSource "primary" is defined as "inherit" but has no included resource')
             );
         });
 
@@ -257,9 +259,10 @@ describe('config-parser', () => {
 
             resourceConfigs['test'].config.dataSources['primary'] = { type: 'unknown' };
 
-            expect(() => {
-                configParser(resourceConfigs, mockDataSources);
-            }).to.throw(ImplementationError, 'Invalid DataSource type "unknown" in resource "test:{root}"');
+            assert.throws(
+                () => configParser(resourceConfigs, mockDataSources),
+                new ImplementationError('Invalid DataSource type "unknown" in resource "test:{root}"')
+            );
         });
 
         it('parses subFilters and its options', () => {
@@ -284,7 +287,7 @@ describe('config-parser', () => {
 
             configParser(resourceConfigs, mockDataSources);
 
-            expect(resourceConfigs).to.eql(resourceConfigsParsed);
+            assert.deepEqual(resourceConfigs, resourceConfigsParsed);
         });
 
         it('fails if subFilters defined for included sub-resource', () => {
@@ -295,11 +298,11 @@ describe('config-parser', () => {
                 subFilters: []
             };
 
-            expect(() => {
-                configParser(resourceConfigs, mockDataSources);
-            }).to.throw(
-                ImplementationError,
-                'Adding subFilters for included sub-resource is not allowed in sub-resource "test:subResource"'
+            assert.throws(
+                () => configParser(resourceConfigs, mockDataSources),
+                new ImplementationError(
+                    'Adding subFilters for included sub-resource is not allowed in sub-resource "test:subResource"'
+                )
             );
         });
 
@@ -310,12 +313,10 @@ describe('config-parser', () => {
                 }
             };
 
-            expect(() => {
-                configParser(resourceConfigs, mockDataSources);
-            }).to.throw(
-                ImplementationError,
-                'Invalid resource name "!test" (option "resource" in resource "test:{root}")'
-            );
+            assert.throws(() => configParser(resourceConfigs, mockDataSources), {
+                name: 'ImplementationError',
+                message: 'Invalid resource name "!test" (option "resource" in resource "test:{root}")'
+            });
         });
 
         it('allows sub-resources with "/"', () => {
@@ -328,11 +329,8 @@ describe('config-parser', () => {
                 }
             };
 
-            expect(() => {
-                configParser(resourceConfigs, mockDataSources);
-            }).to.not.throw(ImplementationError);
-
-            expect(resourceConfigs['test'].config.resource).to.equal('test/subresource');
+            assert.doesNotThrow(() => configParser(resourceConfigs, mockDataSources), ImplementationError);
+            assert.equal(resourceConfigs['test'].config.resource, 'test/subresource');
         });
 
         it('parses and resolves composite primaryKey', () => {
@@ -359,7 +357,7 @@ describe('config-parser', () => {
 
             configParser(resourceConfigs, mockDataSources);
 
-            expect(resourceConfigs).to.eql(resourceConfigsParsed);
+            assert.deepEqual(resourceConfigs, resourceConfigsParsed);
         });
 
         it('does not set default filter on hidden primaryKey', () => {
@@ -372,7 +370,7 @@ describe('config-parser', () => {
 
             configParser(resourceConfigs, mockDataSources);
 
-            expect(resourceConfigs).to.eql(resourceConfigsParsed);
+            assert.deepEqual(resourceConfigs, resourceConfigsParsed);
         });
 
         it('parses and resolves primaryKey in nested attributes', () => {
@@ -395,7 +393,7 @@ describe('config-parser', () => {
 
             configParser(resourceConfigs, mockDataSources);
 
-            expect(resourceConfigs).to.eql(resourceConfigsParsed);
+            assert.deepEqual(resourceConfigs, resourceConfigsParsed);
         });
 
         it('fails on missing primaryKey', () => {
@@ -403,9 +401,10 @@ describe('config-parser', () => {
 
             delete resourceConfigs['test'].config.primaryKey;
 
-            expect(() => {
-                configParser(resourceConfigs, mockDataSources);
-            }).to.throw(ImplementationError, 'Missing primaryKey in resource "test:{root}"');
+            assert.throws(
+                () => configParser(resourceConfigs, mockDataSources),
+                new ImplementationError('Missing primaryKey in resource "test:{root}"')
+            );
         });
 
         it('fails on missing primaryKey in inline-sub-resource', () => {
@@ -418,9 +417,10 @@ describe('config-parser', () => {
             resourceConfigs['test'].config.attributes['subResource'].parentKey = '{primary}';
             resourceConfigs['test'].config.attributes['subResource'].childKey = '{primary}';
 
-            expect(() => {
-                configParser(resourceConfigs, mockDataSources);
-            }).to.throw(ImplementationError, 'Missing primaryKey in sub-resource "test:subResource"');
+            assert.throws(
+                () => configParser(resourceConfigs, mockDataSources),
+                new ImplementationError('Missing primaryKey in sub-resource "test:subResource"')
+            );
         });
 
         it('fails if primaryKey references unknown attributes', () => {
@@ -428,9 +428,10 @@ describe('config-parser', () => {
 
             resourceConfigs['test'].config.primaryKey = 'unknownId';
 
-            expect(() => {
-                configParser(resourceConfigs, mockDataSources);
-            }).to.throw(ImplementationError, 'Unknown attribute "unknownId" in primaryKey in resource "test:{root}"');
+            assert.throws(
+                () => configParser(resourceConfigs, mockDataSources),
+                new ImplementationError('Unknown attribute "unknownId" in primaryKey in resource "test:{root}"')
+            );
         });
 
         it('fails if primaryKey references attribute in sub-resource', () => {
@@ -439,11 +440,11 @@ describe('config-parser', () => {
             resourceConfigs['test'].config.primaryKey = 'subResource.id';
             resourceConfigs['test'].config.attributes['subResource'] = { resource: 'test' };
 
-            expect(() => {
-                configParser(resourceConfigs, mockDataSources);
-            }).to.throw(
-                ImplementationError,
-                'Path "subResource.id" references sub-resource in primaryKey in resource "test:{root}"'
+            assert.throws(
+                () => configParser(resourceConfigs, mockDataSources),
+                new ImplementationError(
+                    'Path "subResource.id" references sub-resource in primaryKey in resource "test:{root}"'
+                )
             );
         });
 
@@ -452,11 +453,11 @@ describe('config-parser', () => {
 
             resourceConfigs['test'].config.attributes['id'].multiValued = 'true';
 
-            expect(() => {
-                configParser(resourceConfigs, mockDataSources);
-            }).to.throw(
-                ImplementationError,
-                'Key attribute "id" must not be multiValued in primaryKey in resource "test:{root}"'
+            assert.throws(
+                () => configParser(resourceConfigs, mockDataSources),
+                new ImplementationError(
+                    'Key attribute "id" must not be multiValued in primaryKey in resource "test:{root}"'
+                )
             );
         });
 
@@ -465,11 +466,11 @@ describe('config-parser', () => {
 
             resourceConfigs['test'].config.attributes['id'] = { value: 'static' };
 
-            expect(() => {
-                configParser(resourceConfigs, mockDataSources);
-            }).to.throw(
-                ImplementationError,
-                'Key attribute "id" is not mapped to "primary" DataSource ' + 'in primaryKey in resource "test:{root}"'
+            assert.throws(
+                () => configParser(resourceConfigs, mockDataSources),
+                new ImplementationError(
+                    'Key attribute "id" is not mapped to "primary" DataSource in primaryKey in resource "test:{root}"'
+                )
             );
         });
 
@@ -481,11 +482,11 @@ describe('config-parser', () => {
                 primaryKey: 'id'
             };
 
-            expect(() => {
-                configParser(resourceConfigs, mockDataSources);
-            }).to.throw(
-                ImplementationError,
-                'Overwriting primaryKey for included sub-resource is not allowed in sub-resource "test:subResource"'
+            assert.throws(
+                () => configParser(resourceConfigs, mockDataSources),
+                new ImplementationError(
+                    'Overwriting primaryKey for included sub-resource is not allowed in sub-resource "test:subResource"'
+                )
             );
         });
 
@@ -497,12 +498,11 @@ describe('config-parser', () => {
             resourceConfigs['test'].config.attributes['id'] = { map: 'id;secondary:id' };
             resourceConfigs['test'].config.attributes['context'] = { map: 'ctx' };
 
-            expect(() => {
-                configParser(resourceConfigs, mockDataSources);
-            }).to.throw(
-                ImplementationError,
-                'Key attribute "context" is not mapped to "secondary" DataSource ' +
-                    'in primaryKey in resource "test:{root}"'
+            assert.throws(
+                () => configParser(resourceConfigs, mockDataSources),
+                new ImplementationError(
+                    'Key attribute "context" is not mapped to "secondary" DataSource in primaryKey in resource "test:{root}"'
+                )
             );
         });
 
@@ -548,7 +548,7 @@ describe('config-parser', () => {
 
             configParser(resourceConfigs, mockDataSources);
 
-            expect(resourceConfigs).to.eql(resourceConfigsParsed);
+            assert.deepEqual(resourceConfigs, resourceConfigsParsed);
         });
 
         it('parses and resolves composite parentKey/childKey', () => {
@@ -611,7 +611,7 @@ describe('config-parser', () => {
 
             configParser(resourceConfigs, mockDataSources);
 
-            expect(resourceConfigs).to.eql(resourceConfigsParsed);
+            assert.deepEqual(resourceConfigs, resourceConfigsParsed);
         });
 
         it('parses and resolves parentKey/childKey in nested attributes', () => {
@@ -658,7 +658,7 @@ describe('config-parser', () => {
 
             configParser(resourceConfigs, mockDataSources);
 
-            expect(resourceConfigs).to.eql(resourceConfigsParsed);
+            assert.deepEqual(resourceConfigs, resourceConfigsParsed);
         });
 
         it('parses and resolves parentKey/childKey in mixed/included sub-resource', () => {
@@ -675,7 +675,7 @@ describe('config-parser', () => {
             resourceConfigs['test'].config.attributes['subResource'].childKey = '{primary}';
 
             // just check, if we can resolve keys without error (primaryKey is defined in included sub-resource):
-            configParser(resourceConfigs, mockDataSources);
+            assert.doesNotThrow(() => configParser(resourceConfigs, mockDataSources));
         });
 
         it('fails on missing parentKey/childKey', () => {
@@ -684,9 +684,10 @@ describe('config-parser', () => {
             resourceConfigs['test'].config.attributes['subResource'].resource = 'test';
             resourceConfigs['test'].config.attributes['subResource'].childKey = 'childId';
 
-            expect(() => {
-                configParser(resourceConfigs, mockDataSources);
-            }).to.throw(ImplementationError, 'Missing parentKey in sub-resource "test:subResource"');
+            assert.throws(
+                () => configParser(resourceConfigs, mockDataSources),
+                new ImplementationError('Missing parentKey in sub-resource "test:subResource"')
+            );
 
             // same for childKey:
             resourceConfigs = structuredClone(minimalResourceConfigs);
@@ -694,9 +695,10 @@ describe('config-parser', () => {
             resourceConfigs['test'].config.attributes['subResource'].resource = 'test';
             resourceConfigs['test'].config.attributes['subResource'].parentKey = 'parentId';
 
-            expect(() => {
-                configParser(resourceConfigs, mockDataSources);
-            }).to.throw(ImplementationError, 'Missing childKey in sub-resource "test:subResource"');
+            assert.throws(
+                () => configParser(resourceConfigs, mockDataSources),
+                new ImplementationError('Missing childKey in sub-resource "test:subResource"')
+            );
         });
 
         it('fails on missing parentKey/childKey in inline-sub-resource', () => {
@@ -706,9 +708,10 @@ describe('config-parser', () => {
             );
             resourceConfigs['test'].config.attributes['subResource'].childKey = 'childId';
 
-            expect(() => {
-                configParser(resourceConfigs, mockDataSources);
-            }).to.throw(ImplementationError, 'Missing parentKey in sub-resource "test:subResource"');
+            assert.throws(
+                () => configParser(resourceConfigs, mockDataSources),
+                new ImplementationError('Missing parentKey in sub-resource "test:subResource"')
+            );
 
             // same for childKey:
             resourceConfigs = structuredClone(minimalResourceConfigs);
@@ -717,9 +720,10 @@ describe('config-parser', () => {
             );
             resourceConfigs['test'].config.attributes['subResource'].parentKey = 'parentId';
 
-            expect(() => {
-                configParser(resourceConfigs, mockDataSources);
-            }).to.throw(ImplementationError, 'Missing childKey in sub-resource "test:subResource"');
+            assert.throws(
+                () => configParser(resourceConfigs, mockDataSources),
+                new ImplementationError('Missing childKey in sub-resource "test:subResource"')
+            );
         });
 
         it('fails if parentKey/childKey references unknown attributes', () => {
@@ -729,11 +733,9 @@ describe('config-parser', () => {
             resourceConfigs['test'].config.attributes['subResource'].parentKey = 'unknownId';
             resourceConfigs['test'].config.attributes['subResource'].childKey = 'id';
 
-            expect(() => {
-                configParser(resourceConfigs, mockDataSources);
-            }).to.throw(
-                ImplementationError,
-                'Unknown attribute "unknownId" in parentKey in sub-resource "test:subResource"'
+            assert.throws(
+                () => configParser(resourceConfigs, mockDataSources),
+                new ImplementationError('Unknown attribute "unknownId" in parentKey in sub-resource "test:subResource"')
             );
 
             // same for childKey:
@@ -743,11 +745,9 @@ describe('config-parser', () => {
             resourceConfigs['test'].config.attributes['subResource'].parentKey = 'id';
             resourceConfigs['test'].config.attributes['subResource'].childKey = 'unknownId';
 
-            expect(() => {
-                configParser(resourceConfigs, mockDataSources);
-            }).to.throw(
-                ImplementationError,
-                'Unknown attribute "unknownId" in childKey in sub-resource "test:subResource"'
+            assert.throws(
+                () => configParser(resourceConfigs, mockDataSources),
+                new ImplementationError('Unknown attribute "unknownId" in childKey in sub-resource "test:subResource"')
             );
         });
 
@@ -764,11 +764,11 @@ describe('config-parser', () => {
             resourceConfigs['test'].config.attributes['subResource'].parentKey = 'otherResource.id';
             resourceConfigs['test'].config.attributes['subResource'].childKey = 'id';
 
-            expect(() => {
-                configParser(resourceConfigs, mockDataSources);
-            }).to.throw(
-                ImplementationError,
-                'Path "otherResource.id" references sub-resource in parentKey in sub-resource "test:subResource"'
+            assert.throws(
+                () => configParser(resourceConfigs, mockDataSources),
+                new ImplementationError(
+                    'Path "otherResource.id" references sub-resource in parentKey in sub-resource "test:subResource"'
+                )
             );
 
             // same for childKey:
@@ -785,11 +785,11 @@ describe('config-parser', () => {
                 'otherResource.id';
             resourceConfigs['test'].config.attributes['subResource'].attributes['otherResource'].childKey = 'id';
 
-            expect(() => {
-                configParser(resourceConfigs, mockDataSources);
-            }).to.throw(
-                ImplementationError,
-                'Path "otherResource.id" references sub-resource in childKey in sub-resource "test:subResource"'
+            assert.throws(
+                () => configParser(resourceConfigs, mockDataSources),
+                new ImplementationError(
+                    'Path "otherResource.id" references sub-resource in childKey in sub-resource "test:subResource"'
+                )
             );
         });
 
@@ -808,11 +808,11 @@ describe('config-parser', () => {
                 'childId'
             ];
 
-            expect(() => {
-                configParser(resourceConfigs, mockDataSources);
-            }).to.throw(
-                ImplementationError,
-                'Composite key attribute "parentId" must not be multiValued in parentKey in sub-resource "test:subResource"'
+            assert.throws(
+                () => configParser(resourceConfigs, mockDataSources),
+                new ImplementationError(
+                    'Composite key attribute "parentId" must not be multiValued in parentKey in sub-resource "test:subResource"'
+                )
             );
         });
 
@@ -832,9 +832,7 @@ describe('config-parser', () => {
                 'childId'
             ];
 
-            expect(() => {
-                configParser(resourceConfigs, mockDataSources);
-            }).to.not.throw(ImplementationError);
+            assert.doesNotThrow(() => configParser(resourceConfigs, mockDataSources), ImplementationError);
         });
 
         it('allows parentKey mapping to secondary DataSource', () => {
@@ -849,9 +847,7 @@ describe('config-parser', () => {
             resourceConfigs['test'].config.attributes['subResource'].parentKey = 'parentId';
             resourceConfigs['test'].config.attributes['subResource'].childKey = 'id';
 
-            expect(() => {
-                configParser(resourceConfigs, mockDataSources);
-            }).to.not.throw(Error);
+            assert.doesNotThrow(() => configParser(resourceConfigs, mockDataSources), Error);
         });
 
         it('fails if parentKey is not mappable to a single DataSource', () => {
@@ -869,11 +865,11 @@ describe('config-parser', () => {
             resourceConfigs['test'].config.attributes['subResource'].parentKey = 'parentId1,parentId2';
             resourceConfigs['test'].config.attributes['subResource'].childKey = 'id,id'; // lazy, but ok for this test :-)
 
-            expect(() => {
-                configParser(resourceConfigs, mockDataSources);
-            }).to.throw(
-                ImplementationError,
-                'Key is not mappable to a single DataSource ' + 'in parentKey in sub-resource "test:subResource"'
+            assert.throws(
+                () => configParser(resourceConfigs, mockDataSources),
+                new ImplementationError(
+                    'Key is not mappable to a single DataSource ' + 'in parentKey in sub-resource "test:subResource"'
+                )
             );
         });
 
@@ -897,12 +893,11 @@ describe('config-parser', () => {
                 map: 'secondary:childId'
             };
 
-            expect(() => {
-                configParser(resourceConfigs, mockDataSources);
-            }).to.throw(
-                ImplementationError,
-                'Key attribute "childId" is not mapped to "primary" DataSource ' +
-                    'in childKey in sub-resource "test:subResource"'
+            assert.throws(
+                () => configParser(resourceConfigs, mockDataSources),
+                new ImplementationError(
+                    'Key attribute "childId" is not mapped to "primary" DataSource in childKey in sub-resource "test:subResource"'
+                )
             );
         });
 
@@ -935,7 +930,8 @@ describe('config-parser', () => {
 
             configParser(resourceConfigs, mockDataSources);
 
-            expect(resourceConfigs['test'].config.attributes['subResource'].resolvedParentKey).to.eql(
+            assert.deepEqual(
+                resourceConfigs['test'].config.attributes['subResource'].resolvedParentKey,
                 resolvedParentKey
             );
         });
@@ -950,12 +946,11 @@ describe('config-parser', () => {
             resourceConfigs['test'].config.attributes['subResource'].parentKey = 'id,parentId';
             resourceConfigs['test'].config.attributes['subResource'].childKey = 'id';
 
-            expect(() => {
-                configParser(resourceConfigs, mockDataSources);
-            }).to.throw(
-                ImplementationError,
-                'Composite key length of parentKey (2) does not match childKey length (1) ' +
-                    'in sub-resource "test:subResource"'
+            assert.throws(
+                () => configParser(resourceConfigs, mockDataSources),
+                new ImplementationError(
+                    'Composite key length of parentKey (2) does not match childKey length (1) in sub-resource "test:subResource"'
+                )
             );
         });
 
@@ -971,7 +966,7 @@ describe('config-parser', () => {
 
             configParser(resourceConfigs, mockDataSources);
 
-            expect(resourceConfigs['test'].config.attributes['subResource'].many).to.be.true;
+            assert.equal(resourceConfigs['test'].config.attributes['subResource'].many, true);
         });
 
         it('fails on invalid DataSource reference in joinVia', () => {
@@ -982,11 +977,11 @@ describe('config-parser', () => {
             );
             resourceConfigs['test'].config.attributes['subResource'].joinVia = 'unknownRelationTable';
 
-            expect(() => {
-                configParser(resourceConfigs, mockDataSources);
-            }).to.throw(
-                ImplementationError,
-                'Unknown DataSource "unknownRelationTable" in joinVia in sub-resource "test:subResource"'
+            assert.throws(
+                () => configParser(resourceConfigs, mockDataSources),
+                new ImplementationError(
+                    'Unknown DataSource "unknownRelationTable" in joinVia in sub-resource "test:subResource"'
+                )
             );
         });
 
@@ -1041,7 +1036,7 @@ describe('config-parser', () => {
 
             configParser(resourceConfigs, mockDataSources);
 
-            expect(resourceConfigs).to.eql(resourceConfigsParsed);
+            assert.deepEqual(resourceConfigs, resourceConfigsParsed);
         });
 
         it('fails if joinParentKey or joinChildKey is missing', () => {
@@ -1057,11 +1052,11 @@ describe('config-parser', () => {
                 joinParentKey: 'parentId'
             };
 
-            expect(() => {
-                configParser(resourceConfigs, mockDataSources);
-            }).to.throw(
-                ImplementationError,
-                'DataSource "joinTest" misses "joinChildKey" option in sub-resource "test:subResource"'
+            assert.throws(
+                () => configParser(resourceConfigs, mockDataSources),
+                new ImplementationError(
+                    'DataSource "joinTest" misses "joinChildKey" option in sub-resource "test:subResource"'
+                )
             );
 
             // missing joinParentKey:
@@ -1076,11 +1071,11 @@ describe('config-parser', () => {
                 joinChildKey: 'parentId'
             };
 
-            expect(() => {
-                configParser(resourceConfigs, mockDataSources);
-            }).to.throw(
-                ImplementationError,
-                'DataSource "joinTest" misses "joinParentKey" option in sub-resource "test:subResource"'
+            assert.throws(
+                () => configParser(resourceConfigs, mockDataSources),
+                new ImplementationError(
+                    'DataSource "joinTest" misses "joinParentKey" option in sub-resource "test:subResource"'
+                )
             );
 
             // missing both:
@@ -1094,11 +1089,11 @@ describe('config-parser', () => {
                 type: 'testDataSource'
             };
 
-            expect(() => {
-                configParser(resourceConfigs, mockDataSources);
-            }).to.throw(
-                ImplementationError,
-                'DataSource "joinTest" misses "joinParentKey" option in sub-resource "test:subResource"'
+            assert.throws(
+                () => configParser(resourceConfigs, mockDataSources),
+                new ImplementationError(
+                    'DataSource "joinTest" misses "joinParentKey" option in sub-resource "test:subResource"'
+                )
             );
         });
 
@@ -1120,11 +1115,11 @@ describe('config-parser', () => {
                 map: 'joinTest:childIdDbField'
             };
 
-            expect(() => {
-                configParser(resourceConfigs, mockDataSources);
-            }).to.throw(
-                ImplementationError,
-                'Unknown attribute "unknownParentId" in joinParentKey in sub-resource "test:subResource"'
+            assert.throws(
+                () => configParser(resourceConfigs, mockDataSources),
+                new ImplementationError(
+                    'Unknown attribute "unknownParentId" in joinParentKey in sub-resource "test:subResource"'
+                )
             );
 
             // unknown joinChildKey:
@@ -1144,11 +1139,11 @@ describe('config-parser', () => {
                 map: 'joinTest:parentIdDbField'
             };
 
-            expect(() => {
-                configParser(resourceConfigs, mockDataSources);
-            }).to.throw(
-                ImplementationError,
-                'Unknown attribute "unknownChildId" in joinChildKey in sub-resource "test:subResource"'
+            assert.throws(
+                () => configParser(resourceConfigs, mockDataSources),
+                new ImplementationError(
+                    'Unknown attribute "unknownChildId" in joinChildKey in sub-resource "test:subResource"'
+                )
             );
         });
 
@@ -1177,12 +1172,11 @@ describe('config-parser', () => {
                 map: 'joinTest:childIdDbField'
             };
 
-            expect(() => {
-                configParser(resourceConfigs, mockDataSources);
-            }).to.throw(
-                ImplementationError,
-                'Composite key length of parentKey (2) does not match ' +
-                    'joinParentKey length (1) of DataSource "joinTest" in sub-resource "test:subResource"'
+            assert.throws(
+                () => configParser(resourceConfigs, mockDataSources),
+                new ImplementationError(
+                    'Composite key length of parentKey (2) does not match joinParentKey length (1) of DataSource "joinTest" in sub-resource "test:subResource"'
+                )
             );
 
             // child key length does not match:
@@ -1209,12 +1203,11 @@ describe('config-parser', () => {
                 map: 'joinTest:childIdDbField'
             };
 
-            expect(() => {
-                configParser(resourceConfigs, mockDataSources);
-            }).to.throw(
-                ImplementationError,
-                'Composite key length of childKey (2) does not match ' +
-                    'joinChildKey length (1) of DataSource "joinTest" in sub-resource "test:subResource"'
+            assert.throws(
+                () => configParser(resourceConfigs, mockDataSources),
+                new ImplementationError(
+                    'Composite key length of childKey (2) does not match joinChildKey length (1) of DataSource "joinTest" in sub-resource "test:subResource"'
+                )
             );
         });
 
@@ -1243,12 +1236,11 @@ describe('config-parser', () => {
                 map: 'joinTest:childIdDbField'
             };
 
-            expect(() => {
-                configParser(resourceConfigs, mockDataSources);
-            }).to.throw(
-                ImplementationError,
-                'Key attribute "parentId" is not mapped to "joinTest" DataSource in joinParentKey in sub-resource "test:subResource"'
-            );
+            assert.throws(() => configParser(resourceConfigs, mockDataSources), {
+                name: 'ImplementationError',
+                message:
+                    'Key attribute "parentId" is not mapped to "joinTest" DataSource in joinParentKey in sub-resource "test:subResource"'
+            });
 
             // Missing mapping in joinChildKey:
             resourceConfigs = structuredClone(minimalResourceConfigs);
@@ -1274,11 +1266,11 @@ describe('config-parser', () => {
                 map: 'otherMapping'
             };
 
-            expect(() => {
-                configParser(resourceConfigs, mockDataSources);
-            }).to.throw(
-                ImplementationError,
-                'Key attribute "childId" is not mapped to "joinTest" DataSource in joinChildKey in sub-resource "test:subResource"'
+            assert.throws(
+                () => configParser(resourceConfigs, mockDataSources),
+                new ImplementationError(
+                    'Key attribute "childId" is not mapped to "joinTest" DataSource in joinChildKey in sub-resource "test:subResource"'
+                )
             );
         });
     });
@@ -1289,9 +1281,10 @@ describe('config-parser', () => {
 
             resourceConfigs['test'].config.attributes['id'].parentKey = 'testId';
 
-            expect(() => {
-                configParser(resourceConfigs, mockDataSources);
-            }).to.throw(ImplementationError, 'Invalid option "parentKey" in attribute "test:id"');
+            assert.throws(() => configParser(resourceConfigs, mockDataSources), {
+                name: 'ImplementationError',
+                message: 'Invalid option "parentKey" in attribute "test:id"'
+            });
         });
 
         it('fails on invalid "type" option', () => {
@@ -1299,12 +1292,11 @@ describe('config-parser', () => {
 
             resourceConfigs['test'].config.attributes['id'].type = 'no-int';
 
-            expect(() => {
-                configParser(resourceConfigs, mockDataSources);
-            }).to.throw(
-                ImplementationError,
-                'Invalid "no-int" (allowed: string, int, float, boolean, date, datetime, time, raw, object, json) ' +
-                    '(option "type" in attribute "test:id")'
+            assert.throws(
+                () => configParser(resourceConfigs, mockDataSources),
+                new ImplementationError(
+                    'Invalid "no-int" (allowed: string, int, float, boolean, date, datetime, time, raw, object, json) (option "type" in attribute "test:id")'
+                )
             );
         });
 
@@ -1331,7 +1323,7 @@ describe('config-parser', () => {
 
             configParser(resourceConfigs, mockDataSources);
 
-            expect(resourceConfigs).to.eql(resourceConfigsParsed);
+            assert.deepEqual(resourceConfigs, resourceConfigsParsed);
         });
 
         it('generates default attribute mapping with relative hierarchy (dot-separated)', () => {
@@ -1355,7 +1347,7 @@ describe('config-parser', () => {
 
             configParser(resourceConfigs, mockDataSources);
 
-            expect(resourceConfigs).to.eql(resourceConfigsParsed);
+            assert.deepEqual(resourceConfigs, resourceConfigsParsed);
         });
 
         it('fails on invalid DataSource references in map', () => {
@@ -1363,9 +1355,10 @@ describe('config-parser', () => {
 
             resourceConfigs['test'].config.attributes['id'].map = 'id;nonExisting:articleId';
 
-            expect(() => {
-                configParser(resourceConfigs, mockDataSources);
-            }).to.throw(ImplementationError, 'Unknown DataSource "nonExisting" in map in attribute "test:id"');
+            assert.throws(
+                () => configParser(resourceConfigs, mockDataSources),
+                new ImplementationError('Unknown DataSource "nonExisting" in map in attribute "test:id"')
+            );
         });
 
         it('parses option "filter"', () => {
@@ -1377,7 +1370,7 @@ describe('config-parser', () => {
 
             configParser(resourceConfigs, mockDataSources);
 
-            expect(resourceConfigs).to.eql(resourceConfigsParsed);
+            assert.deepEqual(resourceConfigs, resourceConfigsParsed);
         });
 
         it('fails on invalid filter options', () => {
@@ -1385,12 +1378,11 @@ describe('config-parser', () => {
 
             resourceConfigs['test'].config.attributes['id'].filter = 'roundAbout';
 
-            expect(() => {
-                configParser(resourceConfigs, mockDataSources);
-            }).to.throw(
-                ImplementationError,
-                'Invalid "roundAbout" (allowed: equal, notEqual, greater, greaterOrEqual, less, lessOrEqual, like, between, notBetween) ' +
-                    '(option "filter" in attribute "test:id")'
+            assert.throws(
+                () => configParser(resourceConfigs, mockDataSources),
+                new ImplementationError(
+                    `Invalid "roundAbout" (allowed: equal, notEqual, greater, greaterOrEqual, less, lessOrEqual, like, between, notBetween) (option "filter" in attribute "test:id")`
+                )
             );
         });
 
@@ -1403,7 +1395,7 @@ describe('config-parser', () => {
 
             configParser(resourceConfigs, mockDataSources);
 
-            expect(resourceConfigs).to.eql(resourceConfigsParsed);
+            assert.deepEqual(resourceConfigs, resourceConfigsParsed);
 
             // test "true":
             resourceConfigs = structuredClone(minimalResourceConfigs);
@@ -1414,7 +1406,7 @@ describe('config-parser', () => {
 
             configParser(resourceConfigs, mockDataSources);
 
-            expect(resourceConfigs).to.eql(resourceConfigsParsed);
+            assert.deepEqual(resourceConfigs, resourceConfigsParsed);
         });
 
         it('fails on invalid order options', () => {
@@ -1422,12 +1414,11 @@ describe('config-parser', () => {
 
             resourceConfigs['test'].config.attributes['id'].order = 'phaseOfTheMoon';
 
-            expect(() => {
-                configParser(resourceConfigs, mockDataSources);
-            }).to.throw(
-                ImplementationError,
-                'Invalid "phaseOfTheMoon" (allowed: asc, desc, random, topflop) ' +
-                    '(option "order" in attribute "test:id")'
+            assert.throws(
+                () => configParser(resourceConfigs, mockDataSources),
+                new ImplementationError(
+                    `Invalid "phaseOfTheMoon" (allowed: asc, desc, random, topflop) (option "order" in attribute "test:id")`
+                )
             );
         });
 
@@ -1441,7 +1432,7 @@ describe('config-parser', () => {
 
             configParser(resourceConfigs, mockDataSources);
 
-            expect(resourceConfigs).to.eql(resourceConfigsParsed);
+            assert.deepEqual(resourceConfigs, resourceConfigsParsed);
         });
 
         it('fails if "value" has mapping defined', () => {
@@ -1450,11 +1441,11 @@ describe('config-parser', () => {
 
             resourceConfigs['test'].config.attributes['dummy'] = { value: 'null', map: 'dummy' };
 
-            expect(() => {
-                configParser(resourceConfigs, mockDataSources);
-            }).to.throw(
-                ImplementationError,
-                'Static "value" in combination with "map" makes no sense in attribute "test:dummy"'
+            assert.throws(
+                () => configParser(resourceConfigs, mockDataSources),
+                new ImplementationError(
+                    'Static "value" in combination with "map" makes no sense in attribute "test:dummy"'
+                )
             );
         });
 
@@ -1474,7 +1465,7 @@ describe('config-parser', () => {
 
             configParser(resourceConfigs, mockDataSources);
 
-            expect(resourceConfigs).to.eql(resourceConfigsParsed);
+            assert.deepEqual(resourceConfigs, resourceConfigsParsed);
         });
 
         it('parses option "hidden"', () => {
@@ -1486,7 +1477,7 @@ describe('config-parser', () => {
 
             configParser(resourceConfigs, mockDataSources);
 
-            expect(resourceConfigs).to.eql(resourceConfigsParsed);
+            assert.deepEqual(resourceConfigs, resourceConfigsParsed);
         });
 
         it('parses option "deprecated"', () => {
@@ -1498,7 +1489,7 @@ describe('config-parser', () => {
 
             configParser(resourceConfigs, mockDataSources);
 
-            expect(resourceConfigs).to.eql(resourceConfigsParsed);
+            assert.deepEqual(resourceConfigs, resourceConfigsParsed);
 
             // and with "false":
             resourceConfigs = structuredClone(minimalResourceConfigs);
@@ -1509,7 +1500,7 @@ describe('config-parser', () => {
 
             configParser(resourceConfigs, mockDataSources);
 
-            expect(resourceConfigs).to.eql(resourceConfigsParsed);
+            assert.deepEqual(resourceConfigs, resourceConfigsParsed);
         });
 
         it('fails on invalid boolean values', () => {
@@ -1517,11 +1508,9 @@ describe('config-parser', () => {
 
             resourceConfigs['test'].config.attributes['dummy'] = { deprecated: 'maybe' };
 
-            expect(() => {
-                configParser(resourceConfigs, mockDataSources);
-            }).to.throw(
-                ImplementationError,
-                'Invalid boolean value "maybe" (option "deprecated" in attribute "test:dummy")'
+            assert.throws(
+                () => configParser(resourceConfigs, mockDataSources),
+                new ImplementationError('Invalid boolean value "maybe" (option "deprecated" in attribute "test:dummy")')
             );
         });
     });
@@ -1535,9 +1524,10 @@ describe('config-parser', () => {
                 type: 'int'
             };
 
-            expect(() => {
-                configParser(resourceConfigs, mockDataSources);
-            }).to.throw(ImplementationError, 'Invalid option "type" in nested-attribute "test:nested"');
+            assert.throws(
+                () => configParser(resourceConfigs, mockDataSources),
+                new ImplementationError('Invalid option "type" in nested-attribute "test:nested"')
+            );
         });
     });
 
@@ -1610,7 +1600,7 @@ describe('config-parser', () => {
             // for manually generating fixture:
             //console.log(JSON.stringify(resourceConfigs, null, 4));
 
-            expect(resourceConfigs).to.eql(resourceConfigsParsed);
+            assert.deepEqual(resourceConfigs, resourceConfigsParsed);
         });
     });
 });

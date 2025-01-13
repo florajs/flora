@@ -1,18 +1,18 @@
 'use strict';
 
-const path = require('path');
-
-const { expect } = require('chai');
+const { describe, it } = require('node:test');
+const assert = require('node:assert/strict');
+const path = require('node:path');
 
 const Master = require('../lib/master');
 
 describe('Master', () => {
     it('should be a function', () => {
-        expect(Master).to.be.a('function');
+        assert.equal(typeof Master, 'function');
     });
 
     it('should be instantiable', () => {
-        expect(new Master(path.join(__dirname, 'fixtures', 'master-config.js'))).to.be.an('object');
+        assert.equal(typeof new Master(path.join(__dirname, 'fixtures', 'master-config.js')), 'object');
     });
 
     it('should allow to register plugins', () => {
@@ -21,6 +21,6 @@ describe('Master', () => {
         };
 
         const master = new Master(path.join(__dirname, 'fixtures', 'master-config.js'));
-        master.register(plugin);
+        assert.doesNotThrow(() => master.register(plugin));
     });
 });

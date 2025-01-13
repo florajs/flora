@@ -1,7 +1,7 @@
 'use strict';
 
-const { expect } = require('chai');
-const sinon = require('sinon');
+const { describe, it, mock, before, after, beforeEach, afterEach } = require('node:test');
+const assert = require('node:assert/strict');
 
 const execute = require('../lib/datasource-executor');
 
@@ -28,33 +28,24 @@ const api = {
 describe('datasource-executor', () => {
     describe('generic tests', () => {
         it('should be a function', () => {
-            expect(execute).to.be.a('function');
+            assert.equal(typeof execute, 'function');
         });
     });
 
     describe('error handling', () => {
-        it('returns error on invalid request type', (done) => {
-            execute(api, {}, { request: { type: 'test-invalid' } }).catch((err) => {
-                expect(err).to.be.an.instanceof(Error);
-                done();
-            });
+        it('returns error on invalid request type', async () => {
+            await assert.rejects(execute(api, {}, { request: { type: 'test-invalid' } }), Error);
         });
 
-        it('passes through errors from process call', () => {
-            sinon.stub(api.dataSources['test'], 'process').callsFake((/* query */) => {
-                throw new Error('foo');
-            });
+        it('passes through errors from process call', async (ctx) => {
+            ctx.mock.method(api.dataSources['test'], 'process', async () => Promise.reject(new Error('foo')));
 
             const dst = { request: { type: 'test' } };
 
-            execute(api, {}, dst).catch((err) => {
-                api.dataSources['test'].process.restore();
-                expect(err).to.be.an.instanceof(Error);
-                expect(err.message).to.equal('foo');
-            });
+            await assert.rejects(execute(api, {}, dst), new Error('foo'));
         });
 
-        it('detects missing subFilters', (done) => {
+        it('detects missing subFilters', async () => {
             const dst = {
                 request: {
                     type: 'test',
@@ -62,11 +53,7 @@ describe('datasource-executor', () => {
                 }
             };
 
-            execute(api, {}, dst).catch((err) => {
-                expect(err).to.be.an.instanceof(Error);
-                expect(err.message).to.equal('Missing subFilter for attribute "bar"');
-                done();
-            });
+            await assert.rejects(() => execute(api, {}, dst), new Error('Missing subFilter for attribute "bar"'));
         });
     });
 
@@ -79,13 +66,13 @@ describe('datasource-executor', () => {
             }
         };
 
-        it('does not throw errors', () => {
+        it('does not throw errors', async () => {
             return execute(api, {}, dst);
         });
 
         it('returns the correct result', async () => {
             const result = await execute(api, {}, dst);
-            expect(result).to.eql([
+            assert.deepEqual(result, [
                 {
                     attributePath: [],
                     dataSourceName: 'ds',
@@ -119,7 +106,7 @@ describe('datasource-executor', () => {
 
         describe('with non-empty result', () => {
             before(() => {
-                sinon.stub(api.dataSources['test'], 'process').callsFake(async (query) => {
+                mock.method(api.dataSources['test'], 'process', async (query) => {
                     if (query.table === 'email') {
                         return {
                             data: [
@@ -132,7 +119,7 @@ describe('datasource-executor', () => {
 
                     if (query.table === 'user') {
                         // valueFromSubFilter is transformed correctly
-                        expect(query.filter).to.eql([
+                        assert.deepEqual(query.filter, [
                             [
                                 {
                                     attribute: 'id',
@@ -160,33 +147,32 @@ describe('datasource-executor', () => {
             });
 
             after(() => {
-                api.dataSources['test'].process.restore();
+                mock.restoreAll();
             });
 
             it('does not throw errors', () => {
                 return execute(api, {}, dst);
             });
 
-            it('returns the correct result', () => {
-                return execute(api, {}, dst).then((result) => {
-                    expect(result).to.eql([
-                        {
-                            attributePath: [],
-                            dataSourceName: 'ds1',
-                            data: [
-                                { id: 1, username: 'user1' },
-                                { id: 3, username: 'user3' }
-                            ],
-                            totalCount: null
-                        }
-                    ]);
-                });
+            it('returns the correct result', async () => {
+                const result = await execute(api, {}, dst);
+                assert.deepEqual(result, [
+                    {
+                        attributePath: [],
+                        dataSourceName: 'ds1',
+                        data: [
+                            { id: 1, username: 'user1' },
+                            { id: 3, username: 'user3' }
+                        ],
+                        totalCount: null
+                    }
+                ]);
             });
         });
 
         describe('with empty result', () => {
             before(() => {
-                sinon.stub(api.dataSources['test'], 'process').callsFake(async (query) => {
+                mock.method(api.dataSources['test'], 'process', async (query) => {
                     if (query.table === 'email') {
                         return {
                             data: [],
@@ -195,29 +181,28 @@ describe('datasource-executor', () => {
                     }
 
                     // other request should not be made
-                    throw new Error('resource-executor should only make "email" request here');
+                    return Promise.reject(new Error('resource-executor should only make "email" request here'));
                 });
             });
 
             after(() => {
-                api.dataSources['test'].process.restore();
+                mock.restoreAll();
             });
 
-            it('does not throw errors', () => {
+            it('does not throw errors', async () => {
                 return execute(api, {}, dst);
             });
 
-            it('returns an empty main result', () => {
-                return execute(api, {}, dst).then((result) => {
-                    expect(result).to.eql([
-                        {
-                            attributePath: [],
-                            dataSourceName: 'ds1',
-                            data: [],
-                            totalCount: 0
-                        }
-                    ]);
-                });
+            it('returns an empty main result', async () => {
+                const result = await execute(api, {}, dst);
+                assert.deepEqual(result, [
+                    {
+                        attributePath: [],
+                        dataSourceName: 'ds1',
+                        data: [],
+                        totalCount: 0
+                    }
+                ]);
             });
         });
     });
@@ -246,7 +231,7 @@ describe('datasource-executor', () => {
         };
 
         before(() => {
-            sinon.stub(api.dataSources['test'], 'process').callsFake(async (query) => {
+            mock.method(api.dataSources['test'], 'process', async (query) => {
                 if (query.table === 'user') {
                     return {
                         data: [
@@ -260,7 +245,7 @@ describe('datasource-executor', () => {
 
                 if (query.table === 'email') {
                     // valueFromSubFilter is transformed correctly
-                    expect(query.filter).to.eql([
+                    assert.deepEqual(query.filter, [
                         [
                             {
                                 attribute: 'userId',
@@ -288,39 +273,38 @@ describe('datasource-executor', () => {
         });
 
         after(() => {
-            api.dataSources['test'].process.restore();
+            mock.restoreAll();
         });
 
-        it('does not throw errors', () => {
+        it('does not throw errors', async () => {
             return execute(api, {}, dst);
         });
 
-        it('integration test', () => {
-            return execute(api, {}, dst).then((result) => {
-                expect(result).to.eql([
-                    {
-                        attributePath: [],
-                        dataSourceName: 'ds1',
-                        data: [
-                            { id: 1, username: 'user1' },
-                            { id: 2, username: 'user2' },
-                            { id: 3, username: 'user3' }
-                        ],
-                        totalCount: null
-                    },
-                    {
-                        attributePath: ['email'],
-                        dataSourceName: 'ds2',
-                        childKey: ['userId'],
-                        parentKey: ['id'],
-                        data: [
-                            { userId: 1, email: 'user1@example.com' },
-                            { userId: 3, email: 'user3@example.com' }
-                        ],
-                        totalCount: null
-                    }
-                ]);
-            });
+        it('integration test', async () => {
+            const result = await execute(api, {}, dst);
+            assert.deepEqual(result, [
+                {
+                    attributePath: [],
+                    dataSourceName: 'ds1',
+                    data: [
+                        { id: 1, username: 'user1' },
+                        { id: 2, username: 'user2' },
+                        { id: 3, username: 'user3' }
+                    ],
+                    totalCount: null
+                },
+                {
+                    attributePath: ['email'],
+                    dataSourceName: 'ds2',
+                    childKey: ['userId'],
+                    parentKey: ['id'],
+                    data: [
+                        { userId: 1, email: 'user1@example.com' },
+                        { userId: 3, email: 'user3@example.com' }
+                    ],
+                    totalCount: null
+                }
+            ]);
         });
     });
 
@@ -347,7 +331,7 @@ describe('datasource-executor', () => {
                         preExecute: [
                             {
                                 ds2: (ev) => {
-                                    expect(ev.request.filter).eql([
+                                    assert.deepEqual(ev.request.filter, [
                                         [
                                             {
                                                 attribute: 'id',
@@ -366,7 +350,7 @@ describe('datasource-executor', () => {
         };
 
         before(() => {
-            sinon.stub(api.dataSources['test'], 'process').callsFake(async (query) => {
+            mock.method(api.dataSources['test'], 'process', async (query) => {
                 if (query.table === 'article') {
                     return {
                         data: [
@@ -379,7 +363,7 @@ describe('datasource-executor', () => {
 
                 if (query.table === 'user') {
                     // As authorId is always null, no user needs to be fetched
-                    throw new Error('This should not be called');
+                    return Promise.reject(new Error('This should not be called'));
                 }
 
                 return {
@@ -390,35 +374,34 @@ describe('datasource-executor', () => {
         });
 
         after(() => {
-            api.dataSources['test'].process.restore();
+            mock.restoreAll();
         });
 
-        it('does not execute the subRequest', () => {
+        it('does not execute the subRequest', async () => {
             return execute(api, {}, dst);
         });
 
-        it('returns the correct result', () => {
-            return execute(api, {}, dst).then((result) => {
-                expect(result).to.eql([
-                    {
-                        attributePath: [],
-                        dataSourceName: 'ds1',
-                        data: [
-                            { id: 1, authorId: null },
-                            { id: 2, authorId: null }
-                        ],
-                        totalCount: null
-                    },
-                    {
-                        attributePath: ['author'],
-                        dataSourceName: 'ds2',
-                        data: [],
-                        childKey: ['id'],
-                        parentKey: ['authorId'],
-                        totalCount: 0
-                    }
-                ]);
-            });
+        it('returns the correct result', async () => {
+            const result = await execute(api, {}, dst);
+            assert.deepEqual(result, [
+                {
+                    attributePath: [],
+                    dataSourceName: 'ds1',
+                    data: [
+                        { id: 1, authorId: null },
+                        { id: 2, authorId: null }
+                    ],
+                    totalCount: null
+                },
+                {
+                    attributePath: ['author'],
+                    dataSourceName: 'ds2',
+                    data: [],
+                    childKey: ['id'],
+                    parentKey: ['authorId'],
+                    totalCount: 0
+                }
+            ]);
         });
     });
 
@@ -447,7 +430,7 @@ describe('datasource-executor', () => {
         };
 
         before(function () {
-            sinon.stub(api.dataSources['test'], 'process').callsFake(async (query) => {
+            mock.method(api.dataSources['test'], 'process', async (query) => {
                 if (query.table === 'article') {
                     return {
                         data: [{ id: 1 }, { id: 2 }],
@@ -457,7 +440,7 @@ describe('datasource-executor', () => {
 
                 if (query.table === 'user') {
                     // As authorId is always null, no user needs to be fetched
-                    throw new Error('This should not be called');
+                    return Promise.reject(new Error('This should not be called'));
                 }
 
                 return {
@@ -468,32 +451,31 @@ describe('datasource-executor', () => {
         });
 
         after(() => {
-            api.dataSources['test'].process.restore();
+            mock.restoreAll();
         });
 
-        it('does not execute the subRequest', () => {
+        it('does not execute the subRequest', async () => {
             return execute(api, {}, dst);
         });
 
-        it('returns the correct result', () => {
-            return execute(api, {}, dst).then((result) => {
-                expect(result).to.eql([
-                    {
-                        attributePath: [],
-                        dataSourceName: 'ds1',
-                        data: [{ id: 1 }, { id: 2 }],
-                        totalCount: null
-                    },
-                    {
-                        attributePath: ['author'],
-                        dataSourceName: 'ds2',
-                        data: [],
-                        childKey: ['id'],
-                        parentKey: ['authorId'],
-                        totalCount: 0
-                    }
-                ]);
-            });
+        it('returns the correct result', async () => {
+            const result = await execute(api, {}, dst);
+            assert.deepEqual(result, [
+                {
+                    attributePath: [],
+                    dataSourceName: 'ds1',
+                    data: [{ id: 1 }, { id: 2 }],
+                    totalCount: null
+                },
+                {
+                    attributePath: ['author'],
+                    dataSourceName: 'ds2',
+                    data: [],
+                    childKey: ['id'],
+                    parentKey: ['authorId'],
+                    totalCount: 0
+                }
+            ]);
         });
     });
 
@@ -521,7 +503,7 @@ describe('datasource-executor', () => {
         };
 
         before(() => {
-            sinon.stub(api.dataSources['test'], 'process').callsFake(async (query) => {
+            mock.method(api.dataSources['test'], 'process', async (query) => {
                 if (query.table === 'article') {
                     return {
                         data: [
@@ -533,7 +515,7 @@ describe('datasource-executor', () => {
                 }
 
                 if (query.table === 'user') {
-                    expect(query.filter).to.eql([
+                    assert.deepEqual(query.filter, [
                         [
                             {
                                 attribute: 'id',
@@ -558,32 +540,31 @@ describe('datasource-executor', () => {
         });
 
         after(() => {
-            api.dataSources['test'].process.restore();
+            mock.restoreAll();
         });
 
-        it('does not execute the subRequest', () => {
+        it('does not execute the subRequest', async () => {
             return execute(api, {}, dst);
         });
 
-        it('returns the correct result', () => {
-            return execute(api, {}, dst).then((result) => {
-                expect(result).to.eql([
-                    {
-                        attributePath: [],
-                        dataSourceName: 'ds1',
-                        data: [{ id: 1 }, { id: 2, authorId: 1000 }],
-                        totalCount: null
-                    },
-                    {
-                        attributePath: ['author'],
-                        dataSourceName: 'ds2',
-                        parentKey: ['authorId'],
-                        childKey: ['id'],
-                        data: [{ id: 1000, username: 'user2@example.com' }],
-                        totalCount: null
-                    }
-                ]);
-            });
+        it('returns the correct result', async () => {
+            const result = await execute(api, {}, dst);
+            assert.deepEqual(result, [
+                {
+                    attributePath: [],
+                    dataSourceName: 'ds1',
+                    data: [{ id: 1 }, { id: 2, authorId: 1000 }],
+                    totalCount: null
+                },
+                {
+                    attributePath: ['author'],
+                    dataSourceName: 'ds2',
+                    parentKey: ['authorId'],
+                    childKey: ['id'],
+                    data: [{ id: 1000, username: 'user2@example.com' }],
+                    totalCount: null
+                }
+            ]);
         });
     });
 
@@ -620,7 +601,7 @@ describe('datasource-executor', () => {
         };
 
         before(() => {
-            sinon.stub(api.dataSources['test'], 'process').callsFake(async (query) => {
+            mock.method(api.dataSources['test'], 'process', async (query) => {
                 if (query.table === 'article') {
                     return {
                         data: [
@@ -633,7 +614,7 @@ describe('datasource-executor', () => {
 
                 if (query.table === 'email') {
                     // valueFromSubFilter is transformed correctly
-                    expect(query.filter).to.eql([
+                    assert.deepEqual(query.filter, [
                         [
                             {
                                 attribute: 'userId',
@@ -668,33 +649,32 @@ describe('datasource-executor', () => {
         });
 
         after(() => {
-            api.dataSources['test'].process.restore();
+            mock.restoreAll();
         });
 
-        it('does not throw errors', () => {
+        it('does not throw errors', async () => {
             return execute(api, {}, dst);
         });
 
-        it('returns the correct result', () => {
-            return execute(api, {}, dst).then((result) => {
-                expect(result).to.eql([
-                    {
-                        attributePath: [],
-                        data: [
-                            { id: 1, username: 'user1' },
-                            { id: 3, username: 'user3' }
-                        ],
-                        totalCount: null
-                    },
-                    {
-                        attributePath: ['email'],
-                        childKey: ['userId'],
-                        parentKey: ['id'],
-                        data: [{ userId: 1, email: 'user1@example.com' }],
-                        totalCount: null
-                    }
-                ]);
-            });
+        it('returns the correct result', async () => {
+            const result = await execute(api, {}, dst);
+            assert.deepEqual(result, [
+                {
+                    attributePath: [],
+                    data: [
+                        { id: 1, username: 'user1' },
+                        { id: 3, username: 'user3' }
+                    ],
+                    totalCount: null
+                },
+                {
+                    attributePath: ['email'],
+                    childKey: ['userId'],
+                    parentKey: ['id'],
+                    data: [{ userId: 1, email: 'user1@example.com' }],
+                    totalCount: null
+                }
+            ]);
         });
     });
 
@@ -732,10 +712,10 @@ describe('datasource-executor', () => {
         };
 
         before(() => {
-            sinon.stub(api.dataSources['test'], 'process').callsFake(async (query) => {
+            mock.method(api.dataSources['test'], 'process', async (query) => {
                 if (query.table === 'validemail') {
                     // filter parameter is transformed correctly
-                    expect(query.filter).to.eql([
+                    assert.deepEqual(query.filter, [
                         [
                             {
                                 attribute: 'isValid',
@@ -753,7 +733,7 @@ describe('datasource-executor', () => {
 
                 if (query.table === 'email') {
                     // valueFromSubFilter (validemail) is transformed correctly
-                    expect(query.filter).to.eql([
+                    assert.deepEqual(query.filter, [
                         [
                             {
                                 attribute: 'userId',
@@ -772,7 +752,7 @@ describe('datasource-executor', () => {
 
                 if (query.table === 'user') {
                     // valueFromSubFilter is transformed correctly
-                    expect(query.filter).to.eql([
+                    assert.deepEqual(query.filter, [
                         [
                             {
                                 attribute: 'id',
@@ -797,24 +777,23 @@ describe('datasource-executor', () => {
         });
 
         after(() => {
-            api.dataSources['test'].process.restore();
+            mock.restoreAll();
         });
 
-        it('does not throw errors', () => {
+        it('does not throw errors', async () => {
             return execute(api, {}, dst);
         });
 
-        it('returns the correct result', () => {
-            return execute(api, {}, dst).then((result) => {
-                expect(result).to.eql([
-                    {
-                        attributePath: [],
-                        dataSourceName: 'ds1',
-                        data: [{ id: 1, username: 'user1' }],
-                        totalCount: null
-                    }
-                ]);
-            });
+        it('returns the correct result', async () => {
+            const result = await execute(api, {}, dst);
+            assert.deepEqual(result, [
+                {
+                    attributePath: [],
+                    dataSourceName: 'ds1',
+                    data: [{ id: 1, username: 'user1' }],
+                    totalCount: null
+                }
+            ]);
         });
     });
 
@@ -846,7 +825,7 @@ describe('datasource-executor', () => {
         };
 
         before(() => {
-            sinon.stub(api.dataSources['test'], 'process').callsFake(async () => {
+            mock.method(api.dataSources['test'], 'process', async () => {
                 return {
                     data: [
                         {
@@ -872,122 +851,107 @@ describe('datasource-executor', () => {
         });
 
         after(() => {
-            api.dataSources['test'].process.restore();
+            mock.restoreAll();
         });
 
-        it('supports type casting', () => {
-            return execute(api, {}, dst).then((result) => {
-                expect(result).to.be.an('array');
-                expect(result[0]).to.be.an('object');
-                expect(result[0].data).to.be.an('array');
-                expect(result[0].data[0]).to.be.an('object');
-            });
+        it('supports type casting', async () => {
+            const result = await execute(api, {}, dst);
+            assert.ok(Array.isArray(result));
+            assert.equal(typeof result[0], 'object');
+            assert.ok(Array.isArray(result[0].data));
+            assert.equal(typeof result[0].data[0], 'object');
         });
 
-        it('casts string to int', () => {
-            return execute(api, {}, dst).then((result) => {
-                expect(result[0].data[0].string2int).to.be.a('number');
-                expect(result[0].data[0].string2int).to.equal(42);
-            });
+        it('casts string to int', async () => {
+            const result = await execute(api, {}, dst);
+            assert.equal(typeof result[0].data[0].string2int, 'number');
+            assert.equal(result[0].data[0].string2int, 42);
         });
 
-        it('casts string to float', () => {
-            return execute(api, {}, dst).then((result) => {
-                expect(result[0].data[0].string2float).to.be.a('number');
-                expect(result[0].data[0].string2float).to.equal(3.1415);
-            });
+        it('casts string to float', async () => {
+            const result = await execute(api, {}, dst);
+            assert.equal(typeof result[0].data[0].string2float, 'number');
+            assert.equal(result[0].data[0].string2float, 3.1415);
         });
 
-        it('casts int to string', () => {
-            return execute(api, {}, dst).then((result) => {
-                expect(result[0].data[0].int2string).to.be.a('string');
-                expect(result[0].data[0].int2string).to.equal('42');
-            });
+        it('casts int to string', async () => {
+            const result = await execute(api, {}, dst);
+            assert.equal(typeof result[0].data[0].int2string, 'string');
+            assert.equal(result[0].data[0].int2string, '42');
         });
 
-        it('casts string to boolean ("1")', () => {
-            return execute(api, {}, dst).then((result) => {
-                expect(result[0].data[0].string2boolean1).to.be.a('boolean');
-                expect(result[0].data[0].string2boolean1).to.equal(true);
-            });
+        it('casts string to boolean ("1")', async () => {
+            const result = await execute(api, {}, dst);
+            assert.equal(typeof result[0].data[0].string2boolean1, 'boolean');
+            assert.equal(result[0].data[0].string2boolean1, true);
         });
 
-        it('casts string to boolean ("0")', () => {
-            return execute(api, {}, dst).then((result) => {
-                expect(result[0].data[0].string2boolean0).to.be.a('boolean');
-                expect(result[0].data[0].string2boolean0).to.equal(false);
-            });
+        it('casts string to boolean ("0")', async () => {
+            const result = await execute(api, {}, dst);
+            assert.equal(typeof result[0].data[0].string2boolean0, 'boolean');
+            assert.equal(result[0].data[0].string2boolean0, false);
         });
 
-        it('casts int to boolean (1)', () => {
-            return execute(api, {}, dst).then((result) => {
-                expect(result[0].data[0].int2boolean1).to.be.a('boolean');
-                expect(result[0].data[0].int2boolean1).to.equal(true);
-            });
+        it('casts int to boolean (1)', async () => {
+            const result = await execute(api, {}, dst);
+            assert.equal(typeof result[0].data[0].int2boolean1, 'boolean');
+            assert.equal(result[0].data[0].int2boolean1, true);
         });
 
-        it('casts int to boolean (0)', () => {
-            return execute(api, {}, dst).then((result) => {
-                expect(result[0].data[0].int2boolean0).to.be.a('boolean');
-                expect(result[0].data[0].int2boolean0).to.equal(false);
-            });
+        it('casts int to boolean (0)', async () => {
+            const result = await execute(api, {}, dst);
+            assert.equal(typeof result[0].data[0].int2boolean0, 'boolean');
+            assert.equal(result[0].data[0].int2boolean0, false);
         });
 
-        it('casts string to datetime', () => {
-            execute(api, {}, dst, (err, result) => {
-                expect(result[0].data[0].string2datetime).to.be.a('string');
-                expect(result[0].data[0].string2datetime).to.equal('2015-06-17T10:13:14.000Z');
-            });
+        it('casts string to datetime', async () => {
+            const result = await execute(api, {}, dst);
+            assert.equal(typeof result[0].data[0].string2datetime, 'string');
+            assert.equal(result[0].data[0].string2datetime, '2015-06-17T10:13:14.000Z');
         });
 
-        it('casts string to time', () => {
-            return execute(api, {}, dst).then((result) => {
-                expect(result[0].data[0].string2time).to.be.a('string');
-                expect(result[0].data[0].string2time).to.equal('10:13:14.000Z');
-            });
+        it('casts string to time', async () => {
+            const result = await execute(api, {}, dst);
+            assert.equal(typeof result[0].data[0].string2time, 'string');
+            assert.equal(result[0].data[0].string2time, '10:13:14.000Z');
         });
 
-        it('casts string to date', () => {
-            return execute(api, {}, dst).then((result) => {
-                expect(result[0].data[0].string2date).to.be.a('string');
-                expect(result[0].data[0].string2date).to.equal('2015-06-17');
-            });
+        it('casts string to date', async () => {
+            const result = await execute(api, {}, dst);
+            assert.equal(typeof result[0].data[0].string2date, 'string');
+            assert.equal(result[0].data[0].string2date, '2015-06-17');
         });
 
-        it('passes through raw data', () => {
-            return execute(api, {}, dst).then((result) => {
-                expect(result[0].data[0].raw).to.be.an('object');
-                expect(result[0].data[0].raw).to.eql({ foo: 'bar' });
-            });
+        it('passes through raw data', async () => {
+            const result = await execute(api, {}, dst);
+            assert.equal(typeof result[0].data[0].raw, 'object');
+            assert.deepEqual(result[0].data[0].raw, { foo: 'bar' });
         });
 
-        it('passes through null', () => {
-            return execute(api, {}, dst).then((result) => {
-                expect(result[0].data[0].null2int).to.equal(null);
-            });
+        it('passes through null', async () => {
+            const result = await execute(api, {}, dst);
+            assert.equal(result[0].data[0].null2int, null);
         });
 
-        it('passes through empty type', () => {
-            return execute(api, {}, dst).then((result) => {
-                expect(result[0].data[0].emptyType).to.be.an('object');
-                expect(result[0].data[0].emptyType).to.eql({ foo: 'bar' });
-            });
+        it('passes through empty type', async () => {
+            const result = await execute(api, {}, dst);
+            assert.equal(typeof result[0].data[0].emptyType, 'object');
+            assert.deepEqual(result[0].data[0].emptyType, { foo: 'bar' });
         });
 
-        it('passes through unknown type', () => {
-            return execute(api, {}, dst).then((result) => {
-                expect(result[0].data[0].unknownType).to.be.an('object');
-                expect(result[0].data[0].unknownType).to.eql({ foo: 'bar' });
-            });
+        it('passes through unknown type', async () => {
+            const result = await execute(api, {}, dst);
+            assert.equal(typeof result[0].data[0].unknownType, 'object');
+            assert.deepEqual(result[0].data[0].unknownType, { foo: 'bar' });
         });
     });
 
     describe('delimiter in subFilters', () => {
         before(() => {
-            sinon.stub(api.dataSources['test'], 'process').callsFake(async (query) => {
+            mock.method(api.dataSources['test'], 'process', async (query) => {
                 if (query.table === 'email') {
                     // valueFromSubFilter (validemail) is transformed correctly
-                    expect(query.filter).to.eql([
+                    assert.deepEqual(query.filter, [
                         [
                             {
                                 attribute: 'userId',
@@ -1027,7 +991,7 @@ describe('datasource-executor', () => {
         });
 
         after(() => {
-            api.dataSources['test'].process.restore();
+            mock.restoreAll();
         });
 
         const dst = {
@@ -1065,34 +1029,32 @@ describe('datasource-executor', () => {
             ]
         };
 
-        it('does not throw errors', () => {
+        it('does not throw errors', async () => {
             return execute(api, {}, dst);
         });
 
-        it('resolves emailIds', () => {
-            return execute(api, {}, dst).then((results) => {
-                expect(results[0].data).to.eql([
-                    { id: 1, emailIds: [10, 11, 12] },
-                    { id: 2, emailIds: [20, 21] }
-                ]);
-            });
+        it('resolves emailIds', async () => {
+            const results = await execute(api, {}, dst);
+            assert.deepEqual(results[0].data, [
+                { id: 1, emailIds: [10, 11, 12] },
+                { id: 2, emailIds: [20, 21] }
+            ]);
         });
 
-        it('resolves email entries', function () {
-            return execute(api, {}, dst).then((results) => {
-                expect(results[1].data).to.eql([
-                    { id: 10, email: 'user1-0@example.com' },
-                    { id: 11, email: 'user1-1@example.com' },
-                    { id: 20, email: 'user2-0@example.com' },
-                    { id: 21, email: 'user2-1@example.com' }
-                ]);
-            });
+        it('resolves email entries', async () => {
+            const results = await execute(api, {}, dst);
+            assert.deepEqual(results[1].data, [
+                { id: 10, email: 'user1-0@example.com' },
+                { id: 11, email: 'user1-1@example.com' },
+                { id: 20, email: 'user2-0@example.com' },
+                { id: 21, email: 'user2-1@example.com' }
+            ]);
         });
     });
 
     describe('casting to storedType in subFilters', () => {
         before(() => {
-            sinon.stub(api.dataSources['test'], 'process').callsFake(async (query) => {
+            mock.method(api.dataSources['test'], 'process', async (query) => {
                 if (query.table === 'quotes') {
                     return {
                         data: [
@@ -1105,7 +1067,7 @@ describe('datasource-executor', () => {
                 }
 
                 if (query.table === 'instruments') {
-                    expect(query.filter).to.eql([
+                    assert.deepEqual(query.filter, [
                         [
                             {
                                 attribute: ['id', 'exchangeId'],
@@ -1129,7 +1091,7 @@ describe('datasource-executor', () => {
         });
 
         after(() => {
-            api.dataSources['test'].process.restore();
+            mock.restoreAll();
         });
 
         const dst = {
@@ -1158,7 +1120,7 @@ describe('datasource-executor', () => {
             ]
         };
 
-        it('does not throw errors', () => {
+        it('does not throw errors', async () => {
             return execute(api, {}, dst);
         });
     });
@@ -1193,15 +1155,15 @@ describe('datasource-executor', () => {
         });
 
         before(() => {
-            sinon.stub(api.dataSources['test'], 'process').callsFake(async (query) => {
+            mock.method(api.dataSources['test'], 'process', async (query) => {
                 if (query.table === 'article') {
-                    expect(query).to.be.an('object');
-                    expect(query.filter).to.be.an('array');
-                    expect(query.filter.length).to.equal(1);
-                    expect(query.filter[0]).to.be.an('array');
-                    expect(query.filter[0][0].value).to.be.an('array');
-                    expect(query.filter[0][0].value.length).to.equal(1);
-                    expect(query.filter[0][0].value[0]).to.eql(query._expect);
+                    assert.equal(typeof query, 'object');
+                    assert.ok(Array.isArray(query.filter));
+                    assert.equal(query.filter.length, 1);
+                    assert.ok(Array.isArray(query.filter[0]));
+                    assert.ok(Array.isArray(query.filter[0][0].value));
+                    assert.equal(query.filter[0][0].value.length, 1);
+                    assert.equal(query.filter[0][0].value[0], query._expect);
 
                     return { data: [] };
                 }
@@ -1213,8 +1175,8 @@ describe('datasource-executor', () => {
             });
         });
 
-        after(() => {
-            api.dataSources['test'].process.restore();
+        afterEach(() => {
+            mock.restoreAll();
         });
 
         it('casts string to int', () => {

@@ -1,6 +1,7 @@
 'use strict';
 
-const { expect } = require('chai');
+const { describe, it } = require('node:test');
+const assert = require('node:assert/strict');
 
 const xmlReader = require('../lib/xml-reader');
 
@@ -9,7 +10,7 @@ describe('xml-reader', () => {
         it('should parse simple database data source without query', async () => {
             const { dataSources } = await xmlReader(__dirname + '/fixtures/xml-reader/datasource-simple.xml');
 
-            expect(dataSources).to.eql({
+            assert.deepEqual(dataSources, {
                 primary: {
                     type: 'mysql',
                     database: 'db',
@@ -21,7 +22,7 @@ describe('xml-reader', () => {
         it('should parse database data source with SQL query', async () => {
             const { dataSources } = await xmlReader(__dirname + '/fixtures/xml-reader/datasource-custom-query.xml');
 
-            expect(dataSources).to.eql({
+            assert.deepEqual(dataSources, {
                 primary: {
                     type: 'mysql',
                     database: 'db',
@@ -33,7 +34,7 @@ describe('xml-reader', () => {
         it('should parse join attributes', async () => {
             const { attributes } = await xmlReader(__dirname + '/fixtures/xml-reader/datasource-join-attributes.xml');
 
-            expect(attributes['sub-resource'].dataSources).to.eql({
+            assert.deepEqual(attributes['sub-resource'].dataSources, {
                 primary: {
                     type: 'mysql',
                     database: 'db',
@@ -47,77 +48,43 @@ describe('xml-reader', () => {
         });
 
         it('should throw an error on option w/o name attribute', async () => {
-            try {
-                await xmlReader(__dirname + '/fixtures/xml-reader/datasource-option-without-name-attr.xml');
-            } catch (err) {
-                expect(err)
-                    .to.be.instanceof(Error)
-                    .and.to.have.property('message', 'flora:option element requires a name attribute');
-                return;
-            }
-
-            throw new Error('Expected an error');
+            await assert.rejects(
+                xmlReader(__dirname + '/fixtures/xml-reader/datasource-option-without-name-attr.xml'),
+                new Error('flora:option element requires a name attribute')
+            );
         });
 
         it('should throw an error on duplicate option names', async () => {
-            try {
-                await xmlReader(__dirname + '/fixtures/xml-reader/datasource-duplicate-option.xml');
-            } catch (err) {
-                expect(err)
-                    .to.be.instanceof(Error)
-                    .and.to.have.property('message', 'Data source option "query" already defined');
-                return;
-            }
-
-            throw new Error('Expected an error');
+            await assert.rejects(
+                xmlReader(__dirname + '/fixtures/xml-reader/datasource-duplicate-option.xml'),
+                new Error('Data source option "query" already defined')
+            );
         });
 
         it('should throw an error on duplicate data source names', async () => {
-            try {
-                await xmlReader(__dirname + '/fixtures/xml-reader/datasource-duplicates.xml');
-            } catch (err) {
-                expect(err)
-                    .to.be.instanceof(Error)
-                    .and.to.have.property('message', 'Data source "primary" already defined');
-                return;
-            }
-
-            throw new Error('Expected an error');
+            await assert.rejects(
+                xmlReader(__dirname + '/fixtures/xml-reader/datasource-duplicates.xml'),
+                new Error('Data source "primary" already defined')
+            );
         });
 
         it('should throw an error if datasource node contains text nodes', async () => {
-            try {
-                await xmlReader(__dirname + '/fixtures/xml-reader/invalid-datasource-text-node.xml');
-            } catch (err) {
-                expect(err)
-                    .to.be.instanceof(Error)
-                    .and.to.have.property('message')
-                    .contains('dataSource contains useless text');
-                return;
-            }
-
-            throw new Error('Expected an error');
+            await assert.rejects(xmlReader(__dirname + '/fixtures/xml-reader/invalid-datasource-text-node.xml'), {
+                message: 'dataSource contains useless text: "abc"'
+            });
         });
 
         it('should throw an error if xml contains invalid text nodes', async () => {
-            try {
-                await xmlReader(__dirname + '/fixtures/xml-reader/invalid-text-node.xml');
-            } catch (err) {
-                expect(err)
-                    .to.be.instanceof(Error)
-                    .to.have.property('message')
-                    .contains('Config contains unnecessary text');
-                return;
-            }
-
-            throw new Error('Expected an error');
+            await assert.rejects(xmlReader(__dirname + '/fixtures/xml-reader/invalid-text-node.xml'), {
+                message: 'Config contains unnecessary text: "abc"'
+            });
         });
     });
 
     it('should parse primary keys', async () => {
         const config = await xmlReader(__dirname + '/fixtures/xml-reader/primary-keys.xml');
 
-        expect(config).to.eql({
+        assert.deepEqual(config, {
             primaryKey: 'pk_id',
             attributes: {
                 subresource1: {
@@ -134,7 +101,7 @@ describe('xml-reader', () => {
     it('should parse attributes', async () => {
         const config = await xmlReader(__dirname + '/fixtures/xml-reader/attributes.xml');
 
-        expect(config).to.eql({
+        assert.deepEqual(config, {
             attributes: {
                 someAttribute: { type: 'integer' },
                 someOtherAttribute: { order: 'true' },
@@ -152,7 +119,7 @@ describe('xml-reader', () => {
     it('should not parse namespaced nodes (i.e. flora:xxx) as attributes', async () => {
         const config = await xmlReader(__dirname + '/fixtures/xml-reader/subfilter.xml');
 
-        expect(config).to.eql({
+        assert.deepEqual(config, {
             attributes: {
                 'sub-resource': {
                     type: 'resource',
@@ -167,7 +134,7 @@ describe('xml-reader', () => {
     it('should parse sub-resources (with all options)', async () => {
         const config = await xmlReader(__dirname + '/fixtures/xml-reader/subresource.xml');
 
-        expect(config).to.eql({
+        assert.deepEqual(config, {
             attributes: {
                 subresource1: { type: 'resource', resource: 'otherresource' },
                 attr: {},
@@ -195,35 +162,23 @@ describe('xml-reader', () => {
         const { attributes } = await xmlReader(__dirname + '/fixtures/xml-reader/subresource.xml');
         const keys = Object.keys(attributes);
 
-        expect(keys).to.eql(['subresource1', 'attr', 'subresource2']);
+        assert.deepEqual(keys, ['subresource1', 'attr', 'subresource2']);
     });
 
     it('should generate an error if XML cannot be parsed', async () => {
-        try {
-            await xmlReader(__dirname + '/fixtures/xml-reader/broken.xml');
-        } catch (err) {
-            expect(err).to.be.instanceof(Error);
-            return;
-        }
-
-        throw new Error('Expected an error');
+        await assert.rejects(xmlReader(__dirname + '/fixtures/xml-reader/broken.xml'), Error);
     });
 
     it('should generate an error if XML contains nodes with same name', async () => {
-        try {
-            await xmlReader(__dirname + '/fixtures/xml-reader/duplicate-node.xml');
-        } catch (err) {
-            expect(err).to.be.instanceof(Error).and.has.property('message', 'Duplicate attribute "node"');
-            return;
-        }
-
-        throw new Error('Expected an error');
+        await assert.rejects(xmlReader(__dirname + '/fixtures/xml-reader/duplicate-node.xml'), {
+            message: 'Duplicate attribute "node"'
+        });
     });
 
     it('should parse flora specific elements by uri namespace (instead of prefix)', async () => {
         const config = await xmlReader(__dirname + '/fixtures/xml-reader/namespace-uri.xml');
 
-        expect(config).to.eql({
+        assert.deepEqual(config, {
             dataSources: {
                 primary: {
                     type: 'mysql',

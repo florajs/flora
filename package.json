@@ -5,9 +5,9 @@
   "main": "index.js",
   "scripts": {
     "doc": "jsdoc -R README.md -d build/docs lib",
-    "test": "mocha",
+    "test": "node --test test/*.spec.js",
     "lint": "eslint .",
-    "test-lint": "eslint . && mocha"
+    "test-lint": "eslint . && npm run test"
   },
   "files": [
     "index.js",
@@ -58,18 +58,13 @@
   },
   "devDependencies": {
     "abstract-logging": "^2.0.1",
-    "chai": "4.4.0",
     "eslint": "^9.17.0",
     "eslint-config-prettier": "^9.1.0",
-    "eslint-plugin-mocha": "^10.5.0",
     "eslint-plugin-prettier": "^5.2.1",
     "globals": "^15.14.0",
     "jsdoc": "^4.0.4",
-    "mocha": "^11.0.1",
     "mock-fs": "^5.4.1",
     "pre-commit": "^1.2.2",
-    "prettier": "^3.4.2",
-    "sinon": "^19.0.2",
-    "sinon-chai": "3.7.0"
+    "prettier": "^3.4.2"
   }
 }

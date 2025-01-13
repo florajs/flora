@@ -1,6 +1,8 @@
 'use strict';
 
-const { expect } = require('chai');
+const { describe, it } = require('node:test');
+const assert = require('node:assert/strict');
+
 const { RequestError, ImplementationError } = require('@florajs/errors');
 
 const requestResolver = require('../lib/request-resolver');
@@ -15,7 +17,7 @@ describe('request-resolver', () => {
             requestResolver(req, resourceConfigs);
             const resourceConfigsAfter = JSON.stringify(resourceConfigs);
 
-            expect(resourceConfigsAfter).to.equal(resourceConfigsBefore);
+            assert.equal(resourceConfigsAfter, resourceConfigsBefore);
         });
 
         it('returns a completely cloned resourceConfigs tree (except DataSources)', () => {
@@ -59,7 +61,7 @@ describe('request-resolver', () => {
             polluteObject(resolvedRequest.resolvedConfig, 100);
             const resourceConfigsAfter = JSON.stringify(resourceConfigs);
 
-            expect(resourceConfigsAfter).to.equal(resourceConfigsBefore);
+            assert.equal(resourceConfigsAfter, resourceConfigsBefore);
         });
 
         it('handles resource-includes at top level (also recursive)', () => {
@@ -76,23 +78,26 @@ describe('request-resolver', () => {
             const req = { resource: 'resource1' };
             const resolvedRequest = requestResolver(req, configs);
 
-            expect(resolvedRequest.resolvedConfig).to.have.nested.property('attributes.id');
+            assert.ok(Object.hasOwn(resolvedRequest.resolvedConfig, '_origNodes'));
+            const node = resolvedRequest.resolvedConfig._origNodes.find((node) => Object.hasOwn(node, 'attributes'));
+            assert.ok(node);
+            assert.ok(Object.hasOwn(node, 'attributes'));
+            assert.ok(Object.hasOwn(node.attributes, 'id'));
         });
 
         it('fails on missing resource in request', () => {
             const req = {};
 
-            expect(() => {
-                requestResolver(req, resourceConfigs);
-            }).to.throw(RequestError, 'Resource not specified');
+            assert.throws(() => requestResolver(req, resourceConfigs), new RequestError('Resource not specified'));
         });
 
         it('fails on unknown resource in request', () => {
             const req = { resource: 'non-existing' };
 
-            expect(() => {
-                requestResolver(req, resourceConfigs);
-            }).to.throw(RequestError, 'Unknown resource "non-existing"');
+            assert.throws(
+                () => requestResolver(req, resourceConfigs),
+                new RequestError('Unknown resource "non-existing"')
+            );
         });
 
         it('fails on unknown included resource with different error', () => {
@@ -104,11 +109,9 @@ describe('request-resolver', () => {
 
             const req = { resource: 'existing' };
 
-            expect(() => {
-                requestResolver(req, configs);
-            }).to.throw(
-                ImplementationError,
-                'Unknown resource "non-existing" (included from: existing -> non-existing)'
+            assert.throws(
+                () => requestResolver(req, configs),
+                new ImplementationError('Unknown resource "non-existing" (included from: existing -> non-existing)')
             );
         });
 
@@ -133,9 +136,10 @@ describe('request-resolver', () => {
                 }
             };
 
-            expect(() => {
-                requestResolver(req, configs);
-            }).to.throw(ImplementationError, 'Unknown resource "non-existing" at "existingAttribute"');
+            assert.throws(
+                () => requestResolver(req, configs),
+                new ImplementationError('Unknown resource "non-existing" at "existingAttribute"')
+            );
         });
 
         it('fails on endless recursion in resource-includes at top level', () => {
@@ -150,11 +154,13 @@ describe('request-resolver', () => {
 
             const req = { resource: 'resource1' };
 
-            expect(() => {
-                requestResolver(req, configs);
-            }).to.throw(
-                ImplementationError,
-                'Resource inclusion depth too big (included from: resource1 -> resource2' /* ...) */
+            assert.throws(
+                () => requestResolver(req, configs),
+                (err) =>
+                    err.name === 'ImplementationError' &&
+                    err.message.startsWith(
+                        'Resource inclusion depth too big (included from: resource1 -> resource2' /* ...) */
+                    )
             );
         });
 
@@ -164,16 +170,17 @@ describe('request-resolver', () => {
 
             const req = { resource: 'article' };
 
-            expect(() => {
-                requestResolver(req, configs);
-            }).to.throw(ImplementationError, 'No DataSources defined in resource');
+            assert.throws(
+                () => requestResolver(req, configs),
+                new ImplementationError('No DataSources defined in resource')
+            );
         });
 
         it('selects primary key in attribute tree automatically', () => {
             const req = { resource: 'article' };
 
             const resolvedRequest = requestResolver(req, resourceConfigs);
-            expect(resolvedRequest.resolvedConfig.attributes['id'].selected).to.be.true;
+            assert.ok(resolvedRequest.resolvedConfig.attributes['id'].selected);
         });
 
         it('selects specified attribute in attribute tree', () => {
@@ -185,7 +192,7 @@ describe('request-resolver', () => {
             };
 
             const resolvedRequest = requestResolver(req, resourceConfigs);
-            expect(resolvedRequest.resolvedConfig.attributes['title'].selected).to.be.true;
+            assert.ok(resolvedRequest.resolvedConfig.attributes['title'].selected);
         });
     });
 
@@ -253,7 +260,7 @@ describe('request-resolver', () => {
 
             const resolvedRequest = requestResolver(req, configs);
             const currentOrder = Object.keys(resolvedRequest.resolvedConfig.attributes['resource2'].attributes);
-            expect(currentOrder).to.eql(expectedOrder);
+            assert.deepEqual(currentOrder, expectedOrder);
         });
 
         it('does not allow overwriting of attributes', () => {
@@ -269,9 +276,10 @@ describe('request-resolver', () => {
                 }
             };
 
-            expect(() => {
-                requestResolver(req, configs);
-            }).to.throw(ImplementationError, 'Cannot overwrite attribute "attr1" in "resource2"');
+            assert.throws(
+                () => requestResolver(req, configs),
+                new ImplementationError('Cannot overwrite attribute "attr1" in "resource2" (maybe use "inherit"?)')
+            );
         });
 
         it('allows additional DataSources', () => {
@@ -292,10 +300,10 @@ describe('request-resolver', () => {
             };
 
             const resolvedRequest = requestResolver(req, configs);
-            expect(resolvedRequest.resolvedConfig.attributes['resource2'].dataSources).to.have.all.keys(
+            assert.deepEqual(Object.keys(resolvedRequest.resolvedConfig.attributes['resource2'].dataSources), [
                 'primary',
                 'test'
-            );
+            ]);
         });
 
         it('does not allow overwriting of DataSources', () => {
@@ -309,9 +317,10 @@ describe('request-resolver', () => {
                 }
             };
 
-            expect(() => {
-                requestResolver(req, configs);
-            }).to.throw(ImplementationError, 'Cannot overwrite DataSource "primary" in "resource2"');
+            assert.throws(
+                () => requestResolver(req, configs),
+                new ImplementationError('Cannot overwrite DataSource "primary" in "resource2" (maybe use "inherit"?)')
+            );
         });
 
         it('does allow overwriting of DataSources with "inherit=inherit" flag', () => {
@@ -329,8 +338,9 @@ describe('request-resolver', () => {
             };
 
             const resolvedRequest = requestResolver(req, configs);
-            expect(resolvedRequest.resolvedConfig.attributes['resource2'].dataSources.primary.type).to.equal('test');
-            expect(resolvedRequest.resolvedConfig.attributes['resource2'].dataSources.primary.customFlag).to.equal(
+            assert.equal(resolvedRequest.resolvedConfig.attributes['resource2'].dataSources.primary.type, 'test');
+            assert.equal(
+                resolvedRequest.resolvedConfig.attributes['resource2'].dataSources.primary.customFlag,
                 'overwritten'
             );
         });
@@ -350,12 +360,12 @@ describe('request-resolver', () => {
             };
 
             const resolvedRequest = requestResolver(req, configs);
-            expect(resolvedRequest.resolvedConfig.attributes['resource2'].dataSources.primary.type).to.equal('test2');
-            expect(resolvedRequest.resolvedConfig.attributes['resource2'].dataSources.primary.customFlag).to.equal(
+            assert.equal(resolvedRequest.resolvedConfig.attributes['resource2'].dataSources.primary.type, 'test2');
+            assert.equal(
+                resolvedRequest.resolvedConfig.attributes['resource2'].dataSources.primary.customFlag,
                 'overwritten'
             );
-            expect(resolvedRequest.resolvedConfig.attributes['resource2'].dataSources.primary.otherFlag).to.be
-                .undefined;
+            assert.ok(!resolvedRequest.resolvedConfig.attributes['resource2'].dataSources.primary.otherFlag);
         });
     });
 
@@ -383,7 +393,7 @@ describe('request-resolver', () => {
             };
 
             const resolvedRequest = requestResolver(req, resourceConfigs);
-            expect(resolvedRequest.dataSourceTree).to.eql(dataSourceTree);
+            assert.deepEqual(resolvedRequest.dataSourceTree, dataSourceTree);
         });
 
         it('resolves request with id', () => {
@@ -415,7 +425,7 @@ describe('request-resolver', () => {
             };
 
             const resolvedRequest = requestResolver(req, resourceConfigs);
-            expect(resolvedRequest.dataSourceTree).to.eql(dataSourceTree);
+            assert.deepEqual(resolvedRequest.dataSourceTree, dataSourceTree);
         });
 
         it('resolves request with select', () => {
@@ -445,7 +455,7 @@ describe('request-resolver', () => {
             };
 
             const resolvedRequest = requestResolver(req, resourceConfigs);
-            expect(resolvedRequest.dataSourceTree).to.eql(dataSourceTree);
+            assert.deepEqual(resolvedRequest.dataSourceTree, dataSourceTree);
         });
 
         it('fails when selecting unknown attributes', () => {
@@ -457,9 +467,7 @@ describe('request-resolver', () => {
                 }
             };
 
-            expect(() => {
-                requestResolver(req, resourceConfigs);
-            }).to.throw(RequestError, 'Unknown attribute "invalid"');
+            assert.throws(() => requestResolver(req, resourceConfigs), new RequestError('Unknown attribute "invalid"'));
         });
 
         it('fails when selecting unknown sub-attributes', () => {
@@ -475,9 +483,10 @@ describe('request-resolver', () => {
                 }
             };
 
-            expect(() => {
-                requestResolver(req, resourceConfigs);
-            }).to.throw(RequestError, 'Unknown attribute "title.invalid"');
+            assert.throws(
+                () => requestResolver(req, resourceConfigs),
+                new RequestError('Unknown attribute "title.invalid"')
+            );
         });
 
         it('fails when selecting hidden attributes', () => {
@@ -489,9 +498,10 @@ describe('request-resolver', () => {
                 }
             };
 
-            expect(() => {
-                requestResolver(req, resourceConfigs);
-            }).to.throw(RequestError, 'Unknown attribute "secretInfo" - it is a hidden attribute');
+            assert.throws(
+                () => requestResolver(req, resourceConfigs),
+                new RequestError('Unknown attribute "secretInfo" - it is a hidden attribute')
+            );
         });
 
         it('resolves request with filter', () => {
@@ -519,7 +529,7 @@ describe('request-resolver', () => {
             };
 
             const resolvedRequest = requestResolver(req, resourceConfigs);
-            expect(resolvedRequest.dataSourceTree).to.eql(dataSourceTree);
+            assert.deepEqual(resolvedRequest.dataSourceTree, dataSourceTree);
         });
 
         it('fails when filtering non-filterable attributes', () => {
@@ -529,9 +539,10 @@ describe('request-resolver', () => {
                 filter: [[{ attribute: ['title'], operator: 'equal', value: 'Test' }]]
             };
 
-            expect(() => {
-                requestResolver(req, resourceConfigs);
-            }).to.throw(RequestError, 'Can not filter by attribute "title"');
+            assert.throws(
+                () => requestResolver(req, resourceConfigs),
+                new RequestError('Can not filter by attribute "title" ')
+            );
         });
 
         it('fails when filtering attributes with unallowed operators', () => {
@@ -541,11 +552,11 @@ describe('request-resolver', () => {
                 filter: [[{ attribute: ['date'], operator: 'notEqual', value: 'Test' }]]
             };
 
-            expect(() => {
-                requestResolver(req, resourceConfigs);
-            }).to.throw(
-                RequestError,
-                'Can not filter by attribute "date" with "notEqual" (allowed operators: greaterOrEqual, lessOrEqual)'
+            assert.throws(
+                () => requestResolver(req, resourceConfigs),
+                new RequestError(
+                    'Can not filter by attribute "date" with "notEqual" (allowed operators: greaterOrEqual, lessOrEqual)'
+                )
             );
         });
 
@@ -574,7 +585,7 @@ describe('request-resolver', () => {
             };
 
             const resolvedRequest = requestResolver(req, resourceConfigs);
-            expect(resolvedRequest.dataSourceTree).to.eql(dataSourceTree);
+            assert.deepEqual(resolvedRequest.dataSourceTree, dataSourceTree);
         });
 
         it('fails on search when resource does not support it', () => {
@@ -584,9 +595,10 @@ describe('request-resolver', () => {
                 search: 'test'
             };
 
-            expect(() => {
-                requestResolver(req, resourceConfigs);
-            }).to.throw(RequestError, 'Resource does not support fulltext-search');
+            assert.throws(
+                () => requestResolver(req, resourceConfigs),
+                new RequestError('Resource does not support fulltext-search')
+            );
         });
 
         it('resolves request with order', () => {
@@ -614,7 +626,7 @@ describe('request-resolver', () => {
             };
 
             const resolvedRequest = requestResolver(req, resourceConfigs);
-            expect(resolvedRequest.dataSourceTree).to.eql(dataSourceTree);
+            assert.deepEqual(resolvedRequest.dataSourceTree, dataSourceTree);
         });
 
         it('fails when ordering by non-sortable attributes', () => {
@@ -624,9 +636,10 @@ describe('request-resolver', () => {
                 order: [{ attribute: ['title'], direction: 'asc' }]
             };
 
-            expect(() => {
-                requestResolver(req, resourceConfigs);
-            }).to.throw(RequestError, 'Attribute "title" can not be ordered');
+            assert.throws(
+                () => requestResolver(req, resourceConfigs),
+                new RequestError('Attribute "title" can not be ordered')
+            );
         });
 
         it('fails when ordering attributes in unallowed directions', () => {
@@ -636,9 +649,10 @@ describe('request-resolver', () => {
                 order: [{ attribute: ['date'], direction: 'topflop' }]
             };
 
-            expect(() => {
-                requestResolver(req, resourceConfigs);
-            }).to.throw(RequestError, 'Attribute "date" can not be ordered "topflop" (allowed: asc, desc)');
+            assert.throws(
+                () => requestResolver(req, resourceConfigs),
+                new RequestError('Attribute "date" can not be ordered "topflop" (allowed: asc, desc)')
+            );
         });
 
         it('resolves request with limit', () => {
@@ -665,7 +679,7 @@ describe('request-resolver', () => {
             };
 
             const resolvedRequest = requestResolver(req, resourceConfigs);
-            expect(resolvedRequest.dataSourceTree).to.eql(dataSourceTree);
+            assert.deepEqual(resolvedRequest.dataSourceTree, dataSourceTree);
         });
 
         it('resolves request with limit/page', () => {
@@ -694,7 +708,7 @@ describe('request-resolver', () => {
             };
 
             const resolvedRequest = requestResolver(req, resourceConfigs);
-            expect(resolvedRequest.dataSourceTree).to.eql(dataSourceTree);
+            assert.deepEqual(resolvedRequest.dataSourceTree, dataSourceTree);
         });
 
         it('fails on request with page without limit', () => {
@@ -704,9 +718,10 @@ describe('request-resolver', () => {
                 page: 2
             };
 
-            expect(() => {
-                requestResolver(req, resourceConfigs);
-            }).to.throw(RequestError, 'Always specify a fixed limit when requesting page');
+            assert.throws(
+                () => requestResolver(req, resourceConfigs),
+                new RequestError('Always specify a fixed limit when requesting page')
+            );
         });
     });
 
@@ -721,8 +736,9 @@ describe('request-resolver', () => {
 
             const resolvedRequest = requestResolver(req, resourceConfigs2).dataSourceTree.request;
 
-            expect(resolvedRequest).to.have.property('limit', 42);
-            expect(resolvedRequest).to.not.have.property('limitPer');
+            assert.ok(Object.hasOwn(resolvedRequest, 'limit'));
+            assert.equal(resolvedRequest.limit, 42);
+            assert.ok(!Object.hasOwn(resolvedRequest, 'limitPer'));
         });
 
         it('uses limit to override defaultLimit', () => {
@@ -736,8 +752,9 @@ describe('request-resolver', () => {
 
             const resolvedRequest = requestResolver(req, resourceConfigs2).dataSourceTree.request;
 
-            expect(resolvedRequest).to.have.property('limit', 44);
-            expect(resolvedRequest).to.not.have.property('limitPer');
+            assert.ok(Object.hasOwn(resolvedRequest, 'limit'));
+            assert.equal(resolvedRequest.limit, 44);
+            assert.ok(!Object.hasOwn(resolvedRequest, 'limitPer'));
         });
 
         it('uses maxLimit if no limit is given', () => {
@@ -750,8 +767,9 @@ describe('request-resolver', () => {
 
             const resolvedRequest = requestResolver(req, resourceConfigs2).dataSourceTree.request;
 
-            expect(resolvedRequest).to.have.property('limit', 43);
-            expect(resolvedRequest).to.not.have.property('limitPer');
+            assert.ok(Object.hasOwn(resolvedRequest, 'limit'));
+            assert.equal(resolvedRequest.limit, 43);
+            assert.ok(!Object.hasOwn(resolvedRequest, 'limitPer'));
         });
 
         it('uses defaultLimit even if maxLimit is given', () => {
@@ -765,8 +783,9 @@ describe('request-resolver', () => {
 
             const resolvedRequest = requestResolver(req, resourceConfigs2).dataSourceTree.request;
 
-            expect(resolvedRequest).to.have.property('limit', 40);
-            expect(resolvedRequest).to.not.have.property('limitPer');
+            assert.ok(Object.hasOwn(resolvedRequest, 'limit'));
+            assert.equal(resolvedRequest.limit, 40);
+            assert.ok(!Object.hasOwn(resolvedRequest, 'limitPer'));
         });
 
         it('uses limit if limit <= maxLimit', () => {
@@ -780,8 +799,9 @@ describe('request-resolver', () => {
 
             const resolvedRequest = requestResolver(req, resourceConfigs2).dataSourceTree.request;
 
-            expect(resolvedRequest).to.have.property('limit', 45);
-            expect(resolvedRequest).to.not.have.property('limitPer');
+            assert.ok(Object.hasOwn(resolvedRequest, 'limit'));
+            assert.equal(resolvedRequest.limit, 45);
+            assert.ok(!Object.hasOwn(resolvedRequest, 'limitPer'));
         });
 
         it('fails if limit > maxLimit', () => {
@@ -793,9 +813,10 @@ describe('request-resolver', () => {
                 limit: 44
             };
 
-            expect(() => {
-                requestResolver(req, resourceConfigs2);
-            }).to.throw(RequestError, 'Invalid limit 44, maxLimit is 43');
+            assert.throws(
+                () => requestResolver(req, resourceConfigs2),
+                new RequestError('Invalid limit 44, maxLimit is 43')
+            );
         });
 
         it('allows limit = 0', () => {
@@ -806,8 +827,9 @@ describe('request-resolver', () => {
 
             const resolvedRequest = requestResolver(req, resourceConfigs).dataSourceTree.request;
 
-            expect(resolvedRequest).to.have.property('limit', 0);
-            expect(resolvedRequest).to.not.have.property('limitPer');
+            assert.ok(Object.hasOwn(resolvedRequest, 'limit'));
+            assert.equal(resolvedRequest.limit, 0);
+            assert.ok(!Object.hasOwn(resolvedRequest, 'limitPer'));
         });
 
         it('fails on limit on single resources', () => {
@@ -817,9 +839,10 @@ describe('request-resolver', () => {
                 limit: 2
             };
 
-            expect(() => {
-                requestResolver(req, resourceConfigs);
-            }).to.throw(RequestError, 'Invalid limit on a single resource');
+            assert.throws(
+                () => requestResolver(req, resourceConfigs),
+                new RequestError('Invalid limit on a single resource')
+            );
         });
     });
 
@@ -837,8 +860,10 @@ describe('request-resolver', () => {
             const resolvedRequest = requestResolver(req, resourceConfigs);
             const resolvedSubRequest = resolvedRequest.dataSourceTree.subRequests[0].request;
 
-            expect(resolvedSubRequest).to.have.property('limit', 5);
-            expect(resolvedSubRequest).to.have.property('limitPer', 'articleId');
+            assert.ok(Object.hasOwn(resolvedSubRequest, 'limit'));
+            assert.equal(resolvedSubRequest.limit, 5);
+            assert.ok(Object.hasOwn(resolvedSubRequest, 'limitPer'));
+            assert.equal(resolvedSubRequest.limitPer, 'articleId');
         });
 
         it('uses defaultLimit if no limit is given', () => {
@@ -856,8 +881,9 @@ describe('request-resolver', () => {
             const resolvedRequest = requestResolver(req, resourceConfigs2);
             const resolvedSubRequest = resolvedRequest.dataSourceTree.subRequests[0].request;
 
-            expect(resolvedSubRequest).to.have.property('limit', 42);
-            expect(resolvedSubRequest).to.not.have.property('limitPer');
+            assert.ok(Object.hasOwn(resolvedSubRequest, 'limit'));
+            assert.equal(resolvedSubRequest.limit, 42);
+            assert.ok(!Object.hasOwn(resolvedSubRequest, 'limitPer'));
         });
 
         it('uses limit to override defaultLimit', () => {
@@ -877,8 +903,9 @@ describe('request-resolver', () => {
             const resolvedRequest = requestResolver(req, resourceConfigs2);
             const resolvedSubRequest = resolvedRequest.dataSourceTree.subRequests[0].request;
 
-            expect(resolvedSubRequest).to.have.property('limit', 44);
-            expect(resolvedSubRequest).to.not.have.property('limitPer');
+            assert.ok(Object.hasOwn(resolvedSubRequest, 'limit'));
+            assert.equal(resolvedSubRequest.limit, 44);
+            assert.ok(!Object.hasOwn(resolvedSubRequest, 'limitPer'));
         });
 
         it('uses maxLimit if no limit is given', () => {
@@ -896,8 +923,9 @@ describe('request-resolver', () => {
             const resolvedRequest = requestResolver(req, resourceConfigs2);
             const resolvedSubRequest = resolvedRequest.dataSourceTree.subRequests[0].request;
 
-            expect(resolvedSubRequest).to.have.property('limit', 43);
-            expect(resolvedSubRequest).to.not.have.property('limitPer');
+            assert.ok(Object.hasOwn(resolvedSubRequest, 'limit'));
+            assert.equal(resolvedSubRequest.limit, 43);
+            assert.ok(!Object.hasOwn(resolvedSubRequest, 'limitPer'));
         });
 
         it('uses defaultLimit even if maxLimit is given', () => {
@@ -916,8 +944,9 @@ describe('request-resolver', () => {
             const resolvedRequest = requestResolver(req, resourceConfigs2);
             const resolvedSubRequest = resolvedRequest.dataSourceTree.subRequests[0].request;
 
-            expect(resolvedSubRequest).to.have.property('limit', 40);
-            expect(resolvedSubRequest).to.not.have.property('limitPer');
+            assert.ok(Object.hasOwn(resolvedSubRequest, 'limit'));
+            assert.equal(resolvedSubRequest.limit, 40);
+            assert.ok(!Object.hasOwn(resolvedSubRequest, 'limitPer'));
         });
 
         it('uses limit if limit <= maxLimit', () => {
@@ -937,8 +966,9 @@ describe('request-resolver', () => {
             const resolvedRequest = requestResolver(req, resourceConfigs2);
             const resolvedSubRequest = resolvedRequest.dataSourceTree.subRequests[0].request;
 
-            expect(resolvedSubRequest).to.have.property('limit', 45);
-            expect(resolvedSubRequest).to.not.have.property('limitPer');
+            assert.ok(Object.hasOwn(resolvedSubRequest, 'limit'));
+            assert.equal(resolvedSubRequest.limit, 45);
+            assert.ok(!Object.hasOwn(resolvedSubRequest, 'limitPer'));
         });
 
         it('fails if limit > maxLimit', () => {
@@ -955,9 +985,10 @@ describe('request-resolver', () => {
                 }
             };
 
-            expect(() => {
-                requestResolver(req, resourceConfigs2);
-            }).to.throw(RequestError, 'Invalid limit 46, maxLimit is 45 (in "comments")');
+            assert.throws(
+                () => requestResolver(req, resourceConfigs2),
+                new RequestError('Invalid limit 46, maxLimit is 45 (in "comments")')
+            );
         });
 
         it('fails on limit on single sub-resources', () => {
@@ -971,9 +1002,10 @@ describe('request-resolver', () => {
                 }
             };
 
-            expect(() => {
-                requestResolver(req, resourceConfigs);
-            }).to.throw(RequestError, 'Invalid limit on a single resource (in "author")');
+            assert.throws(
+                () => requestResolver(req, resourceConfigs),
+                new RequestError('Invalid limit on a single resource (in "author")')
+            );
         });
     });
 
@@ -1010,7 +1042,7 @@ describe('request-resolver', () => {
             };
 
             const resolvedRequest = requestResolver(req, resourceConfigs2);
-            expect(resolvedRequest.dataSourceTree).to.eql(dataSourceTree);
+            assert.deepEqual(resolvedRequest.dataSourceTree, dataSourceTree);
         });
 
         it('uses order to override defaultOrder', () => {
@@ -1051,7 +1083,7 @@ describe('request-resolver', () => {
             };
 
             const resolvedRequest = requestResolver(req, resourceConfigs2);
-            expect(resolvedRequest.dataSourceTree).to.eql(dataSourceTree);
+            assert.deepEqual(resolvedRequest.dataSourceTree, dataSourceTree);
         });
     });
 
@@ -1067,9 +1099,10 @@ describe('request-resolver', () => {
                 }
             };
 
-            expect(() => {
-                requestResolver(req, resourceConfigs);
-            }).to.throw(RequestError, 'ID option only allowed at root (in "comments")');
+            assert.throws(
+                () => requestResolver(req, resourceConfigs),
+                new RequestError('ID option only allowed at root (in "comments")')
+            );
         });
 
         it('fails on sub-resource-options on non-resource-nodes', () => {
@@ -1083,9 +1116,10 @@ describe('request-resolver', () => {
                 }
             };
 
-            expect(() => {
-                requestResolver(req, resourceConfigs);
-            }).to.throw(RequestError, 'Sub-Resource options not possible on "source"');
+            assert.throws(
+                () => requestResolver(req, resourceConfigs),
+                new RequestError('Sub-Resource options not possible on "source"')
+            );
 
             // only "select" is allowed here (standard case):
             // /article/?select=source.name
@@ -1100,9 +1134,7 @@ describe('request-resolver', () => {
                 }
             };
 
-            expect(() => {
-                requestResolver(req, resourceConfigs);
-            }).to.not.throw(Error);
+            assert.doesNotThrow(() => requestResolver(req, resourceConfigs), Error);
         });
     });
 
@@ -1159,7 +1191,7 @@ describe('request-resolver', () => {
             };
 
             const resolvedRequest = requestResolver(req, resourceConfigs);
-            expect(resolvedRequest.dataSourceTree).to.eql(dataSourceTree);
+            assert.deepEqual(resolvedRequest.dataSourceTree, dataSourceTree);
         });
 
         it('resolves selected sub-resource (1:n relation)', () => {
@@ -1215,7 +1247,7 @@ describe('request-resolver', () => {
             };
 
             const resolvedRequest = requestResolver(req, resourceConfigs);
-            expect(resolvedRequest.dataSourceTree).to.eql(dataSourceTree);
+            assert.deepEqual(resolvedRequest.dataSourceTree, dataSourceTree);
         });
 
         it('resolves selected sub-resource (1:n relation) with secondary DataSource', () => {
@@ -1294,7 +1326,7 @@ describe('request-resolver', () => {
             };
 
             const resolvedRequest = requestResolver(req, resourceConfigs);
-            expect(resolvedRequest.dataSourceTree).to.eql(dataSourceTree);
+            assert.deepEqual(resolvedRequest.dataSourceTree, dataSourceTree);
         });
 
         it('resolves selected sub-resource (n:1 relation)', () => {
@@ -1353,7 +1385,7 @@ describe('request-resolver', () => {
             };
 
             const resolvedRequest = requestResolver(req, resourceConfigs);
-            expect(resolvedRequest.dataSourceTree).to.eql(dataSourceTree);
+            assert.deepEqual(resolvedRequest.dataSourceTree, dataSourceTree);
         });
 
         it('resolves selected sub-resource (m:n - with multi-values and delimiter)', () => {
@@ -1410,7 +1442,7 @@ describe('request-resolver', () => {
             };
 
             const resolvedRequest = requestResolver(req, resourceConfigs);
-            expect(resolvedRequest.dataSourceTree).to.eql(dataSourceTree);
+            assert.deepEqual(resolvedRequest.dataSourceTree, dataSourceTree);
         });
 
         it('resolves selected sub-resource (m:n - with join-table + additional fields)', () => {
@@ -1489,7 +1521,7 @@ describe('request-resolver', () => {
             };
 
             const resolvedRequest = requestResolver(req, resourceConfigs);
-            expect(resolvedRequest.dataSourceTree).to.eql(dataSourceTree);
+            assert.deepEqual(resolvedRequest.dataSourceTree, dataSourceTree);
         });
 
         it('combines filter for selected sub-resource', () => {
@@ -1554,7 +1586,7 @@ describe('request-resolver', () => {
             };
 
             const resolvedRequest = requestResolver(req, resourceConfigs);
-            expect(resolvedRequest.dataSourceTree).to.eql(dataSourceTree);
+            assert.deepEqual(resolvedRequest.dataSourceTree, dataSourceTree);
         });
     });
 
@@ -1589,8 +1621,8 @@ describe('request-resolver', () => {
             };
 
             const resolvedRequest = requestResolver(req, configs);
-            expect(resolvedRequest.dataSourceTree).to.eql(dataSourceTree);
-            expect(resolvedRequest.resolvedConfig.attributes['date'].selected).not.to.be.true;
+            assert.deepEqual(resolvedRequest.dataSourceTree, dataSourceTree);
+            assert.notEqual(resolvedRequest.resolvedConfig.attributes['date'].selected, true);
         });
 
         it('allows to depend on hidden attributes', () => {
@@ -1623,8 +1655,8 @@ describe('request-resolver', () => {
             };
 
             const resolvedRequest = requestResolver(req, configs);
-            expect(resolvedRequest.dataSourceTree).to.eql(dataSourceTree);
-            expect(resolvedRequest.resolvedConfig.attributes['secretInfo'].selected).not.to.be.true;
+            assert.deepEqual(resolvedRequest.dataSourceTree, dataSourceTree);
+            assert.notEqual(resolvedRequest.resolvedConfig.attributes['secretInfo'].selected, true);
         });
 
         it('selects recursive dependencies', () => {
@@ -1659,8 +1691,8 @@ describe('request-resolver', () => {
             };
 
             const resolvedRequest = requestResolver(req, configs);
-            expect(resolvedRequest.dataSourceTree).to.eql(dataSourceTree);
-            expect(resolvedRequest.resolvedConfig.attributes['date'].selected).not.to.be.true;
+            assert.deepEqual(resolvedRequest.dataSourceTree, dataSourceTree);
+            assert.ok(!resolvedRequest.resolvedConfig.attributes['date'].selected);
         });
 
         it('selects cyclic dependencies properly', () => {
@@ -1696,8 +1728,8 @@ describe('request-resolver', () => {
             };
 
             const resolvedRequest = requestResolver(req, configs);
-            expect(resolvedRequest.dataSourceTree).to.eql(dataSourceTree);
-            expect(resolvedRequest.resolvedConfig.attributes['date'].selected).not.to.be.true;
+            assert.deepEqual(resolvedRequest.dataSourceTree, dataSourceTree);
+            assert.notEqual(resolvedRequest.resolvedConfig.attributes['date'].selected, true);
         });
 
         it('selects dependant sub-resources internally', () => {
@@ -1756,8 +1788,8 @@ describe('request-resolver', () => {
             };
 
             const resolvedRequest = requestResolver(req, configs);
-            expect(resolvedRequest.dataSourceTree).to.eql(dataSourceTree);
-            expect(resolvedRequest.resolvedConfig.attributes['author'].selected).not.to.be.true;
+            assert.deepEqual(resolvedRequest.dataSourceTree, dataSourceTree);
+            assert.notEqual(resolvedRequest.resolvedConfig.attributes['author'].selected, true);
         });
 
         it('selects dependant attributes on sub-resources', () => {
@@ -1820,9 +1852,9 @@ describe('request-resolver', () => {
             };
 
             const resolvedRequest = requestResolver(req, configs);
-            expect(resolvedRequest.dataSourceTree).to.eql(dataSourceTree);
-            expect(resolvedRequest.resolvedConfig.attributes['video'].attributes['youtubeId'].selected).not.to.be.true;
-            expect(resolvedRequest.resolvedConfig.attributes['video'].attributes['url'].selected).not.to.be.true;
+            assert.deepEqual(resolvedRequest.dataSourceTree, dataSourceTree);
+            assert.notEqual(resolvedRequest.resolvedConfig.attributes['video'].attributes['youtubeId'].selected, true);
+            assert.notEqual(resolvedRequest.resolvedConfig.attributes['video'].attributes['url'].selected, true);
         });
 
         it('uses correct {root} context for inline sub-resource', () => {
@@ -1855,7 +1887,7 @@ describe('request-resolver', () => {
             };
 
             requestResolver(req, configs);
-            expect(resolvedReq).to.eql(req);
+            assert.deepEqual(resolvedReq, req);
         });
 
         it('uses correct {root} context for included sub-resource', () => {
@@ -1890,7 +1922,7 @@ describe('request-resolver', () => {
             };
 
             requestResolver(req, configs);
-            expect(resolvedReq).to.eql(req);
+            assert.deepEqual(resolvedReq, req);
         });
 
         it('handles "depends" at root level', () => {
@@ -1912,7 +1944,7 @@ describe('request-resolver', () => {
             };
 
             requestResolver(req, configs);
-            expect(resolvedReq).to.eql(req);
+            assert.deepEqual(resolvedReq, req);
         });
 
         it('uses correct relative context for included sub-resource', () => {
@@ -1940,7 +1972,7 @@ describe('request-resolver', () => {
             };
 
             requestResolver(req, configs);
-            expect(resolvedReq).to.eql(req);
+            assert.deepEqual(resolvedReq, req);
         });
 
         it('uses correct {root} context for included sub-resource 2', () => {
@@ -1968,7 +2000,7 @@ describe('request-resolver', () => {
             };
 
             requestResolver(req, configs);
-            expect(resolvedReq).to.eql(req);
+            assert.deepEqual(resolvedReq, req);
         });
 
         it('uses correct {root} context for merged included sub-resource ("depends" in parent)', () => {
@@ -2009,7 +2041,7 @@ describe('request-resolver', () => {
             };
 
             requestResolver(req, configs);
-            expect(resolvedReq).to.eql(req);
+            assert.deepEqual(resolvedReq, req);
         });
 
         it('uses correct {root} context for merged included sub-resource ("depends" in child)', () => {
@@ -2050,7 +2082,7 @@ describe('request-resolver', () => {
             };
 
             requestResolver(req, configs);
-            expect(resolvedReq).to.eql(req);
+            assert.deepEqual(resolvedReq, req);
         });
 
         it('handles "depends" + "select" on same sub-resource', () => {
@@ -2110,10 +2142,10 @@ describe('request-resolver', () => {
             };
 
             const resolvedRequest = requestResolver(req, configs);
-            expect(resolvedRequest.dataSourceTree).to.eql(dataSourceTree);
-            expect(resolvedRequest.resolvedConfig.attributes['author'].selected).to.be.true;
-            expect(resolvedRequest.resolvedConfig.attributes['author'].attributes['firstname'].selected).to.be.true;
-            expect(resolvedRequest.resolvedConfig.attributes['author'].attributes['lastname'].selected).not.to.be.true;
+            assert.deepEqual(resolvedRequest.dataSourceTree, dataSourceTree);
+            assert.equal(resolvedRequest.resolvedConfig.attributes['author'].selected, true);
+            assert.equal(resolvedRequest.resolvedConfig.attributes['author'].attributes['firstname'].selected, true);
+            assert.notEqual(resolvedRequest.resolvedConfig.attributes['author'].attributes['lastname'].selected, true);
         });
     });
 
@@ -2167,7 +2199,7 @@ describe('request-resolver', () => {
             };
 
             const resolvedRequest = requestResolver(req, resourceConfigs);
-            expect(resolvedRequest.dataSourceTree).to.eql(dataSourceTree);
+            assert.deepEqual(resolvedRequest.dataSourceTree, dataSourceTree);
         });
 
         it('resolves parentKey in secondary DataSources', () => {
@@ -2250,8 +2282,8 @@ describe('request-resolver', () => {
             };
 
             const resolvedRequest = requestResolver(req, resourceConfigs);
-            expect(resolvedRequest.dataSourceTree).to.eql(dataSourceTree);
-            expect(resolvedRequest.resolvedConfig.attributes['author'].parentDataSource).to.equal('primary');
+            assert.deepEqual(resolvedRequest.dataSourceTree, dataSourceTree);
+            assert.equal(resolvedRequest.resolvedConfig.attributes['author'].parentDataSource, 'primary');
         });
     });
 
@@ -2309,7 +2341,7 @@ describe('request-resolver', () => {
             };
 
             const resolvedRequest = requestResolver(req, resourceConfigs);
-            expect(resolvedRequest.dataSourceTree).to.eql(dataSourceTree);
+            assert.deepEqual(resolvedRequest.dataSourceTree, dataSourceTree);
         });
 
         it('resolves composite parentKey/childKey', () => {
@@ -2399,7 +2431,7 @@ describe('request-resolver', () => {
             };
 
             const resolvedRequest = requestResolver(req, resourceConfigs);
-            expect(resolvedRequest.dataSourceTree).to.eql(dataSourceTree);
+            assert.deepEqual(resolvedRequest.dataSourceTree, dataSourceTree);
         });
     });
 
@@ -2450,7 +2482,7 @@ describe('request-resolver', () => {
             };
 
             const resolvedRequest = requestResolver(req, configs);
-            expect(resolvedRequest.dataSourceTree).to.eql(dataSourceTree);
+            assert.deepEqual(resolvedRequest.dataSourceTree, dataSourceTree);
         });
 
         it('resolves filter by sub-resource primary key with "rewriteTo"', () => {
@@ -2479,7 +2511,7 @@ describe('request-resolver', () => {
             };
 
             const resolvedRequest = requestResolver(req, resourceConfigs);
-            expect(resolvedRequest.dataSourceTree).to.eql(dataSourceTree);
+            assert.deepEqual(resolvedRequest.dataSourceTree, dataSourceTree);
         });
 
         it('resolves filter by sub-resource-attribute', () => {
@@ -2525,7 +2557,7 @@ describe('request-resolver', () => {
             };
 
             const resolvedRequest = requestResolver(req, resourceConfigs);
-            expect(resolvedRequest.dataSourceTree).to.eql(dataSourceTree);
+            assert.deepEqual(resolvedRequest.dataSourceTree, dataSourceTree);
         });
 
         it('resolves filter by sub-sub-resource', () => {
@@ -2588,7 +2620,7 @@ describe('request-resolver', () => {
             };
 
             const resolvedRequest = requestResolver(req, resourceConfigs);
-            expect(resolvedRequest.dataSourceTree).to.eql(dataSourceTree);
+            assert.deepEqual(resolvedRequest.dataSourceTree, dataSourceTree);
         });
 
         it('resolves filter by sub-resource with joinVia', () => {
@@ -2655,7 +2687,7 @@ describe('request-resolver', () => {
             };
 
             const resolvedRequest = requestResolver(req, resourceConfigs);
-            expect(resolvedRequest.dataSourceTree).to.eql(dataSourceTree);
+            assert.deepEqual(resolvedRequest.dataSourceTree, dataSourceTree);
         });
     });
 
@@ -2875,9 +2907,9 @@ describe('request-resolver', () => {
             };
 
             const resolvedRequest = requestResolver(req, testResourceConfigs);
-            expect(resolvedRequest.dataSourceTree).to.eql(dataSourceTree);
-            expect(resolvedRequest.resolvedConfig.attributes['subResource1'].parentDataSource).to.equal('secondary1');
-            expect(resolvedRequest.resolvedConfig.attributes['subResource2'].parentDataSource).to.equal('secondary2');
+            assert.deepEqual(resolvedRequest.dataSourceTree, dataSourceTree);
+            assert.equal(resolvedRequest.resolvedConfig.attributes['subResource1'].parentDataSource, 'secondary1');
+            assert.equal(resolvedRequest.resolvedConfig.attributes['subResource2'].parentDataSource, 'secondary2');
         });
 
         it('resolves full-featured request', () => {
@@ -3042,7 +3074,7 @@ describe('request-resolver', () => {
             };
 
             const resolvedRequest = requestResolver(req, resourceConfigs);
-            expect(resolvedRequest.dataSourceTree).to.eql(dataSourceTree);
+            assert.deepEqual(resolvedRequest.dataSourceTree, dataSourceTree);
         });
 
         it('resolves resolved-config.json fixture correctly', () => {
@@ -3134,7 +3166,7 @@ describe('request-resolver', () => {
             // for manually generating fixture:
             //console.log(JSON.stringify(resolvedRequest.resolvedConfig, null, 4));
 
-            expect(resolvedRequest.resolvedConfig).to.eql(resolvedConfig);
+            assert.deepEqual(resolvedRequest.resolvedConfig, resolvedConfig);
         });
     });
 });

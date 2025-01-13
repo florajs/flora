@@ -1,15 +1,14 @@
 'use strict';
 
-const path = require('path');
+const { describe, it } = require('node:test');
+const assert = require('node:assert/strict');
+const path = require('node:path');
+const { once } = require('events');
 
-const chai = require('chai');
 const nullLogger = require('abstract-logging');
 
 const { Api } = require('../');
 const Request = require('../lib/request');
-
-const expect = chai.expect;
-chai.use(require('sinon-chai'));
 
 const log = nullLogger;
 log.child = () => log;
@@ -49,15 +48,13 @@ const testConfig = {
 describe('extensions', () => {
     describe('Api', () => {
         describe('init', () => {
-            it('is emitted when the instance is initialized', (done) => {
+            it('is emitted when the instance is initialized', async (ctx) => {
                 const api = new Api();
 
-                api.on('init', async () => {
-                    await api.close();
-                    done();
-                });
+                process.nextTick(() => api.init({ log }));
+                ctx.after(() => api.close());
 
-                api.init({ log });
+                return once(api, 'init');
             });
 
             it('can be called asynchronously', async () => {
@@ -69,7 +66,7 @@ describe('extensions', () => {
                 });
 
                 await api.init({ log });
-                expect(initEmitted).to.eql(true);
+                assert.equal(initEmitted, true);
                 await api.close();
             });
         });
@@ -81,18 +78,16 @@ describe('extensions', () => {
                 await api.init({ log });
 
                 api.on('request', (ev) => {
-                    expect(ev).to.be.an('object');
-                    expect(ev.request).to.be.an('object');
-                    expect(ev.request.resource).to.eql('test');
+                    assert.equal(typeof ev, 'object');
+                    assert.equal(typeof ev.request, 'object');
+                    assert.equal(ev.request.resource, 'test');
                 });
 
                 const request = new Request({ resource: 'test' });
-                try {
-                    await api.execute(request);
-                } catch (err) {
-                    // ignore 'Unknown resource "test"'
-                    if (err.code !== 'ERR_NOT_FOUND') throw err;
-                }
+                await assert.rejects(api.execute(request), {
+                    message: 'Unknown resource "test" in request',
+                    code: 'ERR_NOT_FOUND'
+                });
                 await api.close();
             });
         });
@@ -105,29 +100,29 @@ describe('extensions', () => {
 
                 let emitted = false;
                 api.on('response', (ev) => {
-                    expect(ev).to.be.an('object');
-                    expect(ev.response).to.be.an('object');
-                    expect(ev.response.data).to.be.an('array');
+                    assert.equal(typeof ev, 'object');
+                    assert.equal(typeof ev.response, 'object');
+                    assert.ok(Array.isArray(ev.response.data));
                     emitted = true;
                 });
 
                 const request = new Request({ resource: 'test' });
                 await api.execute(request);
-                expect(emitted).to.eql(true);
+                assert.equal(emitted, true);
                 await api.close();
             });
         });
 
         describe('close', () => {
-            it('is emitted when the instance is closed', (done) => {
+            it('is emitted when the instance is closed', async () => {
                 const api = new Api();
                 api.on('init', () => {
                     api.close();
                 });
 
-                api.on('close', done);
-
                 api.init({ log });
+
+                return once(api, 'close');
             });
         });
     });
@@ -139,7 +134,7 @@ describe('extensions', () => {
 
                 await api.init(testConfig);
                 const resource = api.getResource('test');
-                expect(resource._initCalled()).to.equal(1);
+                assert.equal(resource._initCalled(), 1);
                 await api.close();
             });
 
@@ -151,7 +146,7 @@ describe('extensions', () => {
 
                 const request = new Request({ resource: 'test' });
                 await api.execute(request);
-                expect(resource._initCalled()).to.equal(1);
+                assert.equal(resource._initCalled(), 1);
                 await api.close();
             });
         });
@@ -164,11 +159,11 @@ describe('extensions', () => {
 
                 const request = new Request({ resource: 'test' });
                 api.on('response', (ev) => {
-                    expect(ev).to.be.an('object');
-                    expect(ev.response).to.be.an('object');
-                    expect(ev.response.data).to.be.an('array');
-                    expect(ev.response.data.length).to.greaterThan(0);
-                    expect(ev.response.data[0]).to.eql({
+                    assert.equal(typeof ev, 'object');
+                    assert.equal(typeof ev.response, 'object');
+                    assert.ok(Array.isArray(ev.response.data));
+                    assert.ok(ev.response.data.length > 0);
+                    assert.deepEqual(ev.response.data[0], {
                         id: 1,
                         bar: 'baz' // this is set by "item" callback, see fixtures/extensions/test/index.js
                     });
@@ -187,12 +182,12 @@ describe('extensions', () => {
 
                 const request = new Request({ resource: 'test' });
                 api.on('response', (ev) => {
-                    expect(ev).to.be.an('object');
-                    expect(ev.response).to.be.an('object');
+                    assert.equal(typeof ev, 'object');
+                    assert.equal(typeof ev.response, 'object');
 
                     // this is set by "preExecute" callback, see fixtures/extensions/test/index.js
-                    expect(ev.request._preExecuteArgs).to.be.an('object');
-                    expect(ev.request._preExecuteArgs.dataSourceTree).to.be.an('object');
+                    assert.equal(typeof ev.request._preExecuteArgs, 'object');
+                    assert.equal(typeof ev.request._preExecuteArgs.dataSourceTree, 'object');
                 });
 
                 await api.execute(request);
@@ -208,13 +203,13 @@ describe('extensions', () => {
                 const request = new Request({ resource: 'test' });
 
                 api.on('response', (ev) => {
-                    expect(ev).to.be.an('object');
-                    expect(ev.response).to.be.an('object');
+                    assert.equal(typeof ev, 'object');
+                    assert.equal(typeof ev.response, 'object');
 
                     // this is set by "postExecute" callback, see fixtures/extensions/test/index.js
-                    expect(ev.request._postExecuteArgs).to.be.an('object');
-                    expect(ev.request._postExecuteArgs.rawResults).to.be.an('object');
-                    expect(ev.request._postExecuteArgs.rawResults.data).to.be.an('array');
+                    assert.equal(typeof ev.request._postExecuteArgs, 'object');
+                    assert.equal(typeof ev.request._postExecuteArgs.rawResults, 'object');
+                    assert.ok(Array.isArray(ev.request._postExecuteArgs.rawResults.data));
                 });
 
                 await api.execute(request);
