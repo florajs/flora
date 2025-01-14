@@ -4,6 +4,7 @@
   "description": "FLexible Open Rest API",
   "main": "index.js",
   "scripts": {
+    "prepare": "git config --local core.hooksPath .githooks",
     "doc": "jsdoc -R README.md -d build/docs lib",
     "test": "node --test test/*.spec.js",
     "lint": "eslint .",
@@ -13,7 +14,6 @@
     "index.js",
     "lib/"
   ],
-  "pre-commit": "test-lint",
   "keywords": [
     "api",
     "framework",
@@ -64,7 +64,6 @@
     "globals": "^15.14.0",
     "jsdoc": "^4.0.4",
     "mock-fs": "^5.4.1",
-    "pre-commit": "^1.2.2",
     "prettier": "^3.4.2"
   }
 }
