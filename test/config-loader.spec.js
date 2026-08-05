@@ -2,6 +2,9 @@
 
 const { describe, it, afterEach } = require('node:test');
 const assert = require('node:assert/strict');
+const fs = require('node:fs');
+const os = require('node:os');
+const path = require('node:path');
 
 const fsMock = require('mock-fs');
 // const sinon = require('sinon');
@@ -201,6 +204,45 @@ describe('config-loader', () => {
         assert.deepEqual(configs, {
             'groupfolder1/resource': { config: 'xml config' },
             'groupfolder2/groupfolder3/resource': { config: 'xml config' }
+        });
+    });
+
+    describe('loading resources from TypeScript (.ts) index files', () => {
+        let dir;
+
+        afterEach(async () => {
+            await fs.promises.rm(dir, { recursive: true, force: true });
+        });
+
+        /**
+         * require() reads through the real fs module, so mock-fs (which only patches
+         * the public fs API, not the internal bindings the CJS loader uses to resolve
+         * and load modules) can't be used to test instance-file loading. Write real,
+         * throwaway files to disk instead.
+         */
+        async function createTmpResourceDir(instanceFileName, instanceFileContent) {
+            const dir = await fs.promises.mkdtemp(path.join(os.tmpdir(), 'flora-config-loader-'));
+            await fs.promises.mkdir(path.join(dir, 'resource1'));
+            await fs.promises.writeFile(path.join(dir, 'resource1', instanceFileName), instanceFileContent);
+            return dir;
+        }
+
+        it('should load a resource from an index.ts file', async () => {
+            dir = await createTmpResourceDir(
+                'index.ts',
+                "export default (api: unknown) => ({ language: 'typescript' });"
+            );
+
+            const configs = await configLoader(api, { directory: dir });
+            assert.deepEqual(configs.resource1.instance, { language: 'typescript' });
+        });
+
+        it('should issue an error if the ESM default export is not a function', async () => {
+            dir = await createTmpResourceDir('index.ts', "export default 'not-a-function';");
+
+            await assert.rejects(configLoader(api, { directory: dir }), (err) =>
+                err.message.startsWith('Resource does not export a function: ')
+            );
         });
     });
 
