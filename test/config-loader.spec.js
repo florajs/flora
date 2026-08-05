@@ -240,9 +240,12 @@ describe('config-loader', () => {
         it('should issue an error if the ESM default export is not a function', async () => {
             dir = await createTmpResourceDir('index.ts', "export default 'not-a-function';");
 
-            await assert.rejects(configLoader(api, { directory: dir }), (err) =>
-                err.message.startsWith('Resource does not export a function: ')
-            );
+            await assert.rejects(configLoader(api, { directory: dir }), (err) => {
+                assert.equal(err.name, 'ImplementationError');
+                assert.ok(err.message.startsWith('Resource does not export a function: '));
+                assert.ok(err.message.endsWith('resource1/index.ts'));
+                return true;
+            });
         });
     });
 
