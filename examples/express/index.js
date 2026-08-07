@@ -49,7 +49,7 @@ module.exports = function (api) {
         if (matches[3]) opts.format = matches[3];
 
         parsedUrl.searchParams.forEach((value, param) => {
-            if (!Object.prototype.hasOwnProperty.call(opts, param)) {
+            if (!Object.hasOwn(opts, param)) {
                 if (parsedUrl.searchParams.getAll(param).length > 1) {
                     return next(new errors.RequestError(`Duplicate parameter "${param}" in URL`));
                 }
