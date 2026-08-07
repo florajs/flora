@@ -180,6 +180,37 @@ describe('HTTP request parsing', () => {
             assert.equal(request._httpRequest.body.b, 'false');
         });
 
+        [
+            {
+                description: 'should reject POST with malformed Content-Type header',
+                mutate: (headers) => (headers['content-type'] = ';;;not a valid content type;;;'),
+                message: 'Error parsing Content-Type header: invalid media type'
+            },
+            {
+                description: 'should reject POST with missing Content-Type header',
+                mutate: (headers) => delete headers['content-type'],
+                message: 'Missing required Content-Type headers'
+            },
+            {
+                description: 'should reject POST with empty Content-Type header',
+                mutate: (headers) => (headers['content-type'] = ''),
+                message: 'Missing required Content-Type headers'
+            }
+        ].forEach(({ description, mutate, message }) => {
+            it(description, async () => {
+                httpRequest.url = 'http://api.example.com/user/';
+                httpRequest.payload = '{"a": true}';
+                httpRequest.method = 'POST';
+                httpRequest.headers['content-length'] = httpRequest.payload.length;
+                mutate(httpRequest.headers);
+
+                await assert.rejects(parseRequest(httpRequest), {
+                    name: 'RequestError',
+                    message
+                });
+            });
+        });
+
         it('should time out after postTimeout', async () => {
             const slowRequest = {
                 flora: { status: {} },
