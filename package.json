@@ -42,7 +42,7 @@
     }
   ],
   "engines": {
-    "node": ">=18"
+    "node": ">=22"
   },
   "dependencies": {
     "@florajs/cluster": "^4.0.2",
