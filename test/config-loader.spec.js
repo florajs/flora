@@ -22,7 +22,7 @@ function parseXml(/* file */) {
 
 describe('config-loader', () => {
     it('should issue an error if config directory does not exist', async () => {
-        const directory = require('path').resolve('nonexistent-directory');
+        const directory = require('node:path').resolve('nonexistent-directory');
 
         await assert.rejects(
             configLoader(api, { directory }),

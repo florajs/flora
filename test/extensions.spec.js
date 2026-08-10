@@ -3,7 +3,7 @@
 const { describe, it } = require('node:test');
 const assert = require('node:assert/strict');
 const path = require('node:path');
-const { once } = require('events');
+const { once } = require('node:events');
 
 const nullLogger = require('abstract-logging');
 

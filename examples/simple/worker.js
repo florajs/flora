@@ -1,4 +1,4 @@
-const path = require('path');
+const path = require('node:path');
 const flora = require('flora');
 
 const server = new flora.Server(path.join(__dirname, 'config.example.js'));
