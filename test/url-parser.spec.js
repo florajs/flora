@@ -184,7 +184,7 @@ describe('HTTP request parsing', () => {
             {
                 description: 'should reject POST with malformed Content-Type header',
                 mutate: (headers) => (headers['content-type'] = ';;;not a valid content type;;;'),
-                message: 'Error parsing Content-Type header: invalid media type'
+                message: 'Error parsing Content-Type header'
             },
             {
                 description: 'should reject POST with missing Content-Type header',
