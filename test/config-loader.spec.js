@@ -27,7 +27,7 @@ describe('config-loader', () => {
 
         await assert.rejects(
             configLoader(api, { directory }),
-            new Error(`Config directory "${directory}" does not exist`)
+            new ImplementationError(`Cannot access config directory "${directory}"`)
         );
     });
 
