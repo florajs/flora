@@ -1,4 +1,4 @@
-const path = require('path');
+const path = require('node:path');
 
 module.exports = {
     exec: path.join(__dirname, 'worker.js'),

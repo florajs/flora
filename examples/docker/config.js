@@ -1,4 +1,4 @@
-const path = require('path');
+const path = require('node:path');
 
 module.exports = {
     resourcesPath: path.join(__dirname, 'resources'),

@@ -2,7 +2,7 @@
 
 const errors = require('@florajs/errors');
 const flora = require('flora');
-const { URL } = require('url');
+const { URL } = require('node:url');
 
 module.exports = function (api) {
     function sendResponse(response, httpRequest, httpResponse) {

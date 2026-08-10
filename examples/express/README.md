@@ -5,7 +5,7 @@ This is an example for an adapter between Flora and Express.
 ```js
 const express = require('express');
 const flora = require('flora');
-const path = require('path');
+const path = require('node:path');
 const floraExpress = require('./');
 
 // Flora

@@ -1,5 +1,5 @@
 const flora = require('flora');
 
-const server = new flora.Server(require('path').join(__dirname, 'config.js'));
+const server = new flora.Server(require('node:path').join(__dirname, 'config.js'));
 
 server.run();
