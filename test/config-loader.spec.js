@@ -6,6 +6,7 @@ const assert = require('node:assert/strict');
 const fsMock = require('mock-fs');
 // const sinon = require('sinon');
 const nullLogger = require('abstract-logging');
+const { ImplementationError } = require('@florajs/errors');
 
 const configLoader = require('../lib/config-loader');
 
@@ -147,7 +148,7 @@ describe('config-loader', () => {
             parsers: { xml: parseXml }
         };
 
-        await assert.rejects(configLoader(api, cfg), new Error('No "json" config parser registered'));
+        await assert.rejects(configLoader(api, cfg), new ImplementationError('No "json" config parser registered'));
     });
 
     it('should register additional loaders', async () => {
