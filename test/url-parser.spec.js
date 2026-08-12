@@ -251,6 +251,26 @@ describe('HTTP request parsing', () => {
             });
         });
 
+        it('should reject if the request stream emits an error', async () => {
+            const req = createRequest({
+                method: 'POST',
+                headers: {
+                    'content-type': 'application/x-www-form-urlencoded',
+                    'content-length': 1000
+                }
+                // no body -> stream stays open until destroyed below
+            });
+            req.url = '/user/';
+
+            const pending = parseRequest(req);
+            req.destroy(new Error('socket hang up'));
+
+            await assert.rejects(pending, {
+                name: 'RequestError',
+                message: 'Error reading HTTP-Request: socket hang up'
+            });
+        });
+
         it('should remove protected properties (GET)', async () => {
             httpRequest.url = 'http://api.example.com/user/1337.jpg?_auth=FOO';
             const request = await parseRequest(httpRequest);
