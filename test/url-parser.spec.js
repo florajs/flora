@@ -1,34 +1,30 @@
 'use strict';
 
+const { Readable } = require('node:stream');
 const { describe, it, beforeEach } = require('node:test');
 const assert = require('node:assert/strict');
 
 const parseRequest = require('../lib/url-parser');
 
+/**
+ * Build a request stream. Without a body, the stream never ends (useful for
+ * timeout tests). A string body is delivered as a single chunk; an array of
+ * chunks (e.g. `[...body]` for one chunk per character) forces the consumer
+ * to read and reassemble the body across multiple reads.
+ */
+function createRequest({ method = 'GET', headers = {}, body } = {}) {
+    const req = body === undefined ? new Readable({ read() {} }) : Readable.from(body);
+    req.method = method;
+    req.headers = headers;
+    req.flora = { status: {} };
+    return req;
+}
+
 describe('HTTP request parsing', () => {
     let httpRequest;
 
     beforeEach(() => {
-        let dataFn;
-
-        httpRequest = {
-            flora: { status: {} },
-            method: 'GET',
-            headers: { 'content-type': 'application/json' },
-            payload: null,
-            setEncoding() {},
-            on(e, fn) {
-                if (e === 'data') dataFn = fn;
-                if (e === 'end') {
-                    if (httpRequest.payload) {
-                        for (let char of httpRequest.payload) {
-                            setTimeout(() => dataFn(char), 0);
-                        }
-                    }
-                    setTimeout(() => fn(), 0);
-                }
-            }
-        };
+        httpRequest = createRequest({ headers: { 'content-type': 'application/json' } });
     });
 
     it('should return promise', () => {
@@ -140,10 +136,13 @@ describe('HTTP request parsing', () => {
 
     describe('POST payload', () => {
         it('should parse JSON payload', async () => {
+            const body = '{"a":true}';
+            httpRequest = createRequest({
+                method: 'POST',
+                headers: { 'content-type': 'application/json', 'content-length': body.length },
+                body: [...body]
+            });
             httpRequest.url = 'http://api.example.com/user/';
-            httpRequest.payload = '{"a": true}';
-            httpRequest.method = 'POST';
-            httpRequest.headers['content-length'] = httpRequest.payload.length;
 
             const request = await parseRequest(httpRequest);
 
@@ -158,11 +157,13 @@ describe('HTTP request parsing', () => {
         });
 
         it('should parse form-urlencoded payload', async () => {
+            const body = 'a=true&b=false';
+            httpRequest = createRequest({
+                method: 'POST',
+                headers: { 'content-type': 'application/x-www-form-urlencoded', 'content-length': body.length },
+                body: [...body]
+            });
             httpRequest.url = 'http://api.example.com/user/';
-            httpRequest.headers['content-type'] = 'application/x-www-form-urlencoded';
-            httpRequest.payload = 'a=true&b=false';
-            httpRequest.method = 'POST';
-            httpRequest.headers['content-length'] = httpRequest.payload.length;
 
             const request = await parseRequest(httpRequest);
 
@@ -178,6 +179,28 @@ describe('HTTP request parsing', () => {
             assert.equal(request._httpRequest.body.a, 'true');
             assert.ok(Object.hasOwn(request._httpRequest.body, 'b'));
             assert.equal(request._httpRequest.body.b, 'false');
+        });
+
+        it('should parse a payload delivered asynchronously across multiple ticks', async () => {
+            const body = '{"a":true}';
+
+            async function* delayedChunks() {
+                for (const char of body) {
+                    await new Promise((resolve) => setTimeout(resolve, 1));
+                    yield char;
+                }
+            }
+
+            httpRequest = createRequest({
+                method: 'POST',
+                headers: { 'content-type': 'application/json', 'content-length': body.length },
+                body: delayedChunks()
+            });
+            httpRequest.url = 'http://api.example.com/user/';
+
+            const request = await parseRequest(httpRequest, { postTimeout: 1000 });
+
+            assert.equal(request.data.a, true);
         });
 
         [
@@ -198,11 +221,12 @@ describe('HTTP request parsing', () => {
             }
         ].forEach(({ description, mutate, message }) => {
             it(description, async () => {
+                const body = '{"a":true}';
+                const headers = { 'content-type': 'application/json', 'content-length': body.length };
+                mutate(headers);
+
+                httpRequest = createRequest({ method: 'POST', headers, body: [...body] });
                 httpRequest.url = 'http://api.example.com/user/';
-                httpRequest.payload = '{"a": true}';
-                httpRequest.method = 'POST';
-                httpRequest.headers['content-length'] = httpRequest.payload.length;
-                mutate(httpRequest.headers);
 
                 await assert.rejects(parseRequest(httpRequest), {
                     name: 'RequestError',
@@ -212,18 +236,15 @@ describe('HTTP request parsing', () => {
         });
 
         it('should time out after postTimeout', async () => {
-            const slowRequest = {
-                flora: { status: {} },
+            const slowRequest = createRequest({
                 method: 'POST',
                 headers: {
                     'content-type': 'application/x-www-form-urlencoded',
                     'content-length': 1000
-                },
-                url: '/user/',
-                payload: null,
-                setEncoding() {},
-                on() {}
-            };
+                }
+                // no body -> stream never ends -> postTimeout must fire
+            });
+            slowRequest.url = '/user/';
 
             await assert.rejects(parseRequest(slowRequest, { postTimeout: 10 }), {
                 message: 'Timeout reading POST data'
@@ -239,11 +260,13 @@ describe('HTTP request parsing', () => {
         });
 
         it('should remove protected properties (urlencoded)', async () => {
+            const body = '_auth=FOO';
+            httpRequest = createRequest({
+                method: 'POST',
+                headers: { 'content-type': 'application/x-www-form-urlencoded', 'content-length': body.length },
+                body: [...body]
+            });
             httpRequest.url = 'http://api.example.com/user/';
-            httpRequest.headers['content-type'] = 'application/x-www-form-urlencoded';
-            httpRequest.payload = '_auth=FOO';
-            httpRequest.method = 'POST';
-            httpRequest.headers['content-length'] = httpRequest.payload.length;
 
             const request = await parseRequest(httpRequest);
 
@@ -252,10 +275,13 @@ describe('HTTP request parsing', () => {
         });
 
         it('should remove protected properties (JSON)', async () => {
+            const body = '{"_auth":"FOO"}';
+            httpRequest = createRequest({
+                method: 'POST',
+                headers: { 'content-type': 'application/json', 'content-length': body.length },
+                body: [...body]
+            });
             httpRequest.url = 'http://api.example.com/user/';
-            httpRequest.payload = '{"_auth": "FOO"}';
-            httpRequest.method = 'POST';
-            httpRequest.headers['content-length'] = httpRequest.payload.length;
 
             const request = await parseRequest(httpRequest);
 
