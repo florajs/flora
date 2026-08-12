@@ -137,14 +137,14 @@ describe('HTTP request parsing', () => {
     describe('POST payload', () => {
         it('should parse JSON payload', async () => {
             const body = '{"a":true}';
-            httpRequest = createRequest({
+            const req = createRequest({
                 method: 'POST',
                 headers: { 'content-type': 'application/json', 'content-length': body.length },
                 body: [...body]
             });
-            httpRequest.url = 'http://api.example.com/user/';
+            req.url = 'http://api.example.com/user/';
 
-            const request = await parseRequest(httpRequest);
+            const request = await parseRequest(req);
 
             assert.ok(Object.hasOwn(request, 'data'));
             assert.ok(Object.hasOwn(request.data, 'a'));
@@ -158,14 +158,14 @@ describe('HTTP request parsing', () => {
 
         it('should parse form-urlencoded payload', async () => {
             const body = 'a=true&b=false';
-            httpRequest = createRequest({
+            const req = createRequest({
                 method: 'POST',
                 headers: { 'content-type': 'application/x-www-form-urlencoded', 'content-length': body.length },
                 body: [...body]
             });
-            httpRequest.url = 'http://api.example.com/user/';
+            req.url = 'http://api.example.com/user/';
 
-            const request = await parseRequest(httpRequest);
+            const request = await parseRequest(req);
 
             assert.ok(Object.hasOwn(request, 'data'));
             assert.ok(Object.hasOwn(request, 'a'));
@@ -191,14 +191,14 @@ describe('HTTP request parsing', () => {
                 }
             }
 
-            httpRequest = createRequest({
+            const req = createRequest({
                 method: 'POST',
                 headers: { 'content-type': 'application/json', 'content-length': body.length },
                 body: delayedChunks()
             });
-            httpRequest.url = 'http://api.example.com/user/';
+            req.url = 'http://api.example.com/user/';
 
-            const request = await parseRequest(httpRequest, { postTimeout: 1000 });
+            const request = await parseRequest(req, { postTimeout: 1000 });
 
             assert.equal(request.data.a, true);
         });
@@ -225,10 +225,10 @@ describe('HTTP request parsing', () => {
                 const headers = { 'content-type': 'application/json', 'content-length': body.length };
                 mutate(headers);
 
-                httpRequest = createRequest({ method: 'POST', headers, body: [...body] });
-                httpRequest.url = 'http://api.example.com/user/';
+                const req = createRequest({ method: 'POST', headers, body: [...body] });
+                req.url = 'http://api.example.com/user/';
 
-                await assert.rejects(parseRequest(httpRequest), {
+                await assert.rejects(parseRequest(req), {
                     name: 'RequestError',
                     message
                 });
@@ -261,14 +261,14 @@ describe('HTTP request parsing', () => {
 
         it('should remove protected properties (urlencoded)', async () => {
             const body = '_auth=FOO';
-            httpRequest = createRequest({
+            const req = createRequest({
                 method: 'POST',
                 headers: { 'content-type': 'application/x-www-form-urlencoded', 'content-length': body.length },
                 body: [...body]
             });
-            httpRequest.url = 'http://api.example.com/user/';
+            req.url = 'http://api.example.com/user/';
 
-            const request = await parseRequest(httpRequest);
+            const request = await parseRequest(req);
 
             assert.ok(Object.hasOwn(request, '_auth'));
             assert.equal(request._auth, null);
@@ -276,14 +276,14 @@ describe('HTTP request parsing', () => {
 
         it('should remove protected properties (JSON)', async () => {
             const body = '{"_auth":"FOO"}';
-            httpRequest = createRequest({
+            const req = createRequest({
                 method: 'POST',
                 headers: { 'content-type': 'application/json', 'content-length': body.length },
                 body: [...body]
             });
-            httpRequest.url = 'http://api.example.com/user/';
+            req.url = 'http://api.example.com/user/';
 
-            const request = await parseRequest(httpRequest);
+            const request = await parseRequest(req);
 
             assert.ok(Object.hasOwn(request, '_auth'));
             assert.equal(request._auth, null);
