@@ -1,7 +1,8 @@
 'use strict';
 
 const { Readable } = require('node:stream');
-const { describe, it, beforeEach } = require('node:test');
+const http = require('node:http');
+const { describe, it, beforeEach, afterEach } = require('node:test');
 const assert = require('node:assert/strict');
 
 const parseRequest = require('../lib/url-parser');
@@ -307,6 +308,129 @@ describe('HTTP request parsing', () => {
 
             assert.ok(Object.hasOwn(request, '_auth'));
             assert.equal(request._auth, null);
+        });
+    });
+
+    describe('real requests', () => {
+        let httpServer;
+
+        /**
+         * @param {function(http.IncomingMessage, http.ServerResponse): Promise<flora.Request>} onRequest -
+         *   Called for each incoming request with the request (its `flora` property already set)
+         *   and the response
+         * @returns {Promise<number>} The port the server is listening on
+         */
+        function startServer(onRequest) {
+            return new Promise((resolve, reject) => {
+                httpServer = http.createServer((req, res) => {
+                    req.flora = { status: {} };
+                    onRequest(req, res);
+                });
+                httpServer.once('error', reject);
+                httpServer.listen(0, () => resolve(httpServer.address().port));
+            });
+        }
+
+        afterEach(() => new Promise((resolve) => (httpServer ? httpServer.close(resolve) : resolve())));
+
+        it('should parse a real GET request', async () => {
+            const port = await startServer((req, res) => {
+                parseRequest(req).then(
+                    (request) =>
+                        res.end(JSON.stringify({ ok: true, resource: request.resource, width: request.width })),
+                    (err) => res.end(JSON.stringify({ ok: false, message: err.message }))
+                );
+            });
+
+            // Connection: close tells the server to drop the socket once the
+            // response is sent, instead of keeping it open for reuse - so
+            // afterEach's server.close() doesn't have to wait it out.
+            const response = await fetch(`http://127.0.0.1:${port}/user/1337.jpg?width=60`, {
+                headers: { connection: 'close' }
+            });
+            const body = await response.json();
+
+            assert.deepEqual(body, { ok: true, resource: 'user', width: '60' });
+        });
+
+        it('should parse a real POST request with a JSON body', async () => {
+            const port = await startServer((req, res) => {
+                parseRequest(req).then(
+                    (request) => res.end(JSON.stringify({ ok: true, data: request.data })),
+                    (err) => res.end(JSON.stringify({ ok: false, message: err.message }))
+                );
+            });
+
+            const response = await fetch(`http://127.0.0.1:${port}/user/`, {
+                method: 'POST',
+                headers: { 'content-type': 'application/json', connection: 'close' },
+                body: JSON.stringify({ a: true })
+            });
+            const body = await response.json();
+
+            assert.deepEqual(body, { ok: true, data: { a: true } });
+        });
+
+        it('should reject with "HTTP request has been aborted" if the client disconnects mid-body', async () => {
+            const { promise: result, resolve, reject } = Promise.withResolvers();
+
+            const port = await startServer((req) => {
+                parseRequest(req).then(resolve, reject);
+            });
+
+            const controller = new AbortController();
+            fetch(`http://127.0.0.1:${port}/user/`, {
+                method: 'POST',
+                headers: { 'content-type': 'application/json', 'content-length': '1000', connection: 'close' },
+                // a streaming body keeps the request open until aborted below; a fixed
+                // content-length (not chunked transfer-encoding) is required for the
+                // server to enter its body-reading branch at all
+                body: new ReadableStream({
+                    start(streamController) {
+                        streamController.enqueue(new TextEncoder().encode('{"partial":'));
+                    }
+                }),
+                duplex: 'half',
+                signal: controller.signal
+            }).catch(() => {}); // aborting rejects the fetch itself; only the server-side outcome matters here
+
+            // give the server a moment to receive the partial body before severing the connection
+            await new Promise((resolve) => setTimeout(resolve, 100));
+            controller.abort();
+
+            await assert.rejects(result, {
+                name: 'RequestError',
+                message: 'HTTP request has been aborted'
+            });
+        });
+
+        it('should time out a real request whose body never completes', async () => {
+            const { promise: result, resolve, reject } = Promise.withResolvers();
+
+            const port = await startServer((req) => {
+                parseRequest(req, { postTimeout: 50 }).then(resolve, reject);
+            });
+
+            const controller = new AbortController();
+            fetch(`http://127.0.0.1:${port}/user/`, {
+                method: 'POST',
+                headers: { 'content-type': 'application/json', 'content-length': '1000', connection: 'close' },
+                body: new ReadableStream({
+                    start(streamController) {
+                        streamController.enqueue(new TextEncoder().encode('{"partial":'));
+                        // never close -> the server keeps waiting until postTimeout fires
+                    }
+                }),
+                duplex: 'half',
+                signal: controller.signal
+            }).catch(() => {}); // no response is ever sent; aborted below once the assertion is done
+
+            await assert.rejects(result, {
+                name: 'RequestError',
+                message: 'Timeout reading POST data'
+            });
+
+            controller.abort();
         });
     });
 });
