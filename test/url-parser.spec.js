@@ -252,7 +252,21 @@ describe('HTTP request parsing', () => {
             });
         });
 
-        it('should reject if the request stream emits an error', async () => {
+        it('should clear the postTimeout timer once the request completes', async (ctx) => {
+            const req = createRequest({
+                method: 'POST',
+                headers: { 'content-type': 'application/json', 'content-length': '10' },
+                body: '{"a":true}'
+            });
+            req.url = '/user/';
+
+            const clearTimeoutSpy = ctx.mock.method(global, 'clearTimeout');
+            await parseRequest(req, { postTimeout: 1000 });
+
+            assert.equal(clearTimeoutSpy.mock.callCount(), 1);
+        });
+
+        it('should reject if the request stream emits an error', async (ctx) => {
             const req = createRequest({
                 method: 'POST',
                 headers: {
@@ -263,13 +277,15 @@ describe('HTTP request parsing', () => {
             });
             req.url = '/user/';
 
-            const pending = parseRequest(req);
+            const clearTimeoutSpy = ctx.mock.method(global, 'clearTimeout');
+            const pending = parseRequest(req, { postTimeout: 1000 });
             req.destroy(new Error('socket hang up'));
 
             await assert.rejects(pending, {
                 name: 'RequestError',
                 message: 'Error reading HTTP-Request: socket hang up'
             });
+            assert.equal(clearTimeoutSpy.mock.callCount(), 1);
         });
 
         it('should remove protected properties (GET)', async () => {
@@ -371,13 +387,14 @@ describe('HTTP request parsing', () => {
             assert.deepEqual(body, { ok: true, data: { a: true } });
         });
 
-        it('should reject with "HTTP request has been aborted" if the client disconnects mid-body', async () => {
+        it('should reject with "HTTP request has been aborted" if the client disconnects mid-body', async (ctx) => {
             const { promise: result, resolve, reject } = Promise.withResolvers();
 
             const port = await startServer((req) => {
-                parseRequest(req).then(resolve, reject);
+                parseRequest(req, { postTimeout: 1000 }).then(resolve, reject);
             });
 
+            const clearTimeoutSpy = ctx.mock.method(global, 'clearTimeout');
             const controller = new AbortController();
             fetch(`http://127.0.0.1:${port}/user/`, {
                 method: 'POST',
@@ -402,6 +419,7 @@ describe('HTTP request parsing', () => {
                 name: 'RequestError',
                 message: 'HTTP request has been aborted'
             });
+            assert.equal(clearTimeoutSpy.mock.callCount(), 1);
         });
 
         it('should time out a real request whose body never completes', async () => {
