@@ -1,5 +1,8 @@
 'use strict';
 
+const fs = require('node:fs');
+const os = require('node:os');
+const path = require('node:path');
 const { describe, it, afterEach } = require('node:test');
 const assert = require('node:assert/strict');
 
@@ -23,7 +26,7 @@ function parseXml(/* file */) {
 
 describe('config-loader', () => {
     it('should issue an error if config directory does not exist', async () => {
-        const directory = require('node:path').resolve('nonexistent-directory');
+        const directory = path.resolve('nonexistent-directory');
 
         await assert.rejects(
             configLoader(api, { directory }),
@@ -217,6 +220,48 @@ describe('config-loader', () => {
         // for manually generating fixture:
         //console.log(JSON.stringify(configs, null, 4));
         assert.deepEqual(configs, resourcesLoaded);
+    });
+
+    describe('loading resources from TypeScript (.ts) index files', () => {
+        let tmpDir;
+
+        afterEach(async () => {
+            await fs.promises.rm(tmpDir, { recursive: true, force: true });
+        });
+
+        /**
+         * require() reads through the real fs module, so mock-fs (which only patches
+         * the public fs API, not the internal bindings the CJS loader uses to resolve
+         * and load modules) can't be used to test instance-file loading. Write real,
+         * throwaway files to disk instead.
+         */
+        async function createTmpResourceDir(instanceFileName, instanceFileContent) {
+            const dir = await fs.promises.mkdtemp(path.join(os.tmpdir(), 'flora-config-loader-'));
+            await fs.promises.mkdir(path.join(dir, 'resource1'));
+            await fs.promises.writeFile(path.join(dir, 'resource1', instanceFileName), instanceFileContent);
+            return dir;
+        }
+
+        it('should load a resource from an index.ts file', async () => {
+            tmpDir = await createTmpResourceDir(
+                'index.ts',
+                "export default (api: unknown) => ({ language: 'typescript' });"
+            );
+
+            const configs = await configLoader(api, { directory: tmpDir });
+            assert.deepEqual(configs.resource1.instance, { language: 'typescript' });
+        });
+
+        it('should issue an error if the ESM default export is not a function', async () => {
+            tmpDir = await createTmpResourceDir('index.ts', "export default 'not-a-function';");
+
+            await assert.rejects(configLoader(api, { directory: tmpDir }), (err) => {
+                assert.equal(err.name, 'ImplementationError');
+                assert.ok(err.message.startsWith('Resource does not export a function: '));
+                assert.ok(err.message.endsWith('resource1/index.ts'));
+                return true;
+            });
+        });
     });
 
     afterEach(() => {
